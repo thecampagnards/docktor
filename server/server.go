@@ -1,0 +1,43 @@
+package main
+
+import (
+	"web-docker-manager/server/handler"
+
+	"github.com/labstack/echo"
+	"github.com/labstack/echo/middleware"
+)
+
+func main() {
+	e := echo.New()
+	e.Use(middleware.Logger())
+	e.Use(middleware.Recover())
+
+	api := e.Group("/api")
+
+	// For daemon
+	Daemon := handler.Daemon{}
+
+	daemon := api.Group("/daemons")
+	daemon.GET("/:ID", Daemon.GetByID)
+	daemon.DELETE("/:ID", Daemon.DeleteByID)
+	daemon.GET("", Daemon.GetAll)
+	daemon.POST("", Daemon.Save)
+
+	// For group
+	Group := handler.Group{}
+
+	group := api.Group("/groups")
+	group.GET("/:ID", Group.GetByID)
+	group.DELETE("/:ID", Group.DeleteByID)
+	group.GET("", Group.GetAll)
+	group.POST("", Group.Save)
+
+	// For docker containers and more
+	Docker := handler.Docker{}
+
+	docker := api.Group("/docker")
+	docker.GET("/:ID/containers", Docker.GetContainersByDaemon)
+	docker.POST("/:ID/compose", Docker.Compose)
+
+	e.Logger.Fatal(e.Start(":8080"))
+}
