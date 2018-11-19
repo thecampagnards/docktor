@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"web-docker-manager/server/types"
 
 	"golang.org/x/net/context"
@@ -63,18 +62,7 @@ func EditService(file []byte, service string, field string, value interface{}) (
 }
 
 // ComposeUp
-func ComposeUp(daemon types.Daemon, files ...[]byte) error {
-
-	var err error
-
-	for i := 0; i < len(files); i++ {
-		files[i], err = EditService(files[0], "mailer-api", "environment", "tutu=toto")
-		if err != nil {
-			return err
-		}
-
-		fmt.Printf("files:\n%s\n\n", string(files[i]))
-	}
+func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 
 	c, err := GetComposeCli(daemon)
 	if err != nil {
@@ -84,7 +72,7 @@ func ComposeUp(daemon types.Daemon, files ...[]byte) error {
 	project, err := docker.NewProject(&ctx.Context{
 		Context: project.Context{
 			ComposeBytes: files,
-			ProjectName:  daemon.Name,
+			ProjectName:  group.Name,
 		},
 		ClientFactory: c,
 	}, nil)
