@@ -43,7 +43,6 @@ class Group extends React.Component<RouteComponentProps<IRouterProps>, IGroupSta
         )
       })
       .catch((error: Error) => this.setState({error, isFetching: false}))
-
   }
 
   public render() {

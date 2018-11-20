@@ -1,10 +1,10 @@
 package handler
 
 import (
-	"encoding/json"
-	"io/ioutil"
+	"bytes"
 	"net/http"
-	"os"
+	"text/template"
+
 	"web-docker-manager/server/types"
 
 	"web-docker-manager/server/dao"
@@ -40,51 +40,41 @@ func (st *Group) Compose(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	service, err := dao.GetServiceBySubSeriveID(ss.ID.String())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	daemon, err := dao.GetDaemonByID(group.DaemonID.String())
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	// get form data
-	form, err := c.MultipartForm()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	// Looping the files
-	var files [][]byte
-	for i := 0; i < len(form.File[types.FORM_DATA_FILES_FIELD_NAME]); i++ {
-
-		src, err := form.File[types.FORM_DATA_FILES_FIELD_NAME][i].Open()
-		defer src.Close()
-
-		// Convert to byte
-		file, err := ioutil.ReadAll(src)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-
-		files = append(files, file)
-	}
-
-	// formating the string vars to object template vars
-	var data map[string]string
-	if json.Unmarshal([]byte(form.Value[types.FORM_DATA_DATA_FIELD_NAME][0]), &data) != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	for key, value := range data {
-		os.Setenv(key, value)
-		defer os.Unsetenv(key)
-	}
-
-	// setting the envs for the compose
-	err = utils.ComposeUp(group, daemon, files...)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
 	return c.JSON(http.StatusOK, "running")
+}
+
+func run(daemon types.Daemon, group types.Group, sub types.SubService) error {
+
+	tmpl, err := template.New("template").Parse(sub.File)
+	if err != nil {
+		return err
+	}
+	var b bytes.Buffer
+
+	err = tmpl.Execute(&b, map[string]interface{}{
+		"Group":     group,
+		"Daemon":    daemon,
+		"Variables": "var",
+	})
+	if err != nil {
+		return err
+	}
+
+	err = utils.ComposeUp(group, daemon, b.Bytes())
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 // GetContainers get containers info by group

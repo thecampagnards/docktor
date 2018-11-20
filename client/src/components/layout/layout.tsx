@@ -47,11 +47,15 @@ class Layout extends React.Component {
                   Groups
                 </Menu.Item>
                 <Menu.Item as={Link} to={path.daemons} name="Daemons">
-                  <Icon name="cubes" />
+                  <Icon name="sitemap" />
 
                   Daemons
                 </Menu.Item>
+                <Menu.Item as={Link} to={path.services} name="Services">
+                  <Icon name="cubes" />
 
+                  Services
+                </Menu.Item>
               </Menu>
             </Grid.Column>
             <Grid.Column>
