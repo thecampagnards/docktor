@@ -1,0 +1,273 @@
+{
+	"info": {
+		"name": "Docktor",
+		"_postman_id": "fbeadd40-627d-59e5-9e01-492553e83655",
+		"description": "",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "List groups",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/groups",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"groups"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List daemons",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/daemons",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"daemons"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List daemon",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/daemons/5bf46929957b591324310a26",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"daemons",
+						"5bf46929957b591324310a26"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "List services",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\"\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/services",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"services"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\",\n\t\"DaemonID\": \"5bf46929957b591324310a26\",\n"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/groups",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"groups"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add daemon",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n\t\"Name\": \"Test\",\n\t\"Host\": \"localhost\",\n\t\"Port\": 2376\n}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/daemons",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"daemons"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Add service",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "formdata",
+					"formdata": [
+						{
+							"key": "data",
+							"value": "{\n\t\"Name\": \"Test2\"\n}",
+							"description": "",
+							"type": "text"
+						},
+						{
+							"key": "files",
+							"description": "",
+							"type": "file",
+							"src": "docker-compose.1.yml"
+						},
+						{
+							"key": "images",
+							"description": "",
+							"type": "file",
+							"src": "docktor2.png"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/services",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"services"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		},
+		{
+			"name": "Run subservice on group",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{}"
+				},
+				"url": {
+					"raw": "http://localhost:8080/api/groups/5bf46967957b591324310a28/start/5bf46c40957b591e6e5312cd",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"api",
+						"groups",
+						"5bf46967957b591324310a28",
+						"start",
+						"5bf46c40957b591e6e5312cd"
+					]
+				},
+				"description": ""
+			},
+			"response": []
+		}
+	]
+}
