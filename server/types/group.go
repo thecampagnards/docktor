@@ -13,8 +13,7 @@ type Group struct {
 }
 
 type ServiceGroup struct {
-	ServiceID    bson.ObjectId
-	SubServiceID bson.ObjectId
+	SubServiceID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Variables    interface{}
 }
 

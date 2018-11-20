@@ -2,10 +2,12 @@ package dao
 
 import (
 	"errors"
-	"web-docker-manager/server/config"
-	"web-docker-manager/server/types"
+
+	"docktor/server/config"
+	"docktor/server/types"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colGroup string = "groups"
@@ -49,7 +51,7 @@ func GetGroupByID(id string) (types.Group, error) {
 
 	c := s.DB(db.Name()).C(colGroup)
 
-	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&t)
+	err = c.FindId(bson.ObjectIdHex(id)).One(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the deaemon")
@@ -74,6 +76,35 @@ func CreateGroup(t types.Group) (types.Group, error) {
 	c := s.DB(db.Name()).C(colGroup)
 
 	err = c.Insert(t)
+
+	if err != nil {
+		return t, errors.New("There was an error trying to insert the group to the DB")
+	}
+
+	return t, err
+}
+
+// UpdateGroup update group
+func UpdateGroup(t types.Group) (types.Group, error) {
+
+	group, err := GetGroupByID(t.ID.Hex())
+
+	if err := mergo.Merge(&group, t, mergo.WithOverride); err != nil {
+		return t, err
+	}
+
+	db := config.DB{}
+
+	s, err := db.DoDial()
+	if err != nil {
+		return t, errors.New("There was an error trying to connect to the DB")
+	}
+
+	defer s.Close()
+
+	c := s.DB(db.Name()).C(colGroup)
+
+	err = c.UpdateId(group.ID, t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the group to the DB")

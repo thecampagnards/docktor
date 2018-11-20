@@ -1,6 +1,6 @@
 package main
 
-import "web-docker-manager/server"
+import "docktor/server"
 
 func main() {
 	server.Run()

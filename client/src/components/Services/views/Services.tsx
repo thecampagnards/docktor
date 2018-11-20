@@ -65,10 +65,10 @@ class Services extends React.Component<{}, IServicesStates> {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>
-                Name
+                Image
               </Table.HeaderCell>
               <Table.HeaderCell>
-                Image
+                Name
               </Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
@@ -76,21 +76,21 @@ class Services extends React.Component<{}, IServicesStates> {
           <Table.Body>
             {services.map((service: IService) => (
               <Table.Row key={service._id}>
+                <Table.Cell>{service.Image ? <img src={"data:image/png;base64," + service.Image}/> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>
-                <Table.Cell><img src={"data:image/png;base64," + service.Image}/></Table.Cell>
                 <Table.Cell>
                   <Button.Group>
                     <Button
                       icon="edit"
                       content="Edit"
                       as={Link}
-                      to={path.daemonsEdit + "/" + service._id}
+                      to={path.servicesEdit + "/" + service._id}
                     />
                     <Button
                       icon="cog"
                       content="More"
                       as={Link}
-                      to={path.daemonsMore + "/" + service._id}
+                      to={path.servicesMore + "/" + service._id}
                     />
                   </Button.Group>
                 </Table.Cell>

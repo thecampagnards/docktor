@@ -3,8 +3,8 @@ package handler
 import (
 	"net/http"
 
-	"web-docker-manager/server/dao"
-	"web-docker-manager/server/types"
+	"docktor/server/dao"
+	"docktor/server/types"
 
 	"github.com/labstack/echo"
 )

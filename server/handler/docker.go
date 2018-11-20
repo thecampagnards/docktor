@@ -1,8 +1,8 @@
 package handler
 
 import (
-	"web-docker-manager/server/dao"
-	"web-docker-manager/server/utils"
+	"docktor/server/dao"
+	"docktor/server/utils"
 
 	"net/http"
 

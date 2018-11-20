@@ -18,7 +18,7 @@ func (db *DB) DoDial() (s *mgo.Session, err error) {
 
 // Name
 func (db *DB) Name() string {
-	return "web-docker-manager"
+	return "docktor"
 }
 
 // DBUrl

@@ -1,7 +1,7 @@
 package main
 
 import (
-	"web-docker-manager/server/handler"
+	"docktor/server/handler"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -38,7 +38,8 @@ func main() {
 	group := api.Group("/groups")
 	group.GET("/:ID", Group.GetByID)
 	group.DELETE("/:ID", Group.DeleteByID)
-	group.POST("/:ID/compose", Group.Compose)
+	group.POST("/:groupID/run/:subserviceID", Group.RunSubService)
+	group.POST("/:groupID/start/:subserviceID", Group.StartSubService)
 	group.GET("/:ID/containers", Group.GetContainers)
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)

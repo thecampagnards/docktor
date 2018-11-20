@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"docktor/server/config"
+	"docktor/server/types"
 	"errors"
-	"web-docker-manager/server/config"
-	"web-docker-manager/server/types"
 
 	"github.com/globalsign/mgo/bson"
 )

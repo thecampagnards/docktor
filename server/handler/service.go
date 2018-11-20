@@ -5,8 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"web-docker-manager/server/dao"
-	"web-docker-manager/server/types"
+	"docktor/server/dao"
+	"docktor/server/types"
 
 	"github.com/labstack/echo"
 )
@@ -61,20 +61,22 @@ func (st *Service) Save(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		var sf types.ServiceFile
+		var sf types.SubService
 		sf.File = string(file)
 		sf.Active = true
 
-		u.ServiceFiles = append(u.ServiceFiles, sf)
+		u.SubServices = append(u.SubServices, sf)
 	}
 
-	src, err := form.File[types.FORM_DATA_IMAGES_FIELD_NAME][0].Open()
-	defer src.Close()
+	if len(form.File[types.FORM_DATA_IMAGES_FIELD_NAME]) > 0 {
+		src, err := form.File[types.FORM_DATA_IMAGES_FIELD_NAME][0].Open()
+		defer src.Close()
 
-	// Get the base 64 encode
-	u.Image, err = ioutil.ReadAll(src)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
+		// Get the base 64 encode
+		u.Image, err = ioutil.ReadAll(src)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
 	}
 
 	s, err := dao.CreateService(u)

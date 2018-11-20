@@ -1,9 +1,9 @@
 package dao
 
 import (
+	"docktor/server/config"
+	"docktor/server/types"
 	"errors"
-	"web-docker-manager/server/config"
-	"web-docker-manager/server/types"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -97,10 +97,10 @@ func GetSubServiceByID(id string) (types.SubService, error) {
 
 	c := s.DB(db.Name()).C(colService)
 
-	err = c.Find(bson.M{"subservice._id": bson.ObjectIdHex(id), "subservice.$": 1}).One(&t)
+	err = c.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).Select(bson.M{"subservices.$": 1}).One(&t)
 
 	if err != nil {
-		return types.SubService{}, errors.New("There was an error trying to find the service")
+		return types.SubService{}, errors.New("There was an error trying to find the sub service")
 	}
 
 	return t.SubServices[0], err
@@ -110,6 +110,9 @@ func GetSubServiceByID(id string) (types.SubService, error) {
 func CreateService(t types.Service) (types.Service, error) {
 	db := config.DB{}
 	t.ID = bson.NewObjectId()
+	for i := 0; i < len(t.SubServices); i++ {
+		t.SubServices[i].ID = bson.NewObjectId()
+	}
 
 	s, err := db.DoDial()
 

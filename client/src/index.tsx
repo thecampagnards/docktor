@@ -15,7 +15,9 @@ import Daemons from "./components/Daemon/views/Daemons";
 import Daemon from "./components/Daemon/views/Daemon";
 import DaemonForm from "./components/Daemon/views/DaemonForm";
 
-import Services from './components/Services/views/Serivces';
+import Services from './components/Services/views/Services';
+import Service from './components/Services/views/Service';
+import ServiceForm from './components/Services/views/ServiceForm';
 
 ReactDOM.render(
     <Router basename={process.env.PUBLIC_URL}>
@@ -30,6 +32,8 @@ ReactDOM.render(
         <Route exact={true} path={path.daemonsEdit + '/:daemonID'} component={DaemonForm} />
 
         <Route exact={true} path={path.services} component={Services} />
+        <Route exact={true} path={path.servicesEdit + '/:serviceID'} component={Service} />
+        <Route exact={true} path={path.servicesMore + '/:serviceID'} component={ServiceForm} />
       </Switch>
     </Router>,
   document.getElementById("root") as HTMLElement

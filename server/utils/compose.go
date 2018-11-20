@@ -1,19 +1,16 @@
 package utils
 
 import (
-	"web-docker-manager/server/types"
+	"docktor/server/types"
 
 	"golang.org/x/net/context"
 
 	"github.com/docker/go-connections/tlsconfig"
-	"github.com/docker/libcompose/config"
 	"github.com/docker/libcompose/docker"
 	"github.com/docker/libcompose/docker/client"
 	"github.com/docker/libcompose/docker/ctx"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/project/options"
-
-	"gopkg.in/yaml.v2"
 )
 
 // GetComposeCli
@@ -38,27 +35,6 @@ func GetComposeCli(daemon types.Daemon) (client.Factory, error) {
 	}
 
 	return client.NewDefaultFactory(c)
-}
-
-// EditService
-func EditService(file []byte, service string, field string, value interface{}) ([]byte, error) {
-
-	// convert byte to interface
-	var c config.Config
-	err := yaml.Unmarshal(file, &c)
-	if err != nil {
-		return file, err
-	}
-
-	// Check type
-	switch c.Services[service][field].(type) {
-	case []interface{}:
-		c.Services[service][field] = append(c.Services[service][field].([]interface{}), value)
-	default:
-		c.Services[service][field] = value
-	}
-
-	return yaml.Marshal(&c)
 }
 
 // ComposeUp

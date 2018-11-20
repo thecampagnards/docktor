@@ -1,6 +1,11 @@
 package types
 
-import "github.com/globalsign/mgo/bson"
+import (
+	"bytes"
+	"html/template"
+
+	"github.com/globalsign/mgo/bson"
+)
 
 const (
 	FORM_DATA_IMAGES_FIELD_NAME = "images"
@@ -24,3 +29,20 @@ type SubService struct {
 }
 
 type Services []Service
+
+// ConvertSubService this methode replace all the variables in the service
+func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
+
+	tmpl, err := template.New("template").Parse(sub.File)
+	if err != nil {
+		return nil, err
+	}
+	var b bytes.Buffer
+
+	err = tmpl.Execute(&b, variables)
+	if err != nil {
+		return nil, err
+	}
+
+	return b.Bytes(), nil
+}
