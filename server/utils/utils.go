@@ -1,23 +1,23 @@
 package utils
 
 import (
-	"io"
-	"os"
-	"strings"
+	"io/ioutil"
 )
 
 // WriteStringToFile
-func WriteStringToFile(filepath, s string) error {
-	fo, err := os.Create(filepath)
-	if err != nil {
-		return err
-	}
-	defer fo.Close()
+func WriteStringToFile(content string) (string, error) {
 
-	_, err = io.Copy(fo, strings.NewReader(s))
+	tmpfile, err := ioutil.TempFile("", "")
 	if err != nil {
-		return err
+		return "", err
 	}
 
-	return nil
+	if _, err := tmpfile.Write([]byte(content)); err != nil {
+		return "", err
+	}
+	if err := tmpfile.Close(); err != nil {
+		return "", err
+	}
+
+	return tmpfile.Name(), nil
 }

@@ -3,6 +3,8 @@ package utils
 import (
 	"docktor/server/types"
 	"net/http"
+	"os"
+	"strings"
 
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -19,10 +21,29 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 	}
 
 	if daemon.Cert != (types.Cert{}) {
+
+		ca, err := WriteStringToFile(daemon.Ca)
+		if err != nil {
+			return nil, err
+		}
+		defer os.Remove(ca)
+
+		cert, err := WriteStringToFile(daemon.Cert.Cert)
+		if err != nil {
+			return nil, err
+		}
+		defer os.Remove(cert)
+
+		key, err := WriteStringToFile(daemon.Key)
+		if err != nil {
+			return nil, err
+		}
+		defer os.Remove(key)
+
 		options := tlsconfig.Options{
-			CAFile:             daemon.Ca,
-			CertFile:           daemon.Cert.Cert,
-			KeyFile:            daemon.Key,
+			CAFile:             ca,
+			CertFile:           cert,
+			KeyFile:            key,
 			InsecureSkipVerify: true,
 		}
 
@@ -41,7 +62,7 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 }
 
 // GetContainers
-func GetContainers(daemon types.Daemon) (types.Containers, error) {
+func GetContainers(daemon types.Daemon, groups ...types.Group) (types.Containers, error) {
 	var containers types.Containers
 
 	cli, err := GetDockerCli(daemon)
@@ -57,8 +78,18 @@ func GetContainers(daemon types.Daemon) (types.Containers, error) {
 
 	var container types.Container
 	for _, dockerContainer := range dockerContainers {
+
+		for _, n := range dockerContainer.Names {
+			for _, ng := range groups {
+				if strings.Contains(n, strings.ToLower(ng.Name)) {
+
+				}
+			}
+		}
+
 		container.Container = dockerContainer
 		containers = append(containers, container)
+
 	}
 
 	return containers, nil
