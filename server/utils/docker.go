@@ -2,9 +2,10 @@ package utils
 
 import (
 	"docktor/server/types"
+	"io"
 	"net/http"
 	"os"
-	"strings"
+	"time"
 
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -62,35 +63,106 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 }
 
 // GetContainers
-func GetContainers(daemon types.Daemon, groups ...types.Group) (types.Containers, error) {
-	var containers types.Containers
+func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
 
 	cli, err := GetDockerCli(daemon)
 
 	if err != nil {
-		return containers, err
+		return nil, err
 	}
 
-	dockerContainers, err := cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{All: true})
+	return cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{})
+}
+
+// InspectContainers
+func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerTypes.ContainerJSON, error) {
+
+	cli, err := GetDockerCli(daemon)
+
 	if err != nil {
-		return containers, err
+		return nil, err
 	}
 
-	var container types.Container
-	for _, dockerContainer := range dockerContainers {
-
-		for _, n := range dockerContainer.Names {
-			for _, ng := range groups {
-				if strings.Contains(n, strings.ToLower(ng.Name)) {
-
-				}
-			}
+	var containers []dockerTypes.ContainerJSON
+	for _, c := range containersName {
+		container, err := cli.ContainerInspect(context.Background(), c)
+		if err != nil {
+			return nil, err
 		}
 
-		container.Container = dockerContainer
 		containers = append(containers, container)
-
 	}
 
 	return containers, nil
+}
+
+// StartContainers
+func StartContainers(daemon types.Daemon, containersName ...string) error {
+
+	cli, err := GetDockerCli(daemon)
+
+	if err != nil {
+		return err
+	}
+
+	for _, c := range containersName {
+		err = cli.ContainerStart(context.Background(), c, dockerTypes.ContainerStartOptions{})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// StopContainers
+func StopContainers(daemon types.Daemon, containersName ...string) error {
+
+	cli, err := GetDockerCli(daemon)
+
+	if err != nil {
+		return err
+	}
+
+	var timeout = (10) * time.Second
+
+	for _, c := range containersName {
+		err = cli.ContainerStop(context.Background(), c, &timeout)
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// RemoveContainers
+func RemoveContainers(daemon types.Daemon, containersName ...string) error {
+
+	cli, err := GetDockerCli(daemon)
+
+	if err != nil {
+		return err
+	}
+
+	for _, c := range containersName {
+		err = cli.ContainerRemove(context.Background(), c, dockerTypes.ContainerRemoveOptions{Force: true})
+		if err != nil {
+			return err
+		}
+	}
+
+	return nil
+}
+
+// LogContainer
+func LogContainer(daemon types.Daemon, containerName string) (io.ReadCloser, error) {
+
+	cli, err := GetDockerCli(daemon)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.ContainerLogs(context.Background(), containerName, dockerTypes.ContainerLogsOptions{})
 }

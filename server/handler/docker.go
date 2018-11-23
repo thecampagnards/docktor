@@ -13,14 +13,62 @@ import (
 type Docker struct {
 }
 
-// GetContainersByDaemon get containers info by daemon
-func (d *Docker) GetContainersByDaemon(c echo.Context) error {
+// GetContainers get containers of daemon
+func (d *Docker) GetContainers(c echo.Context) error {
 
 	daemon, err := dao.GetDaemonByID(c.Param("ID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
 	cs, err := utils.GetContainers(daemon)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, cs)
+}
+
+// GetGroupContainers get containers of a group
+func (d *Docker) GetGroupContainers(c echo.Context) error {
+
+	group, err := dao.GetGroupByID(c.Param("ID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	var containers []string
+
+	for _, s := range group.Services {
+		containers = append(containers, s.Containers...)
+	}
+
+	cs, err := utils.InspectContainers(daemon, containers...)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, cs)
+}
+
+// GetContainersLogs get container log
+// @TODO websocket
+func (d *Docker) GetContainersLogs(c echo.Context) error {
+
+	group, err := dao.GetGroupByID(c.Param("ID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	cs, err := utils.LogContainer(daemon, c.Param("containerID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

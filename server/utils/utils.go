@@ -7,7 +7,7 @@ import (
 // WriteStringToFile
 func WriteStringToFile(content string) (string, error) {
 
-	tmpfile, err := ioutil.TempFile("", "")
+	tmpfile, err := ioutil.TempFile("", "*")
 	if err != nil {
 		return "", err
 	}

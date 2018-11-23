@@ -15,6 +15,7 @@ type Group struct {
 type ServiceGroup struct {
 	SubServiceID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Variables    interface{}
+	Containers   []string
 }
 
 type Groups []Group

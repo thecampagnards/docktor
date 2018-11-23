@@ -80,26 +80,3 @@ func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 
 	return project.Up(context.Background(), options.Up{})
 }
-
-// ComposeStatus
-func ComposeStatus(group types.Group, daemon types.Daemon, files ...[]byte) error {
-
-	c, err := GetComposeCli(daemon)
-	if err != nil {
-		return err
-	}
-
-	project, err := docker.NewProject(&ctx.Context{
-		Context: project.Context{
-			ComposeBytes: files,
-			ProjectName:  group.Name,
-		},
-		ClientFactory: c,
-	}, nil)
-
-	if err != nil {
-		return err
-	}
-
-	return project.Ps(context.Background(), options.Up{})
-}
