@@ -2,6 +2,7 @@ package utils
 
 import (
 	"docktor/server/types"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -81,7 +82,8 @@ func GetContainers(daemon types.Daemon, groups ...types.Group) (types.Containers
 
 		for _, n := range dockerContainer.Names {
 			for _, ng := range groups {
-				if strings.Contains(n, strings.ToLower(ng.Name)) {
+				// Check if the container start with the group name
+				if strings.HasPrefix(strings.ToLower(n), strings.ToLower(ng.Name)) {
 
 				}
 			}
@@ -93,4 +95,14 @@ func GetContainers(daemon types.Daemon, groups ...types.Group) (types.Containers
 	}
 
 	return containers, nil
+}
+
+// GetContainerLog
+func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, error) {
+	cli, err := GetDockerCli(daemon)
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.ContainerLogs(context.Background(), containerID, dockerTypes.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 }

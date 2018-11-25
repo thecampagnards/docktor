@@ -82,7 +82,7 @@ func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 }
 
 // ComposeStatus
-func ComposeStatus(group types.Group, daemon types.Daemon, files ...[]byte) error {
+/*func ComposeStatus(group types.Group, daemon types.Daemon, files ...[]byte) error {
 
 	c, err := GetComposeCli(daemon)
 	if err != nil {
@@ -102,4 +102,4 @@ func ComposeStatus(group types.Group, daemon types.Daemon, files ...[]byte) erro
 	}
 
 	return project.Ps(context.Background(), options.Up{})
-}
+}*/

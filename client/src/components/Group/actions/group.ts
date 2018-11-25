@@ -24,3 +24,31 @@ export const fetchGroup = (groupID: string) => {
       .then(checkStatus)
       .then((response: Response) => response.json())
   };
+
+  export const fetchContainers = (groupID: string) => {
+    return fetch(
+      `${process.env.PUBLIC_URL}/api/groups/${groupID}/containers`,
+      {
+        credentials: 'same-origin',
+        method: 'GET',
+      },
+    )
+      .then(checkStatus)
+      .then((response: Response) => response.json())
+  };
+
+  export const deployService = (groupID: string, serviceID: string, variables: any) => {
+    return fetch(
+      `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}`,
+      {
+        credentials: 'same-origin',
+        method: 'POST',
+        body: JSON.stringify(variables),
+        headers: {
+          "Content-Type": "application/json"
+        }
+      },
+    )
+      .then(checkStatus)
+      .then((response: Response) => response.json())
+  };
