@@ -166,3 +166,13 @@ func LogContainer(daemon types.Daemon, containerName string) (io.ReadCloser, err
 
 	return cli.ContainerLogs(context.Background(), containerName, dockerTypes.ContainerLogsOptions{})
 }
+
+// GetContainerLog
+func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, error) {
+	cli, err := GetDockerCli(daemon)
+	if err != nil {
+		return nil, err
+	}
+
+	return cli.ContainerLogs(context.Background(), containerID, dockerTypes.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
+}

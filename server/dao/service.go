@@ -73,7 +73,7 @@ func GetServiceBySubSeriveID(id string) (types.Service, error) {
 
 	c := s.DB(db.Name()).C(colService)
 
-	err = c.Find(bson.M{"subservice._id": bson.ObjectIdHex(id)}).One(&t)
+	err = c.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).One(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the service")

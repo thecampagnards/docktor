@@ -41,6 +41,13 @@ class Layout extends React.Component {
 
                   Home
                 </Menu.Item>
+
+                                <Menu.Item as={Link} to={path.market}>
+                <Icon name="shopping cart" />
+
+                  Market
+                </Menu.Item>
+
                 <Menu.Item as={Link} to={path.groups} name="Groups">
                 <Icon name="users" />
 

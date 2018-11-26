@@ -326,12 +326,14 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:cc0b7bcfa09eeae286c92f9934a72d27220019fbf3a2f92f913d3c0ac875007a"
   name = "golang.org/x/net"
   packages = [
     "context",
     "context/ctxhttp",
     "internal/socks",
-    "proxy"
+    "proxy",
+    "websocket",
   ]
   revision = "9b4f9f5ad5197c79fd623a3638e70d8b26cef344"
 
@@ -359,6 +361,22 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "e51b4109d39557fcee2252d717aefa525695e1fd7d86a8758074227fa534b00e"
+  input-imports = [
+    "github.com/docker/docker/api/types",
+    "github.com/docker/docker/client",
+    "github.com/docker/go-connections/tlsconfig",
+    "github.com/docker/libcompose/docker",
+    "github.com/docker/libcompose/docker/client",
+    "github.com/docker/libcompose/docker/ctx",
+    "github.com/docker/libcompose/project",
+    "github.com/docker/libcompose/project/options",
+    "github.com/globalsign/mgo",
+    "github.com/globalsign/mgo/bson",
+    "github.com/imdario/mergo",
+    "github.com/labstack/echo",
+    "github.com/labstack/echo/middleware",
+    "golang.org/x/net/context",
+    "golang.org/x/net/websocket",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

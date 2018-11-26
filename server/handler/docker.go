@@ -3,10 +3,12 @@ package handler
 import (
 	"docktor/server/dao"
 	"docktor/server/utils"
+	"encoding/binary"
 
 	"net/http"
 
 	"github.com/labstack/echo"
+	"golang.org/x/net/websocket"
 )
 
 // Docker struct which contains the functions of this class
@@ -54,23 +56,42 @@ func (d *Docker) GetGroupContainers(c echo.Context) error {
 	return c.JSON(http.StatusOK, cs)
 }
 
-// GetContainersLogs get container log
-// @TODO websocket
-func (d *Docker) GetContainersLogs(c echo.Context) error {
+// GetContainerLog is a ws which send container log
+func (d *Docker) GetContainerLog(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
 
-	group, err := dao.GetGroupByID(c.Param("ID"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+		daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+		if err != nil {
+			c.Logger().Error(err)
+		}
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+		reader, err := utils.GetContainerLog(daemon, c.Param("containerID"))
+		if err != nil {
+			c.Logger().Error(err)
+		}
 
-	cs, err := utils.LogContainer(daemon, c.Param("containerID"))
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	return c.JSON(http.StatusOK, cs)
+		defer reader.Close()
+
+		// ignore the 8 first bytes
+		hdr := make([]byte, 8)
+
+		// https://stackoverflow.com/questions/46428721/how-to-stream-docker-container-logs-via-the-go-sdk
+		for {
+			_, err := reader.Read(hdr)
+			if err != nil {
+				c.Logger().Error(err)
+			}
+
+			count := binary.BigEndian.Uint32(hdr[4:])
+			dat := make([]byte, count)
+			_, err = reader.Read(dat)
+			if err != nil {
+				c.Logger().Error(err)
+			}
+
+			websocket.Message.Send(ws, string(dat))
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
 }

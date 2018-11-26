@@ -14,8 +14,9 @@ const (
 )
 
 type Service struct {
-	ID   bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name string
+	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name        string
+	Description string
 	// Base 64 encoded
 	Image       []byte
 	SubServices []SubService
@@ -23,6 +24,7 @@ type Service struct {
 
 type SubService struct {
 	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name      string
 	File      string
 	Active    bool
 	Variables interface{}

@@ -38,6 +38,7 @@ func main() {
 	// For service
 
 	service := api.Group("/services")
+	service.GET("/subservice/:ID", Service.GetBySubServiceID)
 	service.GET("/:ID", Service.GetByID)
 	service.DELETE("/:ID", Service.DeleteByID)
 	service.GET("", Service.GetAll)
@@ -58,9 +59,9 @@ func main() {
 	// For docker containers and more
 
 	docker := api.Group("/docker")
-	docker.GET("/:ID/containers", Docker.GetContainers)
+	docker.GET("/:daemonID/log/:containerID", Docker.GetContainerLog)
+	docker.GET("/:ID/containers", Docker.GetContainersByDaemon)
 
-	e.GET("/ws", hello)
 	e.Static("/", "index.html")
 
 	e.Logger.Fatal(e.Start(":8080"))
