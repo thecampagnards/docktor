@@ -169,7 +169,7 @@ class MarketModal extends React.Component<
           <Button color="blue" onClick={this.close}>
             <Icon name="chevron left" /> Go back to the market
           </Button>
-          <Button color="blue" as={Link}>
+          <Button color="blue" as={Link} to="TODO">
             <Icon name="checkmark" /> Go to your service
           </Button>
         </Modal.Actions>
