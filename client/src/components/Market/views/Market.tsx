@@ -2,13 +2,14 @@ import * as React from "react";
 import { Loader } from "semantic-ui-react";
 import { Card, Grid, Image } from "semantic-ui-react";
 
+import Layout from "../../layout/layout";
+import MarketModal from "../../Services/views/ServiceModal";
+
 import { IService } from "../../Services/types/service";
 import { fetchServices } from "../../Services/actions/service";
 
-import Layout from "../../layout/layout";
-import MarketModal from "./MarketModal";
-import { fetchGroups } from "../../Group/actions/group";
 import { IGroup } from "../../Group/types/group";
+import { fetchGroups } from "../../Group/actions/group";
 
 interface IServicesStates {
   services: IService[];

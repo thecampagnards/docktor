@@ -17,7 +17,7 @@
       uri = 'wss:';
     }
     uri += '//' + loc.host;
-    uri += loc.pathname + 'ws';
+    uri += '/api/docker/5bea9ad8957b590c987d0fd0/log/07ed1a161e56e653512614d2fceade045e93210839b20cb9146d0a9dca8732ee';
 
     ws = new WebSocket(uri)
 
@@ -26,6 +26,8 @@
     }
 
     ws.onmessage = function(evt) {
+      console.log(evt)
+
       var out = document.getElementById('output');
       out.innerHTML += evt.data + '<br>';
     }

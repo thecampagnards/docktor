@@ -46,8 +46,6 @@ func main() {
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)
 
-	group.GET("/:ID/containers", Docker.GetGroupContainers)
-
 	// For docker containers and more
 
 	docker := api.Group("/docker")

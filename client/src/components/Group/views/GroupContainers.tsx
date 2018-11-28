@@ -4,8 +4,8 @@ import { Loader, Table, Button } from "semantic-ui-react";
 import { IGroup, IContainer, IPort } from "../types/group";
 import { fetchContainers } from "../actions/group";
 
-import Layout from "../../layout/layout";
 import { IDaemon } from "../../Daemon/types/daemon";
+import Socket from "src/components/layout/Socket";
 
 interface IGroupProps {
   group: IGroup;
@@ -34,46 +34,29 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { daemon, group } = this.props;
+    const { daemon } = this.props;
     const { containers, error, isFetching } = this.state;
 
     if (!containers) {
-      return (
-        <Layout>
-          <h2>Group</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
+      return <p>No data yet ...</p>;
     }
 
     if (error) {
-      return (
-        <Layout>
-          <h2>Group</h2>
-          <p>{error}</p>;
-        </Layout>
-      );
+      return <p>{error}</p>;
     }
 
     if (isFetching) {
-      return (
-        <Layout>
-          <h2>Group</h2>
-          <Loader active={true} />
-        </Layout>
-      );
+      return <Loader active={true} />;
     }
 
     return (
-      <Layout>
-        <h2>Group</h2>
-        <h3>Containers</h3>
+      <>
         <Table celled={true} padded={true}>
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell singleLine={true}>containerID</Table.HeaderCell>
               <Table.HeaderCell>Service</Table.HeaderCell>
-              <Table.HeaderCell>Daemon</Table.HeaderCell>
+              <Table.HeaderCell>Ports</Table.HeaderCell>
               <Table.HeaderCell>Links</Table.HeaderCell>
               <Table.HeaderCell>Utils</Table.HeaderCell>
             </Table.Row>
@@ -90,16 +73,14 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
                   ))}
                 </Table.Cell>
                 <Table.Cell>
-                  <Button>Click Here</Button>
+                  <Button>Get Logs</Button>
+                  <Socket daemon={daemon} containerID={container.Id} />
                 </Table.Cell>
               </Table.Row>
             ))}
           </Table.Body>
         </Table>
-
-        <p>{JSON.stringify(group)}</p>
-        <p>{JSON.stringify(daemon)}</p>
-      </Layout>
+      </>
     );
   }
 }

@@ -7,32 +7,37 @@ import { path as constPath } from "../../../constants/path";
 import { fetchGroup } from "../actions/group";
 import { fetchDaemon } from "src/components/Daemon/actions/daemon";
 import { IGroup } from "../types/group";
-import { IDaemon } from "src/components/Daemon/types/daemon";
-import GroupContainers from './GroupContainers';
+
+import GroupContainers from "./GroupContainers";
+import { IDaemon } from "../../Daemon/types/daemon";
+
+interface IRouterProps {
+  groupID: string;
+}
 
 interface IGroupIndexStates {
-  group: IGroup | null;
-  daemon: IDaemon | null;
+  group: IGroup;
+  daemon: IDaemon;
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
+  activeTab: number;
 }
 
 class GroupIndex extends React.Component<
-  RouteComponentProps,
+  RouteComponentProps<IRouterProps>,
   IGroupIndexStates
 > {
-
   public state = {
-    group: null,
-    daemon: null,
-    containers: [],
+    activeTab: 0,
     isFetching: false,
-    error: null
+    group: {} as IGroup,
+    daemon: {} as IDaemon,
+    error: {} as Error
   };
 
   public componentWillMount() {
-    const path = this.props.location.pathname;
-    const groupID = path.split("/")[2];
+    const { groupID } = this.props.match.params;
+    const path = window.location.pathname;
 
     fetchGroup(groupID)
       .then((group: IGroup) => {
@@ -43,41 +48,67 @@ class GroupIndex extends React.Component<
         );
       })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
-  }
-
-  public render() {
-    const { group, daemon, isFetching } = this.state;
-    const path = this.props.location.pathname;
-
-    const panes = [
-      {
-        menuItem: "Services",
-      pane: <Tab.Pane loading={isFetching}>{group !== null && daemon !== null && <GroupContainers group={group!} daemon={daemon!}/>}</Tab.Pane>
-      },
-      {
-        menuItem: "Containers",
-        pane: <Tab.Pane loading={isFetching}>Tab 3 Content</Tab.Pane>
-      },
-      {
-        menuItem: "Edit",
-        pane: <Tab.Pane loading={isFetching}>Tab 2 Content</Tab.Pane>
-      }
-    ];
 
     let activeTab: number;
     switch (true) {
-      case path.indexOf(constPath.groupsMore) > -1:
+      case path === constPath.groupsServices.replace(":groupID", groupID):
         activeTab = 0;
         break;
-      case path.indexOf(constPath.groupsMore) > -1:
+      case path === constPath.groupsContainers.replace(":groupID", groupID):
         activeTab = 1;
+        break;
+      case path === constPath.groupsEdit.replace(":groupID", groupID):
+        activeTab = 2;
         break;
       default:
         activeTab = 0;
     }
 
+    this.setState({ activeTab });
+  }
+
+  public render() {
+    const { group, daemon, activeTab, isFetching } = this.state;
+
+    const panes = [
+      {
+        menuItem: "Services",
+        pane: (
+          <Tab.Pane loading={isFetching}>
+            {group._id &&
+              daemon._id && (
+                <GroupContainers group={group!} daemon={daemon!} />
+              )}
+          </Tab.Pane>
+        )
+      },
+      {
+        menuItem: "Containers",
+        pane: (
+          <Tab.Pane loading={isFetching}>
+            {group._id &&
+              daemon._id && (
+                <GroupContainers group={group!} daemon={daemon!} />
+              )}
+          </Tab.Pane>
+        )
+      },
+      {
+        menuItem: "Edit",
+        pane: (
+          <Tab.Pane loading={isFetching}>
+            {group._id &&
+              daemon._id && (
+                <GroupContainers group={group!} daemon={daemon!} />
+              )}
+          </Tab.Pane>
+        )
+      }
+    ];
+
     return (
       <Layout>
+        <h1>{group !== null ? group.Name : "Group"}</h1>
         <Tab
           panes={panes}
           renderActiveOnly={false}

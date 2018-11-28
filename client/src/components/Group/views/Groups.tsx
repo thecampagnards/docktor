@@ -102,13 +102,13 @@ class Groups extends React.Component<{}, IGroupsStates> {
                       icon="edit"
                       content="Edit"
                       as={Link}
-                      to={path.groupsEdit + "/" + group._id}
+                      to={path.groupsEdit.replace(":groupID", group._id)}
                     />
                     <Button
                       icon="cog"
                       content="More"
                       as={Link}
-                      to={path.groupsMore + "/" + group._id}
+                      to={path.groupsMore.replace(":groupID", group._id)}
                     />
                   </Button.Group>
                 </Table.Cell>

@@ -111,13 +111,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                       icon="edit"
                       content="Edit"
                       as={Link}
-                      to={path.daemonsEdit + "/" + daemon._id}
+                      to={path.daemonsEdit.replace(":daemonID", daemon._id)}
                     />
                     <Button
                       icon="cog"
                       content="More"
                       as={Link}
-                      to={path.daemonsMore + "/" + daemon._id}
+                      to={path.daemonsMore.replace(":daemonID", daemon._id)}
                     />
                   </Button.Group>
                 </Table.Cell>

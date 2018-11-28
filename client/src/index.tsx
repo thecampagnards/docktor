@@ -27,15 +27,15 @@ ReactDOM.render(
       <Route exact={true} path={path.market} component={Market} />
 
         <Route exact={true} path={path.groups} component={Groups} />
-        <Route exact={true} path={path.groups + '/:path'} component={GroupIndex} />
+        <Route exact={false} path={path.groupsMore} component={GroupIndex} />
 
         <Route exact={true} path={path.daemons} component={Daemons} />
-        <Route exact={true} path={path.daemonsMore + '/:daemonID'} component={Daemon} />
-        <Route exact={true} path={path.daemonsEdit + '/:daemonID'} component={DaemonForm} />
+        <Route exact={true} path={path.daemonsMore} component={Daemon} />
+        <Route exact={true} path={path.daemonsEdit} component={DaemonForm} />
 
         <Route exact={true} path={path.services} component={Services} />
-        <Route exact={true} path={path.servicesEdit + '/:serviceID'} component={Service} />
-        <Route exact={true} path={path.servicesMore + '/:serviceID'} component={ServiceForm} />
+        <Route exact={true} path={path.servicesEdit} component={Service} />
+        <Route exact={true} path={path.servicesMore} component={ServiceForm} />
       </Switch>
     </Router>,
   document.getElementById("root") as HTMLElement

@@ -3,15 +3,17 @@ export const path = {
     market: '/market',
     
     groups: '/groups',
-    groupsEdit: '/groups/edit',
-    groupsMore: '/groups',
+    groupsEdit: '/groups/:groupID/edit',
+    groupsMore: '/groups/:groupID',
+    groupsContainers: '/groups/:groupID/containers',
+    groupsServices: '/groups/:groupID/services',
 
     daemons: '/daemons',
-    daemonsEdit: '/daemons/edit',
-    daemonsMore: '/daemons',
+    daemonsEdit: '/daemons/:daemonID/edit',
+    daemonsMore: '/daemons/:daemonID',
 
     services: '/services',
-    servicesEdit: '/services/edit',
-    servicesMore: '/services'
+    servicesEdit: '/services/:serviceID/edit',
+    servicesMore: '/services/:serviceID'
 };
   

@@ -64,7 +64,6 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 
 // GetContainers
 func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
-
 	cli, err := GetDockerCli(daemon)
 
 	if err != nil {
