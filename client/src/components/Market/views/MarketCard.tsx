@@ -1,19 +1,21 @@
+
 import * as React from "react";
 import { Card, Image } from "semantic-ui-react";
 
-import MarketModal from "src/components/Services/views/ServiceModal";
+import MarketModal from "./MarketModal";
 
-import { IService } from "../types/service";
+import { IService } from "src/components/Services/types/service";
 import { IGroup } from "src/components/Group/types/group";
 
-interface ICardProps {
+interface IMarketCardProps {
   service: IService;
   groups: IGroup[];
 }
 
-export default class ServiceCard extends React.Component<ICardProps, {}> {
+export default class MarketCard extends React.Component<IMarketCardProps> {
   public render() {
-    const { groups, service } = this.props;
+    const { service, groups } = this.props;
+
     return (
       <Card>
         {service.Image && (

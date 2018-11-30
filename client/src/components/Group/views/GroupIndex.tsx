@@ -10,6 +10,7 @@ import { IGroup } from "../types/group";
 
 import GroupContainers from "./GroupContainers";
 import { IDaemon } from "../../Daemon/types/daemon";
+import GroupServices from './GroupServices';
 
 interface IRouterProps {
   groupID: string;
@@ -77,7 +78,7 @@ class GroupIndex extends React.Component<
           <Tab.Pane loading={isFetching}>
             {group._id &&
               daemon._id && (
-                <GroupContainers group={group!} daemon={daemon!} />
+                <GroupServices group={group!} daemon={daemon!} />
               )}
           </Tab.Pane>
         )

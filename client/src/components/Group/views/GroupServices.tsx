@@ -1,12 +1,13 @@
 import * as React from "react";
 import { Loader } from "semantic-ui-react";
 
-import { IGroup } from "../types/group";
+import MarketCard from "../../Market/views/MarketCard";
 
+import { IGroup } from "../types/group";
 import { IDaemon } from "../../Daemon/types/daemon";
-import { fetchServiceBySubService } from 'src/components/Services/actions/service';
-import { IService } from 'src/components/Services/types/service';
-import ServiceModal from 'src/components/Services/views/ServiceModal';
+import { IService } from "src/components/Services/types/service";
+
+import { fetchServiceBySubService } from "src/components/Services/actions/service";
 
 interface IGroupProps {
   group: IGroup;
@@ -22,18 +23,20 @@ interface IGroupStates {
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     services: [],
-    isFetching: false,
+    isFetching: true,
     error: null
   };
 
   public componentWillMount() {
     const { group } = this.props;
-
-    // @TODO
     group.Services.map(service => {
       fetchServiceBySubService(service._id)
-      .then((services: IService[]) => this.setState({ services }))
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .then((s: IService) => {
+          const services: IService[] = this.state.services;
+          services.push(s);
+          this.setState({ services, isFetching: false });
+        })
+        .catch((error: Error) => this.setState({ error, isFetching: false }));
     });
   }
 
@@ -46,7 +49,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     }
 
     if (error) {
-      return  <p>{error}</p>;
+      return <p>{error}</p>;
     }
 
     if (isFetching) {
@@ -55,7 +58,9 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <>
-        {services.map((service:IService)=> <ServiceModal   service={service}  groups={[group]} key={service._id} />)}
+        {services.map((service: IService) => (
+          <MarketCard service={service} groups={[group]} key={service._id} />
+        ))}
       </>
     );
   }

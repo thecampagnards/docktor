@@ -12,11 +12,11 @@ import {
   DropdownProps
 } from "semantic-ui-react";
 
-import { IService } from "../types/service";
+import { IService } from "../../Services/types/service";
 import { IGroup, IServiceGroup } from "../../Group/types/group";
 import { deployService } from "../../Group/actions/group";
 
-interface IServiceModalStates {
+interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
   variables: any;
@@ -29,14 +29,14 @@ interface IServiceModalStates {
   open: boolean;
 }
 
-interface IServiceModalProps {
+interface IMarketModalProps {
   service: IService;
   groups: IGroup[];
 }
 
-class ServiceModal extends React.Component<
-  IServiceModalProps,
-  IServiceModalStates
+class MarketModal extends React.Component<
+  IMarketModalProps,
+  IMarketModalStates
 > {
   public state = {
     selectedGroupID: "",
@@ -215,4 +215,4 @@ class ServiceModal extends React.Component<
   };
 }
 
-export default ServiceModal;
+export default MarketModal;

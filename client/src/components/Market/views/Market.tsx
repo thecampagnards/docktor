@@ -1,9 +1,9 @@
 import * as React from "react";
 import { Loader } from "semantic-ui-react";
-import { Card, Grid, Image } from "semantic-ui-react";
+import { Grid } from "semantic-ui-react";
 
 import Layout from "../../layout/layout";
-import MarketModal from "../../Services/views/ServiceModal";
+import MarketCard from './MarketCard';
 
 import { IService } from "../../Services/types/service";
 import { fetchServices } from "../../Services/actions/service";
@@ -74,21 +74,7 @@ class Market extends React.Component<{}, IServicesStates> {
         <Grid columns="equal">
           {services.map((service: IService) => (
             <Grid.Column key={service._id}>
-              <Card>
-                {service.Image && <Image src={"data:image/png;base64," + service.Image} />}
-                <Card.Content>
-                  <Card.Header>{service.Name}</Card.Header>
-                  <Card.Meta>
-                    <span className="date">{service._id}</span>
-                  </Card.Meta>
-                  <Card.Description
-                    dangerouslySetInnerHTML={{ __html: service.Description }}
-                  />
-                </Card.Content>
-                <Card.Content extra={true}>
-                  <MarketModal service={service} groups={groups} />
-                </Card.Content>
-              </Card>
+              <MarketCard groups={groups} service={service} />
             </Grid.Column>
           ))}
         </Grid>
