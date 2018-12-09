@@ -5,7 +5,6 @@ import {
   Form,
   Message,
   Button,
-  Checkbox,
   Grid,
   Divider,
   Segment,
@@ -93,12 +92,7 @@ class ServiceForm extends React.Component<
             value={service.Name}
             onChange={this.handleChange}
           />
-          <Form.TextArea
-            label="Description"
-            name="Description"
-            value={service.Description}
-            onChange={this.handleChange}
-          />
+          <Highlight className="markdown">{service.Description}</Highlight>
 
           <Form.Group widths="equal">
             {service.Image && (
@@ -117,14 +111,15 @@ class ServiceForm extends React.Component<
           {service.SubServices.map(ss => (
             <span key={ss._id}>
               <Form.Group widths="equal">
-                <Checkbox
+                <Form.Checkbox
+                  width={1}
                   label="Active"
                   name="Active"
-                  toggle={true}
                   defaultChecked={ss.Active}
                   onChange={this.handleChange}
                 />
                 <Form.Input
+                  width={8}
                   label="Name"
                   name="Name"
                   type="text"
@@ -134,26 +129,20 @@ class ServiceForm extends React.Component<
               </Form.Group>
 
               <Segment placeholder={true}>
-                <Grid columns={2} stackable={true} textAlign="center">
+                <Grid columns={2} stackable={true} >
                   <Divider vertical={true}>Or</Divider>
-
                   <Grid.Row verticalAlign="middle">
                     <Grid.Column>
+                      <Highlight className="yaml">{ss.File}</Highlight>
+                    </Grid.Column>
+                    <Grid.Column textAlign="center">
                       <Header icon={true}>
                         <Icon name="world" />
                         Remote file
                       </Header>
-
-                      <Form.Input name="url" onChange={this.handleChange} />
-                    </Grid.Column>
-
-                    <Grid.Column>
-                      <Highlight className="yaml">{ss.File}</Highlight>
-
-                      <Form.TextArea
-                        label="File"
-                        name="File"
-                        value={ss.File}
+                      <Form.Input
+                        type="url"
+                        name="url"
                         onChange={this.handleChange}
                       />
                     </Grid.Column>
