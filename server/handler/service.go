@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/json"
-	"fmt"
 	"io/ioutil"
 	"net/http"
 
@@ -27,7 +26,7 @@ func (st *Service) GetAll(c echo.Context) error {
 
 // GetByID find one by id
 func (st *Service) GetByID(c echo.Context) error {
-	s, err := dao.GetServiceByID(c.Param("ID"))
+	s, err := dao.GetServiceByID(c.Param("serviceID"))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -37,8 +36,7 @@ func (st *Service) GetByID(c echo.Context) error {
 
 // GetBySubServiceID find one by id
 func (st *Service) GetBySubServiceID(c echo.Context) error {
-	fmt.Println(c.Param("ID"))
-	s, err := dao.GetServiceBySubSeriveID(c.Param("ID"))
+	s, err := dao.GetServiceBySubSeriveID(c.Param("subserviceID"))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -100,7 +98,7 @@ func (st *Service) Save(c echo.Context) error {
 
 // DeleteByID delete one by id
 func (st *Service) DeleteByID(c echo.Context) error {
-	err := dao.DeleteService(c.Param(":ID"))
+	err := dao.DeleteService(c.Param("serviceID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

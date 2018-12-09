@@ -26,7 +26,7 @@ class Market extends React.Component<{}, IServicesStates> {
     error: null
   };
 
-  public componentDidMount() {
+  public componentWillMount() {
     fetchServices()
       .then((services: IService[]) =>
         this.setState({ services, isFetching: false })

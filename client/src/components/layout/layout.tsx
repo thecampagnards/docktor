@@ -65,7 +65,7 @@ class Layout extends React.Component {
                 </Menu.Item>
               </Menu>
             </Grid.Column>
-            <Grid.Column>
+            <Grid.Column width={12}>
               {this.props.children}
             </Grid.Column>
         </Grid>

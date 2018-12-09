@@ -24,7 +24,7 @@ func (st *Group) GetAll(c echo.Context) error {
 
 // GetByID find one by id
 func (st *Group) GetByID(c echo.Context) error {
-	s, err := dao.GetGroupByID(c.Param("ID"))
+	s, err := dao.GetGroupByID(c.Param("groupID"))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -48,7 +48,7 @@ func (st *Group) Save(c echo.Context) error {
 
 // DeleteByID delete one by id
 func (st *Group) DeleteByID(c echo.Context) error {
-	err := dao.DeleteGroup(c.Param(":ID"))
+	err := dao.DeleteGroup(c.Param("groupID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

@@ -1,27 +1,37 @@
-import { checkStatus } from '../../../utils/promises';
+import { checkStatus } from "../../../utils/promises";
 
 export const fetchDaemons = () => {
-  return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons`,
-    {
-      credentials: 'same-origin',
-      method: 'GET',
-    },
-  )
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
+    credentials: "same-origin",
+    method: "GET"
+  })
     .then(checkStatus)
-    .then((response: Response) => response.json())
-
+    .then((response: Response) => response.json());
 };
 
 export const fetchDaemon = (daemonID: string) => {
-    return fetch(
-      `${process.env.PUBLIC_URL}/api/daemons/${daemonID}`,
-      {
-        credentials: 'same-origin',
-        method: 'GET',
-      },
-    )
-      .then(checkStatus)
-      .then((response: Response) => response.json())
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}`, {
+    credentials: "same-origin",
+    method: "GET"
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
 
-  };
+export const fetchContainers = (daemonID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers`, {
+    credentials: "same-origin",
+    method: "GET"
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
+export const fetchCadvisor = (daemonID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor`, {
+    credentials: "same-origin",
+    method: "GET"
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};

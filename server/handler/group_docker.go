@@ -12,7 +12,7 @@ import (
 // GetContainersByGroup get containers info by group
 func (st *Group) GetContainersByGroup(c echo.Context) error {
 
-	group, err := dao.GetGroupByID(c.Param("ID"))
+	group, err := dao.GetGroupByID(c.Param("groupID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -31,7 +31,7 @@ func (st *Group) GetContainersByGroup(c echo.Context) error {
 // GetContainers get containers info by group
 func (st *Group) GetContainers(c echo.Context) error {
 
-	group, err := dao.GetGroupByID(c.Param("ID"))
+	group, err := dao.GetGroupByID(c.Param("groupID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

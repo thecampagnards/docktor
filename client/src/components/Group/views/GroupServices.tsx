@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Loader } from "semantic-ui-react";
+import { Loader, Card } from "semantic-ui-react";
 
 import MarketCard from "../../Market/views/MarketCard";
 
@@ -57,11 +57,11 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-      <>
-        {services.map((service: IService) => (
-          <MarketCard service={service} groups={[group]} key={service._id} />
+      <Card.Group>
+        {services.map((service: IService, index: number) => (
+          <MarketCard service={service} groups={[group]} key={index} />
         ))}
-      </>
+      </Card.Group>
     );
   }
 }

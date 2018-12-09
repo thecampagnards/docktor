@@ -24,7 +24,7 @@ func (st *Daemon) GetAll(c echo.Context) error {
 
 // GetByID find one by id
 func (st *Daemon) GetByID(c echo.Context) error {
-	s, err := dao.GetDaemonByID(c.Param("ID"))
+	s, err := dao.GetDaemonByID(c.Param("daemonID"))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -48,7 +48,7 @@ func (st *Daemon) Save(c echo.Context) error {
 
 // DeleteByID delete one by id
 func (st *Daemon) DeleteByID(c echo.Context) error {
-	err := dao.DeleteDaemon(c.Param(":ID"))
+	err := dao.DeleteDaemon(c.Param("daemonID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

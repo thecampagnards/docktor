@@ -1,11 +1,11 @@
 import * as React from "react";
-import { Loader, Table, Button } from "semantic-ui-react";
+import { Loader } from "semantic-ui-react";
 
-import { IGroup, IContainer, IPort } from "../types/group";
+import ContainerTable from "src/components/layout/ContainersTable";
 import { fetchContainers } from "../actions/group";
 
+import { IGroup, IContainer } from "../types/group";
 import { IDaemon } from "../../Daemon/types/daemon";
-import Socket from "src/components/layout/Socket";
 
 interface IGroupProps {
   group: IGroup;
@@ -49,39 +49,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       return <Loader active={true} />;
     }
 
-    return (
-      <>
-        <Table celled={true} padded={true}>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell singleLine={true}>containerID</Table.HeaderCell>
-              <Table.HeaderCell>Service</Table.HeaderCell>
-              <Table.HeaderCell>Ports</Table.HeaderCell>
-              <Table.HeaderCell>Links</Table.HeaderCell>
-              <Table.HeaderCell>Utils</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-
-          <Table.Body>
-            {containers.map((container: IContainer) => (
-              <Table.Row key={container.Id}>
-                <Table.Cell singleLine={true}>{container.Id}</Table.Cell>
-                <Table.Cell>toto</Table.Cell>
-                <Table.Cell>
-                  {container.Ports.map((port: IPort) => (
-                    <p key={port.PublicPort}>{port.PublicPort}</p>
-                  ))}
-                </Table.Cell>
-                <Table.Cell>
-                  <Button>Get Logs</Button>
-                  <Socket daemon={daemon} containerID={container.Id} />
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </>
-    );
+    return <ContainerTable daemon={daemon} containers={containers} />;
   }
 }
 

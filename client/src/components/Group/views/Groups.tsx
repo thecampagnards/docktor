@@ -37,7 +37,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
     error: null
   };
 
-  public componentDidMount() {
+  public componentWillMount() {
     fetchGroups()
     .then((groups: IGroup[]) => this.setState({groups, isFetching: false}))
     .catch((error: Error) => this.setState({ error, isFetching: false }))

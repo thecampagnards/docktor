@@ -108,6 +108,7 @@ class MarketModal extends React.Component<
             })}
             onChange={this.handleChangeGroup}
             defaultValue={selectedGroupID}
+            search={true}
           />
           <Select
             placeholder="Select your sub service"
@@ -116,6 +117,7 @@ class MarketModal extends React.Component<
             })}
             onChange={this.handleChangeSubService}
             defaultValue={selectedSubServiceID}
+            search={true}
           />
           <Button color="red" onClick={this.close}>
             <Icon name="remove" /> Exit

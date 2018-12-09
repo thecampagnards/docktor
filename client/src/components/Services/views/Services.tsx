@@ -22,7 +22,7 @@ class Services extends React.Component<{}, IServicesStates> {
     error: null
   };
 
-  public componentDidMount() {
+  public componentWillMount() {
     fetchServices()
     .then((services: IService[]) => this.setState({services, isFetching: false}))
     .catch((error: Error) => this.setState({ error, isFetching: false }))
@@ -84,13 +84,13 @@ class Services extends React.Component<{}, IServicesStates> {
                       icon="edit"
                       content="Edit"
                       as={Link}
-                      to={path.servicesEdit + "/" + service._id}
+                      to={path.servicesEdit.replace(":serviceID", service._id)}
                     />
                     <Button
                       icon="cog"
                       content="More"
                       as={Link}
-                      to={path.servicesMore + "/" + service._id}
+                      to={path.servicesMore.replace(":serviceID", service._id)}
                     />
                   </Button.Group>
                 </Table.Cell>

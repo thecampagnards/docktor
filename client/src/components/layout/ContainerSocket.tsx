@@ -22,10 +22,9 @@ export default class Socket extends React.Component<
     ws: {} as WebSocket
   };
 
-  constructor(props: ISocketProps) {
-    super(props);
+  public componentWillMount() {
 
-    const { daemon, containerID } = props;
+    const { daemon, containerID } = this.props;
 
     const loc = window.location;
     let uri = "ws:";
@@ -33,7 +32,7 @@ export default class Socket extends React.Component<
     if (loc.protocol === "https:") {
       uri = "wss:";
     }
-    uri += "//localhost:8080/api/docker/";
+    uri += "//localhost:8080/api/daemons/";
 
     const ws = new WebSocket(uri + daemon._id + "/log/" + containerID);
 

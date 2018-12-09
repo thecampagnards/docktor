@@ -37,7 +37,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     error: null
   };
 
-  public componentDidMount() {
+  public componentWillMount() {
     fetchDaemons()
     .then((daemons: IDaemon[]) => this.setState({daemons, isFetching: false}))
     .catch((error: Error) => this.setState({ error, isFetching: false }))
