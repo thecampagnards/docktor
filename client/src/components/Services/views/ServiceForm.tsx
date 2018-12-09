@@ -11,14 +11,17 @@ import {
   Header,
   Icon
 } from "semantic-ui-react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+
+import Layout from "../../layout/layout";
 
 import { IService } from "../types/service";
 import { fetchService, saveService } from "../actions/service";
 
-import Layout from "../../layout/layout";
-import Highlight from "react-highlight";
-import "highlight.js/styles/github.css";
-
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/material.css";
+import "codemirror/mode/yaml/yaml";
+import "codemirror/mode/markdown/markdown";
 interface IRouterProps {
   serviceID: string;
 }
@@ -92,8 +95,15 @@ class ServiceForm extends React.Component<
             value={service.Name}
             onChange={this.handleChange}
           />
-          <Highlight className="markdown">{service.Description}</Highlight>
-
+          <CodeMirror
+            value={service.Description}
+            options={{
+              mode: "markdown",
+              theme: "material",
+              lineNumbers: true
+            }}
+            // onChange={this.handleChange}
+          />
           <Form.Group widths="equal">
             {service.Image && (
               <img src={"data:image/png;base64," + service.Image} />
@@ -127,13 +137,19 @@ class ServiceForm extends React.Component<
                   onChange={this.handleChange}
                 />
               </Form.Group>
-
               <Segment placeholder={true}>
-                <Grid columns={2} stackable={true} >
+                <Grid columns={2} stackable={true}>
                   <Divider vertical={true}>Or</Divider>
                   <Grid.Row verticalAlign="middle">
                     <Grid.Column>
-                      <Highlight className="yaml">{ss.File}</Highlight>
+                      <CodeMirror
+                        value={ss.File}
+                        options={{
+                          mode: "yaml",
+                          theme: "material",
+                          lineNumbers: true
+                        }}
+                      />
                     </Grid.Column>
                     <Grid.Column textAlign="center">
                       <Header icon={true}>
