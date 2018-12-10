@@ -2,12 +2,15 @@ import * as React from "react";
 import { Link } from "react-router-dom";
 import { Button, Dropdown, Grid, Icon, Menu } from "semantic-ui-react";
 
+import KonamiCode from './KonamiCode';
+
 import { path } from "../../constants/path";
 
 class Layout extends React.Component {
   public render() {
     return (
       <>
+        <KonamiCode/>
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
