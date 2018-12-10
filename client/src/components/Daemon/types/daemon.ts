@@ -11,7 +11,7 @@ export interface IDaemon {
   Key: string;
 }
 
-export interface ICadvisor {
+export interface IContainerInfo {
   // The container id
 
   id: string;
@@ -22,7 +22,7 @@ export interface ICadvisor {
   // This is unique within that namespace.
   aliases: string[];
   // Namespace under which the aliases of a container are unique.
-  // An example of a namespace is "docker" for Docker containers.
+  // An example of a namespace is docker for Docker containers.
   namespace: string;
   // The direct subcontainers of the current container.
 
@@ -47,7 +47,7 @@ export interface IContainerReference {
   // This is unique within that namespace.
   aliases: string[];
   // Namespace under which the aliases of a container are unique.
-  // An example of a namespace is "docker" for Docker containers.
+  // An example of a namespace is docker for Docker containers.
   namespace: string;
 }
 
@@ -143,7 +143,7 @@ export interface IMemoryStats {
   mapped_file: number;
 
   // The amount of working set memory, this includes recently accessed memory,
-  // dirty memory, and kernel memory. Working set is <= "usage".
+  // dirty memory, and kernel memory. Working set is <= usage.
   // Units: Bytes.
   working_set: number;
 
@@ -349,4 +349,22 @@ export interface ICpuSchedstat {
 export interface IMemoryStatsMemoryData {
   pgfault: number;
   pgmajfault: number;
+}
+
+export interface IMachineInfo {
+  num_cores: number;
+  cpu_frequency_khz: number;
+  memory_capacity: number;
+  machine_id: string;
+  system_uuid: string;
+  boot_id: string;
+  filesystems: IFilesystem[];
+}
+
+export interface IFilesystem {
+  device: string;
+  capacity: number;
+  type: string;
+  inodes: number;
+  has_inodes: boolean;
 }

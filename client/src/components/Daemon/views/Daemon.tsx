@@ -5,9 +5,14 @@ import { Loader, Progress, Button, Divider } from "semantic-ui-react";
 import ContainerTable from "src/components/layout/ContainersTable";
 import Layout from "../../layout/layout";
 
-import { fetchDaemon, fetchContainers, fetchCadvisor } from "../actions/daemon";
+import {
+  fetchDaemon,
+  fetchContainers,
+  fetchCadvisorMachine,
+  fetchCadvisorContainers
+} from "../actions/daemon";
 
-import { IDaemon, ICadvisor } from "../types/daemon";
+import { IDaemon, IContainerInfo, IMachineInfo } from "../types/daemon";
 import { IContainer } from "../../Group/types/group";
 
 interface IRouterProps {
@@ -16,7 +21,8 @@ interface IRouterProps {
 
 interface IDaemonStates {
   daemon: IDaemon;
-  cadvisor: ICadvisor;
+  containerInfo: IContainerInfo;
+  machineInfo: IMachineInfo;
   containers: IContainer[];
   isFetching: boolean;
   error: Error | null;
@@ -28,7 +34,8 @@ class Daemon extends React.Component<
 > {
   public state = {
     daemon: {} as IDaemon,
-    cadvisor: {} as ICadvisor,
+    containerInfo: {} as IContainerInfo,
+    machineInfo: {} as IMachineInfo,
     containers: [],
     isFetching: false,
     error: null
@@ -40,9 +47,15 @@ class Daemon extends React.Component<
       .then((daemon: IDaemon) => this.setState({ daemon, isFetching: false }))
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchCadvisor(daemonID)
-      .then((cadvisor: ICadvisor) =>
-        this.setState({ cadvisor, isFetching: false })
+    fetchCadvisorMachine(daemonID)
+      .then((machineInfo: IMachineInfo) =>
+        this.setState({ machineInfo, isFetching: false })
+      )
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
+
+    fetchCadvisorContainers(daemonID)
+      .then((containerInfo: IContainerInfo) =>
+        this.setState({ containerInfo, isFetching: false })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
@@ -52,7 +65,14 @@ class Daemon extends React.Component<
   }
 
   public render() {
-    const { cadvisor, containers, daemon, error, isFetching } = this.state;
+    const {
+      containerInfo,
+      machineInfo,
+      containers,
+      daemon,
+      error,
+      isFetching
+    } = this.state;
 
     if (!daemon) {
       return (
@@ -103,22 +123,31 @@ class Daemon extends React.Component<
           </Button.Group>
         </h4>
         <Progress
-          value={cadvisor.name && cadvisor.stats[0].memory.usage}
-          total={cadvisor.name && cadvisor.spec.memory.limit}
-          progress="ratio"
-          indicating={true}
-          label="RAM"
-        />
-        <Progress
-          value={cadvisor.name && cadvisor.stats[0].cpu.cfs.periods}
-          total={cadvisor.name && cadvisor.spec.cpu.limit}
-          progress="ratio"
+          value={
+            containerInfo.name &&
+            machineInfo.machine_id &&
+            this.CPUUsage(machineInfo, containerInfo) || 0
+          }
+          total={100}
+          progress="percent"
           indicating={true}
           label="CPU"
         />
-        {cadvisor.name &&
-          cadvisor.stats[0].filesystem.map(fs => (
+        <Progress
+          value={
+            containerInfo.name &&
+            machineInfo.machine_id &&
+            this.MemoryUsage(machineInfo, containerInfo) || 0
+          }
+          total={100}
+          progress="percent"
+          indicating={true}
+          label="RAM"
+        />
+        {containerInfo.name &&
+          containerInfo.stats[0].filesystem.map(fs => (
             <Progress
+              key={fs.device}
               value={fs.usage}
               total={fs.capacity}
               progress="ratio"
@@ -130,6 +159,54 @@ class Daemon extends React.Component<
         <ContainerTable daemon={daemon} containers={containers} />
       </Layout>
     );
+  }
+
+  // https://github.com/google/cadvisor/blob/master/pages/assets/js/containers.js
+  private CPUUsage = (
+    machineInfo: IMachineInfo,
+    containerInfo: IContainerInfo
+  ): number => {
+    if (containerInfo.spec.has_cpu && containerInfo.stats.length >= 2) {
+      const cur = containerInfo.stats[containerInfo.stats.length - 1];
+      const prev = containerInfo.stats[containerInfo.stats.length - 2];
+      const rawUsage = cur.cpu.usage.total - prev.cpu.usage.total;
+      const intervalNs = this.getInterval(cur.timestamp, prev.timestamp);
+
+      // Convert to millicores and take the percentage
+      const cpuUsage = Math.round(
+        (rawUsage / intervalNs / machineInfo.num_cores) * 100
+      );
+      return cpuUsage > 100 ? 100 : cpuUsage;
+    }
+    return 0;
+  };
+
+  private MemoryUsage = (
+    machineInfo: IMachineInfo,
+    containerInfo: IContainerInfo
+  ): number => {
+    if (containerInfo.spec.has_memory) {
+      const cur = containerInfo.stats[containerInfo.stats.length - 1];
+
+      // Saturate to the machine size.
+      let limit = containerInfo.spec.memory.limit;
+      if (limit > machineInfo.memory_capacity) {
+        limit = machineInfo.memory_capacity;
+      }
+
+      return Math.round((cur.memory.usage / limit) * 100);
+    }
+    return 0;
+  };
+
+  private getInterval(
+    current: string | number | Date,
+    previous: string | number | Date
+  ): number {
+    const cur = new Date(current);
+    const prev = new Date(previous);
+    // ms -> ns.
+    return (cur.getTime() - prev.getTime()) * 1000000;
   }
 }
 

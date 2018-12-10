@@ -2,23 +2,10 @@ import * as React from "react";
 import Konami from "react-konami-code";
 import { Modal, Header, List, Image } from "semantic-ui-react";
 
+import { authors } from 'src/constants/authors';
+
 class KonamiCode extends React.Component {
   public state = { modalOpen: false };
-
-  private authors = [
-    {
-      image: "https://avatars0.githubusercontent.com/u/14922324",
-      url: "https://github.com/thecampagnards",
-      name: "TheCampagnards",
-      description: "@soprasteria"
-    },
-    {
-      image: "https://avatars0.githubusercontent.com/u/3520706",
-      url: "https://github.com/matcornic",
-      name: "Mathieu Cornic",
-      description: "@ovh"
-    }
-  ];
 
   public render() {
     const { modalOpen } = this.state;
@@ -28,7 +15,7 @@ class KonamiCode extends React.Component {
           <Header icon="users" content="CDK Team" />
           <Modal.Content>
             <List>
-              {this.authors.map((author, key) => (
+              {authors.map((author, key) => (
                 <List.Item key={key}>
                   <Image avatar={true} src={author.image} />
                   <List.Content>
