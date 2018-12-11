@@ -11,7 +11,9 @@ import {
   Header,
   Icon
 } from "semantic-ui-react";
-import { UnControlled as CodeMirror } from "react-codemirror2";
+import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
+
+import set from "set-value";
 
 import Layout from "../../layout/layout";
 
@@ -22,6 +24,7 @@ import "codemirror/lib/codemirror.css";
 import "codemirror/theme/material.css";
 import "codemirror/mode/yaml/yaml";
 import "codemirror/mode/markdown/markdown";
+
 interface IRouterProps {
   serviceID: string;
 }
@@ -65,15 +68,6 @@ class ServiceForm extends React.Component<
       );
     }
 
-    if (error) {
-      return (
-        <Layout>
-          <h2>Service</h2>
-          <p>{error}</p>;
-        </Layout>
-      );
-    }
-
     if (isFetching) {
       return (
         <Layout>
@@ -100,9 +94,10 @@ class ServiceForm extends React.Component<
             options={{
               mode: "markdown",
               theme: "material",
-              lineNumbers: true
+              lineNumbers: true,
+              gutters: ["Description"]
             }}
-            // onChange={this.handleChange}
+            onChange={this.handleChangeCodeEditor}
           />
           <Form.Group widths="equal">
             {service.Image && (
@@ -118,20 +113,20 @@ class ServiceForm extends React.Component<
             />
           </Form.Group>
 
-          {service.SubServices.map(ss => (
+          {service.SubServices.map((ss, key) => (
             <span key={ss._id}>
               <Form.Group widths="equal">
                 <Form.Checkbox
                   width={1}
                   label="Active"
-                  name="Active"
+                  name={`SubServices.${key}.Active`}
                   defaultChecked={ss.Active}
                   onChange={this.handleChange}
                 />
                 <Form.Input
                   width={8}
                   label="Name"
-                  name="Name"
+                  name={`SubServices.${key}.Name`}
                   type="text"
                   value={ss.Name}
                   onChange={this.handleChange}
@@ -147,8 +142,10 @@ class ServiceForm extends React.Component<
                         options={{
                           mode: "yaml",
                           theme: "material",
-                          lineNumbers: true
+                          lineNumbers: true,
+                          gutters: [`SubServices.${key}.File`]
                         }}
+                        onChange={this.handleChangeCodeEditor}
                       />
                     </Grid.Column>
                     <Grid.Column textAlign="center">
@@ -157,8 +154,8 @@ class ServiceForm extends React.Component<
                         Remote file
                       </Header>
                       <Form.Input
-                        type="url"
-                        name="url"
+                        type="Url"
+                        name={`SubServices.${key}.Url`}
                         onChange={this.handleChange}
                       />
                     </Grid.Column>
@@ -175,7 +172,7 @@ class ServiceForm extends React.Component<
           />
           <Message error={true} header="Error" content={error} />
           <Button type="Save" loading={isFetching}>
-            Submit
+            Save
           </Button>
         </Form>
       </Layout>
@@ -186,8 +183,39 @@ class ServiceForm extends React.Component<
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value }: any
   ) => {
-    const service = this.state.service;
-    service[name] = value;
+    let service = this.state.service;
+
+    if (e.target.files !== null) {
+      const reader = new FileReader();
+      reader.readAsDataURL(e.target.files[0]);
+      reader.onload = () => {
+        if (typeof reader.result === "string") {
+          service = set(
+            service,
+            name,
+            reader.result.replace("data:image/jpeg;base64,", "")
+          );
+          this.setState({ service });
+        }
+      };
+      reader.onerror = error =>
+        this.setState({ error: Error("When uploading file : " + error) });
+    } else {
+      service = set(service, name, value);
+      this.setState({ service });
+    }
+  };
+
+  private handleChangeCodeEditor = (
+    editor: IInstance,
+    data: CodeMirror.EditorChange,
+    value: string
+  ) => {
+    const service = set(
+      this.state.service,
+      editor.options.gutters![0],
+      value
+    );
     this.setState({ service });
   };
 

@@ -12,7 +12,8 @@
     "react-router-dom": "^4.3.1",
     "react-scripts-ts": "^4.0.8",
     "semantic-ui-css": "^2.4.1",
-    "semantic-ui-react": "^0.83.0"
+    "semantic-ui-react": "^0.83.0",
+    "set-value": "^3.0.0"
   },
   "scripts": {
     "precommit": "lint-staged",

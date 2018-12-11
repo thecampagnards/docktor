@@ -60,10 +60,9 @@ func GetGroupByID(id string) (types.Group, error) {
 	return t, err
 }
 
-// CreateGroup create a new group
-func CreateGroup(t types.Group) (types.Group, error) {
+// CreateOrUpdateGroup create or update group
+func CreateOrUpdateGroup(t types.Group) (types.Group, error) {
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
 
 	s, err := db.DoDial()
 
@@ -75,39 +74,19 @@ func CreateGroup(t types.Group) (types.Group, error) {
 
 	c := s.DB(db.Name()).C(colGroup)
 
-	err = c.Insert(t)
-
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the group to the DB")
 	}
 
-	return t, err
-}
-
-// UpdateGroup update group
-func UpdateGroup(t types.Group) (types.Group, error) {
-
-	group, err := GetGroupByID(t.ID.Hex())
-
-	if err := mergo.Merge(&group, t, mergo.WithOverride); err != nil {
-		return t, err
-	}
-
-	db := config.DB{}
-
-	s, err := db.DoDial()
-	if err != nil {
-		return t, errors.New("There was an error trying to connect to the DB")
-	}
-
-	defer s.Close()
-
-	c := s.DB(db.Name()).C(colGroup)
-
-	err = c.UpdateId(group.ID, t)
-
-	if err != nil {
-		return t, errors.New("There was an error trying to insert the group to the DB")
+	if t.ID.Valid() {
+		group, _ := GetGroupByID(t.ID.Hex())
+		if err := mergo.Merge(&group, t, mergo.WithOverride); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		err = c.Insert(t)
 	}
 
 	return t, err
