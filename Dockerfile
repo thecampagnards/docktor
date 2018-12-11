@@ -4,9 +4,9 @@ WORKDIR /npm/src/docktor
 COPY client .
 
 RUN npm install \
-    && npm run build:client
+    && npm run build
 
-RUN CI=true yarn test:client
+RUN CI=true npm run test
 
 FROM golang:1.11.0 as builderBack
 

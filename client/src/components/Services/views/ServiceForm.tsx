@@ -11,7 +11,7 @@ import {
   Header,
   Icon
 } from "semantic-ui-react";
-import { UnControlled as CodeMirror } from "react-codemirror2";
+import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 
 import Layout from "../../layout/layout";
 
@@ -102,7 +102,7 @@ class ServiceForm extends React.Component<
               theme: "material",
               lineNumbers: true
             }}
-            // onChange={this.handleChange}
+            onChange={this.handleChangeCodeEditor}
           />
           <Form.Group widths="equal">
             {service.Image && (
@@ -188,6 +188,15 @@ class ServiceForm extends React.Component<
   ) => {
     const service = this.state.service;
     service[name] = value;
+    this.setState({ service });
+  };
+
+  private handleChangeCodeEditor = (editor: IInstance, data: CodeMirror.EditorChange, value: string) => {
+    const service = this.state.service;
+    console.log(editor)
+    console.log(data)
+    console.log(value)
+    // service[name] = value;
     this.setState({ service });
   };
 

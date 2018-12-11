@@ -1,6 +1,7 @@
 
 import * as React from "react";
 import { Card, Image } from "semantic-ui-react";
+import * as ReactMarkdown from "react-markdown";
 
 import MarketModal from "./MarketModal";
 
@@ -26,9 +27,9 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
           <Card.Meta>
             <span className="date">{service._id}</span>
           </Card.Meta>
-          <Card.Description
-            dangerouslySetInnerHTML={{ __html: service.Description }}
-          />
+          <Card.Description>
+            <ReactMarkdown source={service.Description} />
+          </Card.Description>
         </Card.Content>
         <Card.Content extra={true}>
           <MarketModal service={service} groups={groups} />

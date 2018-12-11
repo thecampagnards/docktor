@@ -16,5 +16,11 @@ export const authors = [
     url: "https://github.com/SmalkiGroove",
     name: "Guillaume Chapeau",
     description: '<div title="on a vos mots de passe">Coucou</div>'
+  },
+  {
+    image: "https://avatars0.githubusercontent.com/u/1478025",
+    url: "https://github.com/sguiheux",
+    name: "Steven Guiheux",
+    description: "@ovh"
   }
 ];

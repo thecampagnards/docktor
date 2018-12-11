@@ -53,15 +53,22 @@ class Daemon extends React.Component<
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchCadvisorContainers(daemonID)
-      .then((containerInfo: IContainerInfo) =>
-        this.setState({ containerInfo, isFetching: false })
-      )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    setInterval(
+      () => {
+        fetchCadvisorContainers(daemonID)
+          .then((containerInfo: IContainerInfo) =>
+            this.setState({ containerInfo, isFetching: false })
+          )
+          .catch((error: Error) => this.setState({ error, isFetching: false }))
+          fetchContainers(daemonID)
+          .then((containers: IContainer[]) => this.setState({ containers }))
+          .catch((error: Error) => this.setState({ error, isFetching: false }));
+      }
+          ,
+      1000 * 5
+    );
 
-    fetchContainers(daemonID)
-      .then((containers: IContainer[]) => this.setState({ containers }))
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+
   }
 
   public render() {
@@ -124,9 +131,10 @@ class Daemon extends React.Component<
         </h4>
         <Progress
           value={
-            containerInfo.name &&
-            machineInfo.machine_id &&
-            this.CPUUsage(machineInfo, containerInfo) || 0
+            (containerInfo.name &&
+              machineInfo.machine_id &&
+              this.CPUUsage(machineInfo, containerInfo)) ||
+            0
           }
           total={100}
           progress="percent"
@@ -135,9 +143,10 @@ class Daemon extends React.Component<
         />
         <Progress
           value={
-            containerInfo.name &&
-            machineInfo.machine_id &&
-            this.MemoryUsage(machineInfo, containerInfo) || 0
+            (containerInfo.name &&
+              machineInfo.machine_id &&
+              this.MemoryUsage(machineInfo, containerInfo)) ||
+            0
           }
           total={100}
           progress="percent"
@@ -145,7 +154,7 @@ class Daemon extends React.Component<
           label="RAM"
         />
         {containerInfo.name &&
-          containerInfo.stats[0].filesystem.map(fs => (
+          containerInfo.stats[0].filesystem.sort((a,b) => (a.device > b.device) ? 1 : ((b.device > a.device) ? -1 : 0)).map(fs => (
             <Progress
               key={fs.device}
               value={fs.usage}

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-
+import * as ReactMarkdown from "react-markdown";
 import {
   Button,
   Header,
@@ -97,7 +97,7 @@ class MarketModal extends React.Component<
           )}
           <Modal.Description>
             <Header>{service.Name}</Header>
-            <span dangerouslySetInnerHTML={{ __html: service.Description }} />
+            <ReactMarkdown source={service.Description} />
           </Modal.Description>
         </Modal.Content>
         <Modal.Actions>
