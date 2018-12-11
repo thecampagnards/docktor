@@ -80,7 +80,7 @@ func CreateOrUpdateGroup(t types.Group) (types.Group, error) {
 
 	if t.ID.Valid() {
 		group, _ := GetGroupByID(t.ID.Hex())
-		if err := mergo.Merge(&group, t, mergo.WithOverride); err != nil {
+		if err := mergo.Merge(&t, group); err != nil {
 			return t, err
 		}
 		err = c.UpdateId(t.ID, t)

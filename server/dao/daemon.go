@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colDaemon string = "daemons"
@@ -58,10 +59,9 @@ func GetDaemonByID(id string) (types.Daemon, error) {
 	return t, err
 }
 
-// CreateDaemon create a new daemon
-func CreateDaemon(t types.Daemon) (types.Daemon, error) {
+// CreateOrUpdateDaemon create or update daemon
+func CreateOrUpdateDaemon(t types.Daemon) (types.Daemon, error) {
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
 
 	s, err := db.DoDial()
 
@@ -73,10 +73,19 @@ func CreateDaemon(t types.Daemon) (types.Daemon, error) {
 
 	c := s.DB(db.Name()).C(colDaemon)
 
-	err = c.Insert(t)
-
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the daemon to the DB")
+	}
+
+	if t.ID.Valid() {
+		daemon, _ := GetDaemonByID(t.ID.Hex())
+		if err := mergo.Merge(&t, daemon); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		err = c.Insert(t)
 	}
 
 	return t, err
