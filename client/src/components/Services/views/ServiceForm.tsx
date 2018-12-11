@@ -1,5 +1,6 @@
 import * as React from "react";
 import { RouteComponentProps } from "react-router";
+import * as _ from 'lodash';
 import {
   Loader,
   Form,
@@ -12,8 +13,6 @@ import {
   Icon
 } from "semantic-ui-react";
 import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
-
-import set from "set-value";
 
 import Layout from "../../layout/layout";
 
@@ -190,7 +189,7 @@ class ServiceForm extends React.Component<
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
         if (typeof reader.result === "string") {
-          service = set(
+          service = _.set(
             service,
             name,
             reader.result.replace("data:image/jpeg;base64,", "")
@@ -201,7 +200,7 @@ class ServiceForm extends React.Component<
       reader.onerror = error =>
         this.setState({ error: Error("When uploading file : " + error) });
     } else {
-      service = set(service, name, value);
+      service = _.set(service, name, value);
       this.setState({ service });
     }
   };
@@ -211,7 +210,7 @@ class ServiceForm extends React.Component<
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    const service = set(
+    const service = _.set(
       this.state.service,
       editor.options.gutters![0],
       value
