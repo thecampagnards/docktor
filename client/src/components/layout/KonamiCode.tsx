@@ -2,7 +2,7 @@ import * as React from "react";
 import Konami from "react-konami-code";
 import { Modal, Header, List, Image } from "semantic-ui-react";
 
-import { authors } from 'src/constants/authors';
+import { authors } from "../../constants/authors";
 
 class KonamiCode extends React.Component {
   public state = { modalOpen: false };

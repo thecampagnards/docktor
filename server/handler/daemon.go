@@ -39,7 +39,7 @@ func (st *Daemon) Save(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	s, err := dao.CreateDaemon(u)
+	s, err := dao.CreateOrUpdateDaemon(u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

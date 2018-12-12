@@ -1,4 +1,6 @@
 import * as React from "react";
+import * as _ from 'lodash';
+
 import { Link } from "react-router-dom";
 import { Button, Loader, Table } from "semantic-ui-react";
 
@@ -130,24 +132,23 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   }
 
   private handleSort = (clickedColumn: string) => () => {
-    const { daemons } = this.state;
-
-    const { column, direction } = this.state;
+    const { column, daemons, direction } = this.state
 
     if (column !== clickedColumn) {
-      daemons.sort();
       this.setState({
         column: clickedColumn,
-        direction: Descending
-      });
-      return;
+        daemons: _.sortBy(daemons, [clickedColumn]),
+        direction: Ascending,
+      })
+
+      return
     }
 
-    daemons.reverse();
     this.setState({
-      direction: direction === Ascending ? Descending : Ascending
-    });
-  };
+      daemons: daemons.reverse(),
+      direction: direction === Ascending ? Descending : Ascending,
+    })
+  }
 }
 
 export default Daemons;

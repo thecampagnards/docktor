@@ -39,7 +39,7 @@ func (st *Group) Save(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	s, err := dao.CreateGroup(u)
+	s, err := dao.CreateOrUpdateGroup(u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

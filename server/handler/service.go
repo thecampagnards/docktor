@@ -89,7 +89,7 @@ func (st *Service) Save(c echo.Context) error {
 		}
 	}
 
-	s, err := dao.CreateService(u)
+	s, err := dao.CreateOrUpdateService(u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

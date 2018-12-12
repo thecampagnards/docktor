@@ -60,7 +60,7 @@ func (co *Compose) StartSubService(c echo.Context) error {
 
 	group.Services = append(group.Services, serviceGroup)
 
-	_, err = dao.UpdateGroup(group)
+	_, err = dao.CreateOrUpdateGroup(group)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

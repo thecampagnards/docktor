@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { Link } from "react-router-dom";
 import { Button, Loader, Table } from "semantic-ui-react";
 
@@ -121,24 +122,23 @@ class Groups extends React.Component<{}, IGroupsStates> {
   }
 
   private handleSort = (clickedColumn: string) => () => {
-    const { groups } = this.state;
-
-    const { column, direction } = this.state;
+    const { column, groups, direction } = this.state
 
     if (column !== clickedColumn) {
-      groups.sort();
       this.setState({
         column: clickedColumn,
-        direction: Descending
-      });
-      return;
+        groups: _.sortBy(groups, [clickedColumn]),
+        direction: Ascending,
+      })
+
+      return
     }
 
-    groups.reverse();
     this.setState({
-      direction: direction === Ascending ? Descending : Ascending
-    });
-  };
+      groups: groups.reverse(),
+      direction: direction === Ascending ? Descending : Ascending,
+    })
+  }
 }
 
 export default Groups;

@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
 const colService string = "services"
@@ -106,13 +107,9 @@ func GetSubServiceByID(id string) (types.SubService, error) {
 	return t.SubServices[0], err
 }
 
-// CreateService create a new service
-func CreateService(t types.Service) (types.Service, error) {
+// CreateOrUpdateService create or update service
+func CreateOrUpdateService(t types.Service) (types.Service, error) {
 	db := config.DB{}
-	t.ID = bson.NewObjectId()
-	for i := 0; i < len(t.SubServices); i++ {
-		t.SubServices[i].ID = bson.NewObjectId()
-	}
 
 	s, err := db.DoDial()
 
@@ -124,10 +121,25 @@ func CreateService(t types.Service) (types.Service, error) {
 
 	c := s.DB(db.Name()).C(colService)
 
-	err = c.Insert(t)
-
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the service to the DB")
+	}
+
+	for i := 0; i < len(t.SubServices); i++ {
+		if !t.SubServices[i].ID.Valid() {
+			t.SubServices[i].ID = bson.NewObjectId()
+		}
+	}
+
+	if t.ID.Valid() {
+		service, _ := GetServiceByID(t.ID.Hex())
+		if err := mergo.Merge(&t, service); err != nil {
+			return t, err
+		}
+		err = c.UpdateId(t.ID, t)
+	} else {
+		t.ID = bson.NewObjectId()
+		err = c.Insert(t)
 	}
 
 	return t, err
