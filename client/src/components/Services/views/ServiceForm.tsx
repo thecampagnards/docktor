@@ -16,7 +16,7 @@ import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 
 import Layout from "../../layout/layout";
 
-import { IService } from "../types/service";
+import { IService, ISubServices } from "../types/service";
 import { fetchService, saveService } from "../actions/service";
 
 import "codemirror/lib/codemirror.css";
@@ -112,8 +112,21 @@ class ServiceForm extends React.Component<
             />
           </Form.Group>
 
+          <Button type="" icon={true} onClick={this.addSubService} color="green">
+            <Icon name="plus" />
+            Add sub service
+          </Button>
+
           {service.SubServices.map((ss, key) => (
-            <span key={ss._id}>
+            <span key={key}>
+              <Button
+                icon={true}
+                onClick={this.removeSubService(key)}
+                color="red"
+              >
+                <Icon name="minus" />
+                Remove sub service
+              </Button>
               <Form.Group widths="equal">
                 <Form.Checkbox
                   width={1}
@@ -169,7 +182,7 @@ class ServiceForm extends React.Component<
             header="Saved"
             content="Your group has been saved"
           />
-          <Message error={true} header="Error" content={error} />
+          <Message error={true} header="Error" content={!error} />
           <Button type="Save" loading={isFetching}>
             Save
           </Button>
@@ -177,6 +190,27 @@ class ServiceForm extends React.Component<
       </Layout>
     );
   }
+
+  private removeSubService = (key: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    const service = this.state.service;
+    service.SubServices.splice(key, 1);
+    this.setState({ service });
+  };
+
+  private addSubService = () => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
+    const service = this.state.service;
+    const sub: ISubServices = {
+      Name: "",
+      File: "",
+      Active: true
+    };
+    service.SubServices.unshift(sub);
+    this.setState({ service });
+  };
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
@@ -192,7 +226,7 @@ class ServiceForm extends React.Component<
           service = _.set(
             service,
             name,
-            reader.result.replace("data:image/jpeg;base64,", "")
+            reader.result.replace(/data:image\/.*?;base64,/gi, "")
           );
           this.setState({ service });
         }
@@ -218,7 +252,9 @@ class ServiceForm extends React.Component<
     this.setState({ service });
   };
 
-  private submit = () => {
+  private submit = () => (event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault();
+
     this.setState({ isFetching: true });
     saveService(this.state.service)
       .then((service: IService) =>

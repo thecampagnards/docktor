@@ -48,5 +48,7 @@ func main() {
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)
 
+	e.Static("/", "client")
+
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -50,40 +50,43 @@ func (st *Service) Save(c echo.Context) error {
 
 	// get form data
 	form, err := c.MultipartForm()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	// formating the datas
-	if json.Unmarshal([]byte(form.Value[types.FORM_DATA_DATA_FIELD_NAME][0]), &u) != nil {
-		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	// Looping the files
-	for i := 0; i < len(form.File[types.FORM_DATA_FILES_FIELD_NAME]); i++ {
-
-		src, err := form.File[types.FORM_DATA_FILES_FIELD_NAME][i].Open()
-		defer src.Close()
-
-		// Convert to byte
-		file, err := ioutil.ReadAll(src)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, err.Error())
+	if err == nil {
+		// formating the datas
+		if json.Unmarshal([]byte(form.Value[types.FORM_DATA_DATA_FIELD_NAME][0]), &u) != nil {
+			return c.JSON(http.StatusBadRequest, err)
 		}
 
-		var sf types.SubService
-		sf.File = string(file)
-		sf.Active = true
+		// Looping the files
+		for i := 0; i < len(form.File[types.FORM_DATA_FILES_FIELD_NAME]); i++ {
 
-		u.SubServices = append(u.SubServices, sf)
-	}
+			src, err := form.File[types.FORM_DATA_FILES_FIELD_NAME][i].Open()
+			defer src.Close()
 
-	if len(form.File[types.FORM_DATA_IMAGES_FIELD_NAME]) > 0 {
-		src, err := form.File[types.FORM_DATA_IMAGES_FIELD_NAME][0].Open()
-		defer src.Close()
+			// Convert to byte
+			file, err := ioutil.ReadAll(src)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
 
-		// Get the base 64 encode
-		u.Image, err = ioutil.ReadAll(src)
+			var sf types.SubService
+			sf.File = string(file)
+			sf.Active = true
+
+			u.SubServices = append(u.SubServices, sf)
+		}
+
+		if len(form.File[types.FORM_DATA_IMAGES_FIELD_NAME]) > 0 {
+			src, err := form.File[types.FORM_DATA_IMAGES_FIELD_NAME][0].Open()
+			defer src.Close()
+
+			// Get the base 64 encode
+			u.Image, err = ioutil.ReadAll(src)
+			if err != nil {
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
+		}
+	} else {
+		err := c.Bind(&u)
 		if err != nil {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}

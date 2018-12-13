@@ -4,9 +4,8 @@ WORKDIR /npm/src/docktor
 COPY client .
 
 RUN npm install \
+    && CI=true npm run test \
     && npm run build
-
-RUN CI=true npm run test
 
 FROM golang:1.11.0 as builderBack
 
@@ -15,16 +14,19 @@ COPY server .
 
 RUN go get -u github.com/golang/dep/cmd/dep \
     && dep ensure \
-    && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o app .
-
-RUN go test ./server/...
+    && go test \
+    && CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o app . \
+    && chmod +x app
 
 FROM scratch
 
+LABEL maintainer="TheCampagnards <konstantin.sidorenko@orange.fr>"
+
 WORKDIR /docktor
 
+COPY --from=builderFront /npm/src/docktor/build client
 COPY --from=builderBack /go/src/docktor/server/app .
-COPY --from=builderBack /npm/src/docktor/build .
+
 CMD ["./app"]
 
 EXPOSE 8080

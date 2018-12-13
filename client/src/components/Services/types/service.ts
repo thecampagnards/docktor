@@ -7,9 +7,9 @@ export interface IService {
 }
 
 export interface ISubServices {
-	_id: string;
+	_id?: string;
 	Name: string;
 	File: string;
 	Active: boolean;
-	Variables: any;
+	Variables?: any;
 }
