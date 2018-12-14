@@ -1,4 +1,5 @@
 import { checkStatus } from "../../../utils/promises";
+import { IDaemon } from "../types/daemon";
 
 export const fetchDaemons = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
@@ -28,18 +29,37 @@ export const fetchContainers = (daemonID: string) => {
 };
 
 export const fetchCadvisorContainers = (daemonID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/container`, {
-    credentials: "same-origin",
-    method: "GET"
-  })
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/container`,
+    {
+      credentials: "same-origin",
+      method: "GET"
+    }
+  )
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
 
 export const fetchCadvisorMachine = (daemonID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/machine`, {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/machine`,
+    {
+      credentials: "same-origin",
+      method: "GET"
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
+export const saveDaemon = (daemon: IDaemon) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
     credentials: "same-origin",
-    method: "GET"
+    method: "POST",
+    body: JSON.stringify(daemon),
+    headers: {
+      "Content-Type": "application/json"
+    }
   })
     .then(checkStatus)
     .then((response: Response) => response.json());

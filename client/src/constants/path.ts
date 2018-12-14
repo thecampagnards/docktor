@@ -10,6 +10,8 @@ export const path = {
 
     daemons: '/daemons',
     daemonsEdit: '/daemons/:daemonID/edit',
+    daemonsContainers: '/daemons/:daemonID/containers',
+    daemonsCAdvisor: '/daemons/:daemonID/cadvisor',
     daemonsMore: '/daemons/:daemonID',
 
     services: '/services',

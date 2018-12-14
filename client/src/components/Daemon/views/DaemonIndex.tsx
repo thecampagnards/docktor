@@ -1,67 +1,57 @@
 import * as React from "react";
-import * as ReactMarkdown from "react-markdown";
 import { Tab, TabProps } from "semantic-ui-react";
 import { RouteComponentProps } from "react-router";
+import * as ReactMarkdown from "react-markdown";
 
 import Layout from "../../layout/layout";
 import { path as constPath } from "../../../constants/path";
 
-import { fetchGroup } from "../actions/group";
-import { fetchDaemon } from "src/components/Daemon/actions/daemon";
-import { IGroup } from "../types/group";
 import { IDaemon } from "../../Daemon/types/daemon";
+import { fetchDaemon } from "src/components/Daemon/actions/daemon";
 
-import GroupContainers from "./GroupContainers";
-import GroupServices from "./GroupServices";
-import GroupForm from "./GroupForm";
+import DaemonContainers from "./DaemonContainers";
+import DaemonCAdvisor from "./DaemonCAdvisor";
+import DaemonForm from "./DaemonForm";
 
 interface IRouterProps {
-  groupID: string;
+  daemonID: string;
 }
 
-interface IGroupIndexStates {
-  group: IGroup;
+interface IDaemonIndexStates {
   daemon: IDaemon;
   isFetching: boolean;
   error: Error;
   activeTab: number;
 }
 
-class GroupIndex extends React.Component<
+class DaemonIndex extends React.Component<
   RouteComponentProps<IRouterProps>,
-  IGroupIndexStates
+  IDaemonIndexStates
 > {
   public state = {
     activeTab: 0,
     isFetching: false,
-    group: {} as IGroup,
     daemon: {} as IDaemon,
-    error: {} as Error
+    error: Error()
   };
 
   public componentWillMount() {
-    const { groupID } = this.props.match.params;
+    const { daemonID } = this.props.match.params;
     const path = window.location.pathname;
 
-    fetchGroup(groupID)
-      .then((group: IGroup) => {
-        this.setState({ group });
-
-        fetchDaemon(group.DaemonID).then((daemon: IDaemon) =>
-          this.setState({ daemon, isFetching: false })
-        );
-      })
+    fetchDaemon(daemonID)
+      .then((daemon: IDaemon) => this.setState({ daemon }))
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
     let activeTab: number;
     switch (true) {
-      case path === constPath.groupsServices.replace(":groupID", groupID):
+      case path === constPath.daemonsContainers.replace(":daemonID", daemonID):
         activeTab = 0;
         break;
-      case path === constPath.groupsContainers.replace(":groupID", groupID):
+      case path === constPath.daemonsCAdvisor.replace(":daemonID", daemonID):
         activeTab = 1;
         break;
-      case path === constPath.groupsEdit.replace(":groupID", groupID):
+      case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
         activeTab = 2;
         break;
       default:
@@ -72,24 +62,22 @@ class GroupIndex extends React.Component<
   }
 
   public render() {
-    const { group, daemon, activeTab, isFetching } = this.state;
+    const { daemon, activeTab, isFetching } = this.state;
 
     const panes = [
       {
-        menuItem: "Services",
+        menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={1}>
-            {group._id &&
-              daemon._id && <GroupServices group={group} daemon={daemon} />}
+            {daemon._id && <DaemonContainers daemon={daemon} />}
           </Tab.Pane>
         )
       },
       {
-        menuItem: "Containers",
+        menuItem: "CAdvisor",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {group._id &&
-              daemon._id && <GroupContainers group={group} daemon={daemon} />}
+            {daemon._id && <DaemonCAdvisor daemon={daemon} />}
           </Tab.Pane>
         )
       },
@@ -97,7 +85,7 @@ class GroupIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            {group._id && daemon._id && <GroupForm group={group} />}
+            {daemon._id && <DaemonForm daemon={daemon} />}
           </Tab.Pane>
         )
       }
@@ -105,8 +93,8 @@ class GroupIndex extends React.Component<
 
     return (
       <Layout>
-        <h1>{group.Name || "Group"}</h1>
-        <ReactMarkdown source={group.Description} />
+        <h1>{daemon.Name || "Group"}</h1>
+        <ReactMarkdown source={daemon.Description} />
         <Tab
           panes={panes}
           renderActiveOnly={false}
@@ -121,24 +109,24 @@ class GroupIndex extends React.Component<
     event: React.MouseEvent<HTMLDivElement>,
     data: TabProps
   ) => {
-    const { groupID } = this.props.match.params;
+    const { daemonID } = this.props.match.params;
     switch (data.activeIndex) {
       case 0:
         this.props.history.push(
-          constPath.groupsServices.replace(":groupID", groupID)
+          constPath.daemonsContainers.replace(":daemonID", daemonID)
         );
         break;
       case 1:
         this.props.history.push(
-          constPath.groupsContainers.replace(":groupID", groupID)
+          constPath.daemonsCAdvisor.replace(":daemonID", daemonID)
         );
         break;
       case 2:
         this.props.history.push(
-          constPath.groupsEdit.replace(":groupID", groupID)
+          constPath.daemonsEdit.replace(":daemonID", daemonID)
         );
         break;
     }
   };
 }
-export default GroupIndex;
+export default DaemonIndex;

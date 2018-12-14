@@ -1,5 +1,7 @@
 import * as React from "react";
+import * as _ from "lodash";
 import { Form, Button, Message } from "semantic-ui-react";
+import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 
 import { fetchDaemons } from "../../Daemon/actions/daemon";
 
@@ -48,11 +50,15 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           value={group.Name}
           onChange={this.handleChange}
         />
-        <Form.TextArea
-          label="Description"
-          name="Description"
+        <CodeMirror
           value={group.Description}
-          onChange={this.handleChange}
+          options={{
+            mode: "markdown",
+            theme: "material",
+            lineNumbers: true,
+            gutters: ["Description"]
+          }}
+          onChange={this.handleChangeCodeEditor}
         />
         <Form.Dropdown
           search={true}
@@ -84,8 +90,17 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     { name, value }: any
   ) => {
     const group = this.state.group;
-    group[name] = value;
-    this.setState({ group });
+    this.setState({ group: _.set(group, name, value) });
+  };
+
+  private handleChangeCodeEditor = (
+    editor: IInstance,
+    data: CodeMirror.EditorChange,
+    value: string
+  ) => {
+    this.setState({
+      group: _.set(this.state.group, editor.options.gutters![0], value)
+    });
   };
 
   private submit = () => {

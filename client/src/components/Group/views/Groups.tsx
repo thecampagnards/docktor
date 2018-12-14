@@ -1,10 +1,11 @@
 import * as React from "react";
 import * as _ from "lodash";
+import * as ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
 import { Button, Loader, Table } from "semantic-ui-react";
 
 import { IGroup } from "../types/group";
-import { fetchGroups } from '../actions/group';
+import { fetchGroups } from "../actions/group";
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
@@ -28,7 +29,6 @@ interface IGroupsStates {
 }
 
 class Groups extends React.Component<{}, IGroupsStates> {
-
   public state = {
     column: null,
     direction: Ascending,
@@ -40,8 +40,8 @@ class Groups extends React.Component<{}, IGroupsStates> {
 
   public componentWillMount() {
     fetchGroups()
-    .then((groups: IGroup[]) => this.setState({groups, isFetching: false}))
-    .catch((error: Error) => this.setState({ error, isFetching: false }))
+      .then((groups: IGroup[]) => this.setState({ groups, isFetching: false }))
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
@@ -55,7 +55,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
         </Layout>
       );
     }
-  
+
     if (error) {
       return (
         <Layout>
@@ -86,9 +86,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               >
                 Name
               </Table.HeaderCell>
-              <Table.HeaderCell>
-                Description
-              </Table.HeaderCell>
+              <Table.HeaderCell>Description</Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
@@ -96,7 +94,9 @@ class Groups extends React.Component<{}, IGroupsStates> {
             {groups.map((group: IGroup) => (
               <Table.Row key={group._id}>
                 <Table.Cell>{group.Name}</Table.Cell>
-                <Table.Cell>{group.Description}</Table.Cell>
+                <Table.Cell>
+                  <ReactMarkdown source={group.Description} />
+                </Table.Cell>
                 <Table.Cell>
                   <Button.Group>
                     <Button
@@ -107,9 +107,9 @@ class Groups extends React.Component<{}, IGroupsStates> {
                     />
                     <Button
                       icon="cog"
-                      content="More"
+                      content="Containers"
                       as={Link}
-                      to={path.groupsMore.replace(":groupID", group._id)}
+                      to={path.groupsContainers.replace(":groupID", group._id)}
                     />
                   </Button.Group>
                 </Table.Cell>
@@ -122,23 +122,23 @@ class Groups extends React.Component<{}, IGroupsStates> {
   }
 
   private handleSort = (clickedColumn: string) => () => {
-    const { column, groups, direction } = this.state
+    const { column, groups, direction } = this.state;
 
     if (column !== clickedColumn) {
       this.setState({
         column: clickedColumn,
         groups: _.sortBy(groups, [clickedColumn]),
-        direction: Ascending,
-      })
+        direction: Ascending
+      });
 
-      return
+      return;
     }
 
     this.setState({
       groups: groups.reverse(),
-      direction: direction === Ascending ? Descending : Ascending,
-    })
-  }
+      direction: direction === Ascending ? Descending : Ascending
+    });
+  };
 }
 
 export default Groups;

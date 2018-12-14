@@ -1,11 +1,11 @@
 import * as React from "react";
-import * as _ from 'lodash';
+import * as _ from "lodash";
 
 import { Link } from "react-router-dom";
 import { Button, Loader, Table } from "semantic-ui-react";
 
 import { IDaemon } from "../types/daemon";
-import { fetchDaemons } from '../actions/daemon';
+import { fetchDaemons } from "../actions/daemon";
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
@@ -29,7 +29,6 @@ interface IDaemonsStates {
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
-
   public state = {
     column: null,
     direction: Ascending,
@@ -41,8 +40,10 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   public componentWillMount() {
     fetchDaemons()
-    .then((daemons: IDaemon[]) => this.setState({daemons, isFetching: false}))
-    .catch((error: Error) => this.setState({ error, isFetching: false }))
+      .then((daemons: IDaemon[]) =>
+        this.setState({ daemons, isFetching: false })
+      )
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
@@ -56,7 +57,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
         </Layout>
       );
     }
-  
+
     if (error) {
       return (
         <Layout>
@@ -132,23 +133,23 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   }
 
   private handleSort = (clickedColumn: string) => () => {
-    const { column, daemons, direction } = this.state
+    const { column, daemons, direction } = this.state;
 
     if (column !== clickedColumn) {
       this.setState({
         column: clickedColumn,
         daemons: _.sortBy(daemons, [clickedColumn]),
-        direction: Ascending,
-      })
+        direction: Ascending
+      });
 
-      return
+      return;
     }
 
     this.setState({
       daemons: daemons.reverse(),
-      direction: direction === Ascending ? Descending : Ascending,
-    })
-  }
+      direction: direction === Ascending ? Descending : Ascending
+    });
+  };
 }
 
 export default Daemons;

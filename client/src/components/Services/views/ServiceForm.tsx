@@ -183,7 +183,7 @@ class ServiceForm extends React.Component<
             content="Your group has been saved"
           />
           <Message error={true} header="Error" content={!error} />
-          <Button type="Save" loading={isFetching}>
+          <Button type="submit" loading={isFetching}>
             Save
           </Button>
         </Form>
@@ -199,7 +199,7 @@ class ServiceForm extends React.Component<
     this.setState({ service });
   };
 
-  private addSubService = () => (event: React.MouseEvent<HTMLButtonElement>) => {
+  private addSubService = (event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault();
 
     const service = this.state.service;
@@ -216,26 +216,24 @@ class ServiceForm extends React.Component<
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value }: any
   ) => {
-    let service = this.state.service;
+    const { service } = this.state;
 
     if (e.target.files !== null) {
       const reader = new FileReader();
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
         if (typeof reader.result === "string") {
-          service = _.set(
+          this.setState({ service: _.set(
             service,
             name,
             reader.result.replace(/data:image\/.*?;base64,/gi, "")
-          );
-          this.setState({ service });
+          ) });
         }
       };
       reader.onerror = error =>
         this.setState({ error: Error("When uploading file : " + error) });
     } else {
-      service = _.set(service, name, value);
-      this.setState({ service });
+      this.setState({ service: _.set(service, name, value) });
     }
   };
 
@@ -244,15 +242,14 @@ class ServiceForm extends React.Component<
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    const service = _.set(
+    this.setState({ service: _.set(
       this.state.service,
       editor.options.gutters![0],
       value
-    );
-    this.setState({ service });
+    ) });
   };
 
-  private submit = () => (event: React.MouseEvent<HTMLButtonElement>) => {
+  private submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     this.setState({ isFetching: true });

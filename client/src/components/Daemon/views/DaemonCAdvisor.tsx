@@ -1,118 +1,70 @@
 import * as React from "react";
-import { RouteComponentProps } from "react-router";
-import { Loader, Progress, Button, Divider } from "semantic-ui-react";
-
-import ContainerTable from "src/components/layout/ContainersTable";
-import Layout from "../../layout/layout";
+import { Loader, Progress, Button } from "semantic-ui-react";
 
 import {
-  fetchDaemon,
-  fetchContainers,
   fetchCadvisorMachine,
   fetchCadvisorContainers
 } from "../actions/daemon";
 
 import { IDaemon, IContainerInfo, IMachineInfo } from "../types/daemon";
-import { IContainer } from "../../Group/types/group";
 
-interface IRouterProps {
-  daemonID: string;
+interface IDaemonCAdvisorProps {
+  daemon: IDaemon;
 }
 
-interface IDaemonStates {
-  daemon: IDaemon;
+interface IDaemonCAdvisorStates {
   containerInfo: IContainerInfo;
   machineInfo: IMachineInfo;
-  containers: IContainer[];
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class Daemon extends React.Component<
-  RouteComponentProps<IRouterProps>,
-  IDaemonStates
+  IDaemonCAdvisorProps,
+  IDaemonCAdvisorStates
 > {
   public state = {
     daemon: {} as IDaemon,
     containerInfo: {} as IContainerInfo,
     machineInfo: {} as IMachineInfo,
-    containers: [],
     isFetching: false,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
-    const { daemonID } = this.props.match.params;
-    fetchDaemon(daemonID)
-      .then((daemon: IDaemon) => this.setState({ daemon, isFetching: false }))
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    const { daemon } = this.props;
 
-    fetchCadvisorMachine(daemonID)
+    fetchCadvisorMachine(daemon._id)
       .then((machineInfo: IMachineInfo) =>
         this.setState({ machineInfo, isFetching: false })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    setInterval(
-      () => {
-        fetchCadvisorContainers(daemonID)
-          .then((containerInfo: IContainerInfo) =>
-            this.setState({ containerInfo, isFetching: false })
-          )
-          .catch((error: Error) => this.setState({ error, isFetching: false }))
-          fetchContainers(daemonID)
-          .then((containers: IContainer[]) => this.setState({ containers }))
-          .catch((error: Error) => this.setState({ error, isFetching: false }));
-      }
-          ,
-      1000 * 5
-    );
+    const fetch = () => {
+      fetchCadvisorContainers(daemon._id)
+        .then((containerInfo: IContainerInfo) =>
+          this.setState({ containerInfo, isFetching: false })
+        )
+        .catch((error: Error) => this.setState({ error, isFetching: false }));
+    };
 
-
+    fetch();
+    setTimeout(fetch, 1000 * 5);
   }
 
   public render() {
-    const {
-      containerInfo,
-      machineInfo,
-      containers,
-      daemon,
-      error,
-      isFetching
-    } = this.state;
-
-    if (!daemon) {
-      return (
-        <Layout>
-          <h2>Daemon</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
-    }
+    const { containerInfo, machineInfo, error, isFetching } = this.state;
 
     if (error) {
-      return (
-        <Layout>
-          <h2>Daemon</h2>
-          <p>{error}</p>;
-        </Layout>
-      );
+      return <p>{error}</p>;
     }
 
     if (isFetching) {
-      return (
-        <Layout>
-          <h2>Daemon</h2>
-          <Loader active={true} />
-        </Layout>
-      );
+      return <Loader active={true} />;
     }
 
     return (
-      <Layout>
-        <h2>{daemon.Host}</h2>
-        <p>{daemon.Description}</p>
-        <Divider horizontal={true}>Cadvisor</Divider>
+      <>
         <h4>
           Cadvisor container :
           <Button.Group>
@@ -154,19 +106,21 @@ class Daemon extends React.Component<
           label="RAM"
         />
         {containerInfo.name &&
-          containerInfo.stats[0].filesystem.sort((a,b) => (a.device > b.device) ? 1 : ((b.device > a.device) ? -1 : 0)).map(fs => (
-            <Progress
-              key={fs.device}
-              value={fs.usage}
-              total={fs.capacity}
-              progress="ratio"
-              indicating={true}
-              label={"Disk - " + fs.device}
-            />
-          ))}
-        <Divider horizontal={true}>Docker</Divider>
-        <ContainerTable daemon={daemon} containers={containers} />
-      </Layout>
+          containerInfo.stats[0].filesystem
+            .sort(
+              (a, b) => (a.device > b.device ? 1 : b.device > a.device ? -1 : 0)
+            )
+            .map(fs => (
+              <Progress
+                key={fs.device}
+                value={fs.usage}
+                total={fs.capacity}
+                progress="ratio"
+                indicating={true}
+                label={"Disk - " + fs.device}
+              />
+            ))}
+      </>
     );
   }
 

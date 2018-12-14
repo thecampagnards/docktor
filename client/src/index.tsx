@@ -13,8 +13,7 @@ import GroupIndex from "./components/Group/views/GroupIndex";
 import Groups from "./components/Group/views/Groups";
 
 import Daemons from "./components/Daemon/views/Daemons";
-import Daemon from "./components/Daemon/views/Daemon";
-import DaemonForm from "./components/Daemon/views/DaemonForm";
+import DaemonIndex from "./components/Daemon/views/DaemonIndex";
 
 import Services from "./components/Services/views/Services";
 import Service from "./components/Services/views/Service";
@@ -27,11 +26,18 @@ ReactDOM.render(
       <Route exact={true} path={path.market} component={Market} />
 
       <Route exact={true} path={path.groups} component={Groups} />
-      <Route exact={true} path={path.groupsMore + "*"} component={GroupIndex} />
+      <Route
+        exact={true}
+        path={path.groupsMore + "/*"}
+        component={GroupIndex}
+      />
 
       <Route exact={true} path={path.daemons} component={Daemons} />
-      <Route exact={true} path={path.daemonsMore} component={Daemon} />
-      <Route exact={true} path={path.daemonsEdit} component={DaemonForm} />
+      <Route
+        exact={true}
+        path={path.daemonsMore + "/*"}
+        component={DaemonIndex}
+      />
 
       <Route exact={true} path={path.services} component={Services} />
       <Route exact={true} path={path.servicesMore} component={Service} />
