@@ -20,7 +20,7 @@ interface IRouterProps {
 interface IDaemonIndexStates {
   daemon: IDaemon;
   isFetching: boolean;
-  error: Error;
+  error: Error | null;
   activeTab: number;
 }
 
@@ -32,7 +32,7 @@ class DaemonIndex extends React.Component<
     activeTab: 0,
     isFetching: false,
     daemon: {} as IDaemon,
-    error: Error()
+    error: null
   };
 
   public componentWillMount() {
@@ -93,7 +93,7 @@ class DaemonIndex extends React.Component<
 
     return (
       <Layout>
-        <h1>{daemon.Name || "Group"}</h1>
+        <h1>{daemon.Name || "Daemon"}</h1>
         <ReactMarkdown source={daemon.Description} />
         <Tab
           panes={panes}

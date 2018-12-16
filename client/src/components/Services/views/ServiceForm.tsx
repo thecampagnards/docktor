@@ -182,7 +182,7 @@ class ServiceForm extends React.Component<
             header="Saved"
             content="Your group has been saved"
           />
-          <Message error={true} header="Error" content={!error} />
+          <Message error={true} header="Error" content={error && (error as Error).message} />
           <Button type="submit" loading={isFetching}>
             Save
           </Button>

@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Loader, Progress, Button } from "semantic-ui-react";
+import { Loader, Progress, Button, Message } from "semantic-ui-react";
 
 import {
   fetchCadvisorMachine,
@@ -16,10 +16,10 @@ interface IDaemonCAdvisorStates {
   containerInfo: IContainerInfo;
   machineInfo: IMachineInfo;
   isFetching: boolean;
-  error: Error;
+  error: Error | null;
 }
 
-class Daemon extends React.Component<
+class DaemonCAdvisor extends React.Component<
   IDaemonCAdvisorProps,
   IDaemonCAdvisorStates
 > {
@@ -28,7 +28,7 @@ class Daemon extends React.Component<
     containerInfo: {} as IContainerInfo,
     machineInfo: {} as IMachineInfo,
     isFetching: false,
-    error: Error()
+    error: null
   };
 
   public componentWillMount() {
@@ -38,14 +38,18 @@ class Daemon extends React.Component<
       .then((machineInfo: IMachineInfo) =>
         this.setState({ machineInfo, isFetching: false })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+      .catch((error: Error) => {
+        this.setState({ error, isFetching: false });
+      });
 
     const fetch = () => {
       fetchCadvisorContainers(daemon._id)
         .then((containerInfo: IContainerInfo) =>
-          this.setState({ containerInfo, isFetching: false })
+          this.setState({ containerInfo })
         )
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .catch((error: Error) => {
+          this.setState({ error });
+        });
     };
 
     fetch();
@@ -55,8 +59,37 @@ class Daemon extends React.Component<
   public render() {
     const { containerInfo, machineInfo, error, isFetching } = this.state;
 
+    const buttons = (
+      <h4>
+        Cadvisor container :
+        <Button.Group>
+          <Button color="orange" disabled={false}>
+            Stop
+          </Button>
+          <Button.Or />
+          <Button color="red" disabled={false}>
+            Remove
+          </Button>
+          <Button.Or />
+          <Button color="green" disabled={false}>
+            Start
+          </Button>
+        </Button.Group>
+      </h4>
+    );
+
     if (error) {
-      return <p>{error}</p>;
+      return (
+        <>
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue with your CAdvisor
+            </Message.Header>
+            <p>{(error as Error).message}</p>
+          </Message>
+          {buttons}
+        </>
+      );
     }
 
     if (isFetching) {
@@ -65,22 +98,7 @@ class Daemon extends React.Component<
 
     return (
       <>
-        <h4>
-          Cadvisor container :
-          <Button.Group>
-            <Button color="orange" disabled={false}>
-              Stop
-            </Button>
-            <Button.Or />
-            <Button color="red" disabled={false}>
-              Remove
-            </Button>
-            <Button.Or />
-            <Button color="green" disabled={false}>
-              Start
-            </Button>
-          </Button.Group>
-        </h4>
+        {buttons}
         <Progress
           value={
             (containerInfo.name &&
@@ -107,8 +125,8 @@ class Daemon extends React.Component<
         />
         {containerInfo.name &&
           containerInfo.stats[0].filesystem
-            .sort(
-              (a, b) => (a.device > b.device ? 1 : b.device > a.device ? -1 : 0)
+            .sort((a, b) =>
+              a.device > b.device ? 1 : b.device > a.device ? -1 : 0
             )
             .map(fs => (
               <Progress
@@ -173,4 +191,4 @@ class Daemon extends React.Component<
   }
 }
 
-export default Daemon;
+export default DaemonCAdvisor;

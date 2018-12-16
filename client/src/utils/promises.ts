@@ -3,9 +3,9 @@ export function checkStatus(response: Response) {
       return Promise.resolve(response);
     }
     return response
-      .json()
-      .then(json =>
-        Promise.reject(new Error(json.message || response.statusText)),
+      .text()
+      .then(text =>
+        Promise.reject(new Error(text || response.statusText)),
       );
   }
   

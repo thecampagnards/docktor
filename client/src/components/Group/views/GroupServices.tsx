@@ -23,13 +23,14 @@ interface IGroupStates {
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     services: [],
-    isFetching: true,
+    isFetching: false,
     error: null
   };
 
   public componentWillMount() {
     const { group } = this.props;
     group.Services.map(service => {
+      this.setState({ isFetching: true });
       fetchServiceBySubService(service._id)
         .then((s: IService) => {
           const services: IService[] = this.state.services;

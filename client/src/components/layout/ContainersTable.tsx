@@ -34,7 +34,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
               </Table.Cell>
               <Table.Cell>
                 <List>
-                  {container.Ports.map((port: IPort) => (
+                  {container.Ports.filter(port => port.PublicPort).map((port: IPort) => (
                     <List.Item
                       key={port.PublicPort}
                       as="a"

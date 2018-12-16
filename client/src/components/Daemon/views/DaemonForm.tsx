@@ -6,8 +6,6 @@ import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 import { IDaemon } from "../types/daemon";
 import { saveDaemon } from "../actions/daemon";
 
-import Layout from "../../layout/layout";
-
 interface IDaemonFormProps {
   daemon: IDaemon;
 }
@@ -35,111 +33,108 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     const { daemon, error, isFetching, isSuccess } = this.state;
 
     return (
-      <Layout>
-        <h2>Daemon</h2>
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+      <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+        <Form.Input
+          label="Name"
+          name="Name"
+          type="text"
+          value={daemon.Name}
+          onChange={this.handleChange}
+        />
+        <Form.Group inline={true}>
           <Form.Input
-            label="Name"
-            name="Name"
+            label="Host"
+            name="Host"
             type="text"
-            value={daemon.Name}
+            value={daemon.Host}
             onChange={this.handleChange}
-          />
-          <Form.Group inline={true}>
-            <Form.Input
-              label="Host"
-              name="Host"
-              type="text"
-              value={daemon.Host}
-              onChange={this.handleChange}
-              width={8}
-            />
-
-            <Form.Input
-              label="Port"
-              name="Port"
-              type="number"
-              value={daemon.Port}
-              onChange={this.handleChange}
-              width={4}
-            />
-          </Form.Group>
-
-          <Form.Input
-            label="CAdvisor"
-            name="CAdvisor"
-            type="url"
-            value={daemon.CAdvisor}
-            onChange={this.handleChange}
-          />
-
-          <p>Description</p>
-          <CodeMirror
-            value={daemon.Description}
-            options={{
-              mode: "markdown",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Description"]
-            }}
-            onChange={this.handleChangeCodeEditor}
-          />
-
-          <p>Ca</p>
-          <CodeMirror
-            value={daemon.Ca}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Ca"]
-            }}
-            onChange={this.handleChangeCodeEditor}
-          />
-
-          <p>Cert</p>
-          <CodeMirror
-            value={daemon.Cert}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Cert"]
-            }}
-            onChange={this.handleChangeCodeEditor}
-          />
-
-          <p>Key</p>
-          <CodeMirror
-            value={daemon.Key}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Key"]
-            }}
-            onChange={this.handleChangeCodeEditor}
+            width={8}
           />
 
           <Form.Input
-            label="Volume"
-            name="Volume"
-            type="text"
-            value={daemon.Volume}
+            label="Port"
+            name="Port"
+            type="number"
+            value={daemon.Port}
             onChange={this.handleChange}
+            width={4}
           />
+        </Form.Group>
 
-          <Message
-            success={true}
-            header="Saved"
-            content="Your daemon has been saved"
-          />
-          <Message error={true} header="Error" content={!error} />
-          <Button type="submit" loading={isFetching}>
-            Save
-          </Button>
-        </Form>
-      </Layout>
+        <Form.Input
+          label="CAdvisor"
+          name="CAdvisor"
+          type="url"
+          value={daemon.CAdvisor}
+          onChange={this.handleChange}
+        />
+
+        <p>Description</p>
+        <CodeMirror
+          value={daemon.Description}
+          options={{
+            mode: "markdown",
+            theme: "material",
+            lineNumbers: true,
+            gutters: ["Description"]
+          }}
+          onChange={this.handleChangeCodeEditor}
+        />
+
+        <p>Ca</p>
+        <CodeMirror
+          value={daemon.Ca}
+          options={{
+            mode: "plain",
+            theme: "material",
+            lineNumbers: true,
+            gutters: ["Ca"]
+          }}
+          onChange={this.handleChangeCodeEditor}
+        />
+
+        <p>Cert</p>
+        <CodeMirror
+          value={daemon.Cert}
+          options={{
+            mode: "plain",
+            theme: "material",
+            lineNumbers: true,
+            gutters: ["Cert"]
+          }}
+          onChange={this.handleChangeCodeEditor}
+        />
+
+        <p>Key</p>
+        <CodeMirror
+          value={daemon.Key}
+          options={{
+            mode: "plain",
+            theme: "material",
+            lineNumbers: true,
+            gutters: ["Key"]
+          }}
+          onChange={this.handleChangeCodeEditor}
+        />
+
+        <Form.Input
+          label="Volume"
+          name="Volume"
+          type="text"
+          value={daemon.Volume}
+          onChange={this.handleChange}
+        />
+
+        <Message
+          success={true}
+          header="Saved"
+          content="Your daemon has been saved"
+        />
+        <Message error={true} header="Error" content={error && (error as Error).message} />
+        <Button type="submit" loading={isFetching}>
+          Save
+        </Button>
+      </Form>
     );
   }
 

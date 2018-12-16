@@ -28,7 +28,7 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
             <span className="date">{service._id}</span>
           </Card.Meta>
           <Card.Description>
-            <ReactMarkdown source={service.Description} />
+            <ReactMarkdown source={service.Description}/>
           </Card.Description>
         </Card.Content>
         <Card.Content extra={true}>

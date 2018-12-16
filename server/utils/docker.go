@@ -70,7 +70,7 @@ func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
 		return nil, err
 	}
 
-	return cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{})
+	return cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{All: true})
 }
 
 // InspectContainers
@@ -98,12 +98,6 @@ func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerT
 // StartContainers
 func StartContainers(daemon types.Daemon, containersName ...string) error {
 
-	/*
-		for _, n := range dockerContainer.Names {
-				for _, ng := range groups {
-					// Check if the container start with the group name
-					if strings.HasPrefix(strings.ToLower(n), strings.ToLower(ng.Name)) {
-	*/
 	cli, err := GetDockerCli(daemon)
 
 	if err != nil {

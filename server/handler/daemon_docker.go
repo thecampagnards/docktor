@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/binary"
 	"net/http"
+	"strings"
 
 	"docktor/server/dao"
 	"docktor/server/utils"
@@ -25,6 +26,38 @@ func (st *Daemon) GetContainers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, cs)
+}
+
+// StatusContainers change the status of a container slice
+func (st *Daemon) StatusContainers(c echo.Context) error {
+
+	daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	splitFn := func(c rune) bool {
+		return c == ','
+	}
+
+	containers := strings.FieldsFunc(c.QueryParam("containers"), splitFn)
+
+	switch c.QueryParam("status") {
+	case "start":
+		err = utils.StartContainers(daemon, containers...)
+	case "stop":
+		err = utils.StopContainers(daemon, containers...)
+	case "remove":
+		err = utils.RemoveContainers(daemon, containers...)
+	default:
+		return c.JSON(http.StatusBadRequest, "Wrong status")
+	}
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "ok")
 }
 
 // GetContainerLog is a ws which send container log

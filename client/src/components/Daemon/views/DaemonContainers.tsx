@@ -1,7 +1,7 @@
 import * as React from "react";
-import { Loader } from "semantic-ui-react";
+import { Loader, Message } from "semantic-ui-react";
 
-import ContainerTable from "src/components/layout/ContainersTable";
+import ContainerTable from "../../layout/ContainersTable";
 
 import { fetchContainers } from "../actions/daemon";
 
@@ -15,7 +15,7 @@ interface IDaemonContainersProps {
 interface IDaemonContainersStates {
   containers: IContainer[];
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class Daemon extends React.Component<
@@ -23,27 +23,37 @@ class Daemon extends React.Component<
   IDaemonContainersStates
 > {
   public state = {
-    daemon: {} as IDaemon,
     containers: [],
     isFetching: false,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
     const { daemon } = this.props;
 
-    setInterval(() => {
+    const fetch = () => {
       fetchContainers(daemon._id)
         .then((containers: IContainer[]) => this.setState({ containers }))
         .catch((error: Error) => this.setState({ error, isFetching: false }));
-    }, 1000 * 5);
+    };
+
+    fetch();
+    setInterval(fetch, 1000 * 5);
   }
 
   public render() {
-    const { containers, daemon, error, isFetching } = this.state;
+    const { containers, error, isFetching } = this.state;
+    const { daemon } = this.props;
 
-    if (error) {
-      return <p>{error}</p>;
+    if (error.message) {
+      return (
+        <Message negative={true}>
+          <Message.Header>
+            There was an issue to connect to the Docker daemon
+          </Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      );
     }
 
     if (isFetching) {
