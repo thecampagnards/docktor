@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/binary"
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -95,6 +96,64 @@ func (st *Daemon) GetContainerLog(c echo.Context) error {
 			}
 
 			websocket.Message.Send(ws, string(dat))
+		}
+	}).ServeHTTP(c.Response(), c.Request())
+	return nil
+}
+
+// RunContainerCommands is a ws which exece cmd on container
+func (st *Daemon) RunContainerCommands(c echo.Context) error {
+	websocket.Handler(func(ws *websocket.Conn) {
+		defer ws.Close()
+
+		daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+		if err != nil {
+			c.Logger().Error(err)
+		}
+
+		hij, err := utils.RunContainerCommands(daemon, c.Param("containerID"))
+		if err != nil {
+			c.Logger().Error(err)
+		}
+
+		defer hij.Close()
+
+		// ignore the 8 first bytes
+		//hdr := make([]byte, 8)
+
+		for {
+			/*
+				_, err := hij.Reader.Read(hdr)
+				if err != nil {
+					c.Logger().Error(err)
+				}
+
+				count := binary.BigEndian.Uint32(hdr[4:])
+				fmt.Println(count)
+
+				dat := make([]byte, count)
+				_, err = hij.Reader.Read(dat)
+				if err != nil {
+					c.Logger().Error(err)
+				}
+
+				fmt.Println(string(dat))
+
+				websocket.Message.Send(ws, string(dat))
+			*/
+			// Read
+			msg := ""
+			err = websocket.Message.Receive(ws, &msg)
+			if err != nil {
+				c.Logger().Error(err)
+			}
+
+			fmt.Println(msg)
+
+			_, err = hij.Conn.Write([]byte(msg))
+			if err != nil {
+				c.Logger().Error(err)
+			}
 		}
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil

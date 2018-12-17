@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Tab, TabProps } from "semantic-ui-react";
+import { Tab, TabProps, Message } from "semantic-ui-react";
 import { RouteComponentProps } from "react-router";
 import * as ReactMarkdown from "react-markdown";
 
@@ -20,7 +20,7 @@ interface IRouterProps {
 interface IDaemonIndexStates {
   daemon: IDaemon;
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
   activeTab: number;
 }
 
@@ -32,7 +32,7 @@ class DaemonIndex extends React.Component<
     activeTab: 0,
     isFetching: false,
     daemon: {} as IDaemon,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
@@ -62,7 +62,16 @@ class DaemonIndex extends React.Component<
   }
 
   public render() {
-    const { daemon, activeTab, isFetching } = this.state;
+    const { error, daemon, activeTab, isFetching } = this.state;
+
+    if (error.message) {
+      return (
+        <Message negative={true}>
+          <Message.Header>There was an issue to get daemon</Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      );
+    }
 
     const panes = [
       {

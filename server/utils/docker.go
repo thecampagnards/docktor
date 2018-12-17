@@ -175,3 +175,30 @@ func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, er
 
 	return cli.ContainerLogs(context.Background(), containerID, dockerTypes.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 }
+
+// RunContainerCommands
+func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.HijackedResponse, error) {
+	cli, err := GetDockerCli(daemon)
+	if err != nil {
+		return dockerTypes.HijackedResponse{}, err
+	}
+
+	exec, err := cli.ContainerExecCreate(context.Background(), containerID, dockerTypes.ExecConfig{
+		AttachStderr: true,
+		AttachStdin:  true,
+		AttachStdout: true,
+		Tty:          false,
+		Cmd:          []string{"echo", "hello world"},
+	})
+	if err != nil {
+		return dockerTypes.HijackedResponse{}, err
+	}
+
+	cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: true, Tty: true})
+	if err != nil {
+		return dockerTypes.HijackedResponse{}, err
+	}
+
+	// check https://github.com/docker/cli/blob/master/cli/command/container/exec.go
+	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: true, Tty: true})
+}

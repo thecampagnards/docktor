@@ -1,7 +1,11 @@
 import * as React from "react";
 import { Table, List, Button, Modal } from "semantic-ui-react";
 
-import ContainerSocket from "./ContainerSocket";
+import ContainerLogSocket from "./ContainerLogSocket";
+import ContainerCmdSocket from "./ContainerCmdSocket";
+
+import { changeContainersStatus } from '../Daemon/actions/daemon';
+
 import { status } from "../../constants/container";
 
 import { IContainer, IPort } from "../Group/types/group";
@@ -53,6 +57,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
                   <Button
                     color="orange"
                     disabled={status.Stopped.indexOf(container.State) > -1}
+                    onClick={changeContainersStatus.bind(this, daemon._id, "stop", [container.Id])}
                   >
                     Stop
                   </Button>
@@ -60,6 +65,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
                   <Button
                     color="red"
                     disabled={status.Removed.indexOf(container.State) > -1}
+                    onClick={changeContainersStatus.bind(this, daemon._id, "remove", [container.Id])}
                   >
                     Remove
                   </Button>
@@ -67,13 +73,22 @@ export default class ContainerTable extends React.Component<ITableProps> {
                   <Button
                     color="green"
                     disabled={status.Started.indexOf(container.State) > -1}
+                    onClick={changeContainersStatus.bind(this, daemon._id, "start", [container.Id])}
                   >
                     Start
                   </Button>
                 </Button.Group>
                 <Modal trigger={<Button>Get Logs</Button>}>
                   <Modal.Content>
-                    <ContainerSocket
+                    <ContainerLogSocket
+                      daemon={daemon}
+                      containerID={container.Id}
+                    />
+                  </Modal.Content>
+                </Modal>
+                <Modal trigger={<Button>Exec commands</Button>}>
+                  <Modal.Content>
+                    <ContainerCmdSocket
                       daemon={daemon}
                       containerID={container.Id}
                     />
