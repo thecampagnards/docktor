@@ -2,6 +2,7 @@ package utils
 
 import (
 	"docktor/server/types"
+	"errors"
 	"io"
 	"net/http"
 	"os"
@@ -178,27 +179,31 @@ func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, er
 
 // RunContainerCommands
 func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.HijackedResponse, error) {
+
 	cli, err := GetDockerCli(daemon)
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}
 
 	exec, err := cli.ContainerExecCreate(context.Background(), containerID, dockerTypes.ExecConfig{
-		AttachStderr: true,
 		AttachStdin:  true,
 		AttachStdout: true,
-		Tty:          false,
-		Cmd:          []string{"echo", "hello world"},
+		AttachStderr: true,
+		Cmd:          []string{"/bin/sh"},
+		Tty:          true,
 	})
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}
 
-	cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: true, Tty: true})
-	if err != nil {
-		return dockerTypes.HijackedResponse{}, err
+	execID := exec.ID
+	if execID == "" {
+		return dockerTypes.HijackedResponse{}, errors.New("exec ID empty")
 	}
 
+	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: false, Tty: true})
+
 	// check https://github.com/docker/cli/blob/master/cli/command/container/exec.go
-	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: true, Tty: true})
+	// https://github.com/constabulary/docker-depfile-example/blob/master/src/github.com/docker/docker/api/client/exec.go
+	// https://gist.github.com/Humerus/0268c62f359f7ee1ee2d
 }

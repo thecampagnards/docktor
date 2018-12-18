@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Loader, Message } from "semantic-ui-react";
+import { Message } from "semantic-ui-react";
 
 import ContainerTable from "../../layout/ContainersTable";
 
@@ -14,7 +14,6 @@ interface IDaemonContainersProps {
 
 interface IDaemonContainersStates {
   containers: IContainer[];
-  isFetching: boolean;
   error: Error;
 }
 
@@ -24,7 +23,6 @@ class Daemon extends React.Component<
 > {
   public state = {
     containers: [],
-    isFetching: false,
     error: Error()
   };
 
@@ -33,8 +31,8 @@ class Daemon extends React.Component<
 
     const fetch = () => {
       fetchContainers(daemon._id)
-        .then((containers: IContainer[]) => this.setState({ containers }))
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .then((containers: IContainer[]) => this.setState({ containers, error: Error() }))
+        .catch((error: Error) => this.setState({ error }));
     };
 
     fetch();
@@ -42,7 +40,7 @@ class Daemon extends React.Component<
   }
 
   public render() {
-    const { containers, error, isFetching } = this.state;
+    const { containers, error } = this.state;
     const { daemon } = this.props;
 
     if (error.message) {
@@ -54,10 +52,6 @@ class Daemon extends React.Component<
           <p>{error.message}</p>
         </Message>
       );
-    }
-
-    if (isFetching) {
-      return <Loader active={true} />;
     }
 
     return <ContainerTable daemon={daemon} containers={containers} />;

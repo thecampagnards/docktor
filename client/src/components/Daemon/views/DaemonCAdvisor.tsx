@@ -126,13 +126,13 @@ class DaemonCAdvisor extends React.Component<
         {containerInfo.name &&
           containerInfo.stats[0].filesystem
             .sort((a, b) =>
-              a.device > b.device ? 1 : b.device > a.device ? -1 : 0
+              a.device > b.device ? -1 : b.device > a.device ? 1 : 0
             )
             .map(fs => (
               <Progress
                 key={fs.device}
-                value={fs.usage}
-                total={fs.capacity}
+                value={(fs.usage/1000000000).toFixed(3)}
+                total={(fs.capacity/1000000000).toFixed(3)}
                 progress="ratio"
                 indicating={true}
                 label={"Disk - " + fs.device}

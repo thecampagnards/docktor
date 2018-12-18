@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/binary"
 	"fmt"
+	"io"
 	"net/http"
 	"strings"
 
@@ -111,50 +112,102 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 			c.Logger().Error(err)
 		}
 
+		fmt.Println("toto")
+
 		hij, err := utils.RunContainerCommands(daemon, c.Param("containerID"))
 		if err != nil {
 			c.Logger().Error(err)
 		}
 
+		fmt.Println("tutu")
+
 		defer hij.Close()
 
-		// ignore the 8 first bytes
-		//hdr := make([]byte, 8)
+		var started chan io.Closer
 
-		for {
-			/*
-				_, err := hij.Reader.Read(hdr)
-				if err != nil {
-					c.Logger().Error(err)
-				}
-
-				count := binary.BigEndian.Uint32(hdr[4:])
-				fmt.Println(count)
-
-				dat := make([]byte, count)
-				_, err = hij.Reader.Read(dat)
-				if err != nil {
-					c.Logger().Error(err)
-				}
-
-				fmt.Println(string(dat))
-
-				websocket.Message.Send(ws, string(dat))
-			*/
-			// Read
-			msg := ""
-			err = websocket.Message.Receive(ws, &msg)
-			if err != nil {
-				c.Logger().Error(err)
-			}
-
-			fmt.Println(msg)
-
-			_, err = hij.Conn.Write([]byte(msg))
-			if err != nil {
-				c.Logger().Error(err)
-			}
+		if started != nil {
+			started <- hij.Conn
 		}
+
+		var receiveStdout chan error
+
+		go func() {
+			_, err = io.Copy(ws, hij.Reader)
+			//websocket.Message.Send(ws, hij.Reader)
+		}()
+
+		go func() {
+			io.Copy(hij.Conn, ws)
+
+			if conn, ok := hij.Conn.(interface {
+				CloseWrite() error
+			}); ok {
+				if err := conn.CloseWrite(); err != nil {
+				}
+			}
+		}()
+
+		if err := <-receiveStdout; err != nil {
+			fmt.Println(err)
+			//return err
+		}
+		/*
+			for {
+
+				websocket.Message.Send(ws, hij.Reader)
+				websocket.Message.Send(ws, hij.Conn)
+				websocket.Message.Send(ws, receiveStdout)
+
+				// Read
+				msg := ""
+				err = websocket.Message.Receive(ws, &msg)
+				if err != nil {
+					c.Logger().Error(err)
+				}
+
+				fmt.Println("msg: ", msg)
+
+				io.Copy(hij.Conn, ws)
+
+				_, err = hij.Conn.Write([]byte(msg))
+				if err != nil {
+					c.Logger().Error(err)
+				}
+			}
+
+			/*
+
+				//rwc, br := hij.Conn.Hijack()
+
+				// dat := make([]byte, 1)
+
+				for {
+
+					fmt.Println("dada")
+
+					n, err := hij.Conn.Read(dat)
+					if err != nil {
+						c.Logger().Error(err)
+					}
+
+					fmt.Println("data: ", string(dat[:n]))
+
+					websocket.Message.Send(ws, string(dat[:n]))
+
+					// Read
+					msg := ""
+					err = websocket.Message.Receive(ws, &msg)
+					if err != nil {
+						c.Logger().Error(err)
+					}
+
+					fmt.Println("msg: ", msg)
+
+					_, err = hij.Conn.Write([]byte(msg))
+					if err != nil {
+						c.Logger().Error(err)
+					}
+				}*/
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
 }

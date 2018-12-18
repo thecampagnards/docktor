@@ -31,7 +31,9 @@ export default class ContainerTable extends React.Component<ITableProps> {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {containers.map((container: IContainer) => (
+          {containers .sort((a, b) =>
+              a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0
+            ).map((container: IContainer) => (
             <Table.Row key={container.Id}>
               <Table.Cell singleLine={true}>
                 {container.Id.substring(0, 12)} {container.Names}
