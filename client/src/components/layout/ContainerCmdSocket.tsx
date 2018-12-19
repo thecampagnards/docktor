@@ -1,6 +1,7 @@
 import * as React from "react";
 import { IDaemon } from "../Daemon/types/daemon";
-import { Input, Button, Message } from "semantic-ui-react";
+import { Terminal } from "xterm";
+import "xterm/dist/xterm.css";
 
 interface ISocketProps {
   daemon: IDaemon;
@@ -8,10 +9,8 @@ interface ISocketProps {
 }
 
 interface ISocketStates {
-  logs: string;
-  error: string;
-  command: string;
   ws: WebSocket;
+  term: Terminal;
 }
 
 export default class ContainerCmdSocket extends React.Component<
@@ -19,14 +18,18 @@ export default class ContainerCmdSocket extends React.Component<
   ISocketStates
 > {
   public state = {
-    logs: "",
     error: "",
-    command: "echo 'toto' > /tmp/toto",
+    term: {} as Terminal,
     ws: {} as WebSocket
   };
 
+  private container: HTMLElement;
+
   public componentWillMount() {
     const { daemon, containerID } = this.props;
+
+    const shellRed = "\x1B[1;3;31m";
+    const shellNc = "\x1B[0m";
 
     const loc = window.location;
     let uri = "ws:";
@@ -38,52 +41,52 @@ export default class ContainerCmdSocket extends React.Component<
 
     const ws = new WebSocket(uri + daemon._id + "/commands/" + containerID);
 
-    ws.onmessage = e => {
-      const logs = this.state.logs.concat(e.data);
-      this.setState({ logs });
+    ws.onopen = () => {
+      const term = new Terminal({
+        cursorBlink: true
+      });
+
+      term.open(this.container);
+
+      term.setOption("screenKeys", true);
+
+      term.on("data", data => {
+        ws.send(data);
+      });
+
+      ws.onmessage = evt => {
+        term.write(evt.data);
+      };
+
+      ws.onclose = e => {
+        term.write("Session terminated");
+        term.destroy();
+
+        if (!e.wasClean) {
+          term.write(
+            `${shellRed}WebSocket error: ${e.code} ${e.reason}${shellNc}`
+          );
+        }
+      };
+
+      ws.onerror = () => {
+        term.write(`${shellRed}WebSocket error${shellNc}`);
+      };
+
+      this.setState({ term });
     };
-    ws.onerror = e => this.setState({ error: "WebSocket error" });
-    ws.onclose = e =>
-      !e.wasClean &&
-      this.setState({ error: `WebSocket error: ${e.code} ${e.reason}` });
 
     this.setState({ ws });
   }
 
   public componentWillUnmount() {
     this.state.ws.close();
+    this.state.term.destroy();
   }
 
   public render() {
-    const { command, logs, error } = this.state;
-    return (
-      <>
-        {error && (
-          <Message negative={true}>
-            <Message.Header>Error with the websocket</Message.Header>
-            <p>{error}</p>
-          </Message>
-        )}
-        <p>{logs}</p>
-        <div>
-          <Input placeholder="Command..." onChange={this.onChange} width={8} value={command}/>
-          <Button content="Run" onClick={this.onClick} width={4} />
-        </div>
-      </>
-    );
+    return React.createElement("div", {
+      ref: ref => (this.container = ref as HTMLElement)
+    });
   }
-
-  private onChange = (
-    e: React.ChangeEvent<HTMLInputElement>,
-    { value }: any
-  ) => {
-    this.setState({ command: value });
-  };
-
-  private onClick = () => {
-    const { ws, command } = this.state;
-    console.log(command)
-    ws.send(command);
-    this.setState({ command: "" });
-  };
 }

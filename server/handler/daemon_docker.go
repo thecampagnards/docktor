@@ -2,7 +2,6 @@ package handler
 
 import (
 	"encoding/binary"
-	"fmt"
 	"io"
 	"net/http"
 	"strings"
@@ -109,105 +108,54 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 
 		daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
 		if err != nil {
-			c.Logger().Error(err)
+			panic(err)
 		}
-
-		fmt.Println("toto")
 
 		hij, err := utils.RunContainerCommands(daemon, c.Param("containerID"))
 		if err != nil {
-			c.Logger().Error(err)
+			panic(err)
 		}
 
-		fmt.Println("tutu")
-
-		defer hij.Close()
+		rwc := hij.Conn
+		br := hij.Reader
 
 		var started chan io.Closer
 
 		if started != nil {
-			started <- hij.Conn
+			started <- rwc
 		}
 
 		var receiveStdout chan error
 
-		go func() {
-			_, err = io.Copy(ws, hij.Reader)
-			//websocket.Message.Send(ws, hij.Reader)
-		}()
+		if ws != nil {
+			go func() (err error) {
+				if ws != nil {
+					_, err = io.Copy(ws, br)
+				}
+				return err
+			}()
+		}
 
-		go func() {
-			io.Copy(hij.Conn, ws)
+		go func() error {
+			if ws != nil {
+				io.Copy(rwc, ws)
+			}
 
-			if conn, ok := hij.Conn.(interface {
+			if conn, ok := rwc.(interface {
 				CloseWrite() error
 			}); ok {
 				if err := conn.CloseWrite(); err != nil {
 				}
 			}
+			return nil
 		}()
 
-		if err := <-receiveStdout; err != nil {
-			fmt.Println(err)
-			//return err
-		}
-		/*
-			for {
-
-				websocket.Message.Send(ws, hij.Reader)
-				websocket.Message.Send(ws, hij.Conn)
-				websocket.Message.Send(ws, receiveStdout)
-
-				// Read
-				msg := ""
-				err = websocket.Message.Receive(ws, &msg)
-				if err != nil {
-					c.Logger().Error(err)
-				}
-
-				fmt.Println("msg: ", msg)
-
-				io.Copy(hij.Conn, ws)
-
-				_, err = hij.Conn.Write([]byte(msg))
-				if err != nil {
-					c.Logger().Error(err)
-				}
+		if ws != nil {
+			if err := <-receiveStdout; err != nil {
+				c.Logger().Error(err)
 			}
+		}
 
-			/*
-
-				//rwc, br := hij.Conn.Hijack()
-
-				// dat := make([]byte, 1)
-
-				for {
-
-					fmt.Println("dada")
-
-					n, err := hij.Conn.Read(dat)
-					if err != nil {
-						c.Logger().Error(err)
-					}
-
-					fmt.Println("data: ", string(dat[:n]))
-
-					websocket.Message.Send(ws, string(dat[:n]))
-
-					// Read
-					msg := ""
-					err = websocket.Message.Receive(ws, &msg)
-					if err != nil {
-						c.Logger().Error(err)
-					}
-
-					fmt.Println("msg: ", msg)
-
-					_, err = hij.Conn.Write([]byte(msg))
-					if err != nil {
-						c.Logger().Error(err)
-					}
-				}*/
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
 }

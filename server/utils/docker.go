@@ -178,6 +178,7 @@ func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, er
 }
 
 // RunContainerCommands
+// Based on https://github.com/bitbull-team/docker-exec-web-console
 func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.HijackedResponse, error) {
 
 	cli, err := GetDockerCli(daemon)
@@ -189,8 +190,8 @@ func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.
 		AttachStdin:  true,
 		AttachStdout: true,
 		AttachStderr: true,
-		Cmd:          []string{"/bin/sh"},
 		Tty:          true,
+		Cmd:          []string{"/bin/sh"},
 	})
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
@@ -201,9 +202,10 @@ func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.
 		return dockerTypes.HijackedResponse{}, errors.New("exec ID empty")
 	}
 
-	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: false, Tty: true})
+	cli, err = GetDockerCli(daemon)
+	if err != nil {
+		return dockerTypes.HijackedResponse{}, err
+	}
 
-	// check https://github.com/docker/cli/blob/master/cli/command/container/exec.go
-	// https://github.com/constabulary/docker-depfile-example/blob/master/src/github.com/docker/docker/api/client/exec.go
-	// https://gist.github.com/Humerus/0268c62f359f7ee1ee2d
+	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: false, Tty: true})
 }

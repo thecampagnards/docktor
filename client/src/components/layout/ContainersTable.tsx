@@ -4,7 +4,7 @@ import { Table, List, Button, Modal } from "semantic-ui-react";
 import ContainerLogSocket from "./ContainerLogSocket";
 import ContainerCmdSocket from "./ContainerCmdSocket";
 
-import { changeContainersStatus } from '../Daemon/actions/daemon';
+import { changeContainersStatus } from "../Daemon/actions/daemon";
 
 import { status } from "../../constants/container";
 
@@ -31,74 +31,93 @@ export default class ContainerTable extends React.Component<ITableProps> {
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {containers .sort((a, b) =>
+          {containers
+            .sort((a, b) =>
               a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0
-            ).map((container: IContainer) => (
-            <Table.Row key={container.Id}>
-              <Table.Cell singleLine={true}>
-                {container.Id.substring(0, 12)} {container.Names}
-              </Table.Cell>
-              <Table.Cell>
-                <List>
-                  {container.Ports.filter(port => port.PublicPort).map((port: IPort) => (
-                    <List.Item
-                      key={port.PublicPort}
-                      as="a"
-                      href={"http://" + daemon.Host + ":" + port.PublicPort}
-                      target="_blank"
+            )
+            .map((container: IContainer) => (
+              <Table.Row key={container.Id}>
+                <Table.Cell singleLine={true}>
+                  {container.Id.substring(0, 12)} {container.Names}
+                </Table.Cell>
+                <Table.Cell>
+                  <List>
+                    {container.Ports.filter(port => port.PublicPort).map(
+                      (port: IPort) => (
+                        <List.Item
+                          key={port.PublicPort}
+                          as="a"
+                          href={"http://" + daemon.Host + ":" + port.PublicPort}
+                          target="_blank"
+                        >
+                          {daemon.Host + ":" + port.PublicPort}
+                        </List.Item>
+                      )
+                    )}
+                  </List>
+                </Table.Cell>
+                <Table.Cell>{container.Image}</Table.Cell>
+                <Table.Cell>{container.Status}</Table.Cell>
+                <Table.Cell>
+                  <Button.Group>
+                    <Button
+                      color="orange"
+                      disabled={status.Stopped.indexOf(container.State) > -1}
+                      onClick={changeContainersStatus.bind(
+                        this,
+                        daemon._id,
+                        "stop",
+                        [container.Id]
+                      )}
                     >
-                      {daemon.Host + ":" + port.PublicPort}
-                    </List.Item>
-                  ))}
-                </List>
-              </Table.Cell>
-              <Table.Cell>{container.Image}</Table.Cell>
-              <Table.Cell>{container.Status}</Table.Cell>
-              <Table.Cell>
-                <Button.Group>
-                  <Button
-                    color="orange"
-                    disabled={status.Stopped.indexOf(container.State) > -1}
-                    onClick={changeContainersStatus.bind(this, daemon._id, "stop", [container.Id])}
-                  >
-                    Stop
-                  </Button>
-                  <Button.Or />
-                  <Button
-                    color="red"
-                    disabled={status.Removed.indexOf(container.State) > -1}
-                    onClick={changeContainersStatus.bind(this, daemon._id, "remove", [container.Id])}
-                  >
-                    Remove
-                  </Button>
-                  <Button.Or />
-                  <Button
-                    color="green"
-                    disabled={status.Started.indexOf(container.State) > -1}
-                    onClick={changeContainersStatus.bind(this, daemon._id, "start", [container.Id])}
-                  >
-                    Start
-                  </Button>
-                </Button.Group>
-                <Modal trigger={<Button>Get Logs</Button>}>
-                  <Modal.Content>
-                    <ContainerLogSocket
-                      daemon={daemon}
-                      containerID={container.Id}
-                    />
-                  </Modal.Content>
-                </Modal>
-                <Modal trigger={<Button>Exec commands</Button>}>
-                  <Modal.Content>
-                    <ContainerCmdSocket
-                      daemon={daemon}
-                      containerID={container.Id}
-                    />
-                  </Modal.Content>
-                </Modal>
-              </Table.Cell>
-            </Table.Row>
-          ))}
+                      Stop
+                    </Button>
+                    <Button.Or />
+                    <Button
+                      color="red"
+                      disabled={status.Removed.indexOf(container.State) > -1}
+                      onClick={changeContainersStatus.bind(
+                        this,
+                        daemon._id,
+                        "remove",
+                        [container.Id]
+                      )}
+                    >
+                      Remove
+                    </Button>
+                    <Button.Or />
+                    <Button
+                      color="green"
+                      disabled={status.Started.indexOf(container.State) > -1}
+                      onClick={changeContainersStatus.bind(
+                        this,
+                        daemon._id,
+                        "start",
+                        [container.Id]
+                      )}
+                    >
+                      Start
+                    </Button>
+                  </Button.Group>
+                  <Modal trigger={<Button>Get Logs</Button>}>
+                    <Modal.Content>
+                      <ContainerLogSocket
+                        daemon={daemon}
+                        containerID={container.Id}
+                      />
+                    </Modal.Content>
+                  </Modal>
+                  <Modal trigger={<Button disabled={status.Started.indexOf(container.State) < -1}>Exec commands</Button>} size="large" >
+                    <Modal.Content style={{ background: "black" }}>
+                      <ContainerCmdSocket
+                        daemon={daemon}
+                        containerID={container.Id}
+                      />
+                    </Modal.Content>
+                  </Modal>
+                </Table.Cell>
+              </Table.Row>
+            ))}
         </Table.Body>
       </Table>
     );
