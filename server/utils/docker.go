@@ -71,6 +71,8 @@ func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
 		return nil, err
 	}
 
+	defer cli.Close()
+
 	return cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{All: true})
 }
 
@@ -82,6 +84,7 @@ func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerT
 	if err != nil {
 		return nil, err
 	}
+	defer cli.Close()
 
 	var containers []dockerTypes.ContainerJSON
 	for _, c := range containersName {
@@ -104,6 +107,7 @@ func StartContainers(daemon types.Daemon, containersName ...string) error {
 	if err != nil {
 		return err
 	}
+	defer cli.Close()
 
 	for _, c := range containersName {
 		err = cli.ContainerStart(context.Background(), c, dockerTypes.ContainerStartOptions{})
@@ -123,6 +127,7 @@ func StopContainers(daemon types.Daemon, containersName ...string) error {
 	if err != nil {
 		return err
 	}
+	defer cli.Close()
 
 	var timeout = (10) * time.Second
 
@@ -144,6 +149,7 @@ func RemoveContainers(daemon types.Daemon, containersName ...string) error {
 	if err != nil {
 		return err
 	}
+	defer cli.Close()
 
 	for _, c := range containersName {
 		err = cli.ContainerRemove(context.Background(), c, dockerTypes.ContainerRemoveOptions{Force: true})
@@ -163,6 +169,7 @@ func LogContainer(daemon types.Daemon, containerName string) (io.ReadCloser, err
 	if err != nil {
 		return nil, err
 	}
+	defer cli.Close()
 
 	return cli.ContainerLogs(context.Background(), containerName, dockerTypes.ContainerLogsOptions{})
 }
@@ -173,18 +180,19 @@ func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, er
 	if err != nil {
 		return nil, err
 	}
+	defer cli.Close()
 
 	return cli.ContainerLogs(context.Background(), containerID, dockerTypes.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
 }
 
 // RunContainerCommands
-// Based on https://github.com/bitbull-team/docker-exec-web-console
 func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.HijackedResponse, error) {
 
 	cli, err := GetDockerCli(daemon)
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}
+	defer cli.Close()
 
 	exec, err := cli.ContainerExecCreate(context.Background(), containerID, dockerTypes.ExecConfig{
 		AttachStdin:  true,
@@ -206,6 +214,7 @@ func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}
+	defer cli.Close()
 
 	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: false, Tty: true})
 }

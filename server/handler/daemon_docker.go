@@ -102,8 +102,10 @@ func (st *Daemon) GetContainerLog(c echo.Context) error {
 }
 
 // RunContainerCommands is a ws which exece cmd on container
+// Based on https://github.com/bitbull-team/docker-exec-web-console
 func (st *Daemon) RunContainerCommands(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
+
 		defer ws.Close()
 
 		daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
@@ -116,32 +118,28 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 			panic(err)
 		}
 
-		rwc := hij.Conn
-		br := hij.Reader
+		defer hij.Close()
 
-		var started chan io.Closer
-
-		if started != nil {
-			started <- rwc
-		}
-
+		// log errors
 		var receiveStdout chan error
-
-		if ws != nil {
-			go func() (err error) {
-				if ws != nil {
-					_, err = io.Copy(ws, br)
-				}
-				return err
-			}()
+		if err := <-receiveStdout; err != nil {
+			c.Logger().Error(err)
 		}
 
+		// redirect output to ws
+		go func() (err error) {
+			if ws != nil {
+				_, err = io.Copy(ws, hij.Reader)
+			}
+			return err
+		}()
+
+		// redirect ws input to input
 		go func() error {
 			if ws != nil {
-				io.Copy(rwc, ws)
+				io.Copy(hij.Conn, ws)
 			}
-
-			if conn, ok := rwc.(interface {
+			if conn, ok := hij.Conn.(interface {
 				CloseWrite() error
 			}); ok {
 				if err := conn.CloseWrite(); err != nil {
@@ -149,12 +147,6 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 			}
 			return nil
 		}()
-
-		if ws != nil {
-			if err := <-receiveStdout; err != nil {
-				c.Logger().Error(err)
-			}
-		}
 
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil

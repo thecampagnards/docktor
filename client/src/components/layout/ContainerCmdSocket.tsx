@@ -8,22 +8,12 @@ interface ISocketProps {
   containerID: string;
 }
 
-interface ISocketStates {
-  ws: WebSocket;
-  term: Terminal;
-}
-
 export default class ContainerCmdSocket extends React.Component<
-  ISocketProps,
-  ISocketStates
+  ISocketProps
 > {
-  public state = {
-    error: "",
-    term: {} as Terminal,
-    ws: {} as WebSocket
-  };
-
   private container: HTMLElement;
+  private term: Terminal;
+  private ws: WebSocket;
 
   public componentWillMount() {
     const { daemon, containerID } = this.props;
@@ -39,49 +29,47 @@ export default class ContainerCmdSocket extends React.Component<
     }
     uri += "//localhost:8080/api/daemons/";
 
-    const ws = new WebSocket(uri + daemon._id + "/commands/" + containerID);
+    this.ws = new WebSocket(uri + daemon._id + "/commands/" + containerID);
 
-    ws.onopen = () => {
-      const term = new Terminal({
+    this.ws.onopen = () => {
+      this.term = new Terminal({
         cursorBlink: true
       });
 
-      term.open(this.container);
+      this.term.open(this.container);
 
-      term.setOption("screenKeys", true);
+      this.term.setOption("screenKeys", true);
 
-      term.on("data", data => {
-        ws.send(data);
+      this.term.on("data", data => {
+        this.ws.send(data);
       });
 
-      ws.onmessage = evt => {
-        term.write(evt.data);
+      this.ws.onmessage = e => {
+        this.term.write(e.data);
       };
 
-      ws.onclose = e => {
-        term.write("Session terminated");
-        term.destroy();
+      this.ws.onclose = e => {
+        this.term.write("Session terminated");
+        this.term.destroy();
 
         if (!e.wasClean) {
-          term.write(
+          this.term.write(
             `${shellRed}WebSocket error: ${e.code} ${e.reason}${shellNc}`
           );
         }
       };
 
-      ws.onerror = () => {
-        term.write(`${shellRed}WebSocket error${shellNc}`);
+      this.ws.onerror = () => {
+        this.term.write(`${shellRed}WebSocket error${shellNc}`);
       };
 
-      this.setState({ term });
     };
 
-    this.setState({ ws });
   }
 
   public componentWillUnmount() {
-    this.state.ws.close();
-    this.state.term.destroy();
+    this.ws.close();
+    this.term.destroy();
   }
 
   public render() {

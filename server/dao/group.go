@@ -36,6 +36,30 @@ func GetGroups() (types.Groups, error) {
 	return t, err
 }
 
+// GetAdminGroupsOfUser get all admin groups of user
+func GetAdminGroupsOfUser(u types.User) (types.Groups, error) {
+	db := config.DB{}
+	t := types.Groups{}
+
+	s, err := db.DoDial()
+
+	if err != nil {
+		return t, errors.New("There was an error trying to connect with the DB")
+	}
+
+	defer s.Close()
+
+	c := s.DB(db.Name()).C(colGroup)
+
+	err = c.Find(bson.M{"$in": bson.M{"admins": u.Username}}).All(&t)
+
+	if err != nil {
+		return t, errors.New("There was an error trying to find the groups")
+	}
+
+	return t, err
+}
+
 // GetGroupByID get one group by id
 func GetGroupByID(id string) (types.Group, error) {
 	db := config.DB{}
