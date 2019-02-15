@@ -2,7 +2,6 @@ package main
 
 import (
 	"docktor/server/handler"
-	"docktor/server/types"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -14,23 +13,7 @@ func main() {
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 
-	Auth := handler.Auth{}
-
-	auth := e.Group("/auth")
-	auth.POST("/login", Auth.Login)
-	auth.POST("/register", Auth.Register)
-	auth.POST("/reset_password", Auth.ResetPassword)              // Reset the forgotten password
-	auth.POST("/change_reset_password", Auth.ChangeResetPassword) // Change password that has been reset
-
 	api := e.Group("/api")
-
-	config := middleware.JWTConfig{
-		Claims:     &auth.MyCustomClaims{},
-		SigningKey: []byte(os.Env("JWT_SECRET")),
-		ContextKey: "user-token",
-	}
-	api.Use(middleware.JWTWithConfig(config)) // Enrich echo context with JWT
-	api.Use(getAuhenticatedUser)
 
 	Daemon := handler.Daemon{}
 	Group := handler.Group{}
@@ -38,7 +21,7 @@ func main() {
 	Service := handler.Service{}
 
 	daemon := api.Group("/daemons")
-	daemon.GET("/:daemonID/log/:containerID", Daemon.GetContainerLog, hasRole(types.ADMIN_ROLE))
+	daemon.GET("/:daemonID/log/:containerID", Daemon.GetContainerLog)
 	daemon.GET("/:daemonID/commands/:containerID", Daemon.RunContainerCommands)
 	daemon.POST("/:daemonID/containers/status", Daemon.StatusContainers)
 	daemon.GET("/:daemonID/containers", Daemon.GetContainers)
