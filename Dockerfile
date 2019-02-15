@@ -1,4 +1,4 @@
-FROM node:8.14.0-alpine as builderFront
+FROM node:10-alpine as builderFront
 
 WORKDIR /npm/src/docktor
 COPY client .
@@ -7,7 +7,7 @@ RUN npm install \
     && CI=true npm run test \
     && npm run build
 
-FROM golang:1.11.0 as builderBack
+FROM golang:1.11 as builderBack
 
 WORKDIR /go/src/docktor/server
 COPY server .
