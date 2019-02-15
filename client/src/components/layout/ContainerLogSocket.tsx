@@ -32,7 +32,7 @@ export default class ContainerLogSocket extends React.Component<
     if (loc.protocol === "https:") {
       uri = "wss:";
     }
-    uri += "//localhost:8080/api/daemons/";
+    uri += `//${loc.hostname}:${loc.port}/api/daemons/`;
 
     const ws = new WebSocket(uri + daemon._id + "/log/" + containerID);
 

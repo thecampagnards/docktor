@@ -12,6 +12,10 @@ func main() {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
+	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
+		Root:  "client",
+		Index: "index.html",
+	}))
 
 	api := e.Group("/api")
 
@@ -50,7 +54,12 @@ func main() {
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)
 
-	e.Static("/*", "client")
+	e.GET("/*", GetIndex)
 
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+// GetIndex handler which render the index.html
+func GetIndex(c echo.Context) error {
+	return c.File("client/index.html")
 }

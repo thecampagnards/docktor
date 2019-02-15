@@ -27,7 +27,7 @@ export default class ContainerCmdSocket extends React.Component<
     if (loc.protocol === "https:") {
       uri = "wss:";
     }
-    uri += "//localhost:8080/api/daemons/";
+    uri += `//${loc.hostname}:${loc.port}/api/daemons/`;
 
     this.ws = new WebSocket(uri + daemon._id + "/commands/" + containerID);
 
