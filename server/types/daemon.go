@@ -27,5 +27,9 @@ type Daemons []Daemon
 
 // GetCompleteHost
 func (d Daemon) GetCompleteHost() string {
-	return "tcp://" + d.Host + ":" + strconv.Itoa(d.Port)
+	if d.Port != 0 {
+		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Port)
+	}
+	// Can be a socket
+	return d.Host
 }
