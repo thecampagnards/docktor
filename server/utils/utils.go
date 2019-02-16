@@ -1,8 +1,8 @@
 package utils
 
 import (
-        "os"
 	"io/ioutil"
+	"os"
 )
 
 // WriteStringToFile
@@ -12,7 +12,7 @@ func WriteStringToFile(content string) (string, error) {
 	if _, err := os.Stat(os.TempDir()); os.IsNotExist(err) {
 		os.MkdirAll(os.TempDir(), os.ModePerm)
 	}
-        
+
 	tmpfile, err := ioutil.TempFile("", "*")
 	if err != nil {
 		return "", err
