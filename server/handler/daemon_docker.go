@@ -120,12 +120,6 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 
 		defer hij.Close()
 
-		// log errors
-		var receiveStdout chan error
-		if err := <-receiveStdout; err != nil {
-			c.Logger().Error(err)
-		}
-
 		// redirect output to ws
 		go func() (err error) {
 			if ws != nil {
@@ -147,6 +141,12 @@ func (st *Daemon) RunContainerCommands(c echo.Context) error {
 			}
 			return nil
 		}()
+
+		// log errors
+		var receiveStdout chan error
+		if err := <-receiveStdout; err != nil {
+			c.Logger().Error(err)
+		}
 
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
