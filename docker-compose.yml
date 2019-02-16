@@ -1,13 +1,23 @@
 version: '3'
 
 services: 
-  cadvisor: 
-    image: google/cadvisor:latest
-    volumes: 
-      - /:/rootfs:ro 
-      - /var/run:/var/run:ro 
-      - /sys:/sys:ro 
-      - /var/lib/docker/:/var/lib/docker:ro 
-      - /dev/disk/:/dev/disk:ro 
+  docktor:
+    image: thecampagnards/docktor
+    networks:
+      - docktor_net
     ports: 
-      - 8090:8080 
+      - 8080:8080 
+    environment:
+      - MONGOHQ_URL=mongodb:27017
+  mongodb:
+    image: mongo
+    networks:
+       - docktor_net
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
+
+networks:
+  docktor_net:
