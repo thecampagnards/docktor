@@ -26,6 +26,7 @@ WORKDIR /docktor
 
 COPY --from=builderFront /npm/src/docktor/build client
 COPY --from=builderBack /go/src/docktor/server/app .
+COPY --from=builderBack /go/src/docktor/server/assets assets
 
 CMD ["./app"]
 
