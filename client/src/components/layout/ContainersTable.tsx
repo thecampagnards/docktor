@@ -42,7 +42,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
                 </Table.Cell>
                 <Table.Cell>
                   <List>
-                    {container.Ports.filter(port => port.PublicPort).map(
+                    {container.Ports.filter(port => port.PublicPort && port.IP === "0.0.0.0").map(
                       (port: IPort) => (
                         <List.Item
                           key={port.PublicPort}
