@@ -111,6 +111,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                       href={daemon.CAdvisor}
                     />
                     <Button
+                      icon="docker"
+                      content="Containers"
+                      disabled={!daemon.Host}
+                      as={Link}
+                      to={path.daemonsContainers.replace(":daemonID", daemon._id)}
+                    />
+                    <Button
                       icon="edit"
                       content="Edit"
                       as={Link}
