@@ -15,7 +15,7 @@ class Daemon extends React.Component<
 
   public render() {
     const { daemon } = this.props;
-    return <CmdSocket apiURL={`/api/daemons/${daemon._id}/ssh`} />;
+    return <CmdSocket apiURL={`/api/daemons/${daemon._id}/ssh/term`} />;
   }
 }
 

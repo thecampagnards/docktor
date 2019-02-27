@@ -38,12 +38,12 @@ func GetSSHSession(daemon types.Daemon) (*ssh.Client, *ssh.Session, error) {
 	return client, session, nil
 }
 
-// ExecSSH exec command on daemon
-func ExecSSH(daemon types.Daemon, cmd string) (string, error) {
+// ExecSSH exec commands on daemon return the results
+func ExecSSH(daemon types.Daemon, cmds ...string) (map[string]string, error) {
 
 	client, session, err := GetSSHSession(daemon)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	defer client.Close()
 	defer session.Close()
@@ -51,6 +51,17 @@ func ExecSSH(daemon types.Daemon, cmd string) (string, error) {
 	var b bytes.Buffer
 	session.Stdout = &b
 
-	err = session.Run(cmd)
-	return b.String(), err
+	var results map[string]string
+
+	for _, cmd := range cmds {
+		err = session.Run(cmd)
+		if err != nil {
+			results[cmd] = err.Error()
+		} else {
+			results[cmd] = b.String()
+		}
+		b.Reset()
+	}
+
+	return results, err
 }

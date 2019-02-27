@@ -4,11 +4,32 @@ import (
 	"docktor/server/dao"
 	"docktor/server/utils"
 	"io"
+	"net/http"
 
 	"github.com/labstack/echo"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/websocket"
 )
+
+// ExecSSHCommands execute comand on host
+func (st *Daemon) ExecSSHCommands(c echo.Context) error {
+	daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	var commands []string
+	if err := c.Bind(&commands); err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	result, err := utils.ExecSSH(daemon, commands...)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
 
 // RunSSHCommands is a ws which exec cmd on host
 // Based on https://gist.github.com/josephspurrier/e83bcdbf9e6865500004
