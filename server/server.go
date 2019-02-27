@@ -27,6 +27,7 @@ func main() {
 	daemon := api.Group("/daemons")
 	daemon.GET("/:daemonID/log/:containerID", Daemon.GetContainerLog)
 	daemon.GET("/:daemonID/commands/:containerID", Daemon.RunContainerCommands)
+	daemon.GET("/:daemonID/ssh", Daemon.RunSSHCommands)
 	daemon.POST("/:daemonID/containers/status", Daemon.StatusContainers)
 	daemon.GET("/:daemonID/containers", Daemon.GetContainers)
 	daemon.GET("/:daemonID/cadvisor/machine", Daemon.GetCAdvisorMachineInfo)
@@ -45,7 +46,6 @@ func main() {
 	service.POST("", Service.Save)
 
 	// For group
-
 	group := api.Group("/groups")
 	group.GET("/:groupID", Group.GetByID)
 	group.DELETE("/:groupID", Group.DeleteByID)

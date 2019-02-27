@@ -12,6 +12,7 @@ import { fetchDaemon } from "src/components/Daemon/actions/daemon";
 import DaemonContainers from "./DaemonContainers";
 import DaemonCAdvisor from "./DaemonCAdvisor";
 import DaemonForm from "./DaemonForm";
+import DaemonSSH from "./DaemonSSH";
 
 interface IRouterProps {
   daemonID: string;
@@ -53,6 +54,9 @@ class DaemonIndex extends React.Component<
         break;
       case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
         activeTab = 2;
+        break;
+      case path === constPath.daemonsSSH.replace(":daemonID", daemonID):
+        activeTab = 3;
         break;
       default:
         activeTab = 0;
@@ -97,6 +101,14 @@ class DaemonIndex extends React.Component<
             {daemon._id && <DaemonForm daemon={daemon} />}
           </Tab.Pane>
         )
+      },
+      {
+        menuItem: "SSH",
+        pane: (
+          <Tab.Pane loading={isFetching} key={4}>
+            {daemon._id && <DaemonSSH daemon={daemon} />}
+          </Tab.Pane>
+        )
       }
     ];
 
@@ -133,6 +145,11 @@ class DaemonIndex extends React.Component<
       case 2:
         this.props.history.push(
           constPath.daemonsEdit.replace(":daemonID", daemonID)
+        );
+        break;
+      case 3:
+        this.props.history.push(
+          constPath.daemonsSSH.replace(":daemonID", daemonID)
         );
         break;
     }

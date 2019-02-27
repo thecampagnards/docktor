@@ -118,6 +118,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                       to={path.daemonsContainers.replace(":daemonID", daemon._id)}
                     />
                     <Button
+                      icon="terminal"
+                      content="SSH"
+                      as={Link}
+                      to={path.daemonsSSH.replace(":daemonID", daemon._id)}
+                    />
+                    <Button
                       icon="edit"
                       content="Edit"
                       as={Link}

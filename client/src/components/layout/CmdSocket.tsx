@@ -1,14 +1,12 @@
 import * as React from "react";
-import { IDaemon } from "../Daemon/types/daemon";
 import { Terminal } from "xterm";
 import "xterm/dist/xterm.css";
 
 interface ISocketProps {
-  daemon: IDaemon;
-  containerID: string;
+  apiURL: string;
 }
 
-export default class ContainerCmdSocket extends React.Component<
+export default class CmdSocket extends React.Component<
   ISocketProps
 > {
   private container: HTMLElement;
@@ -16,7 +14,7 @@ export default class ContainerCmdSocket extends React.Component<
   private ws: WebSocket;
 
   public componentWillMount() {
-    const { daemon, containerID } = this.props;
+    const { apiURL } = this.props;
 
     const shellRed = "\x1B[1;3;31m";
     const shellNc = "\x1B[0m";
@@ -29,9 +27,8 @@ export default class ContainerCmdSocket extends React.Component<
     }
     uri += `//${loc.hostname}:`
     uri += process.env.NODE_ENV === "development" ? "8080" : loc.port
-    uri += "/api/daemons/";
 
-    this.ws = new WebSocket(uri + daemon._id + "/commands/" + containerID);
+    this.ws = new WebSocket(uri + apiURL);
 
     this.ws.onopen = () => {
       this.term = new Terminal({

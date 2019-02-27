@@ -15,6 +15,13 @@ type Daemon struct {
 	Port        int
 	Volume      string
 	Cert
+	SSH
+}
+
+type SSH struct {
+	Port     int
+	User     string
+	Password string
 }
 
 type Cert struct {

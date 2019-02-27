@@ -2,7 +2,7 @@ import * as React from "react";
 import { Table, List, Button, Modal } from "semantic-ui-react";
 
 import ContainerLogSocket from "./ContainerLogSocket";
-import ContainerCmdSocket from "./ContainerCmdSocket";
+import CmdSocket from "./CmdSocket";
 
 import { changeContainersStatus } from "../Daemon/actions/daemon";
 
@@ -38,7 +38,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
             .map((container: IContainer) => (
               <Table.Row key={container.Id}>
                 <Table.Cell singleLine={true}>
-                  {container.Id.substring(0, 12)} {container.Names}
+                  {container.Id.substring(0, 12)}<br/>{container.Names}
                 </Table.Cell>
                 <Table.Cell>
                   <List>
@@ -109,9 +109,8 @@ export default class ContainerTable extends React.Component<ITableProps> {
                   </Modal>
                   <Modal trigger={<Button disabled={status.Started.indexOf(container.State) < -1}>Exec commands</Button>} size="large" >
                     <Modal.Content style={{ background: "black" }}>
-                      <ContainerCmdSocket
-                        daemon={daemon}
-                        containerID={container.Id}
+                      <CmdSocket
+                        apiURL={`/api/daemons/${daemon._id}/commands/${container.Id}`}
                       />
                     </Modal.Content>
                   </Modal>
