@@ -1,17 +1,17 @@
 {
-  "name": "my-app",
+  "name": "docktor",
   "version": "0.1.0",
   "private": true,
   "proxy": "http://localhost:8080/",
   "dependencies": {
-    "codemirror": "^5.43.0",
+    "codemirror": "^5.44.0",
     "react": "^16.8.2",
     "react-codemirror2": "^5.1.0",
-    "react-dom": "^16.8.2",
+    "react-dom": "^16.8.3",
     "react-konami-code": "^1.4.0",
     "react-markdown": "^4.0.6",
     "react-router-dom": "^4.3.1",
-    "react-scripts-ts": "^4.0.8",
+    "react-scripts-ts": "^3.1.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.85.0",
     "lodash": "^4.17.11",
@@ -34,15 +34,15 @@
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.72",
-    "@types/jest": "^24.0.5",
+    "@types/jest": "^24.0.9",
     "@types/lodash": "^4.14.121",
-    "@types/node": "^11.9.4",
-    "@types/react": "^16.8.3",
-    "@types/react-dom": "^16.8.1",
+    "@types/node": "^11.9.6",
+    "@types/react": "^16.8.6",
+    "@types/react-dom": "^16.8.2",
     "@types/react-router-dom": "^4.3.1",
     "lint-staged": "^8.1.4",
     "prettier": "^1.16.4",
-    "typescript": "^3.3.3"
+    "typescript": "^3.3.3333"
   },
   "browserslist": [
     ">0.2%",
