@@ -52,12 +52,41 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           />
 
           <Form.Input
-            label="Port"
-            name="Port"
+            label="Docker Port"
+            name="Docker Port"
             type="number"
-            value={daemon.Port}
+            value={daemon.Docker.Port}
             onChange={this.handleChange}
             width={4}
+          />
+
+          <Form.Input
+            label="SSH Port"
+            name="SSH Port"
+            type="number"
+            value={daemon.SSH.Port}
+            onChange={this.handleChange}
+            width={4}
+          />
+        </Form.Group>
+
+        <Form.Group inline={true}>
+          <Form.Input
+            label="SSH User"
+            name="SSH User"
+            type="text"
+            value={daemon.SSH.User}
+            onChange={this.handleChange}
+            width={6}
+          />
+
+          <Form.Input
+            label="SSH Password"
+            name="SSH Password"
+            type="text"
+            value={daemon.SSH.Password}
+            onChange={this.handleChange}
+            width={6}
           />
         </Form.Group>
 
@@ -83,7 +112,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
         <p>Ca</p>
         <CodeMirror
-          value={daemon.Ca}
+          value={daemon.Docker.Ca}
           options={{
             mode: "plain",
             theme: "material",
@@ -95,7 +124,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
         <p>Cert</p>
         <CodeMirror
-          value={daemon.Cert}
+          value={daemon.Docker.Cert}
           options={{
             mode: "plain",
             theme: "material",
@@ -107,7 +136,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
         <p>Key</p>
         <CodeMirror
-          value={daemon.Key}
+          value={daemon.Docker.Key}
           options={{
             mode: "plain",
             theme: "material",
@@ -121,7 +150,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           label="Volume"
           name="Volume"
           type="text"
-          value={daemon.Volume}
+          value={daemon.Docker.Volume}
           onChange={this.handleChange}
         />
 

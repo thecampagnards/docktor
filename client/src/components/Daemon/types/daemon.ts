@@ -4,11 +4,23 @@ export interface IDaemon {
   Description: string;
   CAdvisor: string;
   Host: string;
+  Docker: IDocker;
+  SSH: ISSH;
+}
+
+export interface IDocker {
   Port: number;
   Volume: string;
   Cert: string;
   Ca: string;
   Key: string;
+}
+
+export interface ISSH {
+  Port: number;
+  User: string;
+  Password: string;
+  Commands: string[];
 }
 
 export interface IContainerInfo {

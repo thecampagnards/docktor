@@ -99,7 +99,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
                       Start
                     </Button>
                   </Button.Group>
-                  <Modal trigger={<Button>Get Logs</Button>}>
+                  <Modal trigger={<Button icon="align left"/>}>
                     <Modal.Content>
                       <ContainerLogSocket
                         daemon={daemon}
@@ -107,7 +107,7 @@ export default class ContainerTable extends React.Component<ITableProps> {
                       />
                     </Modal.Content>
                   </Modal>
-                  <Modal trigger={<Button disabled={status.Started.indexOf(container.State) < -1}>Exec commands</Button>} size="large" >
+                  <Modal trigger={<Button disabled={status.Started.indexOf(container.State) < -1} icon="terminal"/>} size="large" >
                     <Modal.Content style={{ background: "black" }}>
                       <CmdSocket
                         apiURL={`/api/daemons/${daemon._id}/commands/${container.Id}`}

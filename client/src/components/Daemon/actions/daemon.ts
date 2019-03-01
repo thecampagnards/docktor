@@ -81,3 +81,16 @@ export const saveDaemon = (daemon: IDaemon) => {
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
+
+export const execCommand = (daemon: IDaemon, commands: string[]) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemon._id}/ssh/exec`, {
+    credentials: "same-origin",
+    method: "POST",
+    body: JSON.stringify(commands),
+    headers: {
+      "Content-Type": "application/json"
+    }
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};

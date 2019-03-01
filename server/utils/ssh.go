@@ -51,7 +51,7 @@ func ExecSSH(daemon types.Daemon, cmds ...string) (map[string]string, error) {
 	var b bytes.Buffer
 	session.Stdout = &b
 
-	var results map[string]string
+	results := make(map[string]string)
 
 	for _, cmd := range cmds {
 		err = session.Run(cmd)

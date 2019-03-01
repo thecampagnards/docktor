@@ -22,21 +22,21 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 		CheckRedirect: client.CheckRedirect,
 	}
 
-	if daemon.Cert != (types.Cert{}) {
+	if daemon.Docker.Cert != (types.Cert{}) {
 
-		ca, err := WriteStringToFile(daemon.Ca)
+		ca, err := WriteStringToFile(daemon.Docker.Ca)
 		if err != nil {
 			return nil, err
 		}
 		defer os.Remove(ca)
 
-		cert, err := WriteStringToFile(daemon.Cert.Cert)
+		cert, err := WriteStringToFile(daemon.Docker.Cert.Cert)
 		if err != nil {
 			return nil, err
 		}
 		defer os.Remove(cert)
 
-		key, err := WriteStringToFile(daemon.Key)
+		key, err := WriteStringToFile(daemon.Docker.Key)
 		if err != nil {
 			return nil, err
 		}

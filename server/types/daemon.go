@@ -12,16 +12,21 @@ type Daemon struct {
 	Description string
 	CAdvisor    string
 	Host        string
-	Port        int
-	Volume      string
+	Docker      Docker
+	SSH         SSH
+}
+
+type Docker struct {
+	Port   int
+	Volume string
 	Cert
-	SSH
 }
 
 type SSH struct {
 	Port     int
 	User     string
 	Password string
+	Commands []string
 }
 
 type Cert struct {
@@ -34,8 +39,8 @@ type Daemons []Daemon
 
 // GetCompleteHost
 func (d Daemon) GetCompleteHost() string {
-	if d.Port != 0 {
-		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Port)
+	if d.Docker.Port != 0 {
+		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Docker.Port)
 	}
 	// Can be a socket
 	return d.Host
