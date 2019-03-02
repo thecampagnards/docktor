@@ -59,7 +59,7 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Button onClick={this.open}>Modal</Button>
+        <Button onClick={this.open}>Deploy</Button>
         <Modal
           closeIcon={true}
           open={open}
@@ -92,7 +92,7 @@ class MarketModal extends React.Component<
       <>
         <Modal.Header>Select your version</Modal.Header>
         <Modal.Content image={true}>
-          {service.Image && <Image src={"data:image/png;base64," + service.Image} />}
+          {service.Image && <Image size="small" src={"data:image/png;base64," + service.Image} />}
           {error !== null && (
             <Message negative={true}>
               <Message.Header>{error}</Message.Header>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Button, Loader, Table } from "semantic-ui-react";
+import { Button, Image, Loader, Table } from "semantic-ui-react";
 
 import { IService } from "../types/service";
 import { fetchServices } from '../actions/service';
@@ -39,7 +39,7 @@ class Services extends React.Component<{}, IServicesStates> {
         </Layout>
       );
     }
-  
+
     if (error) {
       return (
         <Layout>
@@ -76,7 +76,7 @@ class Services extends React.Component<{}, IServicesStates> {
           <Table.Body>
             {services.map((service: IService) => (
               <Table.Row key={service._id}>
-                <Table.Cell>{service.Image ? <img src={"data:image/png;base64," + service.Image}/> : "No image"}</Table.Cell>
+                <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image}/> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>
                 <Table.Cell>
                   <Button.Group>
