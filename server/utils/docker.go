@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	dockerTypes "github.com/docker/docker/api/types"
@@ -74,6 +75,29 @@ func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
 	defer cli.Close()
 
 	return cli.ContainerList(context.Background(), dockerTypes.ContainerListOptions{All: true})
+}
+
+// GetContainersStartByName
+func GetContainersStartByName(daemon types.Daemon, name string) ([]dockerTypes.Container, error) {
+
+	cs, err := GetContainers(daemon)
+
+	if err != nil {
+		return nil, err
+	}
+
+	var containers []dockerTypes.Container
+
+	for _, c := range cs {
+		for _, n := range c.Names {
+			if strings.HasPrefix(n, name) {
+				containers = append(containers, c)
+				break
+			}
+		}
+	}
+
+	return containers, nil
 }
 
 // InspectContainers
