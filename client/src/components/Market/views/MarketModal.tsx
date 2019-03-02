@@ -9,10 +9,13 @@ import {
   Icon,
   Select,
   Message,
-  DropdownProps
+  DropdownProps,
+  Form,
+  Input,
+  InputOnChangeData
 } from "semantic-ui-react";
 
-import { IService } from "../../Services/types/service";
+import { IService, ISubServices } from "../../Services/types/service";
 import { IGroup, IServiceGroup } from "../../Group/types/group";
 import { deployService } from "../../Group/actions/group";
 
@@ -37,7 +40,7 @@ interface IMarketModalProps {
 class MarketModal extends React.Component<
   IMarketModalProps,
   IMarketModalStates
-> {
+  > {
   public state = {
     selectedGroupID: "",
     selectedSubServiceID: "",
@@ -131,18 +134,29 @@ class MarketModal extends React.Component<
   };
 
   private renderModalStage2 = () => {
-    const { error, isFetching } = this.state;
+    const { service } = this.props
+    const { error, isFetching, selectedSubServiceID } = this.state;
 
     return (
       <>
-        <Modal.Header>Enter variables</Modal.Header>
+        <Modal.Header>Configuration</Modal.Header>
         <Modal.Content>
           {error !== null && (
             <Message negative={true}>
               <Message.Header>{error}</Message.Header>
             </Message>
           )}
-          <Modal.Description>Variables</Modal.Description>
+          <Form>
+          <h3>Variables</h3>
+            {(service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables.map((variable: string) => (
+              <Form.Field inline={true}>
+                <label>{variable}</label>
+                <Input name={variable} onChange={this.handleChangeVariable} />
+              </Form.Field>
+            ))}
+            <h3>Other</h3>
+            <Form.Checkbox inline={true} label="Fix ports" />
+          </Form>
         </Modal.Content>
         <Modal.Actions>
           <Button color="red" onClick={this.continueFormStage.bind(this, 1)}>
@@ -169,7 +183,7 @@ class MarketModal extends React.Component<
         </Modal.Content>
         <Modal.Actions>
           <Button color="blue" onClick={this.close}>
-            <Icon name="chevron left" /> Go back to the market
+            <Icon name="chevron left" /> Close
           </Button>
           <Button color="blue" as={Link} to="TODO">
             <Icon name="checkmark" /> Go to your service
@@ -188,6 +202,12 @@ class MarketModal extends React.Component<
 
   private handleChangeSubService = (event: any, data: DropdownProps) => {
     this.setState({ selectedSubServiceID: String(data.value) });
+  };
+
+  private handleChangeVariable = (event: any, { name, value }: InputOnChangeData) => {
+    const { variables } = this.state
+    variables[name] = value
+    this.setState({ variables });
   };
 
   private continueFormStage = (stage: number) => {

@@ -21,6 +21,11 @@ func (st *Service) GetAll(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	for i := 0; i < len(s); i++ {
+		for j := 0; j < len(s[i].SubServices); j++ {
+			s[i].SubServices[j].GetVariablesOfSubServices()
+		}
+	}
 	return c.JSON(http.StatusOK, s)
 }
 
