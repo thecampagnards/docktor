@@ -44,10 +44,18 @@ export const saveGroup = (group: IGroup) => {
 export const deployService = (
   groupID: string,
   serviceID: string,
-  variables: any
+  variables: any,
+  opts: object
 ) => {
+  let opt = ""
+  for (const o in opts) {
+    if (opts.hasOwnProperty(o)) {
+      opt += `${o}=${opts[o]}&`;
+    }
+  }
+  opt = opt.slice(0, -1)
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}?${opt}`,
     {
       credentials: "same-origin",
       method: "POST",

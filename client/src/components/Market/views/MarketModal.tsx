@@ -23,6 +23,7 @@ interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
   variables: any;
+  opts: object;
 
   serviceGroup: IServiceGroup | null;
   isFetching: boolean;
@@ -45,6 +46,7 @@ class MarketModal extends React.Component<
     selectedGroupID: "",
     selectedSubServiceID: "",
     variables: {},
+    opts: {},
 
     serviceGroup: null,
     isFetching: false,
@@ -95,7 +97,7 @@ class MarketModal extends React.Component<
           {service.Image && <Image size="small" src={"data:image/png;base64," + service.Image} />}
           {error !== null && (
             <Message negative={true}>
-              <Message.Header>{error}</Message.Header>
+              <Message.Header>{(error as Error).message}</Message.Header>
             </Message>
           )}
           <Modal.Description>
@@ -143,19 +145,19 @@ class MarketModal extends React.Component<
         <Modal.Content>
           {error !== null && (
             <Message negative={true}>
-              <Message.Header>{error}</Message.Header>
+              <Message.Header>{(error as Error).message}</Message.Header>
             </Message>
           )}
           <Form>
-          <h3>Variables</h3>
+            <h3>Variables</h3>
             {(service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables.map((variable: string) => (
-              <Form.Field inline={true}>
+              <Form.Field inline={true} key={variable}>
                 <label>{variable}</label>
                 <Input name={variable} onChange={this.handleChangeVariable} />
               </Form.Field>
             ))}
             <h3>Other</h3>
-            <Form.Checkbox inline={true} label="Fix ports" />
+            <Form.Checkbox inline={true} label="Fix ports" name="fix-port" onChange={this.handleChangeOpts} />
           </Form>
         </Modal.Content>
         <Modal.Actions>
@@ -210,6 +212,12 @@ class MarketModal extends React.Component<
     this.setState({ variables });
   };
 
+  private handleChangeOpts = (event: any, { name, checked, value }: any) => {
+    const { opts } = this.state
+    opts[name!] = value || checked
+    this.setState({ opts });
+  };
+
   private continueFormStage = (stage: number) => {
     this.setState({ stage });
   };
@@ -224,10 +232,20 @@ class MarketModal extends React.Component<
   };
 
   private handleForm = () => {
-    const { selectedGroupID, selectedSubServiceID, variables } = this.state;
+    const { service } = this.props
+    const { selectedGroupID, selectedSubServiceID, variables, opts } = this.state;
+    const v = (service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables
+
+    for (const key of v) {
+      if (!variables.hasOwnProperty(key)) {
+        this.setState({ error: Error("Please set every variables") });
+        return
+      }
+    }
+
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
-      deployService(selectedGroupID, selectedSubServiceID, variables)
+      deployService(selectedGroupID, selectedSubServiceID, variables, opts)
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false });
           this.continueFormStage(3);

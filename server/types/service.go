@@ -61,6 +61,8 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 
 	var b bytes.Buffer
 	var data = make(map[string]interface{})
+	data["Group"] = Group{}
+	data["Daemon"] = Daemon{}
 	var keys []string
 	r, _ := regexp.Compile(`key "(.*?)"`)
 

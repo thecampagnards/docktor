@@ -5,6 +5,7 @@ import (
 	"docktor/server/types"
 	"docktor/server/utils"
 	"net/http"
+	"strconv"
 
 	"github.com/labstack/echo"
 )
@@ -16,7 +17,7 @@ type Compose struct {
 // StartSubService this function create and run a service via compose
 func (co *Compose) StartSubService(c echo.Context) error {
 
-	var variables interface{}
+	var variables map[string]interface{}
 	err := c.Bind(&variables)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err)
@@ -37,11 +38,16 @@ func (co *Compose) StartSubService(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	service, err := subService.ConvertSubService(map[string]interface{}{
-		"Group":     group,
-		"Daemon":    daemon,
-		"Variables": variables,
-	})
+	variables["Group"] = group
+	variables["Daemon"] = daemon
+
+	port, _ := strconv.ParseBool(c.Param("fix-port"))
+	if port {
+		c.Logger().Infof("Fix port for %s", subService.Name)
+		// TODO
+	}
+
+	service, err := subService.ConvertSubService(variables)
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
