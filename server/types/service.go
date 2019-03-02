@@ -3,6 +3,8 @@ package types
 import (
 	"bytes"
 	"html/template"
+	"regexp"
+	"strings"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -47,4 +49,39 @@ func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
 	}
 
 	return b.Bytes(), nil
+}
+
+// GetVariablesOfSubServices retrieve the varaibles of a template
+func (sub SubService) GetVariablesOfSubServices() error {
+
+	tmpl, err := template.New("").Option("missingkey=error").Parse(sub.File)
+	if err != nil {
+		return err
+	}
+
+	var b bytes.Buffer
+	var data = make(map[string]interface{})
+	var keys []string
+	r, _ := regexp.Compile(`key "(.*?)"`)
+
+	for {
+		err = tmpl.Execute(&b, data)
+		if err != nil {
+			if !strings.Contains(err.Error(), "map has no entry key") {
+				// r, _ := regexp.Compile("<(.*)>")
+				// field := r.FindStringSubmatch(err.Error())[1]
+				key := r.FindStringSubmatch(err.Error())[1]
+				data[key] = "<no value>"
+				keys = append(keys, key)
+				b.Reset()
+			} else {
+				return err
+			}
+		} else {
+			break
+		}
+	}
+
+	sub.Variables = keys
+	return nil
 }

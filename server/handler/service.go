@@ -31,6 +31,11 @@ func (st *Service) GetByID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	for index := 0; index < len(s.SubServices); index++ {
+		s.SubServices[index].GetVariablesOfSubServices()
+	}
+
 	return c.JSON(http.StatusOK, s)
 }
 
