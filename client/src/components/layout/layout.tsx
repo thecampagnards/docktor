@@ -1,10 +1,11 @@
 import * as React from "react";
 import { Link } from "react-router-dom";
-import { Button, Dropdown, Grid, Icon, Menu } from "semantic-ui-react";
+import { Button, Container, Dropdown, Icon, Menu } from "semantic-ui-react";
 
 import KonamiCode from './KonamiCode';
 
 import { path } from "../../constants/path";
+import './layout.css'
 
 class Layout extends React.Component {
   public render() {
@@ -18,7 +19,25 @@ class Layout extends React.Component {
             </Menu.Item>
           </Menu.Menu>
 
-          <Menu.Item as={Link} to={path.home} name="home" />
+          <Menu.Item as={Link} to={path.home} name="home">
+          <Icon name="home" /> Home
+          </Menu.Item>
+
+          <Menu.Item as={Link} to={path.market} name="market">
+          <Icon name="shopping cart" /> Market
+          </Menu.Item>
+
+          <Menu.Item as={Link} to={path.groups} name="groups">
+          <Icon name="users" /> Groups
+          </Menu.Item>
+
+          <Menu.Item as={Link} to={path.daemons} name="daemons">
+          <Icon name="sitemap" /> Daemons
+          </Menu.Item>
+
+          <Menu.Item as={Link} to={path.services} name="services">
+          <Icon name="cubes" /> Services
+          </Menu.Item>
 
           <Menu.Menu position="right">
             <Dropdown item={true} text="Language">
@@ -33,45 +52,12 @@ class Layout extends React.Component {
               <Button primary={true}>Sign Up</Button>
             </Menu.Item>
           </Menu.Menu>
+
         </Menu>
 
-        <Grid divided="vertically" columns={2}>
-            <Grid.Column width={3}>
-              <Menu vertical={true}>
-
-                <Menu.Item as={Link} to={path.home}>
-                <Icon name="home" />
-
-                  Home
-                </Menu.Item>
-
-                                <Menu.Item as={Link} to={path.market}>
-                <Icon name="shopping cart" />
-
-                  Market
-                </Menu.Item>
-
-                <Menu.Item as={Link} to={path.groups} name="Groups">
-                <Icon name="users" />
-
-                  Groups
-                </Menu.Item>
-                <Menu.Item as={Link} to={path.daemons} name="Daemons">
-                  <Icon name="sitemap" />
-
-                  Daemons
-                </Menu.Item>
-                <Menu.Item as={Link} to={path.services} name="Services">
-                  <Icon name="cubes" />
-
-                  Services
-                </Menu.Item>
-              </Menu>
-            </Grid.Column>
-            <Grid.Column width={12}>
-              {this.props.children}
-            </Grid.Column>
-        </Grid>
+        <Container>
+          {this.props.children}
+        </Container>
       </>
     );
   }

@@ -13,6 +13,8 @@ services:
     image: mongo
     networks:
        - docktor_net
+    ports:
+      - 27017:27017
     volumes:
       - mongo_data:/data/db
 
