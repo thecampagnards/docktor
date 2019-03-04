@@ -42,8 +42,9 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
       return <p>No data yet ...</p>;
     }
 
+    const CustomTag = group._id ? 'span' : Layout
     return (
-      <Layout>
+      <CustomTag>
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
           <Form.Input
             label="Name"
@@ -84,7 +85,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             Submit
           </Button>
         </Form>
-      </Layout>
+      </CustomTag>
     );
   }
 

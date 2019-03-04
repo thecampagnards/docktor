@@ -27,14 +27,15 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   public componentWillMount() {
-    this.setState({ daemon: this.props.daemon ? this.props.daemon : {} as IDaemon });
+    this.setState({ daemon: this.props.daemon ? this.props.daemon : {Docker: {}, SSH: {}} as IDaemon });
   }
 
   public render() {
     const { daemon, error, isFetching, isSuccess } = this.state;
 
+    const CustomTag = daemon._id ? 'span' : Layout
     return (
-      <Layout>
+      <CustomTag>
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
           <Form.Input
             label="Name"
@@ -166,7 +167,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             Save
         </Button>
         </Form>
-      </Layout>
+      </CustomTag>
     );
   }
 
