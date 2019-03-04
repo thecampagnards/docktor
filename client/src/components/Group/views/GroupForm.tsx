@@ -8,6 +8,7 @@ import { fetchDaemons } from "../../Daemon/actions/daemon";
 import { IGroup } from "../types/group";
 import { IDaemon } from "../../Daemon/types/daemon";
 import { saveGroup } from "../actions/group";
+import Layout from '../../layout/layout';
 
 interface IGroupProps {
   group: IGroup;
@@ -31,7 +32,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     fetchDaemons().then((daemons: IDaemon[]) => this.setState({ daemons }));
-    this.setState({ group: this.props.group });
+    this.setState({ group: this.props.group ? this.props.group : {} as IGroup});
   }
 
   public render() {
@@ -42,46 +43,48 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-      <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
-        <Form.Input
-          label="Name"
-          name="Name"
-          type="text"
-          value={group.Name}
-          onChange={this.handleChange}
-        />
-        <CodeMirror
-          value={group.Description}
-          options={{
-            mode: "markdown",
-            theme: "material",
-            lineNumbers: true,
-            gutters: ["Description"]
-          }}
-          onChange={this.handleChangeCodeEditor}
-        />
-        <Form.Dropdown
-          search={true}
-          selection={true}
-          fluid={true}
-          label="Daemon"
-          name="DaemonID"
-          defaultValue={group.DaemonID}
-          options={daemons.map((d: IDaemon) => {
-            return { text: d.Name, value: d._id };
-          })}
-          onChange={this.handleChange}
-        />
-        <Message
-          success={true}
-          header="Saved"
-          content="Your group has been saved"
-        />
-        <Message error={true} header="Error" content={error} />
-        <Button type="Save" loading={isFetching}>
-          Submit
-        </Button>
-      </Form>
+      <Layout>
+        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+          <Form.Input
+            label="Name"
+            name="Name"
+            type="text"
+            value={group.Name}
+            onChange={this.handleChange}
+          />
+          <CodeMirror
+            value={group.Description}
+            options={{
+              mode: "markdown",
+              theme: "material",
+              lineNumbers: true,
+              gutters: ["Description"]
+            }}
+            onChange={this.handleChangeCodeEditor}
+          />
+          <Form.Dropdown
+            search={true}
+            selection={true}
+            fluid={true}
+            label="Daemon"
+            name="DaemonID"
+            defaultValue={group.DaemonID}
+            options={daemons.map((d: IDaemon) => {
+              return { text: d.Name, value: d._id };
+            })}
+            onChange={this.handleChange}
+          />
+          <Message
+            success={true}
+            header="Saved"
+            content="Your group has been saved"
+          />
+          <Message error={true} header="Error" content={error} />
+          <Button type="Save" loading={isFetching}>
+            Submit
+          </Button>
+        </Form>
+      </Layout>
     );
   }
 

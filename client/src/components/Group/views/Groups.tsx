@@ -1,51 +1,38 @@
 import * as React from "react";
-import * as _ from "lodash";
 import * as ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
-import { Button, Loader, Table } from "semantic-ui-react";
+import { Button, Grid, Loader, Search, Table } from "semantic-ui-react";
 
 import { IGroup } from "../types/group";
 import { fetchGroups } from "../actions/group";
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
-
-type ASCENDING = "ascending";
-type DESCENDING = "descending";
-
-type SortType = ASCENDING | DESCENDING;
-
-const Ascending: ASCENDING = "ascending";
-
-const Descending: DESCENDING = "descending";
+import { SyntheticEvent } from 'react';
 
 interface IGroupsStates {
   groups: IGroup[];
+  groupsFiltered: IGroup[];
   isFetching: boolean;
   error: Error | null;
-
-  column: string | null;
-  direction: SortType;
 }
 
 class Groups extends React.Component<{}, IGroupsStates> {
   public state = {
-    column: null,
-    direction: Ascending,
-
-    groups: [],
+    groups: [] as IGroup[],
+    groupsFiltered: [] as IGroup[],
     isFetching: false,
     error: null
   };
 
   public componentWillMount() {
     fetchGroups()
-      .then((groups: IGroup[]) => this.setState({ groups, isFetching: false }))
+      .then((groups: IGroup[]) => this.setState({ groups, groupsFiltered: groups, isFetching: false }))
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
-    const { column, direction, groups, error, isFetching } = this.state;
+    const { groups, groupsFiltered, error, isFetching } = this.state;
 
     if (!groups) {
       return (
@@ -76,22 +63,33 @@ class Groups extends React.Component<{}, IGroupsStates> {
 
     return (
       <Layout>
-        <h2>Groups</h2>
+        <Grid>
+          <Grid.Column width={2}>
+            <h2>Groups</h2>
+          </Grid.Column>
+          <Grid.Column width={12}>
+            <Search 
+              size="tiny"
+              placeholder="Search groups..."
+              showNoResults={false}
+              onSearchChange={this.filterGroups}
+            />
+          </Grid.Column>
+          <Grid.Column width={2}>
+            <Button primary={true} floated="right" as={Link} to={path.groupsNew}>Create group</Button>
+          </Grid.Column>
+        </Grid>
+        <Button>Project 1</Button><Button>Project 2</Button>
         <Table sortable={true} celled={true}>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell
-                sorted={column === "name" ? direction : Ascending}
-                onClick={this.handleSort("name")}
-              >
-                Name
-              </Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
               <Table.HeaderCell>Description</Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {groups.map((group: IGroup) => (
+            {groupsFiltered.map((group: IGroup) => (
               <Table.Row key={group._id}>
                 <Table.Cell>{group.Name}</Table.Cell>
                 <Table.Cell>
@@ -121,24 +119,9 @@ class Groups extends React.Component<{}, IGroupsStates> {
     );
   }
 
-  private handleSort = (clickedColumn: string) => () => {
-    const { column, groups, direction } = this.state;
-
-    if (column !== clickedColumn) {
-      this.setState({
-        column: clickedColumn,
-        groups: _.sortBy(groups, [clickedColumn]),
-        direction: Ascending
-      });
-
-      return;
-    }
-
-    this.setState({
-      groups: groups.reverse(),
-      direction: direction === Ascending ? Descending : Ascending
-    });
-  };
+  private filterGroups = (event: SyntheticEvent, { value }: any) => {
+    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.includes(value))})
+  }
 }
 
 export default Groups;

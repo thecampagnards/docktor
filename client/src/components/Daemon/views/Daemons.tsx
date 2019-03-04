@@ -1,39 +1,27 @@
 import * as React from "react";
-import * as _ from "lodash";
 
 import { Link } from "react-router-dom";
-import { Button, Loader, Table } from "semantic-ui-react";
+import { Button, Grid, Loader, Table, Search } from "semantic-ui-react";
 
 import { IDaemon } from "../types/daemon";
 import { fetchDaemons } from "../actions/daemon";
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
-
-type ASCENDING = "ascending";
-type DESCENDING = "descending";
-
-type SortType = ASCENDING | DESCENDING;
-
-const Ascending: ASCENDING = "ascending";
-
-const Descending: DESCENDING = "descending";
+import './Daemons.css'
+import { SyntheticEvent } from 'react';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
+  daemonsFiltered: IDaemon[];
   isFetching: boolean;
   error: Error | null;
-
-  column: string | null;
-  direction: SortType;
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
   public state = {
-    column: null,
-    direction: Ascending,
-
-    daemons: [],
+    daemons: [] as IDaemon[],
+    daemonsFiltered: [] as IDaemon[],
     isFetching: false,
     error: null
   };
@@ -41,13 +29,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public componentWillMount() {
     fetchDaemons()
       .then((daemons: IDaemon[]) =>
-        this.setState({ daemons, isFetching: false })
+        this.setState({ daemons, daemonsFiltered: daemons, isFetching: false })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
-    const { column, direction, daemons, error, isFetching } = this.state;
+    const { daemons, daemonsFiltered, error, isFetching } = this.state;
 
     if (!daemons) {
       return (
@@ -78,27 +66,32 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     return (
       <Layout>
-        <h2>Daemons</h2>
-        <Table sortable={true} celled={true}>
+        <Grid>
+          <Grid.Column width={2}>
+            <h2>Daemons</h2>
+          </Grid.Column>
+          <Grid.Column width={12}>
+            <Search 
+              size="tiny"
+              placeholder="Search daemons..."
+              showNoResults={false}
+              onSearchChange={this.filterDaemons}
+            />
+          </Grid.Column>
+          <Grid.Column width={2}>
+            <Button primary={true} floated="right" as={Link} to={path.daemonsNew}>Add daemon</Button>
+          </Grid.Column>
+        </Grid>
+        <Table celled={true}>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell
-                sorted={column === "name" ? direction : Ascending}
-                onClick={this.handleSort("name")}
-              >
-                Name
-              </Table.HeaderCell>
-              <Table.HeaderCell
-                sorted={column === "host" ? direction : Ascending}
-                onClick={this.handleSort("host")}
-              >
-                Host
-              </Table.HeaderCell>
+              <Table.HeaderCell>Name</Table.HeaderCell>
+              <Table.HeaderCell>Host</Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemons.map((daemon: IDaemon) => (
+            {daemonsFiltered.map((daemon: IDaemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
@@ -145,24 +138,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
-  private handleSort = (clickedColumn: string) => () => {
-    const { column, daemons, direction } = this.state;
-
-    if (column !== clickedColumn) {
-      this.setState({
-        column: clickedColumn,
-        daemons: _.sortBy(daemons, [clickedColumn]),
-        direction: Ascending
-      });
-
-      return;
-    }
-
-    this.setState({
-      daemons: daemons.reverse(),
-      direction: direction === Ascending ? Descending : Ascending
-    });
-  };
+  private filterDaemons = (event: SyntheticEvent, { value }: any) => {
+    this.setState({daemonsFiltered : this.state.daemons.filter(daemon => daemon.Name.includes(value))})
+  }
 }
 
 export default Daemons;

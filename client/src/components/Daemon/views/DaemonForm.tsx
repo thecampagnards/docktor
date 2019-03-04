@@ -5,6 +5,7 @@ import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 
 import { IDaemon } from "../types/daemon";
 import { saveDaemon } from "../actions/daemon";
+import Layout from '../../layout/layout';
 
 interface IDaemonFormProps {
   daemon: IDaemon;
@@ -26,144 +27,146 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   public componentWillMount() {
-    this.setState({ daemon: this.props.daemon });
+    this.setState({ daemon: this.props.daemon ? this.props.daemon : {} as IDaemon });
   }
 
   public render() {
     const { daemon, error, isFetching, isSuccess } = this.state;
 
     return (
-      <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
-        <Form.Input
-          label="Name"
-          name="Name"
-          type="text"
-          value={daemon.Name}
-          onChange={this.handleChange}
-        />
-        <Form.Group inline={true}>
+      <Layout>
+        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
           <Form.Input
-            label="Host"
-            name="Host"
+            label="Name"
+            name="Name"
             type="text"
-            value={daemon.Host}
+            value={daemon.Name}
             onChange={this.handleChange}
-            width={8}
+          />
+          <Form.Group inline={true}>
+            <Form.Input
+              label="Host"
+              name="Host"
+              type="text"
+              value={daemon.Host}
+              onChange={this.handleChange}
+              width={8}
+            />
+
+            <Form.Input
+              label="Docker Port"
+              name="Docker Port"
+              type="number"
+              value={daemon.Docker.Port}
+              onChange={this.handleChange}
+              width={4}
+            />
+
+            <Form.Input
+              label="SSH Port"
+              name="SSH Port"
+              type="number"
+              value={daemon.SSH.Port}
+              onChange={this.handleChange}
+              width={4}
+            />
+          </Form.Group>
+
+          <Form.Group inline={true}>
+            <Form.Input
+              label="SSH User"
+              name="SSH User"
+              type="text"
+              value={daemon.SSH.User}
+              onChange={this.handleChange}
+              width={6}
+            />
+
+            <Form.Input
+              label="SSH Password"
+              name="SSH Password"
+              type="text"
+              value={daemon.SSH.Password}
+              onChange={this.handleChange}
+              width={6}
+            />
+          </Form.Group>
+
+          <Form.Input
+            label="CAdvisor"
+            name="CAdvisor"
+            type="url"
+            value={daemon.CAdvisor}
+            onChange={this.handleChange}
+          />
+
+          <p>Description</p>
+          <CodeMirror
+            value={daemon.Description}
+            options={{
+              mode: "markdown",
+              theme: "material",
+              lineNumbers: true,
+              gutters: ["Description"]
+            }}
+            onChange={this.handleChangeCodeEditor}
+          />
+
+          <p>Ca</p>
+          <CodeMirror
+            value={daemon.Docker.Ca}
+            options={{
+              mode: "plain",
+              theme: "material",
+              lineNumbers: true,
+              gutters: ["Ca"]
+            }}
+            onChange={this.handleChangeCodeEditor}
+          />
+
+          <p>Cert</p>
+          <CodeMirror
+            value={daemon.Docker.Cert}
+            options={{
+              mode: "plain",
+              theme: "material",
+              lineNumbers: true,
+              gutters: ["Cert"]
+            }}
+            onChange={this.handleChangeCodeEditor}
+          />
+
+          <p>Key</p>
+          <CodeMirror
+            value={daemon.Docker.Key}
+            options={{
+              mode: "plain",
+              theme: "material",
+              lineNumbers: true,
+              gutters: ["Key"]
+            }}
+            onChange={this.handleChangeCodeEditor}
           />
 
           <Form.Input
-            label="Docker Port"
-            name="Docker Port"
-            type="number"
-            value={daemon.Docker.Port}
-            onChange={this.handleChange}
-            width={4}
-          />
-
-          <Form.Input
-            label="SSH Port"
-            name="SSH Port"
-            type="number"
-            value={daemon.SSH.Port}
-            onChange={this.handleChange}
-            width={4}
-          />
-        </Form.Group>
-
-        <Form.Group inline={true}>
-          <Form.Input
-            label="SSH User"
-            name="SSH User"
+            label="Volume"
+            name="Volume"
             type="text"
-            value={daemon.SSH.User}
+            value={daemon.Docker.Volume}
             onChange={this.handleChange}
-            width={6}
           />
 
-          <Form.Input
-            label="SSH Password"
-            name="SSH Password"
-            type="text"
-            value={daemon.SSH.Password}
-            onChange={this.handleChange}
-            width={6}
+          <Message
+            success={true}
+            header="Saved"
+            content="Your daemon has been saved"
           />
-        </Form.Group>
-
-        <Form.Input
-          label="CAdvisor"
-          name="CAdvisor"
-          type="url"
-          value={daemon.CAdvisor}
-          onChange={this.handleChange}
-        />
-
-        <p>Description</p>
-        <CodeMirror
-          value={daemon.Description}
-          options={{
-            mode: "markdown",
-            theme: "material",
-            lineNumbers: true,
-            gutters: ["Description"]
-          }}
-          onChange={this.handleChangeCodeEditor}
-        />
-
-        <p>Ca</p>
-        <CodeMirror
-          value={daemon.Docker.Ca}
-          options={{
-            mode: "plain",
-            theme: "material",
-            lineNumbers: true,
-            gutters: ["Ca"]
-          }}
-          onChange={this.handleChangeCodeEditor}
-        />
-
-        <p>Cert</p>
-        <CodeMirror
-          value={daemon.Docker.Cert}
-          options={{
-            mode: "plain",
-            theme: "material",
-            lineNumbers: true,
-            gutters: ["Cert"]
-          }}
-          onChange={this.handleChangeCodeEditor}
-        />
-
-        <p>Key</p>
-        <CodeMirror
-          value={daemon.Docker.Key}
-          options={{
-            mode: "plain",
-            theme: "material",
-            lineNumbers: true,
-            gutters: ["Key"]
-          }}
-          onChange={this.handleChangeCodeEditor}
-        />
-
-        <Form.Input
-          label="Volume"
-          name="Volume"
-          type="text"
-          value={daemon.Docker.Volume}
-          onChange={this.handleChange}
-        />
-
-        <Message
-          success={true}
-          header="Saved"
-          content="Your daemon has been saved"
-        />
-        <Message error={true} header="Error" content={error && (error as Error).message} />
-        <Button type="submit" loading={isFetching}>
-          Save
+          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Button type="submit" loading={isFetching}>
+            Save
         </Button>
-      </Form>
+        </Form>
+      </Layout>
     );
   }
 
