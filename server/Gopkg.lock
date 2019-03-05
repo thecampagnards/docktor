@@ -45,7 +45,7 @@
   version = "v3.2.0"
 
 [[projects]]
-  digest = "1:b97b7bb4df99ed0b0e922c08380edb184bac5a2805839864ed54eff4c513419d"
+  digest = "1:0dc6b5da1a067f7d9e56498cf18b5364d1db45f2c57b5ba3c3bad785a6688c88"
   name = "github.com/docker/cli"
   packages = [
     "cli/command/image/build",
@@ -55,7 +55,8 @@
     "opts",
   ]
   pruneopts = "UT"
-  revision = "056015c3d8be264d54a1f826d68234572b261b89"
+  revision = "9352be53413e089057ef62c4c8e68672c30e9b38"
+  version = "v18.09.3"
 
 [[projects]]
   digest = "1:76a262fa5501ffd896e097a48675328d1b97df095681c8cba9232974dd682763"
