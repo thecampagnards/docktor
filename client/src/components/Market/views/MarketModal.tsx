@@ -137,7 +137,8 @@ class MarketModal extends React.Component<
 
   private renderModalStage2 = () => {
     const { service } = this.props
-    const { error, isFetching, selectedSubServiceID } = this.state;
+    const { variables, error, isFetching, selectedSubServiceID } = this.state;
+    const ss = service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices
 
     return (
       <>
@@ -149,15 +150,18 @@ class MarketModal extends React.Component<
             </Message>
           )}
           <Form>
-            <h3>Variables</h3>
-            {(service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables.map((variable: string) => (
-              <Form.Field inline={true} key={variable}>
-                <label>{variable}</label>
-                <Input name={variable} onChange={this.handleChangeVariable} />
-              </Form.Field>
-            ))}
+            {ss.Variables && <>
+              <h3>Variables</h3>
+              {ss.Variables.map((variable: string) => (
+                <Form.Field inline={true} key={variable}>
+                  <label>{variable}</label>
+                  <Input name={variable} onChange={this.handleChangeVariable} value={variables[variable]} />
+                </Form.Field>
+              ))}
+            </>}
             <h3>Other</h3>
             <Form.Checkbox inline={true} label="Fix ports" name="fix-port" onChange={this.handleChangeOpts} />
+            <Form.Checkbox inline={true} label="Auto update" name="auto-update" onChange={this.handleChangeOpts} />
           </Form>
         </Modal.Content>
         <Modal.Actions>
@@ -224,8 +228,10 @@ class MarketModal extends React.Component<
 
   private continueFormStage2 = () => {
     const { selectedGroupID, selectedSubServiceID } = this.state;
+    const { groups } = this.props;
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
-      this.setState({ stage: 2 });
+      const sg = (groups.find(g => g._id === selectedGroupID) as IGroup).Services.find(s => s._id === selectedSubServiceID) as IServiceGroup
+      this.setState({ stage: 2, variables: (sg ? sg.Variables : {}) });
     } else {
       this.setState({ error: Error("Please select a group and a version") });
     }

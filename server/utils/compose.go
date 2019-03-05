@@ -42,9 +42,8 @@ func GetComposeCli(daemon types.Daemon) (client.Factory, error) {
 		defer os.Remove(key)
 
 		c = client.Options{
-			TLS:       true,
-			TLSVerify: true,
-			Host:      daemon.GetCompleteHost(),
+			TLS:  true,
+			Host: daemon.GetCompleteHost(),
 			TLSOptions: tlsconfig.Options{
 				CAFile:             ca,
 				CertFile:           cert,

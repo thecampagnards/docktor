@@ -47,7 +47,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
       return (
         <Layout>
           <h2>Groups</h2>
-          <p>{error}</p>;
+          <p>{(error as Error).message}</p>;
         </Layout>
       );
     }
@@ -68,7 +68,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
             <h2>Groups</h2>
           </Grid.Column>
           <Grid.Column width={12}>
-            <Search 
+            <Search
               size="tiny"
               placeholder="Search groups..."
               showNoResults={false}
@@ -104,7 +104,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
                       to={path.groupsEdit.replace(":groupID", group._id)}
                     />
                     <Button
-                      icon="cog"
+                      icon="docker"
                       content="Containers"
                       as={Link}
                       to={path.groupsContainers.replace(":groupID", group._id)}

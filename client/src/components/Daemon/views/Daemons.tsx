@@ -50,7 +50,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       return (
         <Layout>
           <h2>Daemons</h2>
-          <p>{error}</p>;
+          <p>{(error as Error).message}</p>;
         </Layout>
       );
     }
@@ -71,7 +71,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             <h2>Daemons</h2>
           </Grid.Column>
           <Grid.Column width={12}>
-            <Search 
+            <Search
               size="tiny"
               placeholder="Search daemons..."
               showNoResults={false}

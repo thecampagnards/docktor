@@ -18,7 +18,7 @@ interface IServiceStates {
 }
 
 class Service extends React.Component<RouteComponentProps<IRouterProps>, IServiceStates> {
-  
+
   public state = {
     service: null,
     isFetching: false,
@@ -44,12 +44,12 @@ class Service extends React.Component<RouteComponentProps<IRouterProps>, IServic
         </Layout>
       );
     }
-  
+
     if (error) {
       return (
         <Layout>
           <h2>Service</h2>
-          <p>{error}</p>;
+          <p>{(error as Error).message}</p>;
         </Layout>
       );
     }

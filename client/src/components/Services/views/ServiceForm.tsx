@@ -38,34 +38,29 @@ interface IServiceFormStates {
 class ServiceForm extends React.Component<
   RouteComponentProps<IRouterProps>,
   IServiceFormStates
-> {
+  > {
   public state = {
     service: {} as IService,
     isSuccess: false,
-    isFetching: false,
+    isFetching: true,
     error: null
   };
 
   public componentWillMount() {
     const { serviceID } = this.props.match.params;
-    fetchService(serviceID)
-      .then((service: IService) =>
-        this.setState({ service, isFetching: false })
-      )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    if (serviceID) {
+      fetchService(serviceID)
+        .then((service: IService) =>
+          this.setState({ service, isFetching: false })
+        )
+        .catch((error: Error) => this.setState({ error, isFetching: false }));
+    } else {
+      this.setState({ service: { SubServices: [] as ISubServices[] } as IService, isFetching: false })
+    }
   }
 
   public render() {
     const { service, error, isSuccess, isFetching } = this.state;
-
-    if (!service._id) {
-      return (
-        <Layout>
-          <h2>Service</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
-    }
 
     if (isFetching) {
       return (
@@ -78,7 +73,7 @@ class ServiceForm extends React.Component<
 
     return (
       <Layout>
-        <h2>{service.Name}</h2>
+        <h2>{service.Name || "Service"}</h2>
 
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
           <Form.Input
@@ -111,7 +106,7 @@ class ServiceForm extends React.Component<
               onChange={this.handleChange}
             />
           </Form.Group>
-
+          <br />
           <Button type="" icon={true} onClick={this.addSubService} color="green">
             <Icon name="plus" />
             Add sub service
@@ -176,13 +171,14 @@ class ServiceForm extends React.Component<
               </Segment>
             </span>
           ))}
-
+          <br />
           <Message
             success={true}
             header="Saved"
-            content="Your group has been saved"
+            content="Your service has been saved"
           />
           <Message error={true} header="Error" content={error && (error as Error).message} />
+          <br />
           <Button type="submit" loading={isFetching}>
             Save
           </Button>
@@ -223,11 +219,13 @@ class ServiceForm extends React.Component<
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
         if (typeof reader.result === "string") {
-          this.setState({ service: _.set(
-            service,
-            name,
-            reader.result.replace(/data:image\/.*?;base64,/gi, "")
-          ) });
+          this.setState({
+            service: _.set(
+              service,
+              name,
+              reader.result.replace(/data:image\/.*?;base64,/gi, "")
+            )
+          });
         }
       };
       reader.onerror = error =>
@@ -242,11 +240,13 @@ class ServiceForm extends React.Component<
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    this.setState({ service: _.set(
-      this.state.service,
-      editor.options.gutters![0],
-      value
-    ) });
+    this.setState({
+      service: _.set(
+        this.state.service,
+        editor.options.gutters![0],
+        value
+      )
+    });
   };
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {

@@ -54,7 +54,7 @@ class Market extends React.Component<{}, IServicesStates> {
       return (
         <Layout>
           <h2>Market</h2>
-          <p>{error}</p>;
+          <p>{(error as Error).message}</p>;
         </Layout>
       );
     }

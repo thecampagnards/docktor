@@ -44,8 +44,8 @@ ReactDOM.render(
       />
 
       <Route exact={true} path={path.services} component={Services} />
-      <Route exact={true} path={path.servicesMore} component={Service} />
       <Route exact={true} path={path.servicesNew} component={ServiceForm} />
+      <Route exact={true} path={path.servicesMore} component={Service} />
       <Route exact={true} path={path.servicesEdit} component={ServiceForm} />
     </Switch>
   </Router>,

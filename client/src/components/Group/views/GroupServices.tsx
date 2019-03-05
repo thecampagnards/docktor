@@ -50,7 +50,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     }
 
     if (error) {
-      return <p>{error}</p>;
+      return <p>{(error as Error).message}</p>;
     }
 
     if (isFetching) {

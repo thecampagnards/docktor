@@ -56,7 +56,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Form.Input
               label="Docker Port"
-              name="Docker Port"
+              name="Docker.Port"
               type="number"
               value={daemon.Docker.Port}
               onChange={this.handleChange}
@@ -65,7 +65,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Form.Input
               label="SSH Port"
-              name="SSH Port"
+              name="SSH.Port"
               type="number"
               value={daemon.SSH.Port}
               onChange={this.handleChange}
@@ -76,7 +76,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           <Form.Group inline={true}>
             <Form.Input
               label="SSH User"
-              name="SSH User"
+              name="SSH.User"
               type="text"
               value={daemon.SSH.User}
               onChange={this.handleChange}
@@ -85,7 +85,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Form.Input
               label="SSH Password"
-              name="SSH Password"
+              name="SSH.Password"
               type="text"
               value={daemon.SSH.Password}
               onChange={this.handleChange}
@@ -120,7 +120,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               mode: "plain",
               theme: "material",
               lineNumbers: true,
-              gutters: ["Ca"]
+              gutters: ["Docker.Ca"]
             }}
             onChange={this.handleChangeCodeEditor}
           />
@@ -132,7 +132,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               mode: "plain",
               theme: "material",
               lineNumbers: true,
-              gutters: ["Cert"]
+              gutters: ["Docker.Cert"]
             }}
             onChange={this.handleChangeCodeEditor}
           />
@@ -144,14 +144,14 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               mode: "plain",
               theme: "material",
               lineNumbers: true,
-              gutters: ["Key"]
+              gutters: ["Docker.Key"]
             }}
             onChange={this.handleChangeCodeEditor}
           />
 
           <Form.Input
-            label="Volume"
-            name="Volume"
+            label="Docker Volume"
+            name="Docker.Volume"
             type="text"
             value={daemon.Docker.Volume}
             onChange={this.handleChange}
@@ -173,9 +173,9 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
-    { name, value }: any
+    { name, value, type }: any
   ) => {
-    this.setState({ daemon: _.set(this.state.daemon, name, value) });
+    this.setState({ daemon: _.set(this.state.daemon, name, type === 'number' ? (parseInt(value, undefined) as number) : value) });
   };
 
   private handleChangeCodeEditor = (

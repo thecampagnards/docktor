@@ -80,7 +80,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             header="Saved"
             content="Your group has been saved"
           />
-          <Message error={true} header="Error" content={error} />
+          <Message error={true} header="Error" content={error && (error as Error).message} />
           <Button type="Save" loading={isFetching}>
             Submit
           </Button>
