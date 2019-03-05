@@ -5,8 +5,10 @@ import (
 	"docktor/server/types"
 	"docktor/server/utils"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
+	"strings"
 
 	"github.com/docker/libcompose/config"
 	yaml "gopkg.in/yaml.v2"
@@ -96,4 +98,34 @@ func (co *Compose) StartSubService(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, serviceGroup)
+}
+
+// StartDaemonService this function create and run a daemon service (cadvisor, watchtower) via compose
+// this service is in asset folder
+func (co *Compose) StartDaemonService(c echo.Context) error {
+	daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	dir, err := os.Getwd()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	splitFn := func(c rune) bool {
+		return c == ','
+	}
+
+	services := strings.FieldsFunc(c.QueryParam("services"), splitFn)
+	for i := 0; i < len(services); i++ {
+		services[i] = dir + "/assets/" + services[i] + "-compose.yml"
+	}
+
+	err = utils.ComposeUpDaemon(daemon, services...)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "ok")
 }

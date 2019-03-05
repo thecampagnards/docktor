@@ -80,8 +80,8 @@ func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 	return project.Up(context.Background(), options.Up{})
 }
 
-// ComposeStatus
-/*func ComposeStatus(group types.Group, daemon types.Daemon, files ...[]byte) error {
+// ComposeUpDaemon run service for daemon
+func ComposeUpDaemon(daemon types.Daemon, files ...string) error {
 
 	c, err := GetComposeCli(daemon)
 	if err != nil {
@@ -90,8 +90,8 @@ func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 
 	project, err := docker.NewProject(&ctx.Context{
 		Context: project.Context{
-			ComposeBytes: files,
-			ProjectName:  group.Name,
+			ComposeFiles: files,
+			ProjectName:  "Docktor",
 		},
 		ClientFactory: c,
 	}, nil)
@@ -100,5 +100,5 @@ func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
 		return err
 	}
 
-	return project.Ps(context.Background(), options.Up{})
-}*/
+	return project.Up(context.Background(), options.Up{})
+}

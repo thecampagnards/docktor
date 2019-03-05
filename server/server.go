@@ -36,6 +36,7 @@ func main() {
 	daemon.GET("/:daemonID/containers", Daemon.GetContainers)
 	daemon.GET("/:daemonID/cadvisor/machine", Daemon.GetCAdvisorMachineInfo)
 	daemon.GET("/:daemonID/cadvisor/container", Daemon.GetCAdvisorContainerInfo)
+	daemon.POST("/:daemonID/start", Compose.StartDaemonService)
 	daemon.GET("/:daemonID", Daemon.GetByID)
 	daemon.DELETE("/:daemonID", Daemon.DeleteByID)
 	daemon.GET("", Daemon.GetAll)
