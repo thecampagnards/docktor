@@ -90,7 +90,7 @@ func GetContainersStartByName(daemon types.Daemon, name string) ([]dockerTypes.C
 
 	for _, c := range cs {
 		for _, n := range c.Names {
-			if strings.HasPrefix(n, name) {
+			if strings.HasPrefix(n, "/"+strings.ToLower(name)) {
 				containers = append(containers, c)
 				break
 			}

@@ -242,10 +242,12 @@ class MarketModal extends React.Component<
     const { selectedGroupID, selectedSubServiceID, variables, opts } = this.state;
     const v = (service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables
 
-    for (const key of v) {
-      if (!variables.hasOwnProperty(key)) {
-        this.setState({ error: Error("Please set every variables") });
-        return
+    if (v) {
+      for (const key of v) {
+        if (!variables.hasOwnProperty(key)) {
+          this.setState({ error: Error("Please set every variables") });
+          return
+        }
       }
     }
 

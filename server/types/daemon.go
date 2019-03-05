@@ -6,6 +6,10 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+var (
+	WATCHTOWER_LABEL = "com.centurylinklabs.watchtower.enable=true"
+)
+
 type Daemon struct {
 	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name        string

@@ -5,6 +5,7 @@ import (
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
+	"github.com/labstack/gommon/log"
 )
 
 func main() {
@@ -16,6 +17,8 @@ func main() {
 		Root:  "client",
 		Index: "index.html",
 	}))
+
+	e.Logger.SetLevel(log.DEBUG)
 
 	api := e.Group("/api")
 

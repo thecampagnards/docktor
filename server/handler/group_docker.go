@@ -41,7 +41,7 @@ func (st *Group) GetContainers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	cs, err := utils.GetContainers(daemon)
+	cs, err := utils.GetContainersStartByName(daemon, group.Name)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
