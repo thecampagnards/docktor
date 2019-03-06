@@ -122,7 +122,17 @@ func (co *Compose) StartDaemonService(c echo.Context) error {
 		services[i] = dir + "/assets/" + services[i] + "-compose.yml"
 	}
 
-	err = utils.ComposeUpDaemon(daemon, services...)
+	switch c.QueryParam("status") {
+	case "start":
+		err = utils.ComposeUpDaemon(daemon, services...)
+	case "stop":
+		err = utils.ComposeStopDaemon(daemon, services...)
+	case "remove":
+		err = utils.ComposeRemoveDaemon(daemon, services...)
+	default:
+		return c.JSON(http.StatusBadRequest, "Wrong status")
+	}
+
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

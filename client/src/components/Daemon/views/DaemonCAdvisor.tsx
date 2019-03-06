@@ -1,5 +1,5 @@
 import * as React from "react";
-import { Loader, Progress, Button, Message } from "semantic-ui-react";
+import { Loader, Progress, Message } from "semantic-ui-react";
 
 import {
   fetchCadvisorMachine,
@@ -7,6 +7,7 @@ import {
 } from "../actions/daemon";
 
 import { IDaemon, IContainerInfo, IMachineInfo } from "../types/daemon";
+import { serviceButton } from './DaemonServiceButtons';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
@@ -22,7 +23,7 @@ interface IDaemonCAdvisorStates {
 class DaemonCAdvisor extends React.Component<
   IDaemonCAdvisorProps,
   IDaemonCAdvisorStates
-> {
+  > {
   public state = {
     daemon: {} as IDaemon,
     containerInfo: {} as IContainerInfo,
@@ -57,26 +58,8 @@ class DaemonCAdvisor extends React.Component<
   }
 
   public render() {
-    const { containerInfo, machineInfo, error, isFetching } = this.state;
-
-    const buttons = (
-      <h4>
-        Cadvisor container :
-        <Button.Group>
-          <Button color="orange" disabled={false}>
-            Stop
-          </Button>
-          <Button.Or />
-          <Button color="red" disabled={false}>
-            Remove
-          </Button>
-          <Button.Or />
-          <Button color="green" disabled={false}>
-            Start
-          </Button>
-        </Button.Group>
-      </h4>
-    );
+    const { daemon, containerInfo, machineInfo, error, isFetching } = this.state;
+    const buttons = serviceButton(daemon, ["cadvisor"])
 
     if (error) {
       return (
@@ -131,8 +114,8 @@ class DaemonCAdvisor extends React.Component<
             .map(fs => (
               <Progress
                 key={fs.device}
-                value={(fs.usage/1000000000).toFixed(3)}
-                total={(fs.capacity/1000000000).toFixed(3)}
+                value={(fs.usage / 1000000000).toFixed(3)}
+                total={(fs.capacity / 1000000000).toFixed(3)}
                 progress="ratio"
                 indicating={true}
                 label={"Disk - " + fs.device}

@@ -102,3 +102,49 @@ func ComposeUpDaemon(daemon types.Daemon, files ...string) error {
 
 	return project.Up(context.Background(), options.Up{})
 }
+
+// ComposeStopDaemon stop service for daemon
+func ComposeStopDaemon(daemon types.Daemon, files ...string) error {
+
+	c, err := GetComposeCli(daemon)
+	if err != nil {
+		return err
+	}
+
+	project, err := docker.NewProject(&ctx.Context{
+		Context: project.Context{
+			ComposeFiles: files,
+			ProjectName:  "Docktor",
+		},
+		ClientFactory: c,
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	return project.Stop(context.Background(), 10)
+}
+
+// ComposeRemoveDaemon remove service for daemon
+func ComposeRemoveDaemon(daemon types.Daemon, files ...string) error {
+
+	c, err := GetComposeCli(daemon)
+	if err != nil {
+		return err
+	}
+
+	project, err := docker.NewProject(&ctx.Context{
+		Context: project.Context{
+			ComposeFiles: files,
+			ProjectName:  "Docktor",
+		},
+		ClientFactory: c,
+	}, nil)
+
+	if err != nil {
+		return err
+	}
+
+	return project.Delete(context.Background(), options.Delete{RemoveVolume: true, RemoveRunning: true})
+}

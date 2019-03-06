@@ -7,6 +7,7 @@ import { fetchContainers } from "../actions/daemon";
 
 import { IDaemon } from "../types/daemon";
 import { IContainer } from "../../Group/types/group";
+import { serviceButton } from './DaemonServiceButtons';
 
 interface IDaemonContainersProps {
   daemon: IDaemon;
@@ -20,7 +21,7 @@ interface IDaemonContainersStates {
 class Daemon extends React.Component<
   IDaemonContainersProps,
   IDaemonContainersStates
-> {
+  > {
   public state = {
     containers: [],
     error: Error()
@@ -54,7 +55,10 @@ class Daemon extends React.Component<
       );
     }
 
-    return <ContainerTable daemon={daemon} containers={containers} />;
+    return <>
+      {serviceButton(daemon, ["cadvisor", "watchtower"])}
+      <ContainerTable daemon={daemon} containers={containers} />
+    </>;
   }
 }
 

@@ -33,9 +33,24 @@ export const changeContainersStatus = (
   status: string,
   containers: string[]
 ) => {
-  console.log(daemonID, status, containers)
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers/status?status=${status}&containers=${containers.join(';')}`,
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers/status?status=${status}&containers=${containers.join(',')}`,
+    {
+      credentials: "same-origin",
+      method: "POST"
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
+export const changeServicesStatus = (
+  daemonID: string,
+  status: string,
+  services: string[]
+) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/services/status?status=${status}&services=${services.join(',')}`,
     {
       credentials: "same-origin",
       method: "POST"
