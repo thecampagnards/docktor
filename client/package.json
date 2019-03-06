@@ -5,7 +5,7 @@
   "proxy": "http://localhost:8080/",
   "dependencies": {
     "codemirror": "^5.44.0",
-    "react": "^16.8.2",
+    "react": "^16.8.4",
     "react-codemirror2": "^5.1.0",
     "react-dom": "^16.8.3",
     "react-konami-code": "^1.4.0",
