@@ -250,8 +250,8 @@
     "info/v1",
   ]
   pruneopts = "UT"
-  revision = "511ec9ef821b334c3825cebb728208578c2300e8"
-  version = "v0.33.0"
+  revision = "7e9ea00b05397d43b6539d22ea6ea51bf70fea83"
+  version = "v0.33.1"
 
 [[projects]]
   digest = "1:ca59b1175189b3f0e9f1793d2c350114be36eaabbe5b9f554b35edee1de50aea"
