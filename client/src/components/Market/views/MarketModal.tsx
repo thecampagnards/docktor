@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import * as ReactMarkdown from "react-markdown";
 import {
   Button,
+  Grid,
   Header,
   Image,
   Modal,
@@ -18,6 +19,7 @@ import {
 import { IService, ISubServices } from "../../Services/types/service";
 import { IGroup, IServiceGroup } from "../../Group/types/group";
 import { deployService } from "../../Group/actions/group";
+import './MarketModal.css'
 
 interface IMarketModalStates {
   selectedGroupID: string;
@@ -93,17 +95,23 @@ class MarketModal extends React.Component<
     return (
       <>
         <Modal.Header>Select your version</Modal.Header>
-        <Modal.Content image={true}>
-          {service.Image && <Image size="small" src={"data:image/png;base64," + service.Image} />}
-          {error !== null && (
-            <Message negative={true}>
-              <Message.Header>{(error as Error).message}</Message.Header>
-            </Message>
-          )}
-          <Modal.Description>
-            <Header>{service.Name}</Header>
-            <ReactMarkdown source={service.Description} />
-          </Modal.Description>
+        <Modal.Content>
+          <Grid>
+            <Grid.Column width={4}>
+              {service.Image && <Image size="small" src={"data:image/png;base64," + service.Image} />}
+              {error !== null && (
+                <Message negative={true}>
+                  <Message.Header>{(error as Error).message}</Message.Header>
+                </Message>
+              )}
+            </Grid.Column>
+            <Grid.Column width={10}>
+              <Modal.Description>
+                <Header>{service.Name}</Header>
+                <ReactMarkdown source={service.Description} />
+              </Modal.Description>
+            </Grid.Column>
+          </Grid>
         </Modal.Content>
         <Modal.Actions>
           <Select
@@ -160,7 +168,7 @@ class MarketModal extends React.Component<
               ))}
             </>}
             <h3>Other</h3>
-            <Form.Checkbox inline={true} label="Fix ports" name="fix-port" onChange={this.handleChangeOpts} />
+            <Form.Checkbox inline={true} label="Fixed ports" name="fix-port" onChange={this.handleChangeOpts} />
             <Form.Checkbox inline={true} label="Auto update" name="auto-update" onChange={this.handleChangeOpts} />
           </Form>
         </Modal.Content>
