@@ -91,6 +91,7 @@ class ServiceForm extends React.Component<
               lineNumbers: true,
               gutters: ["Description"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
           <Form.Group widths="equal">
@@ -152,6 +153,7 @@ class ServiceForm extends React.Component<
                           lineNumbers: true,
                           gutters: [`SubServices.${key}.File`]
                         }}
+                        autoCursor={false}
                         onChange={this.handleChangeCodeEditor}
                       />
                     </Grid.Column>

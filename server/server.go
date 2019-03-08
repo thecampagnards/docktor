@@ -24,6 +24,7 @@ func main() {
 
 	Daemon := handler.Daemon{}
 	Group := handler.Group{}
+	Admin := handler.Admin{}
 	Compose := handler.Compose{}
 	Service := handler.Service{}
 
@@ -58,6 +59,11 @@ func main() {
 	group.GET("/:groupID/containers", Group.GetContainers)
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)
+
+	// For admin
+	admin := api.Group("/admin")
+	admin.GET("/assets", Admin.GetAssets)
+	admin.POST("/assets/:assetName", Admin.SaveAsset)
 
 	e.GET("/*", GetIndex)
 

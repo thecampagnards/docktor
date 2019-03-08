@@ -7,6 +7,7 @@ import { path } from "./constants/path";
 import registerServiceWorker from "./registerServiceWorker";
 
 import Home from "./components/Home/views/Home";
+import Admin from "./components/Admin/views/Admin";
 import Market from "./components/Market/views/Market";
 
 import GroupIndex from "./components/Group/views/GroupIndex";
@@ -25,6 +26,7 @@ ReactDOM.render(
   <Router basename={process.env.PUBLIC_URL}>
     <Switch>
       <Route exact={true} path={path.home} component={Home} />
+      <Route exact={true} path={path.admin} component={Admin} />
       <Route exact={true} path={path.market} component={Market} />
 
       <Route exact={true} path={path.groups} component={Groups} />

@@ -1,5 +1,6 @@
 export const path = {
     home: '/',
+    admin: '/admin',
     market: '/market',
 
     groups: '/groups',

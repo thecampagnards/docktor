@@ -27,7 +27,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   public componentWillMount() {
-    this.setState({ daemon: this.props.daemon ? this.props.daemon : {Docker: {}, SSH: {}} as IDaemon });
+    this.setState({ daemon: this.props.daemon ? this.props.daemon : { Docker: {}, SSH: {} } as IDaemon });
   }
 
   public render() {
@@ -110,6 +110,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               lineNumbers: true,
               gutters: ["Description"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
 
@@ -122,6 +123,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               lineNumbers: true,
               gutters: ["Docker.Ca"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
 
@@ -134,6 +136,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               lineNumbers: true,
               gutters: ["Docker.Cert"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
 
@@ -146,6 +149,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               lineNumbers: true,
               gutters: ["Docker.Key"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
 

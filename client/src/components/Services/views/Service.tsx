@@ -27,6 +27,7 @@ class Service extends React.Component<RouteComponentProps<IRouterProps>, IServic
 
   public componentWillMount() {
     const { serviceID } = this.props.match.params
+    this.setState({ isFetching: true })
     fetchService(serviceID)
     .then((service: IService) => this.setState({service, isFetching: false}))
     .catch((error: Error) => this.setState({ error, isFetching: false }))

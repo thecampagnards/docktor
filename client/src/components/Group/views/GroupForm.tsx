@@ -32,7 +32,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     fetchDaemons().then((daemons: IDaemon[]) => this.setState({ daemons }));
-    this.setState({ group: this.props.group ? this.props.group : {} as IGroup});
+    this.setState({ group: this.props.group ? this.props.group : {} as IGroup });
   }
 
   public render() {
@@ -61,6 +61,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               lineNumbers: true,
               gutters: ["Description"]
             }}
+            autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
           <Form.Dropdown

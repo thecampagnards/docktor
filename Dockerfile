@@ -29,5 +29,6 @@ COPY --from=builderBack /go/src/docktor/server/app .
 COPY --from=builderBack /go/src/docktor/server/assets assets
 
 CMD ["./app"]
+VOLUME [ "/docktor/assets" ]
 
 EXPOSE 8080

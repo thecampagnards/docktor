@@ -11,32 +11,36 @@ class Layout extends React.Component {
   public render() {
     return (
       <>
-        <KonamiCode/>
+        <KonamiCode />
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
-              <Button icon={true} onClick={this.goBack}><Icon name='arrow left'/> Previous</Button>
+              <Button icon={true} onClick={this.goBack}><Icon name='arrow left' /> Previous</Button>
             </Menu.Item>
           </Menu.Menu>
 
           <Menu.Item as={Link} to={path.home} name="home">
-          <Icon name="home" /> Home
+            <Icon name="home" /> Home
           </Menu.Item>
 
           <Menu.Item as={Link} to={path.market} name="market">
-          <Icon name="shopping cart" /> Market
+            <Icon name="shopping cart" /> Market
           </Menu.Item>
 
           <Menu.Item as={Link} to={path.groups} name="groups">
-          <Icon name="users" /> Groups
+            <Icon name="users" /> Groups
           </Menu.Item>
 
           <Menu.Item as={Link} to={path.daemons} name="daemons">
-          <Icon name="sitemap" /> Daemons
+            <Icon name="sitemap" /> Daemons
           </Menu.Item>
 
           <Menu.Item as={Link} to={path.services} name="services">
-          <Icon name="cubes" /> Services
+            <Icon name="cubes" /> Services
+          </Menu.Item>
+
+          <Menu.Item as={Link} to={path.admin} name="admin">
+            <Icon name="cogs" /> Admin
           </Menu.Item>
 
           <Menu.Menu position="right">
