@@ -73,16 +73,18 @@ class ServiceForm extends React.Component<
 
     return (
       <Layout>
-        <h2>{service.Name || "Service"}</h2>
+        <h2>{service.Name || "Create new service"}</h2>
 
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+
           <Form.Input
-            label="Name"
+            label="Service name"
             name="Name"
             type="text"
             value={service.Name}
             onChange={this.handleChange}
           />
+
           <CodeMirror
             value={service.Description}
             options={{
@@ -94,6 +96,9 @@ class ServiceForm extends React.Component<
             autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
+
+          <br/>
+
           <Form.Group widths="equal">
             {service.Image && (
               <img src={"data:image/png;base64," + service.Image} />
@@ -107,6 +112,13 @@ class ServiceForm extends React.Component<
               onChange={this.handleChange}
             />
           </Form.Group>
+
+          <Form.Input
+            label="Link to documentation"
+            name="Doc"
+            type="text"
+          />
+
           <br />
           <Button type="" icon={true} onClick={this.addSubService} color="green">
             <Icon name="plus" />

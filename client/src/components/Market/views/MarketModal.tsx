@@ -4,7 +4,6 @@ import * as ReactMarkdown from "react-markdown";
 import {
   Button,
   Grid,
-  Header,
   Image,
   Modal,
   Icon,
@@ -63,7 +62,14 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Button onClick={this.open}>Deploy</Button>
+        <Button icon={true} labelPosition='left'>
+          <Icon name='info circle'/>
+          Info
+        </Button>
+        <Button icon={true} labelPosition='right' onClick={this.open}>
+          <Icon name='play'/>
+          Deploy
+        </Button>
         <Modal
           closeIcon={true}
           open={open}
@@ -94,7 +100,7 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Modal.Header>Select your version</Modal.Header>
+        <Modal.Header>Deploy your {service.Name}</Modal.Header>
         <Modal.Content>
           <Grid>
             <Grid.Column width={4}>
@@ -107,9 +113,13 @@ class MarketModal extends React.Component<
             </Grid.Column>
             <Grid.Column width={10}>
               <Modal.Description>
-                <Header>{service.Name}</Header>
                 <ReactMarkdown source={service.Description} />
               </Modal.Description>
+            </Grid.Column>
+            <Grid.Column width={2}>
+              <Button icon={true} floated='right'>
+                <Icon name='info circle'/>
+              </Button>
             </Grid.Column>
           </Grid>
         </Modal.Content>
