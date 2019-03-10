@@ -89,7 +89,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {groupsFiltered.map((group: IGroup) => (
+            {groupsFiltered.slice(0, 20).map((group: IGroup) => (
               <Table.Row key={group._id}>
                 <Table.Cell>{group.Name}</Table.Cell>
                 <Table.Cell>

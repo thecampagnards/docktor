@@ -88,7 +88,7 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {services.map((service: IService) => (
+            {services.slice(0, 20).map((service: IService) => (
               <Table.Row key={service._id}>
                 <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>

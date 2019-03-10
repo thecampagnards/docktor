@@ -91,7 +91,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.map((daemon: IDaemon) => (
+            {daemonsFiltered.slice(0, 20).map((daemon: IDaemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
