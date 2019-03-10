@@ -64,14 +64,14 @@ class Services extends React.Component<{}, IServicesStates> {
           <Grid.Column width={2}>
             <h2>Services</h2>
           </Grid.Column>
-          <Grid.Column width={12}>
+          <Grid.Column width={4}>
             <Search
               size="tiny"
               placeholder="Search services..."
               showNoResults={false}
             />
           </Grid.Column>
-          <Grid.Column width={2}>
+          <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.servicesNew}>Add service</Button>
           </Grid.Column>
         </Grid>
