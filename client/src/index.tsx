@@ -22,12 +22,16 @@ import Services from "./components/Services/views/Services";
 import Service from "./components/Services/views/Service";
 import ServiceForm from "./components/Services/views/ServiceForm";
 
+import Login from './components/User/views/Login';
+
 ReactDOM.render(
   <Router basename={process.env.PUBLIC_URL}>
     <Switch>
       <Route exact={true} path={path.home} component={Home} />
       <Route exact={true} path={path.admin} component={Admin} />
       <Route exact={true} path={path.market} component={Market} />
+
+      <Route exact={true} path={path.login} component={Login} />
 
       <Route exact={true} path={path.groups} component={Groups} />
       <Route exact={true} path={path.groupsNew} component={GroupForm} />

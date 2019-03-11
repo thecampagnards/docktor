@@ -53,7 +53,8 @@ class Layout extends React.Component {
             </Dropdown>
 
             <Menu.Item>
-              <Button primary={true}>Sign Up</Button>
+              <Button primary={true} as={Link} to={path.login}>Sign Up</Button>
+              <Button primary={true} as={Link} to={path.login}>Login</Button>
             </Menu.Item>
           </Menu.Menu>
 

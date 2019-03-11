@@ -3,6 +3,8 @@ export const path = {
     admin: '/admin',
     market: '/market',
 
+    login: '/login',
+
     groups: '/groups',
     groupsNew: '/groups/new',
     groupsEdit: '/groups/:groupID/edit',
