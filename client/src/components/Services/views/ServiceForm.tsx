@@ -114,17 +114,19 @@ class ServiceForm extends React.Component<
           </Form.Group>
 
           <Form.Input
-            value={service.Link}
             label="Link to documentation"
             name="Link"
             type="url"
+            value={service.Link}
+            onChange={this.handleChange}
           />
 
           <Form.Input
-            value={service.Tags.join(",")}
             label="Tags"
             name="Tags"
             type="text"
+            value={service.Tags ? service.Tags.join(",") : ''}
+            onChange={this.handleChange}
           />
 
           <br />
