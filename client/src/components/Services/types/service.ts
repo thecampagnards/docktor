@@ -2,6 +2,8 @@ export interface IService {
 	_id: string;
 	Name: string;
 	Description: string;
+	Link: string;
+	Tags: string[];
 	Image: string;
 	SubServices: ISubServices[];
 }

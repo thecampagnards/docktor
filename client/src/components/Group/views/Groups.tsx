@@ -67,7 +67,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
           <Grid.Column width={2}>
             <h2>Groups</h2>
           </Grid.Column>
-          <Grid.Column width={12}>
+          <Grid.Column width={4}>
             <Search
               size="tiny"
               placeholder="Search groups..."
@@ -75,7 +75,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onSearchChange={this.filterGroups}
             />
           </Grid.Column>
-          <Grid.Column width={2}>
+          <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.groupsNew}>Create group</Button>
           </Grid.Column>
         </Grid>
@@ -89,7 +89,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {groupsFiltered.map((group: IGroup) => (
+            {groupsFiltered.slice(0, 20).map((group: IGroup) => (
               <Table.Row key={group._id}>
                 <Table.Cell>{group.Name}</Table.Cell>
                 <Table.Cell>

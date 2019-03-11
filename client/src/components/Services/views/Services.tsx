@@ -64,14 +64,14 @@ class Services extends React.Component<{}, IServicesStates> {
           <Grid.Column width={2}>
             <h2>Services</h2>
           </Grid.Column>
-          <Grid.Column width={12}>
+          <Grid.Column width={4}>
             <Search
               size="tiny"
               placeholder="Search services..."
               showNoResults={false}
             />
           </Grid.Column>
-          <Grid.Column width={2}>
+          <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.servicesNew}>Add service</Button>
           </Grid.Column>
         </Grid>
@@ -88,7 +88,7 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {services.map((service: IService) => (
+            {services.slice(0, 20).map((service: IService) => (
               <Table.Row key={service._id}>
                 <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>

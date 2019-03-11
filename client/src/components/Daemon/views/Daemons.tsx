@@ -70,7 +70,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Grid.Column width={2}>
             <h2>Daemons</h2>
           </Grid.Column>
-          <Grid.Column width={12}>
+          <Grid.Column width={4}>
             <Search
               size="tiny"
               placeholder="Search daemons..."
@@ -78,7 +78,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               onSearchChange={this.filterDaemons}
             />
           </Grid.Column>
-          <Grid.Column width={2}>
+          <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.daemonsNew}>Add daemon</Button>
           </Grid.Column>
         </Grid>
@@ -91,7 +91,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.map((daemon: IDaemon) => (
+            {daemonsFiltered.slice(0, 20).map((daemon: IDaemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
