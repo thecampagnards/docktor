@@ -19,6 +19,8 @@ type Service struct {
 	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name        string
 	Description string
+	Tags        []string
+	Link        string
 	// Base 64 encoded
 	Image       []byte
 	SubServices []SubService
