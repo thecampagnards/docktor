@@ -62,12 +62,12 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Button icon={true} labelPosition='left'>
-          <Icon name='info circle'/>
+        <Button icon={true} labelPosition='left' as="a" href={this.props.service.Link} target="_blank">
+          <Icon name='info circle' />
           Info
         </Button>
         <Button icon={true} labelPosition='right' onClick={this.open}>
-          <Icon name='play'/>
+          <Icon name='play' />
           Deploy
         </Button>
         <Modal
@@ -117,8 +117,8 @@ class MarketModal extends React.Component<
               </Modal.Description>
             </Grid.Column>
             <Grid.Column width={2}>
-              <Button icon={true} floated='right'>
-                <Icon name='info circle'/>
+              <Button icon={true} floated='right' as="a" href={service.Link} target="_blank">
+                <Icon name='info circle' />
               </Button>
             </Grid.Column>
           </Grid>

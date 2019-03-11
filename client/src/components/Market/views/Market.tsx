@@ -1,4 +1,5 @@
 import * as React from "react";
+import * as _ from 'lodash';
 import { Button, Grid, Loader, Search } from "semantic-ui-react";
 
 import Layout from "../../layout/layout";
@@ -70,6 +71,11 @@ class Market extends React.Component<{}, IServicesStates> {
       );
     }
 
+    let tags: string[] = []
+    for (const s of services) {
+      tags = _.union(tags, s.Tags)
+    }
+
     return (
       <Layout>
         <Grid>
@@ -85,12 +91,9 @@ class Market extends React.Component<{}, IServicesStates> {
             />
           </Grid.Column>
           <Grid.Column width={10}>
-            <Button toggle={true} active={false}>Design</Button>
-            <Button toggle={true} active={false}>Build</Button>
-            <Button toggle={true} active={false}>Acceptance</Button>
-            <Button toggle={true} active={false}>Performance</Button>
-            <Button toggle={true} active={false}>Ops</Button>
-            <Button toggle={true} active={false}>Monitoring</Button>
+            {tags.map(tag =>
+              <Button key={tag} toggle={true} active={false}>{tag}</Button>
+            )}
           </Grid.Column>
         </Grid>
         <Grid columns="equal">
@@ -104,8 +107,8 @@ class Market extends React.Component<{}, IServicesStates> {
     );
   }
 
-  private filterServices = (event: SyntheticEvent, { value }: any) => {
-    this.setState({servicesFiltered : this.state.services.filter(service => service.Name.includes(value))})
+  private filterServices = (event: SyntheticEvent, { value }: any) => {
+    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.includes(value)) })
   }
 }
 
