@@ -23,5 +23,8 @@ export const path = {
     services: '/services',
     servicesNew: '/services/new',
     servicesEdit: '/services/:serviceID/edit',
-    servicesMore: '/services/:serviceID'
+    servicesMore: '/services/:serviceID',
+
+    users: '/users',
+    usersNew: '/users/new'
 };

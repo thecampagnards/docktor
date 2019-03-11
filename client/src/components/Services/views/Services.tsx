@@ -7,9 +7,11 @@ import { fetchServices } from '../actions/service';
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
+import { SyntheticEvent } from 'react';
 
 interface IServicesStates {
   services: IService[];
+  servicesFiltered: IService[];
   isFetching: boolean;
   error: Error | null;
 }
@@ -17,19 +19,20 @@ interface IServicesStates {
 class Services extends React.Component<{}, IServicesStates> {
 
   public state = {
-    services: [],
+    services: [] as IService[],
+    servicesFiltered: [] as IService[],
     isFetching: false,
     error: null
   };
 
   public componentWillMount() {
     fetchServices()
-      .then((services: IService[]) => this.setState({ services, isFetching: false }))
+      .then((services: IService[]) => this.setState({ services, servicesFiltered: services, isFetching: false }))
       .catch((error: Error) => this.setState({ error, isFetching: false }))
   }
 
   public render() {
-    const { services, error, isFetching } = this.state;
+    const { services, servicesFiltered, error, isFetching } = this.state;
 
     if (!services) {
       return (
@@ -69,6 +72,7 @@ class Services extends React.Component<{}, IServicesStates> {
               size="tiny"
               placeholder="Search services..."
               showNoResults={false}
+              onSearchChange={this.filterServices}
             />
           </Grid.Column>
           <Grid.Column width={10}>
@@ -88,7 +92,7 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {services.slice(0, 20).map((service: IService) => (
+            {servicesFiltered.slice(0, 20).map((service: IService) => (
               <Table.Row key={service._id}>
                 <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>
@@ -114,6 +118,10 @@ class Services extends React.Component<{}, IServicesStates> {
         </Table>
       </Layout>
     );
+  }
+
+  private filterServices = (event: SyntheticEvent, { value }: any) => {
+    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.includes(value)) })
   }
 }
 
