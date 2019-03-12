@@ -114,17 +114,19 @@ class ServiceForm extends React.Component<
           </Form.Group>
 
           <Form.Input
-            value={service.Link}
             label="Link to documentation"
             name="Link"
             type="url"
+            value={service.Link}
+            onChange={this.handleChange}
           />
 
           <Form.Input
-            value={service.Tags.join(",")}
             label="Tags"
             name="Tags"
             type="text"
+            value={service.Tags ? service.Tags.join(",") : ''}
+            onChange={this.handleChange}
           />
 
           <br />
@@ -253,7 +255,7 @@ class ServiceForm extends React.Component<
       reader.onerror = error =>
         this.setState({ error: Error("When uploading file : " + error) });
     } else {
-      if (name === "Tags"){
+      if (name === "Tags") {
         value = value.split(",")
       }
       this.setState({ service: _.set(service, name, value) });

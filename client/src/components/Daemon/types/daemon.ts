@@ -4,6 +4,7 @@ export interface IDaemon {
   Description: string;
   CAdvisor: string;
   Host: string;
+  Tags: string[];
   Docker: IDocker;
   SSH: ISSH;
 }

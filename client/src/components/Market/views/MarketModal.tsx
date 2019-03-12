@@ -15,6 +15,8 @@ import {
   InputOnChangeData
 } from "semantic-ui-react";
 
+import { path } from 'src/constants/path';
+
 import { IService, ISubServices } from "../../Services/types/service";
 import { IGroup, IServiceGroup } from "../../Group/types/group";
 import { deployService } from "../../Group/actions/group";
@@ -59,12 +61,19 @@ class MarketModal extends React.Component<
 
   public render() {
     const { open, stage } = this.state;
+    const { service } = this.props;
 
     return (
       <>
-        <Button icon={true} labelPosition='left' as="a" href={this.props.service.Link} target="_blank">
-          <Icon name='info circle' />
-          Info
+        {service.Link &&
+          <Button icon={true} labelPosition='left' as="a" href={service.Link} target="_blank">
+            <Icon name='info circle' />
+            Info
+        </Button>
+        }
+        <Button icon={true} labelPosition='right' as={Link} to={path.servicesEdit.replace(":serviceID", service._id)}>
+          <Icon name='edit' />
+          Edit
         </Button>
         <Button icon={true} labelPosition='right' onClick={this.open}>
           <Icon name='play' />
@@ -111,16 +120,18 @@ class MarketModal extends React.Component<
                 </Message>
               )}
             </Grid.Column>
-            <Grid.Column width={10}>
+            <Grid.Column width={service.Link ? 10 : 12}>
               <Modal.Description>
                 <ReactMarkdown source={service.Description} />
               </Modal.Description>
             </Grid.Column>
-            <Grid.Column width={2}>
-              <Button icon={true} floated='right' as="a" href={service.Link} target="_blank">
-                <Icon name='info circle' />
-              </Button>
-            </Grid.Column>
+            {service.Link &&
+              <Grid.Column width={2}>
+                <Button icon={true} floated='right' as="a" href={service.Link} target="_blank">
+                  <Icon name='info circle' />
+                </Button>
+              </Grid.Column>
+            }
           </Grid>
         </Modal.Content>
         <Modal.Actions>

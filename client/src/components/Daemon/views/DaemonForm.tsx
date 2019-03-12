@@ -101,6 +101,14 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             onChange={this.handleChange}
           />
 
+          <Form.Input
+            label="Tags"
+            name="Tags"
+            type="text"
+            value={daemon.Tags ? daemon.Tags.join(",") : ''}
+            onChange={this.handleChange}
+          />
+
           <p>Description</p>
           <CodeMirror
             value={daemon.Description}
@@ -179,7 +187,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value, type }: any
   ) => {
-    this.setState({ daemon: _.set(this.state.daemon, name, type === 'number' ? (parseInt(value, undefined) as number) : value) });
+    if (type === 'number') {
+      value = parseInt(value, undefined)
+    } else if (name === 'Tags') {
+      value = value.split(",")
+    }
+    this.setState({ daemon: _.set(this.state.daemon, name, value) });
   };
 
   private handleChangeCodeEditor = (

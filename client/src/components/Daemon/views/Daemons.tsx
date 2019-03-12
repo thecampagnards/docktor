@@ -1,7 +1,8 @@
 import * as React from "react";
+import * as _ from 'lodash';
 
 import { Link } from "react-router-dom";
-import { Button, Grid, Loader, Table, Search } from "semantic-ui-react";
+import { Button, Grid, Loader, Table, Search, SearchProps, ButtonProps } from "semantic-ui-react";
 
 import { IDaemon } from "../types/daemon";
 import { fetchDaemons } from "../actions/daemon";
@@ -9,11 +10,11 @@ import { fetchDaemons } from "../actions/daemon";
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
 import './Daemons.css'
-import { SyntheticEvent } from 'react';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
   daemonsFiltered: IDaemon[];
+  tagsFilter: string[];
   isFetching: boolean;
   error: Error | null;
 }
@@ -22,9 +23,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public state = {
     daemons: [] as IDaemon[],
     daemonsFiltered: [] as IDaemon[],
+    tagsFilter: [] as string[],
     isFetching: false,
     error: null
   };
+
+  private searchField = ""
 
   public componentWillMount() {
     fetchDaemons()
@@ -35,7 +39,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   }
 
   public render() {
-    const { daemons, daemonsFiltered, error, isFetching } = this.state;
+    const { daemons, daemonsFiltered, tagsFilter, error, isFetching } = this.state;
 
     if (!daemons) {
       return (
@@ -64,6 +68,11 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       );
     }
 
+    let tags: string[] = []
+    for (const d of daemons) {
+      tags = _.union(tags, d.Tags)
+    }
+
     return (
       <Layout>
         <Grid>
@@ -75,10 +84,15 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               size="tiny"
               placeholder="Search daemons..."
               showNoResults={false}
-              onSearchChange={this.filterDaemons}
+              onSearchChange={this.filterAddSearchField}
             />
           </Grid.Column>
           <Grid.Column width={10}>
+            {tags.map(tag =>
+              <Button key={tag} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
+            )}
+          </Grid.Column>
+          <Grid.Column width={2}>
             <Button primary={true} floated="right" as={Link} to={path.daemonsNew}>Add daemon</Button>
           </Grid.Column>
         </Grid>
@@ -138,8 +152,27 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
-  private filterDaemons = (event: SyntheticEvent, { value }: any) => {
-    this.setState({daemonsFiltered : this.state.daemons.filter(daemon => daemon.Name.toLowerCase().includes(value.toLowerCase()))})
+  private filter = () => {
+    const { tagsFilter } = this.state
+
+    let daemonsFiltered = this.state.daemons.filter(daemons => daemons.Name.toLowerCase().includes(this.searchField.toLowerCase()))
+    if (tagsFilter.length > 0) {
+      daemonsFiltered = daemonsFiltered.filter(d => _.intersectionWith(d.Tags, tagsFilter, _.isEqual).length !== 0)
+    }
+    this.setState({ daemonsFiltered })
+  }
+
+  private filterAddSearchField = (event: React.SyntheticEvent, { value }: SearchProps) => {
+    this.searchField = value as string
+    this.filter()
+  }
+
+  private filterAddTags = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, { value }: ButtonProps) => {
+    const { tagsFilter } = this.state
+    const index = tagsFilter.indexOf(value)
+    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1)
+    this.setState({ tagsFilter })
+    this.filter()
   }
 }
 

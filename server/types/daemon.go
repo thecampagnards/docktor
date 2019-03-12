@@ -14,6 +14,7 @@ type Daemon struct {
 	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name        string
 	Description string
+	Tags        []string
 	CAdvisor    string
 	Host        string
 	Docker      Docker
