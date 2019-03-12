@@ -139,7 +139,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   }
 
   private filterDaemons = (event: SyntheticEvent, { value }: any) => {
-    this.setState({daemonsFiltered : this.state.daemons.filter(daemon => daemon.Name.includes(value))})
+    this.setState({daemonsFiltered : this.state.daemons.filter(daemon => daemon.Name.toLowerCase().includes(value.toLowerCase()))})
   }
 }
 

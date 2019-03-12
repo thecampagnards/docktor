@@ -120,7 +120,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
   }
 
   private filterGroups = (event: SyntheticEvent, { value }: any) => {
-    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.includes(value))})
+    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.toLowerCase().includes(value.toLowerCase()))})
   }
 }
 

@@ -108,7 +108,7 @@ class Market extends React.Component<{}, IServicesStates> {
   }
 
   private filterServices = (event: SyntheticEvent, { value }: any) => {
-    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.includes(value)) })
+    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.toLowerCase().includes(value.toLowerCase())) })
   }
 }
 
