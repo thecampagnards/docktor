@@ -2,8 +2,18 @@
 
 [![Build Status](https://travis-ci.org/thecampagnards/docktor.svg?branch=master)](https://travis-ci.org/thecampagnards/docktor)
 [![Go Report Card](https://goreportcard.com/badge/github.com/thecampagnards/docktor)](https://goreportcard.com/report/github.com/thecampagnards/docktor)
+[![Dependencies](https://david-dm.org/thecampagnards/docktor/status.svg?path=client)](https://david-dm.org/thecampagnards/docktor?path=client&view=list)
+[![Dev Dependencies](https://david-dm.org/thecampagnards/docktor/dev-status.svg?path=client)](https://david-dm.org/thecampagnards/docktor?path=client&type=dev&view=list)
 
 Docktor is a platform for administrating and deploying SaaS services based on Docker.
+
+## Todo
+
+- [ ] Implement user system
+- [ ] Add unit tests
+- [ ] LDAP connection
+- [ ] User's permissions
+- [ ] Favourites system
 
 ## Installation
 
@@ -21,7 +31,7 @@ Docker image available here <https://hub.docker.com/r/thecampagnards/docktor/>.
 Run a mongo on localhost, then run the service with this command:
 
 ```sh
-docker run -p 8080:8080 thecampagnards/docktor
+docker run -p 8080:8080 -v /data/docktor/assets:/docktor/assets thecampagnards/docktor
 ```
 
 You can define some env vars:
@@ -30,38 +40,22 @@ You can define some env vars:
 
 ## Developpement
 
+Docktor is a Go/React(TS) app and use [libcompose](https://github.com/docker/libcompose) and [docker-api](https://github.com/moby/moby). This project use [dependabot](https://dependabot.com/) to keep dependencies up-to-date.
+
 ### Installation
 
 #### Back
 
-Install dep :
-
 ```bash
 go get -u github.com/golang/dep/cmd/dep
-```
-
-Get deps :
-
-```bash
 dep ensure
+go run .
 ```
 
 #### Front
 
 ```bash
+cd client
 npm install
-```
-
-### Run
-
-#### Back
-
-```bash
-go run server.go
-```
-
-#### Front
-
-```bash
 npm start
 ```
