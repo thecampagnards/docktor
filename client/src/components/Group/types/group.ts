@@ -1,10 +1,12 @@
 import { IService } from "src/components/Services/types/service";
+import { IDaemon } from 'src/components/Daemon/types/daemon';
 
 export interface IGroup {
   _id: string;
   Name: string;
   Description: string;
   DaemonID: string;
+  Daemon: IDaemon;
   Services: IServiceGroup[];
 }
 

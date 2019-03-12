@@ -7,6 +7,8 @@ import MarketModal from "./MarketModal";
 import { IService } from "src/components/Services/types/service";
 import { IGroup } from "src/components/Group/types/group";
 
+import './MarketCard.css'
+
 interface IMarketCardProps {
   service: IService;
   groups: IGroup[];
@@ -17,7 +19,7 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
     const { service, groups } = this.props;
 
     return (
-      <Card centered={true}>
+      <Card fluid={true}>
         {service.Image && (
           <Image src={"data:image/png;base64," + service.Image} />
         )}

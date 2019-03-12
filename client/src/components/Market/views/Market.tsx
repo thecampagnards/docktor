@@ -99,9 +99,9 @@ class Market extends React.Component<{}, IServicesStates> {
             )}
           </Grid.Column>
         </Grid>
-        <Grid columns="equal">
+        <Grid>
           {servicesFiltered.map((service: IService) => (
-            <Grid.Column key={service._id}>
+            <Grid.Column key={service._id} width={4}>
               <MarketCard groups={groups} service={service} />
             </Grid.Column>
           ))}

@@ -9,6 +9,7 @@ type Group struct {
 	Name        string
 	Description string
 	DaemonID    bson.ObjectId
+	Daemon      Daemon `json:"Daemon,omitempty" bson:"Daemon,omitempty"`
 	Services    []ServiceGroup
 	Admins      []string
 }

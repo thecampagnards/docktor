@@ -15,11 +15,23 @@ type Group struct {
 
 // GetAll find all
 func (st *Group) GetAll(c echo.Context) error {
-	s, err := dao.GetGroups()
+	groups, err := dao.GetGroups()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	daemons, err := dao.GetDaemons()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	for key, group := range groups {
+		for _, daemon := range daemons {
+			if group.DaemonID == daemon.ID {
+				groups[key].Daemon = daemon
+				break
+			}
+		}
+	}
+	return c.JSON(http.StatusOK, groups)
 }
 
 // GetByID find one by id

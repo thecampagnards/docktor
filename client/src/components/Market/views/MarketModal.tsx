@@ -71,13 +71,12 @@ class MarketModal extends React.Component<
             Info
         </Button>
         }
-        <Button icon={true} labelPosition='right' as={Link} to={path.servicesEdit.replace(":serviceID", service._id)}>
-          <Icon name='edit' />
-          Edit
-        </Button>
         <Button icon={true} labelPosition='right' onClick={this.open}>
           <Icon name='play' />
           Deploy
+        </Button>
+        <Button floated='right' icon={true} as={Link} to={path.servicesEdit.replace(":serviceID", service._id)}>
+          <Icon name='edit' />
         </Button>
         <Modal
           closeIcon={true}
