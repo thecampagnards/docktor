@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as _ from "lodash";
-import { Form, Button, Message } from "semantic-ui-react";
+import { Form, Button, Message, Accordion, Icon, AccordionTitleProps } from "semantic-ui-react";
 import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 
 import { IDaemon } from "../types/daemon";
@@ -16,6 +16,8 @@ interface IDaemonFormStates {
   isFetching: boolean;
   isSuccess: boolean;
   error: Error | null;
+
+  activeAccordions: number[]
 }
 
 class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
@@ -23,7 +25,9 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     daemon: {} as IDaemon,
     isFetching: false,
     isSuccess: false,
-    error: null
+    error: null,
+
+    activeAccordions: [] as number[]
   };
 
   public componentWillMount() {
@@ -31,7 +35,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   }
 
   public render() {
-    const { daemon, error, isFetching, isSuccess } = this.state;
+    const { daemon, error, isFetching, isSuccess, activeAccordions } = this.state;
 
     const CustomTag = daemon._id ? 'span' : Layout
     return (
@@ -109,58 +113,88 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             onChange={this.handleChange}
           />
 
-          <p>Description</p>
-          <CodeMirror
-            value={daemon.Description}
-            options={{
-              mode: "markdown",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Description"]
-            }}
-            autoCursor={false}
-            onChange={this.handleChangeCodeEditor}
-          />
+          <Accordion exclusive={false} fluid={true}>
+            <Accordion.Title active={activeAccordions.indexOf(0) !== -1} index={0} onClick={this.handleAccordion}>
+              <b>
+                <Icon name='dropdown' />
+                Description
+              </b>
+            </Accordion.Title>
+            <Accordion.Content active={activeAccordions.indexOf(0) !== -1}>
+              <CodeMirror
+                value={daemon.Description}
+                options={{
+                  mode: "markdown",
+                  theme: "material",
+                  lineNumbers: true,
+                  gutters: ["Description"]
+                }}
+                autoCursor={false}
+                onChange={this.handleChangeCodeEditor}
+              />
+            </Accordion.Content>
 
-          <p>Ca</p>
-          <CodeMirror
-            value={daemon.Docker.Ca}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Docker.Ca"]
-            }}
-            autoCursor={false}
-            onChange={this.handleChangeCodeEditor}
-          />
+            <Accordion.Title active={activeAccordions.indexOf(1) !== -1} index={1} onClick={this.handleAccordion}>
+              <b>
+                <Icon name='dropdown' />
+                Ca
+              </b>
+            </Accordion.Title>
+            <Accordion.Content active={activeAccordions.indexOf(1) !== -1}>
+              <CodeMirror
+                value={daemon.Docker.Ca}
+                options={{
+                  mode: "plain",
+                  theme: "material",
+                  lineNumbers: true,
+                  gutters: ["Docker.Ca"]
+                }}
+                autoCursor={false}
+                onChange={this.handleChangeCodeEditor}
+              />
+            </Accordion.Content>
 
-          <p>Cert</p>
-          <CodeMirror
-            value={daemon.Docker.Cert}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Docker.Cert"]
-            }}
-            autoCursor={false}
-            onChange={this.handleChangeCodeEditor}
-          />
+            <Accordion.Title active={activeAccordions.indexOf(2) !== -1} index={2} onClick={this.handleAccordion}>
+              <b>
+                <Icon name='dropdown' />
+                Cert
+              </b>
+            </Accordion.Title>
+            <Accordion.Content active={activeAccordions.indexOf(2) !== -1}>
+              <CodeMirror
+                value={daemon.Docker.Cert}
+                options={{
+                  mode: "plain",
+                  theme: "material",
+                  lineNumbers: true,
+                  gutters: ["Docker.Cert"]
+                }}
+                autoCursor={false}
+                onChange={this.handleChangeCodeEditor}
+              />
+            </Accordion.Content>
 
-          <p>Key</p>
-          <CodeMirror
-            value={daemon.Docker.Key}
-            options={{
-              mode: "plain",
-              theme: "material",
-              lineNumbers: true,
-              gutters: ["Docker.Key"]
-            }}
-            autoCursor={false}
-            onChange={this.handleChangeCodeEditor}
-          />
-
+            <Accordion.Title active={activeAccordions.indexOf(3) !== -1} index={3} onClick={this.handleAccordion}>
+              <b>
+                <Icon name='dropdown' />
+                Key
+              </b>
+            </Accordion.Title>
+            <Accordion.Content active={activeAccordions.indexOf(3) !== -1}>
+              <CodeMirror
+                value={daemon.Docker.Key}
+                options={{
+                  mode: "plain",
+                  theme: "material",
+                  lineNumbers: true,
+                  gutters: ["Docker.Key"]
+                }}
+                autoCursor={false}
+                onChange={this.handleChangeCodeEditor}
+              />
+            </Accordion.Content>
+          </Accordion>
+          <br />
           <Form.Input
             label="Docker Volume"
             name="Docker.Volume"
@@ -182,6 +216,13 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
         </Form>
       </CustomTag>
     );
+  }
+
+  private handleAccordion = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, { index }: AccordionTitleProps) => {
+    const { activeAccordions } = this.state
+    const i = activeAccordions.indexOf(index as number)
+    i === -1 ? activeAccordions.push(index as number) : activeAccordions.splice(i, 1)
+    this.setState({ activeAccordions })
   }
 
   private handleChange = (
