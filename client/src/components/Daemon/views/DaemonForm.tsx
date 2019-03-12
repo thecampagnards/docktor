@@ -86,7 +86,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             <Form.Input
               label="SSH Password"
               name="SSH.Password"
-              type="text"
+              type="password"
               value={daemon.SSH.Password}
               onChange={this.handleChange}
               width={6}
@@ -168,13 +168,14 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             value={daemon.Docker.Volume}
             onChange={this.handleChange}
           />
-
+          <br />
           <Message
             success={true}
             header="Saved"
             content="Your daemon has been saved"
           />
           <Message error={true} header="Error" content={error && (error as Error).message} />
+          <br />
           <Button type="submit" loading={isFetching}>
             Save
         </Button>
