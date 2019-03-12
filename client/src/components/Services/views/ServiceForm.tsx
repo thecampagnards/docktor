@@ -255,7 +255,7 @@ class ServiceForm extends React.Component<
       reader.onerror = error =>
         this.setState({ error: Error("When uploading file : " + error) });
     } else {
-      if (name === "Tags"){
+      if (name === "Tags") {
         value = value.split(",")
       }
       this.setState({ service: _.set(service, name, value) });

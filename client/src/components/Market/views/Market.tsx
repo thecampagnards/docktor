@@ -1,6 +1,6 @@
 import * as React from "react";
 import * as _ from 'lodash';
-import { Button, Grid, Loader, Search } from "semantic-ui-react";
+import { Button, Grid, Loader, Search, ButtonProps, SearchProps } from "semantic-ui-react";
 
 import Layout from "../../layout/layout";
 import MarketCard from './MarketCard';
@@ -10,11 +10,11 @@ import { fetchServices } from "../../Services/actions/service";
 
 import { IGroup } from "../../Group/types/group";
 import { fetchGroups } from "../../Group/actions/group";
-import { SyntheticEvent } from 'react';
 
 interface IServicesStates {
   services: IService[];
   servicesFiltered: IService[];
+  tagsFilter: string[];
   groups: IGroup[];
   isFetching: boolean;
   error: Error | null;
@@ -24,10 +24,13 @@ class Market extends React.Component<{}, IServicesStates> {
   public state = {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
+    tagsFilter: [] as string[],
     groups: [] as IGroup[],
     isFetching: false,
     error: null
   };
+
+  private searchField = ""
 
   public componentWillMount() {
     fetchServices()
@@ -42,7 +45,7 @@ class Market extends React.Component<{}, IServicesStates> {
   }
 
   public render() {
-    const { services, servicesFiltered, groups, error, isFetching } = this.state;
+    const { services, servicesFiltered, tagsFilter, groups, error, isFetching } = this.state;
 
     if (!services) {
       return (
@@ -87,12 +90,12 @@ class Market extends React.Component<{}, IServicesStates> {
               size="tiny"
               placeholder="Search services..."
               showNoResults={false}
-              onSearchChange={this.filterServices}
+              onSearchChange={this.filterAddSearchField}
             />
           </Grid.Column>
           <Grid.Column width={10}>
             {tags.map(tag =>
-              <Button key={tag} toggle={true} active={false}>{tag}</Button>
+              <Button key={tag} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
             )}
           </Grid.Column>
         </Grid>
@@ -107,8 +110,27 @@ class Market extends React.Component<{}, IServicesStates> {
     );
   }
 
-  private filterServices = (event: SyntheticEvent, { value }: any) => {
-    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.includes(value)) })
+  private filter = () => {
+    const { tagsFilter } = this.state
+
+    let servicesFiltered = this.state.services.filter(service => service.Name.toLowerCase().includes(this.searchField.toLowerCase()))
+    if (tagsFilter.length > 0) {
+      servicesFiltered = servicesFiltered.filter(s => _.intersectionWith(s.Tags, tagsFilter, _.isEqual).length !== 0)
+    }
+    this.setState({ servicesFiltered })
+  }
+
+  private filterAddSearchField = (event: React.SyntheticEvent, { value }: SearchProps) => {
+    this.searchField = value as string
+    this.filter()
+  }
+
+  private filterAddTags = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, { value }: ButtonProps) => {
+    const { tagsFilter } = this.state
+    const index = tagsFilter.indexOf(value)
+    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1)
+    this.setState({ tagsFilter })
+    this.filter()
   }
 }
 
