@@ -15,8 +15,8 @@ class Auth {
     return !!this.getUser()
   }
 
-  public signIn = (user: IUser) => {
-    return fetch(`${process.env.PUBLIC_URL}/api/users/login`, {
+  public signIn = (user: IUser, ldap: boolean) => {
+    return fetch(`${process.env.PUBLIC_URL}/api/users/login?ldap=${ldap}`, {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(user),

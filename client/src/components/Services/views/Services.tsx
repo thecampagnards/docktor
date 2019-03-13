@@ -7,7 +7,6 @@ import { fetchServices } from '../actions/service';
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
-import { SyntheticEvent } from 'react';
 
 interface IServicesStates {
   services: IService[];
@@ -120,7 +119,7 @@ class Services extends React.Component<{}, IServicesStates> {
     );
   }
 
-  private filterServices = (event: SyntheticEvent, { value }: any) => {
+  private filterServices = (event: React.SyntheticEvent, { value }: any) => {
     this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.toLowerCase().includes(value.toLowerCase())) })
   }
 }

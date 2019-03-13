@@ -2,7 +2,7 @@ import * as React from "react";
 
 import Layout from 'src/components/layout/layout';
 import { Link } from "react-router-dom";
-import { Form, Button, Grid, Message, Checkbox, Segment } from 'semantic-ui-react';
+import { Form, Button, Grid, Message, Checkbox, Segment, CheckboxProps, InputOnChangeData } from 'semantic-ui-react';
 
 import { IUser } from '../types/user';
 import { path } from '../../../constants/path';
@@ -24,6 +24,7 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
   };
 
   private user = {} as IUser
+  private LDAP = true
 
   public render() {
 
@@ -37,14 +38,14 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
           </Grid.Column>
           <Grid.Column width={4}>
           <Segment compact={true}>
-            <Checkbox toggle={true} defaultChecked={true} label="LDAP"/>
+            <Checkbox toggle={true} defaultChecked={true} label="LDAP" onChange={this.handleLDAP}/>
           </Segment>
           </Grid.Column>
           <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.usersNew}>Create local account</Button>
           </Grid.Column>
         </Grid>
-        
+
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit} loading={isFetching}>
           <Form.Input required={true} fluid={true} label='Username' name='Username' placeholder='Username' onChange={this.handleChange} />
           <Form.Input required={true} fluid={true} label='Password' name='Password' placeholder='Password' type="password" onChange={this.handleChange} />
@@ -59,19 +60,25 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
     );
   }
 
+  private handleLDAP = (
+    e: React.ChangeEvent<HTMLInputElement>,
+    { value }: CheckboxProps
+  ) => {
+    this.LDAP = !!value
+  };
+
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
-    { name, value }: any
+    { name, value }: InputOnChangeData
   ) => {
     this.user[name] = value
   };
-
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     this.setState({ isFetching: true });
-    auth.signIn(this.user).then(user => {
+    auth.signIn(this.user, this.LDAP).then(user => {
       this.props.history.push(path.home)
     }).catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }))
