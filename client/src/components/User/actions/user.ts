@@ -1,9 +1,9 @@
+import * as JWT from 'jwt-decode';
+
 import { checkStatus } from 'src/utils/promises';
-import { IUser } from '../types/user';
+import { IUser } from '../types/user'
 
 class Auth {
-
-  private user: IUser
 
   constructor() {
     this.isAuthenticated.bind(this)
@@ -12,11 +12,11 @@ class Auth {
   }
 
   public isAuthenticated = (): boolean => {
-    return !!this.user.Username
+    return !!this.getUser()
   }
 
   public signIn = (user: IUser) => {
-    return fetch(`${process.env.PUBLIC_URL}/api/user`, {
+    return fetch(`${process.env.PUBLIC_URL}/api/users/login`, {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(user),
@@ -26,14 +26,22 @@ class Auth {
     })
       .then(checkStatus)
       .then((response: Response) => response.json())
+      .then((token: string) => {
+        localStorage.setItem('token', JSON.stringify(token))
+        return JWT(token) as IUser
+      })
   }
 
   public signOut = () => {
-    this.user = {} as IUser
+    localStorage.removeItem('token')
   }
 
-  public getUser = (): IUser => {
-    return this.user
+  public getUser = (): IUser | undefined => {
+    const token = localStorage.getItem('token')
+    if (token) {
+      return JWT(token)
+    }
+    return undefined
   }
 }
 

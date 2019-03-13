@@ -1,6 +1,10 @@
 package types
 
 import (
+	"os"
+	"time"
+
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -20,6 +24,7 @@ type User struct {
 	Email     string
 	Groups    []bson.ObjectId
 	Role      string
+	jwt.StandardClaims
 }
 
 type Users []User
@@ -42,4 +47,20 @@ func (u User) IsMyGroup(g Group) bool {
 		}
 	}
 	return false
+}
+
+// CreateToken create a jwt token for user
+func (u User) CreateToken() (string, error) {
+	u.StandardClaims = jwt.StandardClaims{
+		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+	}
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, u)
+
+	jwtKey := os.Getenv("JWT_SECRET")
+	if jwtKey == "" {
+		jwtKey = "secret"
+	}
+
+	return token.SignedString([]byte(jwtKey))
 }

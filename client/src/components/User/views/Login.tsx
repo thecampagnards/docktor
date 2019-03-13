@@ -12,8 +12,6 @@ interface ILoginStates {
   isFetching: boolean;
   isSuccess: boolean;
   error: Error | null;
-
-  user: IUser;
 }
 
 class Login extends React.Component<RouteComponentProps, ILoginStates> {
@@ -22,9 +20,9 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
     isFetching: false,
     isSuccess: false,
     error: null,
-
-    user: {} as IUser
   };
+
+  private user = {} as IUser
 
   public render() {
 
@@ -34,8 +32,8 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
       <Layout>
         <h2>Login</h2>
         <Form success={isSuccess} error={error !== null} onSubmit={this.submit} loading={isFetching}>
-          <Form.Input fluid={true} label='Username' placeholder='Username' onChange={this.handleChange} />
-          <Form.Input fluid={true} label='Password' placeholder='Password' type="password" onChange={this.handleChange} />
+          <Form.Input required={true} fluid={true} label='Username' name='Username' placeholder='Username' onChange={this.handleChange} />
+          <Form.Input required={true} fluid={true} label='Password' name='Password' placeholder='Password' type="password" onChange={this.handleChange} />
           <a>Forgot password ?</a>
           <br />
           <br />
@@ -51,17 +49,14 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
     e: React.ChangeEvent<HTMLInputElement>,
     { name, value }: any
   ) => {
-    const { user } = this.state
-    user[name] = value
-    this.setState({ user });
+    this.user[name] = value
   };
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     this.setState({ isFetching: true });
-    auth.signIn(this.state.user).then(user => {
-      this.setState({ user, isSuccess: true })
+    auth.signIn(this.user).then(user => {
       this.props.history.push(path.home)
     }).catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }))

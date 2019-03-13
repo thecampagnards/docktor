@@ -2,6 +2,8 @@ package main
 
 import (
 	"docktor/server/handler"
+	"docktor/server/types"
+	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -18,6 +20,16 @@ func main() {
 		Index: "index.html",
 	}))
 
+	jwtKey := os.Getenv("JWT_SECRET")
+	if jwtKey == "" {
+		jwtKey = "secret"
+	}
+
+	config := middleware.JWTConfig{
+		Claims:     &types.User{},
+		SigningKey: []byte(jwtKey),
+	}
+
 	e.Logger.SetLevel(log.DEBUG)
 
 	api := e.Group("/api")
@@ -27,6 +39,7 @@ func main() {
 	Admin := handler.Admin{}
 	Compose := handler.Compose{}
 	Service := handler.Service{}
+	User := handler.User{}
 
 	daemon := api.Group("/daemons")
 	daemon.GET("/:daemonID/log/:containerID", Daemon.GetContainerLog)
@@ -60,8 +73,17 @@ func main() {
 	group.GET("", Group.GetAll)
 	group.POST("", Group.Save)
 
+	// For user
+	user := api.Group("/users")
+	user.GET("/:username", User.GetByUsername)
+	user.DELETE("/:username", User.DeleteByUsername)
+	user.GET("", User.GetAll)
+	user.POST("", User.Save)
+	user.POST("/login", User.Login)
+
 	// For admin
 	admin := api.Group("/admin")
+	admin.Use(middleware.JWTWithConfig(config))
 	admin.GET("/assets", Admin.GetAssets)
 	admin.POST("/assets/:assetName", Admin.SaveAsset)
 

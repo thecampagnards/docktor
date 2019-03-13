@@ -115,8 +115,8 @@ func CreateOrUpdateUser(t types.User) (types.User, error) {
 	return t, err
 }
 
-// DeleteUser remove a user by id
-func DeleteUser(id string) error {
+// DeleteUser remove a user by username
+func DeleteUser(username string) error {
 	db := config.DB{}
 
 	s, err := db.DoDial()
@@ -129,7 +129,7 @@ func DeleteUser(id string) error {
 
 	c := s.DB(db.Name()).C(colUser)
 
-	err = c.RemoveId(bson.ObjectIdHex(id))
+	err = c.Remove(bson.M{"username": username})
 
 	if err != nil {
 		return errors.New("There was an error trying to remove the user")

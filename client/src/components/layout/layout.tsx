@@ -4,11 +4,15 @@ import { Button, Container, Dropdown, Icon, Menu } from "semantic-ui-react";
 
 import KonamiCode from './KonamiCode';
 
+import auth from '../User/actions/user';
 import { path } from "../../constants/path";
 import './layout.css'
 
 class Layout extends React.Component {
   public render() {
+
+    const user = auth.getUser()
+
     return (
       <>
         <KonamiCode />
@@ -53,6 +57,7 @@ class Layout extends React.Component {
             </Dropdown>
 
             <Menu.Item>
+              <b>{user && user.Username}</b>
               <Button primary={true} as={Link} to={path.login}>Sign Up</Button>
               <Button primary={true} as={Link} to={path.login}>Login</Button>
             </Menu.Item>

@@ -37,6 +37,7 @@ docker run -p 8080:8080 -v /data/docktor/assets:/docktor/assets thecampagnards/d
 You can define some env vars:
 
 - MONGOHQ_URL: mongodb url (default localhost)
+- JWT_SECRET: the jwt signed key (default secret)
 
 ## Developpement
 
