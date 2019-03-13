@@ -27,8 +27,8 @@ class Auth {
       .then(checkStatus)
       .then((response: Response) => response.json())
       .then((token: string) => {
-        localStorage.setItem('token', JSON.stringify(token))
-        return JWT(token) as IUser
+        localStorage.setItem('token', token)
+        return this.getUser()
       })
   }
 
