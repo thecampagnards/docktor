@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Terminal } from "xterm";
+import { fit } from 'xterm/lib/addons/fit/fit';
 import "xterm/dist/xterm.css";
-import * as fit from 'xterm/lib/addons/fit/fit';
 
 interface ISocketProps {
   apiURL: string;
@@ -11,7 +11,7 @@ export default class CmdSocket extends React.Component<
   ISocketProps
 > {
   private container: HTMLElement;
-  private term: any;
+  private term: Terminal;
   private ws: WebSocket;
 
   public componentWillMount() {
@@ -32,13 +32,12 @@ export default class CmdSocket extends React.Component<
     this.ws = new WebSocket(uri + apiURL);
 
     this.ws.onopen = () => {
-      Terminal.applyAddon(fit);
       this.term = new Terminal({
         cursorBlink: true
       });
 
       this.term.open(this.container);
-      this.term.fit();
+      fit(this.term)
 
       this.term.setOption("screenKeys", true);
 
