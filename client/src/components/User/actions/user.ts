@@ -1,7 +1,7 @@
 import * as JWT from 'jwt-decode';
 
 import { checkStatus } from '../../../utils/promises';
-import { IUser } from '../types/user'
+import { IUser } from '../types/user';
 
 class Auth {
 
@@ -42,6 +42,10 @@ class Auth {
       return JWT(token)
     }
     return undefined
+  }
+
+  public getToken = ():string | null => {
+    return localStorage.getItem('token')
   }
 }
 

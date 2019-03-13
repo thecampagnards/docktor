@@ -1,12 +1,11 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { Button, Image, Loader, Table, Grid, Search } from "semantic-ui-react";
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Grid, Image, Loader, Search, Table } from 'semantic-ui-react';
 
-import { IService } from "../types/service";
+import { path } from '../../../constants/path';
+import Layout from '../../layout/layout';
 import { fetchServices } from '../actions/service';
-
-import Layout from "../../layout/layout";
-import { path } from "../../../constants/path";
+import { IService } from '../types/service';
 
 interface IServicesStates {
   services: IService[];
