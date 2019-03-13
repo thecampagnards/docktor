@@ -1,6 +1,6 @@
 import * as JWT from 'jwt-decode';
 
-import { checkStatus } from 'src/utils/promises';
+import { checkStatus } from '../../../utils/promises';
 import { IUser } from '../types/user'
 
 class Auth {

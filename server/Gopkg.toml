@@ -39,6 +39,10 @@
   name = "github.com/google/cadvisor"
   version = "v0.33.1"
 
+[[constraint]]
+  name = "github.com/dgrijalva/jwt-go"
+  version = "v3.2.0"
+
 [prune]
   go-tests = true
   unused-packages = true
