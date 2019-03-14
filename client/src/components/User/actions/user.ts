@@ -1,7 +1,7 @@
 import * as JWT from 'jwt-decode';
 
 import { checkStatus } from '../../../utils/promises';
-import { IUser } from '../types/user'
+import { IUser } from '../types/user';
 
 class Auth {
 
@@ -15,8 +15,8 @@ class Auth {
     return !!this.getUser()
   }
 
-  public signIn = (user: IUser) => {
-    return fetch(`${process.env.PUBLIC_URL}/api/users/login`, {
+  public signIn = (user: IUser, ldap: boolean) => {
+    return fetch(`${process.env.PUBLIC_URL}/api/users/login?ldap=${ldap}`, {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(user),
@@ -27,8 +27,8 @@ class Auth {
       .then(checkStatus)
       .then((response: Response) => response.json())
       .then((token: string) => {
-        localStorage.setItem('token', JSON.stringify(token))
-        return JWT(token) as IUser
+        localStorage.setItem('token', token)
+        return this.getUser()
       })
   }
 
@@ -42,6 +42,10 @@ class Auth {
       return JWT(token)
     }
     return undefined
+  }
+
+  public getToken = ():string | null => {
+    return localStorage.getItem('token')
   }
 }
 

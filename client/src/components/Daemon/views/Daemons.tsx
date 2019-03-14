@@ -87,12 +87,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               onSearchChange={this.filterAddSearchField}
             />
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={7}>
             {tags.map(tag =>
-              <Button key={tag} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
+              <Button key={tag} compact={true} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
             )}
           </Grid.Column>
-          <Grid.Column width={2}>
+          <Grid.Column width={3}>
             <Button primary={true} floated="right" as={Link} to={path.daemonsNew}>Add daemon</Button>
           </Grid.Column>
         </Grid>
@@ -110,7 +110,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
                 <Table.Cell>
-                  <Button.Group>
+                  <Button.Group fluid={true}>
                     <Button
                       icon="chart area"
                       content="CAdvisor"

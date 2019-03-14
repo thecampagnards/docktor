@@ -1,14 +1,13 @@
 import * as React from "react";
-import * as ReactMarkdown from "react-markdown";
 import { Link } from "react-router-dom";
-import { Button, Grid, Loader, Search, Table } from "semantic-ui-react";
+import { Button, Grid, Loader, Search, Dropdown } from "semantic-ui-react";
 
 import { IGroup } from "../types/group";
 import { fetchGroups } from "../actions/group";
 
 import Layout from "../../layout/layout";
 import { path } from "../../../constants/path";
-import { SyntheticEvent } from 'react';
+import GroupCard from './GroupCard';
 
 interface IGroupsStates {
   groups: IGroup[];
@@ -75,52 +74,42 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onSearchChange={this.filterGroups}
             />
           </Grid.Column>
-          <Grid.Column width={10}>
+          <Grid.Column width={4}>
+            <Dropdown
+              search={true}
+              selection={true}
+              clearable={true}
+              label="Daemon"
+              name="DaemonID"
+              placeholder="Select daemon"
+              options={groups.map((g: IGroup) => {
+                return { text: g.Daemon.Name, value: g.DaemonID };
+              })}
+              onChange={this.filterByDaemon}
+            />
+          </Grid.Column>
+          <Grid.Column width={6}>
             <Button primary={true} floated="right" as={Link} to={path.groupsNew}>Create group</Button>
           </Grid.Column>
         </Grid>
-        <Button>Project 1</Button><Button>Project 2</Button>
-        <Table sortable={true} celled={true}>
-          <Table.Header>
-            <Table.Row>
-              <Table.HeaderCell>Name</Table.HeaderCell>
-              <Table.HeaderCell>Description</Table.HeaderCell>
-              <Table.HeaderCell>Tools</Table.HeaderCell>
-            </Table.Row>
-          </Table.Header>
-          <Table.Body>
-            {groupsFiltered.slice(0, 20).map((group: IGroup) => (
-              <Table.Row key={group._id}>
-                <Table.Cell>{group.Name}</Table.Cell>
-                <Table.Cell>
-                  <ReactMarkdown source={group.Description} />
-                </Table.Cell>
-                <Table.Cell>
-                  <Button.Group>
-                    <Button
-                      icon="edit"
-                      content="Edit"
-                      as={Link}
-                      to={path.groupsEdit.replace(":groupID", group._id)}
-                    />
-                    <Button
-                      icon="docker"
-                      content="Containers"
-                      as={Link}
-                      to={path.groupsContainers.replace(":groupID", group._id)}
-                    />
-                  </Button.Group>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
+       { /* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */ }
+        <Grid>
+          {groupsFiltered.slice(0, 16).map((group: IGroup) => (
+            <Grid.Column key={group._id} width={4}>
+              <GroupCard group={group} />
+            </Grid.Column>
+          ))}
+        </Grid>
       </Layout>
     );
   }
 
-  private filterGroups = (event: SyntheticEvent, { value }: any) => {
-    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.includes(value))})
+  private filterGroups = (event: React.SyntheticEvent, { value }: any) => {
+    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.toLowerCase().includes(value.toLowerCase()))})
+  }
+
+  private filterByDaemon = (event: React.SyntheticEvent, { value }: any) => {
+    console.log("Display groups on daemon " + value)
   }
 }
 
