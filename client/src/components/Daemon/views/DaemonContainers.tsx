@@ -1,12 +1,10 @@
-import * as React from "react";
-import { Message } from "semantic-ui-react";
+import * as React from 'react';
+import { Loader, Message } from 'semantic-ui-react';
 
-import ContainerTable from "../../layout/ContainersTable";
-
-import { fetchContainers } from "../actions/daemon";
-
-import { IDaemon } from "../types/daemon";
-import { IContainer } from "../../Group/types/group";
+import { IContainer } from '../../Daemon/types/daemon';
+import ContainerTable from '../../layout/ContainersTable';
+import { fetchContainers } from '../actions/daemon';
+import { IDaemon } from '../types/daemon';
 import { serviceButton } from './DaemonServiceButtons';
 
 interface IDaemonContainersProps {
@@ -15,6 +13,7 @@ interface IDaemonContainersProps {
 
 interface IDaemonContainersStates {
   containers: IContainer[];
+  isFetching: boolean;
   error: Error;
 }
 
@@ -24,6 +23,7 @@ class Daemon extends React.Component<
   > {
   public state = {
     containers: [],
+    isFetching: true,
     error: Error()
   };
 
@@ -33,7 +33,8 @@ class Daemon extends React.Component<
     const fetch = () => {
       fetchContainers(daemon._id)
         .then((containers: IContainer[]) => this.setState({ containers, error: Error() }))
-        .catch((error: Error) => this.setState({ error }));
+        .catch((error: Error) => this.setState({ error }))
+        .finally(() => this.setState({ isFetching: false }))
     };
 
     fetch();
@@ -41,7 +42,7 @@ class Daemon extends React.Component<
   }
 
   public render() {
-    const { containers, error } = this.state;
+    const { containers, error, isFetching } = this.state;
     const { daemon } = this.props;
 
     if (error.message) {
@@ -53,6 +54,10 @@ class Daemon extends React.Component<
           <p>{error.message}</p>
         </Message>
       );
+    }
+
+    if (isFetching) {
+      return <Loader active={true} />;
     }
 
     return <>

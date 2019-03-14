@@ -1,14 +1,14 @@
-import * as React from "react";
-import Konami from "react-konami-code";
-import { Modal, Header, List, Image } from "semantic-ui-react";
+import * as React from 'react';
+import Konami from 'react-konami-code';
+import { Header, Image, List, Modal } from 'semantic-ui-react';
 
-import { authors } from "../../constants/authors";
+import { authors } from '../../constants/authors';
 
 class KonamiCode extends React.Component {
-  public state = { modalOpen: false };
+  public state = { modalOpen: false }
 
   public render() {
-    const { modalOpen } = this.state;
+    const { modalOpen } = this.state
     return (
       <Konami action={this.handleOpen}>
         <Modal basic={true} open={modalOpen} onClose={this.handleClose}>
@@ -33,11 +33,11 @@ class KonamiCode extends React.Component {
           </Modal.Content>
         </Modal>
       </Konami>
-    );
+    )
   }
 
-  private handleOpen = () => this.setState({ modalOpen: true });
-  private handleClose = () => this.setState({ modalOpen: false });
+  private handleOpen = () => this.setState({ modalOpen: true })
+  private handleClose = () => this.setState({ modalOpen: false })
 }
 
-export default KonamiCode;
+export default KonamiCode

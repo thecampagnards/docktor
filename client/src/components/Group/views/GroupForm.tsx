@@ -1,14 +1,12 @@
-import * as React from "react";
-import * as _ from "lodash";
-import { Form, Button, Message } from "semantic-ui-react";
-import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { Button, Form, Message } from 'semantic-ui-react';
 
-import { fetchDaemons } from "../../Daemon/actions/daemon";
-
-import { IGroup } from "../types/group";
-import { IDaemon } from "../../Daemon/types/daemon";
-import { saveGroup } from "../actions/group";
-import Layout from '../../layout/layout';
+import { fetchDaemons } from '../../Daemon/actions/daemon';
+import { IDaemon } from '../../Daemon/types/daemon';
+import { saveGroup } from '../actions/group';
+import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
@@ -18,7 +16,7 @@ interface IGroupStates {
   daemons: IDaemon[];
   isFetching: boolean;
   isSuccess: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class Group extends React.Component<IGroupProps, IGroupStates> {
@@ -27,7 +25,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     daemons: [],
     isFetching: false,
     isSuccess: false,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
@@ -38,20 +36,15 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   public render() {
     const { daemons, group, error, isSuccess, isFetching } = this.state;
 
-    if (!group) {
-      return <p>No data yet ...</p>;
-    }
-
-    const CustomTag = group._id ? 'span' : Layout
     return (
-      <CustomTag>
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
             name="Name"
             type="text"
             value={group.Name}
             onChange={this.handleChange}
+            required={true}
           />
           <CodeMirror
             value={group.Description}
@@ -75,18 +68,18 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               return { text: d.Name, value: d._id };
             })}
             onChange={this.handleChange}
+            required={true}
           />
           <Message
             success={true}
             header="Saved"
             content="Your group has been saved"
           />
-          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Message error={true} header="Error" content={error.message} />
           <Button type="Save" loading={isFetching}>
             Submit
           </Button>
         </Form>
-      </CustomTag>
     );
   }
 

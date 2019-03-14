@@ -1,12 +1,12 @@
 import * as React from 'react';
-import { Button } from "semantic-ui-react";
+import { Button } from 'semantic-ui-react';
 
 import { changeServicesStatus } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 
 export function serviceButton(daemon: IDaemon, services: string[]) {
   return <h4>
-    {services.join(',')} :
+    {services.join(",")} :
     <Button.Group>
       <Button color="orange" disabled={false}
         onClick={changeServicesStatus.bind(

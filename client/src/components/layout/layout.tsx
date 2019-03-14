@@ -1,12 +1,12 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { Button, Container, Dropdown, Icon, Menu } from "semantic-ui-react";
+import './layout.css';
 
-import KonamiCode from './KonamiCode';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import { Button, Container, Dropdown, Icon, Menu } from 'semantic-ui-react';
 
+import { path } from '../../constants/path';
 import auth from '../User/actions/user';
-import { path } from "../../constants/path";
-import './layout.css'
+import KonamiCode from './KonamiCode';
 
 class Layout extends React.Component {
   public render() {
@@ -19,7 +19,7 @@ class Layout extends React.Component {
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
-              <Button icon={true} onClick={this.goBack}><Icon name='arrow left' /> Previous</Button>
+              <Button icon={true} onClick={this.goBack}><Icon name="arrow left" /> Previous</Button>
             </Menu.Item>
           </Menu.Menu>
 
@@ -57,9 +57,9 @@ class Layout extends React.Component {
             </Dropdown>
 
             <Menu.Item>
-              <Button animated='vertical' primary={true} as={Link} to={path.login}>
-                <Button.Content hidden={true}>{ user ? user.Username : "Login" }</Button.Content>
-                <Button.Content visible={true}><Icon name='user' /></Button.Content>
+              <Button animated="vertical" primary={true} as={Link} to={path.login}>
+                <Button.Content hidden={true}>{user ? user.Username : "Login"}</Button.Content>
+                <Button.Content visible={true}><Icon name="user" /></Button.Content>
               </Button>
             </Menu.Item>
           </Menu.Menu>
@@ -70,12 +70,12 @@ class Layout extends React.Component {
           {this.props.children}
         </Container>
       </>
-    );
+    )
   }
 
   private goBack = () => {
-    window.history.back();
-  };
+    window.history.back()
+  }
 }
 
-export default Layout;
+export default Layout

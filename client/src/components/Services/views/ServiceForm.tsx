@@ -1,38 +1,28 @@
-import * as React from "react";
-import { RouteComponentProps } from "react-router";
-import * as _ from "lodash";
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
+import 'codemirror/mode/yaml/yaml';
+import 'codemirror/mode/markdown/markdown';
+
+import * as _ from 'lodash';
+import * as React from 'react';
+import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { RouteComponentProps } from 'react-router';
 import {
-  Loader,
-  Form,
-  Message,
-  Button,
-  Grid,
-  Divider,
-  Segment,
-  Header,
-  Icon
-} from "semantic-ui-react";
-import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
+    Button, Divider, Form, Grid, Header, Icon, Loader, Message, Segment
+} from 'semantic-ui-react';
 
-import Layout from "../../layout/layout";
-
-import { IService, ISubServices } from "../types/service";
-import { fetchService, saveService } from "../actions/service";
-
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/material.css";
-import "codemirror/mode/yaml/yaml";
-import "codemirror/mode/markdown/markdown";
+import { fetchService, saveService } from '../actions/service';
+import { IService, ISubServices } from '../types/service';
 
 interface IRouterProps {
-  serviceID: string;
+  serviceID: string
 }
 
 interface IServiceFormStates {
-  service: IService;
-  isFetching: boolean;
-  isSuccess: boolean;
-  error: Error | null;
+  service: IService
+  isFetching: boolean
+  isSuccess: boolean
+  error: Error
 }
 
 class ServiceForm extends React.Component<
@@ -43,39 +33,39 @@ class ServiceForm extends React.Component<
     service: {} as IService,
     isSuccess: false,
     isFetching: true,
-    error: null
-  };
+    error: Error()
+  }
 
   public componentWillMount() {
-    const { serviceID } = this.props.match.params;
+    const { serviceID } = this.props.match.params
     if (serviceID) {
       fetchService(serviceID)
-        .then((service: IService) =>
+        .then((service) =>
           this.setState({ service, isFetching: false })
         )
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .catch((error) => this.setState({ error, isFetching: false }))
     } else {
       this.setState({ service: { SubServices: [] as ISubServices[] } as IService, isFetching: false })
     }
   }
 
   public render() {
-    const { service, error, isSuccess, isFetching } = this.state;
+    const { service, error, isSuccess, isFetching } = this.state
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Service</h2>
           <Loader active={true} />
-        </Layout>
-      );
+        </>
+      )
     }
 
     return (
-      <Layout>
+      <>
         <h2>{service.Name || "Create new service"}</h2>
 
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
 
           <Form.Input
             label="Service name"
@@ -83,6 +73,7 @@ class ServiceForm extends React.Component<
             type="text"
             value={service.Name}
             onChange={this.handleChange}
+            required={true}
           />
 
           <CodeMirror
@@ -125,7 +116,7 @@ class ServiceForm extends React.Component<
             label="Tags"
             name="Tags"
             type="text"
-            value={service.Tags ? service.Tags.join(",") : ''}
+            value={service.Tags ? service.Tags.join(",") : ""}
             onChange={this.handleChange}
           />
 
@@ -160,6 +151,7 @@ class ServiceForm extends React.Component<
                   type="text"
                   value={ss.Name}
                   onChange={this.handleChange}
+                  required={true}
                 />
               </Form.Group>
               <Segment placeholder={true}>
@@ -201,66 +193,66 @@ class ServiceForm extends React.Component<
             header="Saved"
             content="Your service has been saved"
           />
-          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Message error={true} header="Error" content={error.message} />
           <br />
           <Button type="submit" loading={isFetching}>
             Save
           </Button>
         </Form>
-      </Layout>
-    );
+      </>
+    )
   }
 
   private removeSubService = (key: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const service = this.state.service;
-    service.SubServices.splice(key, 1);
-    this.setState({ service });
-  };
+    const service = this.state.service
+    service.SubServices.splice(key, 1)
+    this.setState({ service })
+  }
 
   private addSubService = (event: React.MouseEvent<HTMLButtonElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    const service = this.state.service;
+    const service = this.state.service
     const sub: ISubServices = {
       Name: "",
       File: "",
       Active: true
-    };
-    service.SubServices.unshift(sub);
-    this.setState({ service });
-  };
+    }
+    service.SubServices.unshift(sub)
+    this.setState({ service })
+  }
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value }: any
   ) => {
-    const { service } = this.state;
+    const { service } = this.state
 
     if (e.target.files !== null) {
-      const reader = new FileReader();
-      reader.readAsDataURL(e.target.files[0]);
+      const reader = new FileReader()
+      reader.readAsDataURL(e.target.files[0])
       reader.onload = () => {
         if (typeof reader.result === "string") {
           this.setState({
             service: _.set(
               service,
               name,
-              reader.result.replace(/data:image\/.*?;base64,/gi, "")
+              reader.result.replace(/data:image\/.*?base64,/gi, "")
             )
-          });
+          })
         }
-      };
+      }
       reader.onerror = error =>
-        this.setState({ error: Error("When uploading file : " + error) });
+        this.setState({ error: Error("When uploading file : " + error) })
     } else {
       if (name === "Tags") {
         value = value.split(",")
       }
-      this.setState({ service: _.set(service, name, value) });
+      this.setState({ service: _.set(service, name, value) })
     }
-  };
+  }
 
   private handleChangeCodeEditor = (
     editor: IInstance,
@@ -273,19 +265,19 @@ class ServiceForm extends React.Component<
         editor.options.gutters![0],
         value
       )
-    });
-  };
+    })
+  }
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
-    this.setState({ isFetching: true });
+    this.setState({ isFetching: true })
     saveService(this.state.service)
-      .then((service: IService) =>
-        this.setState({ service, isSuccess: true, isFetching: false })
+      .then((service) =>
+        this.setState({ service, isSuccess: true, isFetching: false, error: Error() })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
-  };
+      .catch((error) => this.setState({ error, isFetching: false }))
+  }
 }
 
-export default ServiceForm;
+export default ServiceForm

@@ -15,7 +15,7 @@ export const authors = [
     image: "https://avatars0.githubusercontent.com/u/22838561",
     url: "https://github.com/SmalkiGroove",
     name: "Guillaume Chapeau",
-    description: '<div title="on a vos mots de passe">Coucou</div>'
+    description: "<div title='on a vos mots de passe'>Coucou</div>"
   },
   {
     image: "https://avatars0.githubusercontent.com/u/1478025",

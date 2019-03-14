@@ -5,12 +5,6 @@ import { IUser } from '../types/user';
 
 class Auth {
 
-  constructor() {
-    this.isAuthenticated.bind(this)
-    this.signIn.bind(this)
-    this.signOut.bind(this)
-  }
-
   public isAuthenticated = (): boolean => {
     return !!this.getUser()
   }
@@ -27,17 +21,17 @@ class Auth {
       .then(checkStatus)
       .then((response: Response) => response.json())
       .then((token: string) => {
-        localStorage.setItem('token', token)
+        localStorage.setItem("token", token)
         return this.getUser()
       })
   }
 
   public signOut = () => {
-    localStorage.removeItem('token')
+    localStorage.removeItem("token")
   }
 
   public getUser = (): IUser | undefined => {
-    const token = localStorage.getItem('token')
+    const token = localStorage.getItem("token")
     if (token) {
       return JWT(token)
     }
@@ -45,10 +39,10 @@ class Auth {
   }
 
   public getToken = ():string | null => {
-    return localStorage.getItem('token')
+    return localStorage.getItem("token")
   }
 }
 
-const auth = new Auth();
+const auth = new Auth()
 
-export default auth;
+export default auth

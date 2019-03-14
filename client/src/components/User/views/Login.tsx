@@ -1,63 +1,57 @@
-import * as React from "react";
+import * as React from 'react';
+import { Link, RouteComponentProps } from 'react-router-dom';
+import {
+    Button, Checkbox, CheckboxProps, Form, Grid, InputOnChangeData, Message, Segment
+} from 'semantic-ui-react';
 
-import Layout from 'src/components/layout/layout';
-import { Link } from "react-router-dom";
-import { Form, Button, Grid, Message, Checkbox, Segment, CheckboxProps, InputOnChangeData } from 'semantic-ui-react';
-
-import { IUser } from '../types/user';
 import { path } from '../../../constants/path';
-import { RouteComponentProps } from 'react-router-dom';
 import auth from '../actions/user';
+import { IUser } from '../types/user';
 
 interface ILoginStates {
-  isFetching: boolean;
-  isSuccess: boolean;
-  error: Error | null;
+  isFetching: boolean
+  error: Error
 }
 
 class Login extends React.Component<RouteComponentProps, ILoginStates> {
 
   public state = {
     isFetching: false,
-    isSuccess: false,
-    error: null,
-  };
+    error: Error(),
+  }
 
   private user = {} as IUser
   private LDAP = true
 
   public render() {
-
-    const { isSuccess, isFetching, error } = this.state
-
+    const { isFetching, error } = this.state
     return (
-      <Layout>
+      <>
         <Grid>
           <Grid.Column width={2}>
             <h2>Login</h2>
           </Grid.Column>
           <Grid.Column width={4}>
-          <Segment compact={true}>
-            <Checkbox toggle={true} defaultChecked={true} label="LDAP" onChange={this.handleLDAP}/>
-          </Segment>
+            <Segment compact={true}>
+              <Checkbox toggle={true} defaultChecked={true} label="LDAP" onChange={this.handleLDAP} />
+            </Segment>
           </Grid.Column>
           <Grid.Column width={10}>
             <Button primary={true} floated="right" as={Link} to={path.usersNew}>Create local account</Button>
           </Grid.Column>
         </Grid>
 
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit} loading={isFetching}>
-          <Form.Input required={true} fluid={true} label='Username' name='Username' placeholder='Username' onChange={this.handleChange} />
-          <Form.Input required={true} fluid={true} label='Password' name='Password' placeholder='Password' type="password" onChange={this.handleChange} />
+        <Form error={!!error.message} onSubmit={this.submit} loading={isFetching}>
+          <Form.Input required={true} fluid={true} label="Username" name="Username" placeholder="Username" onChange={this.handleChange} />
+          <Form.Input required={true} fluid={true} label="Password" name="Password" placeholder="Password" type="password" onChange={this.handleChange} />
           <a>Forgot password ?</a>
           <br />
           <br />
-          <Message success={true} header='Form Completed' content="You're all signed up for the newsletter" />
-          <Message error={true} header="Error" content={error && (error as Error).message} />
-          <Button type='submit' color="green">Sign in</Button>
+          <Message error={true} header="Error" content={error.message} />
+          <Button type="submit" color="green">Sign in</Button>
         </Form>
-      </Layout>
-    );
+      </>
+    )
   }
 
   private handleLDAP = (
@@ -65,24 +59,24 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
     { value }: CheckboxProps
   ) => {
     this.LDAP = !!value
-  };
+  }
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     { name, value }: InputOnChangeData
   ) => {
     this.user[name] = value
-  };
+  }
 
-  private submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  private submit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
 
-    this.setState({ isFetching: true });
-    auth.signIn(this.user, this.LDAP).then(user => {
-      this.props.history.push(path.home)
-    }).catch(error => this.setState({ error }))
+    this.setState({ isFetching: true })
+    auth.signIn(this.user, this.LDAP)
+      .then(() => this.props.history.push(path.home))
+      .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }))
   }
 }
 
-export default Login;
+export default Login

@@ -1,10 +1,14 @@
-import { checkStatus } from "../../../utils/promises";
-import { IDaemon } from "../types/daemon";
+import { checkStatus } from '../../../utils/promises';
+import auth from '../../User/actions/user';
+import { IDaemon } from '../types/daemon';
 
 export const fetchDaemons = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
     credentials: "same-origin",
-    method: "GET"
+    method: "GET",
+    headers: new Headers({
+      "Authorization": `Bearer ${auth.getToken()}`
+    })
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -13,7 +17,10 @@ export const fetchDaemons = () => {
 export const fetchDaemon = (daemonID: string) => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}`, {
     credentials: "same-origin",
-    method: "GET"
+    method: "GET",
+    headers: new Headers({
+      "Authorization": `Bearer ${auth.getToken()}`
+    })
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -22,7 +29,10 @@ export const fetchDaemon = (daemonID: string) => {
 export const fetchContainers = (daemonID: string) => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers`, {
     credentials: "same-origin",
-    method: "GET"
+    method: "GET",
+    headers: new Headers({
+      "Authorization": `Bearer ${auth.getToken()}`
+    })
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -34,10 +44,13 @@ export const changeContainersStatus = (
   containers: string[]
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers/status?status=${status}&containers=${containers.join(',')}`,
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers/status?status=${status}&containers=${containers.join(",")}`,
     {
       credentials: "same-origin",
-      method: "POST"
+      method: "POST",
+      headers: new Headers({
+        "Authorization": `Bearer ${auth.getToken()}`
+      })
     }
   )
     .then(checkStatus)
@@ -50,7 +63,7 @@ export const changeServicesStatus = (
   services: string[]
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/services/status?status=${status}&services=${services.join(',')}`,
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/services/status?status=${status}&services=${services.join(",")}`,
     {
       credentials: "same-origin",
       method: "POST"

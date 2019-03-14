@@ -1,19 +1,16 @@
-import * as React from "react";
-import * as ReactMarkdown from "react-markdown";
-import { Tab, TabProps } from "semantic-ui-react";
-import { RouteComponentProps } from "react-router";
+import * as React from 'react';
+import * as ReactMarkdown from 'react-markdown';
+import { RouteComponentProps } from 'react-router';
+import { Tab, TabProps } from 'semantic-ui-react';
+import { fetchDaemon } from 'src/components/Daemon/actions/daemon';
 
-import Layout from "../../layout/layout";
-import { path as constPath } from "../../../constants/path";
-
-import { fetchGroup } from "../actions/group";
-import { fetchDaemon } from "src/components/Daemon/actions/daemon";
-import { IGroup } from "../types/group";
-import { IDaemon } from "../../Daemon/types/daemon";
-
-import GroupContainers from "./GroupContainers";
-import GroupServices from "./GroupServices";
-import GroupForm from "./GroupForm";
+import { path as constPath } from '../../../constants/path';
+import { IDaemon } from '../../Daemon/types/daemon';
+import { fetchGroup } from '../actions/group';
+import { IGroup } from '../types/group';
+import GroupContainers from './GroupContainers';
+import GroupForm from './GroupForm';
+import GroupServices from './GroupServices';
 
 interface IRouterProps {
   groupID: string;
@@ -36,7 +33,7 @@ class GroupIndex extends React.Component<
     isFetching: false,
     group: {} as IGroup,
     daemon: {} as IDaemon,
-    error: {} as Error
+    error: Error()
   };
 
   public componentWillMount() {
@@ -46,7 +43,6 @@ class GroupIndex extends React.Component<
     fetchGroup(groupID)
       .then((group: IGroup) => {
         this.setState({ group });
-
         fetchDaemon(group.DaemonID).then((daemon: IDaemon) =>
           this.setState({ daemon, isFetching: false })
         );
@@ -104,7 +100,7 @@ class GroupIndex extends React.Component<
     ];
 
     return (
-      <Layout>
+      <>
         <h1>{group.Name || "Group"}</h1>
         <ReactMarkdown source={group.Description} />
         <Tab
@@ -113,7 +109,7 @@ class GroupIndex extends React.Component<
           defaultActiveIndex={activeTab}
           onTabChange={this.changeTab}
         />
-      </Layout>
+      </>
     );
   }
 
@@ -141,4 +137,5 @@ class GroupIndex extends React.Component<
     }
   };
 }
+
 export default GroupIndex;

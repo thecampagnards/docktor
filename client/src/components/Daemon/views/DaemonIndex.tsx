@@ -1,18 +1,15 @@
-import * as React from "react";
-import { Tab, TabProps, Message } from "semantic-ui-react";
-import { RouteComponentProps } from "react-router";
-import * as ReactMarkdown from "react-markdown";
+import * as React from 'react';
+import * as ReactMarkdown from 'react-markdown';
+import { RouteComponentProps } from 'react-router';
+import { Message, Tab, TabProps } from 'semantic-ui-react';
 
-import Layout from "../../layout/layout";
-import { path as constPath } from "../../../constants/path";
-
-import { IDaemon } from "../../Daemon/types/daemon";
-import { fetchDaemon } from "src/components/Daemon/actions/daemon";
-
-import DaemonContainers from "./DaemonContainers";
-import DaemonCAdvisor from "./DaemonCAdvisor";
-import DaemonForm from "./DaemonForm";
-import DaemonSSH from "./DaemonSSH";
+import { path as constPath } from '../../../constants/path';
+import { fetchDaemon } from '../../Daemon/actions/daemon';
+import { IDaemon } from '../../Daemon/types/daemon';
+import DaemonCAdvisor from './DaemonCAdvisor';
+import DaemonContainers from './DaemonContainers';
+import DaemonForm from './DaemonForm';
+import DaemonSSH from './DaemonSSH';
 
 interface IRouterProps {
   daemonID: string;
@@ -28,7 +25,7 @@ interface IDaemonIndexStates {
 class DaemonIndex extends React.Component<
   RouteComponentProps<IRouterProps>,
   IDaemonIndexStates
-> {
+  > {
   public state = {
     activeTab: 0,
     isFetching: false,
@@ -113,7 +110,7 @@ class DaemonIndex extends React.Component<
     ];
 
     return (
-      <Layout>
+      <>
         <h1>{daemon.Name || "Daemon"}</h1>
         <ReactMarkdown source={daemon.Description} />
         <Tab
@@ -122,7 +119,7 @@ class DaemonIndex extends React.Component<
           defaultActiveIndex={activeTab}
           onTabChange={this.changeTab}
         />
-      </Layout>
+      </>
     );
   }
 
@@ -155,4 +152,5 @@ class DaemonIndex extends React.Component<
     }
   };
 }
+
 export default DaemonIndex;

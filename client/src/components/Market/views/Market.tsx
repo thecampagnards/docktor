@@ -1,23 +1,20 @@
-import * as React from "react";
 import * as _ from 'lodash';
-import { Button, Grid, Loader, Search, ButtonProps, SearchProps } from "semantic-ui-react";
+import * as React from 'react';
+import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
-import Layout from "../../layout/layout";
+import { fetchGroups } from '../../Group/actions/group';
+import { IGroup } from '../../Group/types/group';
+import { fetchServices } from '../../Services/actions/service';
+import { IService } from '../../Services/types/service';
 import MarketCard from './MarketCard';
 
-import { IService } from "../../Services/types/service";
-import { fetchServices } from "../../Services/actions/service";
-
-import { IGroup } from "../../Group/types/group";
-import { fetchGroups } from "../../Group/actions/group";
-
 interface IServicesStates {
-  services: IService[];
-  servicesFiltered: IService[];
-  tagsFilter: string[];
-  groups: IGroup[];
-  isFetching: boolean;
-  error: Error | null;
+  services: IService[]
+  servicesFiltered: IService[]
+  tagsFilter: string[]
+  groups: IGroup[]
+  isFetching: boolean
+  error: Error
 }
 
 class Market extends React.Component<{}, IServicesStates> {
@@ -26,9 +23,9 @@ class Market extends React.Component<{}, IServicesStates> {
     servicesFiltered: [] as IService[],
     tagsFilter: [] as string[],
     groups: [] as IGroup[],
-    isFetching: false,
-    error: null
-  };
+    isFetching: true,
+    error: Error()
+  }
 
   private searchField = ""
 
@@ -37,41 +34,33 @@ class Market extends React.Component<{}, IServicesStates> {
       .then((services: IService[]) =>
         this.setState({ services, servicesFiltered: services, isFetching: false })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+      .catch((error: Error) => this.setState({ error, isFetching: false }))
 
     fetchGroups()
       .then((groups: IGroup[]) => this.setState({ groups }))
-      .catch((error: Error) => this.setState({ error }));
+      .catch((error: Error) => this.setState({ error }))
   }
 
   public render() {
-    const { services, servicesFiltered, tagsFilter, groups, error, isFetching } = this.state;
+    const { services, servicesFiltered, tagsFilter, groups, error, isFetching } = this.state
 
-    if (!services) {
-      return (
-        <Layout>
-          <h2>Market</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
-    }
-
-    if (error) {
-      return (
-        <Layout>
-          <h2>Market</h2>
-          <p>{(error as Error).message}</p>;
-        </Layout>
-      );
+    if (error.message) {
+      return <>
+        <h2>Market</h2>
+        <Message negative={true}>
+          <Message.Header>There was an issue</Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      </>
     }
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Market</h2>
           <Loader active={true} />
-        </Layout>
-      );
+        </>
+      )
     }
 
     let tags: string[] = []
@@ -80,7 +69,7 @@ class Market extends React.Component<{}, IServicesStates> {
     }
 
     return (
-      <Layout>
+      <>
         <Grid>
           <Grid.Column width={2}>
             <h2>Market</h2>
@@ -106,8 +95,8 @@ class Market extends React.Component<{}, IServicesStates> {
             </Grid.Column>
           ))}
         </Grid>
-      </Layout>
-    );
+      </>
+    )
   }
 
   private filter = () => {
@@ -134,4 +123,4 @@ class Market extends React.Component<{}, IServicesStates> {
   }
 }
 
-export default Market;
+export default Market

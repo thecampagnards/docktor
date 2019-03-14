@@ -1,11 +1,10 @@
-import * as React from "react";
-import * as _ from "lodash";
-import { Form, Button, Message, Accordion, Icon, AccordionTitleProps } from "semantic-ui-react";
-import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { Accordion, AccordionTitleProps, Button, Form, Icon, Message } from 'semantic-ui-react';
 
-import { IDaemon } from "../types/daemon";
-import { saveDaemon } from "../actions/daemon";
-import Layout from '../../layout/layout';
+import { saveDaemon } from '../actions/daemon';
+import { IDaemon } from '../types/daemon';
 
 interface IDaemonFormProps {
   daemon: IDaemon;
@@ -15,7 +14,7 @@ interface IDaemonFormStates {
   daemon: IDaemon;
   isFetching: boolean;
   isSuccess: boolean;
-  error: Error | null;
+  error: Error;
 
   activeAccordions: number[]
 }
@@ -25,7 +24,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     daemon: {} as IDaemon,
     isFetching: false,
     isSuccess: false,
-    error: null,
+    error: Error(),
 
     activeAccordions: [] as number[]
   };
@@ -37,10 +36,8 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   public render() {
     const { daemon, error, isFetching, isSuccess, activeAccordions } = this.state;
 
-    const CustomTag = daemon._id ? 'span' : Layout
     return (
-      <CustomTag>
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
             name="Name"
@@ -109,14 +106,14 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             label="Tags"
             name="Tags"
             type="text"
-            value={daemon.Tags ? daemon.Tags.join(",") : ''}
+            value={daemon.Tags ? daemon.Tags.join(",") : ""}
             onChange={this.handleChange}
           />
 
           <Accordion exclusive={false} fluid={true}>
             <Accordion.Title active={activeAccordions.indexOf(0) !== -1} index={0} onClick={this.handleAccordion}>
               <b>
-                <Icon name='dropdown' />
+                <Icon name="dropdown" />
                 Description
               </b>
             </Accordion.Title>
@@ -136,7 +133,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Accordion.Title active={activeAccordions.indexOf(1) !== -1} index={1} onClick={this.handleAccordion}>
               <b>
-                <Icon name='dropdown' />
+                <Icon name="dropdown" />
                 Ca
               </b>
             </Accordion.Title>
@@ -156,7 +153,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Accordion.Title active={activeAccordions.indexOf(2) !== -1} index={2} onClick={this.handleAccordion}>
               <b>
-                <Icon name='dropdown' />
+                <Icon name="dropdown" />
                 Cert
               </b>
             </Accordion.Title>
@@ -176,7 +173,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Accordion.Title active={activeAccordions.indexOf(3) !== -1} index={3} onClick={this.handleAccordion}>
               <b>
-                <Icon name='dropdown' />
+                <Icon name="dropdown" />
                 Key
               </b>
             </Accordion.Title>
@@ -208,13 +205,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             header="Saved"
             content="Your daemon has been saved"
           />
-          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Message error={true} header="Error" content={error.message} />
           <br />
           <Button type="submit" loading={isFetching}>
             Save
         </Button>
         </Form>
-      </CustomTag>
     );
   }
 
@@ -229,9 +225,9 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value, type }: any
   ) => {
-    if (type === 'number') {
+    if (type === "number") {
       value = parseInt(value, undefined)
-    } else if (name === 'Tags') {
+    } else if (name === "Tags") {
       value = value.split(",")
     }
     this.setState({ daemon: _.set(this.state.daemon, name, value) });
@@ -253,7 +249,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     this.setState({ isFetching: true });
     saveDaemon(this.state.daemon)
       .then((daemon: IDaemon) =>
-        this.setState({ daemon, isSuccess: true, isFetching: false })
+        this.setState({ daemon, isSuccess: true, isFetching: false, error: Error() })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   };

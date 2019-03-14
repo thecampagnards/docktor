@@ -1,12 +1,10 @@
-import * as React from "react";
 import * as _ from 'lodash';
+import * as React from 'react';
+import { Button, Form, Icon, Message, Modal } from 'semantic-ui-react';
 
-import { Button, Form, Message, Modal, Icon } from 'semantic-ui-react';
-
-import CmdSocket from "../../layout/CmdSocket";
-
-import { IDaemon } from "../types/daemon";
+import CmdSocket from '../../layout/CmdSocket';
 import { execCommand, saveDaemon } from '../actions/daemon';
+import { IDaemon } from '../types/daemon';
 
 interface IDaemonSSHProps {
   daemon: IDaemon;
@@ -14,7 +12,7 @@ interface IDaemonSSHProps {
 
 interface IDaemonSSHStates {
   commands: ICommand[];
-  error: Error | null;
+  error: Error;
   isSuccess: boolean;
   isFetching: boolean;
 }
@@ -22,18 +20,16 @@ interface IDaemonSSHStates {
 interface ICommand {
   command: string;
   data: string;
-  error: Error | null;
+  error: Error;
   isOpen: boolean;
   isFetching: boolean;
 }
 
-class Daemon extends React.Component<
-  IDaemonSSHProps, IDaemonSSHStates
-  > {
+class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
 
   public state = {
     commands: [] as ICommand[],
-    error: null,
+    error: Error(),
     isSuccess: false,
     isFetching: false
   }
@@ -42,7 +38,7 @@ class Daemon extends React.Component<
     const commands = this.props.daemon.SSH.Commands.map(c => ({
       command: c,
       data: "",
-      error: null,
+      error: Error(),
       isOpen: false,
       isFetching: false
     }));
@@ -57,9 +53,9 @@ class Daemon extends React.Component<
       <>
         <CmdSocket apiURL={`/api/daemons/${daemon._id}/ssh/term`} />
         <br />
-        <Form success={isSuccess} error={error !== null}>
+        <Form success={isSuccess} error={!!error.message}>
           <Button icon={true} onClick={this.handleAdd}>
-            <Icon name='plus' />
+            <Icon name="plus" />
           </Button>
           <br />
           <br />
@@ -77,15 +73,15 @@ class Daemon extends React.Component<
                 open={command.isOpen}
                 onClose={this.handleClose.bind(this, command, index)}
                 basic={true}
-                size='small'
+                size="small"
               >
                 <Modal.Content>
-                  <span style={{ whiteSpace: "pre-line" }}>{command.error ? command.error.message : command.data}</span>
+                  <span style={{ whiteSpace: "pre-line" }}>{command.error.message || command.data}</span>
                 </Modal.Content>
               </Modal>
             </Form.Group>
           ))}
-          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Message error={true} header="Error" content={error.message} />
           <Button type="submit" loading={isFetching} onClick={this.submit}>Save</Button>
         </Form>
       </>
@@ -101,12 +97,13 @@ class Daemon extends React.Component<
 
     this.setState({ commands })
 
+    command.isOpen = true
+    command.isFetching = false
+
     execCommand(daemon, [command.command])
       .then((d: string[]) => {
         command.data = d[command.command]
-        command.error = null
-        command.isOpen = true
-        command.isFetching = false
+        command.error = Error()
 
         commands[index] = command
         this.setState({ commands })
@@ -115,8 +112,6 @@ class Daemon extends React.Component<
       .catch((error: Error) => {
         command.data = ""
         command.error = error
-        command.isOpen = true
-        command.isFetching = false
 
         commands[index] = command
         this.setState({ commands })
@@ -143,7 +138,7 @@ class Daemon extends React.Component<
     commands.push({
       command: "",
       data: "",
-      error: null,
+      error: Error(),
       isOpen: false,
       isFetching: false
     })
@@ -165,7 +160,7 @@ class Daemon extends React.Component<
     }
 
     saveDaemon(d)
-      .then(() => this.setState({ isSuccess: true, isFetching: false, commands }))
+      .then(() => this.setState({ isSuccess: true, isFetching: false, commands, error: Error() }))
       .catch((error: Error) => this.setState({ error, isFetching: false, commands }));
   };
 }

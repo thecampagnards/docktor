@@ -1,22 +1,22 @@
-import * as React from "react";
+import './Daemons.css';
+
 import * as _ from 'lodash';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import {
+    Button, ButtonProps, Grid, Loader, Message, Search, SearchProps, Table
+} from 'semantic-ui-react';
 
-import { Link } from "react-router-dom";
-import { Button, Grid, Loader, Table, Search, SearchProps, ButtonProps } from "semantic-ui-react";
-
-import { IDaemon } from "../types/daemon";
-import { fetchDaemons } from "../actions/daemon";
-
-import Layout from "../../layout/layout";
-import { path } from "../../../constants/path";
-import './Daemons.css'
+import { path } from '../../../constants/path';
+import { fetchDaemons } from '../actions/daemon';
+import { IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
   daemonsFiltered: IDaemon[];
   tagsFilter: string[];
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
@@ -25,7 +25,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     daemonsFiltered: [] as IDaemon[],
     tagsFilter: [] as string[],
     isFetching: false,
-    error: null
+    error: Error()
   };
 
   private searchField = ""
@@ -43,28 +43,33 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     if (!daemons) {
       return (
-        <Layout>
+        <>
           <h2>Daemons</h2>
           <p>No data yet ...</p>;
-        </Layout>
+        </>
       );
     }
 
-    if (error) {
+    if (error.message) {
       return (
-        <Layout>
+        <>
           <h2>Daemons</h2>
-          <p>{(error as Error).message}</p>;
-        </Layout>
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue
+          </Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        </>
       );
     }
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Daemons</h2>
           <Loader active={true} />
-        </Layout>
+        </>
       );
     }
 
@@ -74,7 +79,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
 
     return (
-      <Layout>
+      <>
         <Grid>
           <Grid.Column width={2}>
             <h2>Daemons</h2>
@@ -148,7 +153,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             ))}
           </Table.Body>
         </Table>
-      </Layout>
+      </>
     );
   }
 

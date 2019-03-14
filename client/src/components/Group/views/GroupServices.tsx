@@ -1,60 +1,56 @@
-import * as React from "react";
-import { Loader, Card } from "semantic-ui-react";
+import * as React from 'react';
+import { Card, Loader, Message } from 'semantic-ui-react';
 
-import MarketCard from "../../Market/views/MarketCard";
-
-import { IGroup } from "../types/group";
-import { IDaemon } from "../../Daemon/types/daemon";
-import { IService } from "src/components/Services/types/service";
-
-import { fetchServiceBySubService } from "src/components/Services/actions/service";
+import { IDaemon } from '../../Daemon/types/daemon';
+import MarketCard from '../../Market/views/MarketCard';
+import { fetchServiceBySubService } from '../../Services/actions/service';
+import { IService } from '../../Services/types/service';
+import { IGroup } from '../types/group';
 
 interface IGroupProps {
-  group: IGroup;
-  daemon: IDaemon;
+  group: IGroup
+  daemon: IDaemon
 }
 
 interface IGroupStates {
-  services: IService[];
-  isFetching: boolean;
-  error: Error | null;
+  services: IService[]
+  isFetching: boolean
+  error: Error
 }
 
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     services: [],
-    isFetching: false,
-    error: null
-  };
+    isFetching: true,
+    error: Error()
+  }
 
   public componentWillMount() {
-    const { group } = this.props;
+    const { group } = this.props
     group.Services.map(service => {
-      this.setState({ isFetching: true });
       fetchServiceBySubService(service._id)
-        .then((s: IService) => {
-          const services: IService[] = this.state.services;
-          services.push(s);
-          this.setState({ services, isFetching: false });
+        .then((s) => {
+          const services: IService[] = this.state.services
+          services.push(s)
+          this.setState({ services, isFetching: false })
         })
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
-    });
+        .catch((error) => this.setState({ error, isFetching: false }))
+    })
   }
 
   public render() {
-    const { group } = this.props;
-    const { services, error, isFetching } = this.state;
+    const { group } = this.props
+    const { services, error, isFetching } = this.state
 
-    if (!services) {
-      return <p>No data yet ...</p>;
-    }
-
-    if (error) {
-      return <p>{(error as Error).message}</p>;
+    if (error.message) {
+      return <Message negative={true}>
+        <Message.Header>There was an issue</Message.Header>
+        <p>{error.message}</p>
+      </Message>
     }
 
     if (isFetching) {
-      return <Loader active={true} />;
+      return <Loader active={true} />
     }
 
     return (
@@ -63,8 +59,8 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           <MarketCard service={service} groups={[group]} key={index} />
         ))}
       </Card.Group>
-    );
+    )
   }
 }
 
-export default GroupServices;
+export default GroupServices

@@ -1,19 +1,19 @@
-import * as React from "react";
-import { Link } from "react-router-dom";
-import { Button, Grid, Loader, Search, Dropdown } from "semantic-ui-react";
+import * as React from 'react';
+import { Link } from 'react-router-dom';
+import {
+    Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps
+} from 'semantic-ui-react';
 
-import { IGroup } from "../types/group";
-import { fetchGroups } from "../actions/group";
-
-import Layout from "../../layout/layout";
-import { path } from "../../../constants/path";
+import { path } from '../../../constants/path';
+import { fetchGroups } from '../actions/group';
+import { IGroup } from '../types/group';
 import GroupCard from './GroupCard';
 
 interface IGroupsStates {
   groups: IGroup[];
   groupsFiltered: IGroup[];
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class Groups extends React.Component<{}, IGroupsStates> {
@@ -21,47 +21,44 @@ class Groups extends React.Component<{}, IGroupsStates> {
     groups: [] as IGroup[],
     groupsFiltered: [] as IGroup[],
     isFetching: false,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
     fetchGroups()
-      .then((groups: IGroup[]) => this.setState({ groups, groupsFiltered: groups, isFetching: false }))
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+      .then((groups) => this.setState({ groups, groupsFiltered: groups, isFetching: false }))
+      .catch((error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
     const { groups, groupsFiltered, error, isFetching } = this.state;
 
-    if (!groups) {
+    if (error.message) {
       return (
-        <Layout>
+        <>
           <h2>Groups</h2>
-          <p>No data yet ...</p>;
-        </Layout>
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue
+          </Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        </>
       );
     }
 
-    if (error) {
-      return (
-        <Layout>
-          <h2>Groups</h2>
-          <p>{(error as Error).message}</p>;
-        </Layout>
-      );
-    }
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Groups</h2>
           <Loader active={true} />
-        </Layout>
+        </>
       );
     }
 
     return (
-      <Layout>
+      <>
         <Grid>
           <Grid.Column width={2}>
             <h2>Groups</h2>
@@ -92,7 +89,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
             <Button primary={true} floated="right" as={Link} to={path.groupsNew}>Create group</Button>
           </Grid.Column>
         </Grid>
-       { /* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */ }
+        { /* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */}
         <Grid>
           {groupsFiltered.slice(0, 16).map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
@@ -100,15 +97,15 @@ class Groups extends React.Component<{}, IGroupsStates> {
             </Grid.Column>
           ))}
         </Grid>
-      </Layout>
+      </>
     );
   }
 
-  private filterGroups = (event: React.SyntheticEvent, { value }: any) => {
-    this.setState({groupsFiltered : this.state.groups.filter(group => group.Name.toLowerCase().includes(value.toLowerCase()))})
+  private filterGroups = (event: React.SyntheticEvent, { value }: SearchProps) => {
+    this.setState({ groupsFiltered: this.state.groups.filter(group => group.Name.toLowerCase().includes((value as string).toLowerCase())) })
   }
 
-  private filterByDaemon = (event: React.SyntheticEvent, { value }: any) => {
+  private filterByDaemon = (event: React.SyntheticEvent, { value }: DropdownProps) => {
     console.log("Display groups on daemon " + value)
   }
 }

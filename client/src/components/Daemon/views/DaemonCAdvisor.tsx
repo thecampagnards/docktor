@@ -1,12 +1,8 @@
-import * as React from "react";
-import { Loader, Progress, Message } from "semantic-ui-react";
+import * as React from 'react';
+import { Loader, Message, Progress } from 'semantic-ui-react';
 
-import {
-  fetchCadvisorMachine,
-  fetchCadvisorContainers
-} from "../actions/daemon";
-
-import { IDaemon, IContainerInfo, IMachineInfo } from "../types/daemon";
+import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/daemon';
+import { IContainerInfo, IDaemon, IMachineInfo } from '../types/daemon';
 import { serviceButton } from './DaemonServiceButtons';
 
 interface IDaemonCAdvisorProps {
@@ -17,7 +13,7 @@ interface IDaemonCAdvisorStates {
   containerInfo: IContainerInfo;
   machineInfo: IMachineInfo;
   isFetching: boolean;
-  error: Error | null;
+  error: Error;
 }
 
 class DaemonCAdvisor extends React.Component<
@@ -29,7 +25,7 @@ class DaemonCAdvisor extends React.Component<
     containerInfo: {} as IContainerInfo,
     machineInfo: {} as IMachineInfo,
     isFetching: false,
-    error: null
+    error: Error()
   };
 
   public componentWillMount() {
@@ -46,7 +42,7 @@ class DaemonCAdvisor extends React.Component<
     const fetch = () => {
       fetchCadvisorContainers(daemon._id)
         .then((containerInfo: IContainerInfo) =>
-          this.setState({ containerInfo })
+          this.setState({ containerInfo, error: Error() })
         )
         .catch((error: Error) => {
           this.setState({ error });
@@ -61,14 +57,14 @@ class DaemonCAdvisor extends React.Component<
     const { daemon, containerInfo, machineInfo, error, isFetching } = this.state;
     const buttons = serviceButton(daemon, ["cadvisor"])
 
-    if (error) {
+    if (error.message) {
       return (
         <>
           <Message negative={true}>
             <Message.Header>
               There was an issue with your CAdvisor
             </Message.Header>
-            <p>{(error as Error).message}</p>
+            <p>{error.message}</p>
           </Message>
           {buttons}
         </>

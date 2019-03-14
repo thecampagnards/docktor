@@ -1,18 +1,17 @@
-import * as React from "react";
-
-import Layout from "../../layout/layout";
-import { fetchAssets, saveAsset } from '../actions/admin';
-import { Loader, List, Grid, Button, Form, Message } from 'semantic-ui-react';
-import { UnControlled as CodeMirror, IInstance } from "react-codemirror2";
 import * as _ from 'lodash';
+import * as React from 'react';
+import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { Button, Form, Grid, List, Loader, Message } from 'semantic-ui-react';
+
+import { fetchAssets, saveAsset } from '../actions/admin';
 
 interface IAdminStates {
-  assets: string[] | null;
-  isFetching: boolean;
-  isSuccess: boolean;
-  error: Error | null;
+  assets: string[] | null
+  isFetching: boolean
+  isSuccess: boolean
+  error: Error
 
-  filename: string;
+  filename: string
 }
 
 class Admin extends React.Component<{}, IAdminStates> {
@@ -21,10 +20,10 @@ class Admin extends React.Component<{}, IAdminStates> {
     assets: [],
     isFetching: false,
     isSuccess: false,
-    error: null,
+    error: Error(),
 
     filename: ""
-  };
+  }
 
   public componentWillMount() {
     this.setState({ isFetching: true })
@@ -36,44 +35,40 @@ class Admin extends React.Component<{}, IAdminStates> {
   public render() {
     const { error, isSuccess, isFetching, assets, filename } = this.state
 
-    if (!assets) {
+    if (error.message) {
       return (
-        <Layout>
+        <>
           <h2>Admin</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
-    }
-
-    if (error) {
-      return (
-        <Layout>
-          <h2>Admin</h2>
-          <p>{(error as Error).message}</p>;
-        </Layout>
-      );
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue
+            </Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        </>
+      )
     }
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Admin</h2>
           <Loader active={true} />
-        </Layout>
-      );
+        </>
+      )
     }
 
     return (
-      <Layout>
+      <>
         <h1>Admin</h1>
-        <Form success={isSuccess} error={error !== null} onSubmit={this.submit}>
+        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Grid columns={2} divided={true}>
             <Grid.Row>
               <Grid.Column width={4}>
                 <List>
                   {Object.keys(assets).map((f) => (
                     <List.Item key={f} as={Button} onClick={this.changeFile(f)} active={f === filename} basic={true} style={{ padding: 5 }}>
-                      <List.Icon name={assets[f] ? 'file' : 'folder'} />
+                      <List.Icon name="file" />
                       <List.Content>
                         <List.Header>{f}</List.Header>
                       </List.Content>
@@ -95,17 +90,17 @@ class Admin extends React.Component<{}, IAdminStates> {
               </Grid.Column>
             </Grid.Row>
           </Grid>
-          <Message error={true} header="Error" content={error && (error as Error).message} />
+          <Message error={true} header="Error" content={error.message} />
           <Button type="submit" loading={isFetching}>
             Save
         </Button>
         </Form>
-      </Layout>
-    );
+      </>
+    )
   }
 
   private changeFile = (filename: string) => (e: React.MouseEvent<HTMLAnchorElement, MouseEvent>) => {
-    e.preventDefault();
+    e.preventDefault()
     this.setState({ filename })
   }
 
@@ -116,21 +111,21 @@ class Admin extends React.Component<{}, IAdminStates> {
   ) => {
     this.setState({
       assets: _.set(this.state.assets, editor.options.gutters![0], value)
-    });
-  };
+    })
+  }
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    event.preventDefault()
 
     const { assets, filename } = this.state
 
-    this.setState({ isFetching: true });
+    this.setState({ isFetching: true })
     saveAsset(filename, assets[filename])
       .then(() =>
-        this.setState({ isSuccess: true, isFetching: false })
+        this.setState({ isSuccess: true, isFetching: false, error: Error() })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
-  };
+      .catch((error: Error) => this.setState({ error, isFetching: false }))
+  }
 }
 
-export default Admin;
+export default Admin

@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Grid, Image, Loader, Search, Table } from 'semantic-ui-react';
+import {
+    Button, Grid, Image, Loader, Message, Search, SearchProps, Table
+} from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import Layout from '../../layout/layout';
 import { fetchServices } from '../actions/service';
 import { IService } from '../types/service';
 
 interface IServicesStates {
-  services: IService[];
-  servicesFiltered: IService[];
-  isFetching: boolean;
-  error: Error | null;
+  services: IService[]
+  servicesFiltered: IService[]
+  isFetching: boolean
+  error: Error
 }
 
 class Services extends React.Component<{}, IServicesStates> {
@@ -19,48 +20,44 @@ class Services extends React.Component<{}, IServicesStates> {
   public state = {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
-    isFetching: false,
-    error: null
-  };
+    isFetching: true,
+    error: Error()
+  }
 
   public componentWillMount() {
     fetchServices()
-      .then((services: IService[]) => this.setState({ services, servicesFiltered: services, isFetching: false }))
-      .catch((error: Error) => this.setState({ error, isFetching: false }))
+      .then((services) => this.setState({ services, servicesFiltered: services, isFetching: false }))
+      .catch((error) => this.setState({ error, isFetching: false }))
   }
 
   public render() {
-    const { services, servicesFiltered, error, isFetching } = this.state;
+    const { servicesFiltered, error, isFetching } = this.state
 
-    if (!services) {
+    if (error.message) {
       return (
-        <Layout>
-          <h2>Services</h2>
-          <p>No data yet ...</p>;
-        </Layout>
-      );
-    }
-
-    if (error) {
-      return (
-        <Layout>
-          <h2>Services</h2>
-          <p>{(error as Error).message}</p>;
-        </Layout>
-      );
+        <>
+          <h2>Service</h2>
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue
+          </Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        </>
+      )
     }
 
     if (isFetching) {
       return (
-        <Layout>
+        <>
           <h2>Services</h2>
           <Loader active={true} />
-        </Layout>
-      );
+        </>
+      )
     }
 
     return (
-      <Layout>
+      <>
         <Grid>
           <Grid.Column width={2}>
             <h2>Services</h2>
@@ -90,7 +87,7 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {servicesFiltered.slice(0, 20).map((service: IService) => (
+            {servicesFiltered.slice(0, 20).map((service) => (
               <Table.Row key={service._id}>
                 <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
                 <Table.Cell>{service.Name}</Table.Cell>
@@ -114,13 +111,13 @@ class Services extends React.Component<{}, IServicesStates> {
             ))}
           </Table.Body>
         </Table>
-      </Layout>
-    );
+      </>
+    )
   }
 
-  private filterServices = (event: React.SyntheticEvent, { value }: any) => {
-    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.toLowerCase().includes(value.toLowerCase())) })
+  private filterServices = (event: React.SyntheticEvent, { value }: SearchProps) => {
+    this.setState({ servicesFiltered: this.state.services.filter(service => service.Name.toLowerCase().includes((value as string).toLowerCase())) })
   }
 }
 
-export default Services;
+export default Services

@@ -1,24 +1,20 @@
-import * as React from "react";
-import { Table, List, Button, Modal } from "semantic-ui-react";
+import * as React from 'react';
+import { Button, List, Modal, Table } from 'semantic-ui-react';
 
-import ContainerLogSocket from "./ContainerLogSocket";
-import CmdSocket from "./CmdSocket";
-
-import { changeContainersStatus } from "../Daemon/actions/daemon";
-
-import { status } from "../../constants/container";
-
-import { IContainer, IPort } from "../Group/types/group";
-import { IDaemon } from "../Daemon/types/daemon";
+import { status } from '../../constants/container';
+import { changeContainersStatus } from '../Daemon/actions/daemon';
+import { IContainer, IDaemon, IPort } from '../Daemon/types/daemon';
+import CmdSocket from './CmdSocket';
+import ContainerLogSocket from './ContainerLogSocket';
 
 interface ITableProps {
-  daemon: IDaemon;
-  containers: IContainer[];
+  daemon: IDaemon
+  containers: IContainer[]
 }
 
 export default class ContainerTable extends React.Component<ITableProps> {
   public render() {
-    const { daemon, containers } = this.props;
+    const { daemon, containers } = this.props
     return (
       <Table celled={true} padded={true}>
         <Table.Header>
@@ -119,6 +115,6 @@ export default class ContainerTable extends React.Component<ITableProps> {
             ))}
         </Table.Body>
       </Table>
-    );
+    )
   }
 }
