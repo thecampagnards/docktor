@@ -3,8 +3,6 @@ export const path = {
     admin: "/admin",
     market: "/market",
 
-    login: "/login",
-
     groups: "/groups",
     groupsNew: "/groups/new",
     groupsEdit: "/groups/:groupID/edit",
@@ -25,6 +23,8 @@ export const path = {
     servicesEdit: "/services/:serviceID/edit",
     servicesMore: "/services/:serviceID",
 
+    login: "/login",
+    profile: "/profile",
     users: "/users",
     usersNew: "/users/new"
 };

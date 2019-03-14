@@ -49,12 +49,12 @@ class Layout extends React.Component {
 
           <Menu.Menu position="right">
             {user &&
-              <Menu.Item>
-                <Button color="red" as={Link} to={path.login} onClick={auth.signOut}>Logout</Button>
-              </Menu.Item>
-            }
             <Menu.Item>
-              <Button animated="vertical" primary={true} as={Link} to={path.login}>
+              <Button color="red" as={Link} to={path.login} onClick={auth.signOut}>Logout</Button>
+            </Menu.Item>
+          }
+            <Menu.Item>
+              <Button animated="vertical" primary={true} as={Link} to={user ? path.profile : path.login}>
                 <Button.Content hidden={true}>{user ? user.Username : "Login"}</Button.Content>
                 <Button.Content visible={true}><Icon name="user" /></Button.Content>
               </Button>

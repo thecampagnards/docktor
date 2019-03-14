@@ -18,6 +18,7 @@ import Service from './components/Services/views/Service';
 import ServiceForm from './components/Services/views/ServiceForm';
 import Services from './components/Services/views/Services';
 import Login from './components/User/views/Login';
+import Profile from './components/User/views/Profile';
 import { path } from './constants/path';
 import registerServiceWorker from './registerServiceWorker';
 
@@ -29,7 +30,6 @@ ReactDOM.render(
         <Route exact={true} path={path.admin} component={Admin} />
         <Route exact={true} path={path.market} component={Market} />
 
-        <Route exact={true} path={path.login} component={Login} />
 
         <Route exact={true} path={path.groups} component={Groups} />
         <Route exact={true} path={path.groupsNew} component={GroupForm} />
@@ -43,6 +43,9 @@ ReactDOM.render(
         <Route exact={true} path={path.servicesNew} component={ServiceForm} />
         <Route exact={true} path={path.servicesMore} component={Service} />
         <Route exact={true} path={path.servicesEdit} component={ServiceForm} />
+
+        <Route exact={true} path={path.login} component={Login} />
+        <Route exact={true} path={path.profile} component={Profile} />
       </Switch>
     </Layout>
   </Router>

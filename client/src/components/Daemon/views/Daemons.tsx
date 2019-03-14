@@ -32,10 +32,10 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   public componentWillMount() {
     fetchDaemons()
-      .then((daemons: IDaemon[]) =>
+      .then((daemons) =>
         this.setState({ daemons, daemonsFiltered: daemons, isFetching: false })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+      .catch((error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
@@ -110,7 +110,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.slice(0, 20).map((daemon: IDaemon) => (
+            {daemonsFiltered.slice(0, 20).map((daemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
@@ -125,13 +125,14 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     <Button
                       icon="docker"
                       content="Containers"
-                      disabled={!daemon.Host}
+                      disabled={!daemon.Docker.Port}
                       as={Link}
                       to={path.daemonsContainers.replace(":daemonID", daemon._id)}
                     />
                     <Button
                       icon="terminal"
                       content="SSH"
+                      disabled={!daemon.SSH.Port}
                       as={Link}
                       to={path.daemonsSSH.replace(":daemonID", daemon._id)}
                     />
