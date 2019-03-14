@@ -37,6 +37,8 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     const { daemons, group, error, isSuccess, isFetching } = this.state;
 
     return (
+      <>
+        {!group._id && <h1>Create new group</h1>}
         <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
@@ -77,9 +79,10 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           />
           <Message error={true} header="Error" content={error.message} />
           <Button type="Save" loading={isFetching}>
-            Submit
+            Save
           </Button>
         </Form>
+      </>
     );
   }
 

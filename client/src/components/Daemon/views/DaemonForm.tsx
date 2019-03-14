@@ -37,6 +37,8 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     const { daemon, error, isFetching, isSuccess, activeAccordions } = this.state;
 
     return (
+      <>
+        {!daemon._id && <h1>Create new daemon</h1>}
         <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
@@ -44,6 +46,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             type="text"
             value={daemon.Name}
             onChange={this.handleChange}
+            required={true}
           />
           <Form.Group inline={true}>
             <Form.Input
@@ -53,6 +56,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               value={daemon.Host}
               onChange={this.handleChange}
               width={8}
+              required={true}
             />
 
             <Form.Input
@@ -206,11 +210,11 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             content="Your daemon has been saved"
           />
           <Message error={true} header="Error" content={error.message} />
-          <br />
           <Button type="submit" loading={isFetching}>
             Save
         </Button>
         </Form>
+      </>
     );
   }
 

@@ -2,7 +2,7 @@ import './layout.css';
 
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Container, Dropdown, Icon, Menu } from 'semantic-ui-react';
+import { Button, Container, Icon, Menu } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
 import auth from '../User/actions/user';
@@ -48,14 +48,11 @@ class Layout extends React.Component {
           </Menu.Item>
 
           <Menu.Menu position="right">
-            <Dropdown item={true} text="Language">
-              <Dropdown.Menu>
-                <Dropdown.Item>English</Dropdown.Item>
-                <Dropdown.Item>Russian</Dropdown.Item>
-                <Dropdown.Item>Spanish</Dropdown.Item>
-              </Dropdown.Menu>
-            </Dropdown>
-
+            {user &&
+              <Menu.Item>
+                <Button color="red" as={Link} to={path.login} onClick={auth.signOut}>Logout</Button>
+              </Menu.Item>
+            }
             <Menu.Item>
               <Button animated="vertical" primary={true} as={Link} to={path.login}>
                 <Button.Content hidden={true}>{user ? user.Username : "Login"}</Button.Content>

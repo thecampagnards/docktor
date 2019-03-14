@@ -53,7 +53,7 @@ func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-// GetVariablesOfSubServices retrieve the varaibles of a template
+// GetVariablesOfSubServices retrieve the variables of a template
 func (sub *SubService) GetVariablesOfSubServices() error {
 
 	tmpl, err := template.New("").Option("missingkey=error").Parse(sub.File)
