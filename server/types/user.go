@@ -1,6 +1,7 @@
 package types
 
 import (
+	"docktor/server/helper/ldap"
 	"os"
 	"time"
 
@@ -16,14 +17,11 @@ var (
 )
 
 type User struct {
-	Username  string
-	Firstname string
-	Lastname  string
-	Salt      string
-	Password  string
-	Email     string
-	Groups    []bson.ObjectId
-	Role      string
+	ldap.Attributes
+	Salt     string
+	Password string
+	Groups   []bson.ObjectId
+	Admin    string
 	jwt.StandardClaims
 }
 
@@ -31,7 +29,7 @@ type Users []User
 
 // IsAdmin check is user is admin
 func (u User) IsAdmin() bool {
-	return u.Role == ADMIN_ROLE
+	return u.Admin == ADMIN_ROLE
 }
 
 // IsMyGroup check if this is a group of the user

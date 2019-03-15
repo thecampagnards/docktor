@@ -2,16 +2,68 @@ package main
 
 import (
 	"docktor/server/handler"
+	"docktor/server/helper/ldap"
+	customMiddleware "docktor/server/middleware"
 	"docktor/server/types"
-	"os"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
+	"github.com/namsral/flag"
 )
 
+var (
+	production           bool
+	logLevel             string
+	defaultAdminAccount  string
+	defaultAdminPassword string
+	ldapAuthConfig       = ldap.AuthConfig{}
+	ldapSearchConfig     = ldap.SearchConfig{}
+	jwtSecret            string
+	mongoURL             string
+)
+
+func parseFlags() {
+	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
+	flag.BoolVar(&production, "production", false, "Enable the production mode")
+	flag.StringVar(&logLevel, "log-level", "error", "The log level to use (debug, info, warn, error, fatal, panic)")
+	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
+	flag.StringVar(&defaultAdminPassword, "default-admin-password", "", "The password of a default administrator account")
+	flag.StringVar(&ldapAuthConfig.Host, "ldap-host", "", "The host of the LDAP to connect to")
+	flag.IntVar(&ldapAuthConfig.Port, "ldap-port", 389, "The port of the LDAP to connect to")
+	flag.BoolVar(&ldapAuthConfig.Secure, "ldap-secure", false, "The LDAP needs TLS connection")
+	flag.StringVar(&ldapAuthConfig.BindDN, "ldap-bind-dn", "", "The DN of a LDAP user able to perform queries")
+	flag.StringVar(&ldapAuthConfig.BindPassword, "ldap-bind-password", "", "The password associated to the ldap-bind-dn user")
+	flag.StringVar(&ldapSearchConfig.BaseDN, "ldap-base-dn", "", "The base DN where to search for users")
+	flag.StringVar(&ldapSearchConfig.SearchFilter, "ldap-search-filter", "", "The search filter")
+	flag.StringVar(&ldapSearchConfig.Attributes.Username, "ldap-attr-username", "", "The LDAP attribute corresponding to the username of an account")
+	flag.StringVar(&ldapSearchConfig.Attributes.FirstName, "ldap-attr-firstname", "", "The LDAP attribute corresponding to the first name of an account")
+	flag.StringVar(&ldapSearchConfig.Attributes.LastName, "ldap-attr-lastname", "", "The LDAP attribute corresponding to the last name of an account")
+	flag.StringVar(&ldapSearchConfig.Attributes.Email, "ldap-attr-email", "", "The LDAP attribute corresponding to the email address of an account")
+	flag.StringVar(&jwtSecret, "jwt-secret", "CHANGE-ME", "The secret used to sign JWT tokens")
+	flag.StringVar(&mongoURL, "mongo-url", "localhost", "The mongo db url")
+	flag.Parse()
+}
+
+func configure(e *echo.Echo) {
+	e.Logger.SetLevel(log.DEBUG)
+
+	if production {
+		e.Logger.Info("Running in production mode")
+		if len(jwtSecret) < 32 { // 32 bytes is a sane default to protect against bruteforce attacks
+			e.Logger.Fatal("JWT secret must be at least 32 characters long")
+		}
+	} else {
+		e.Logger.Warn("Running in development mode")
+	}
+}
+
 func main() {
+	parseFlags()
+
 	e := echo.New()
+	configure(e)
+
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
@@ -20,14 +72,9 @@ func main() {
 		Index: "index.html",
 	}))
 
-	jwtKey := os.Getenv("JWT_SECRET")
-	if jwtKey == "" {
-		jwtKey = "secret"
-	}
-
 	config := middleware.JWTConfig{
 		Claims:     &types.User{},
-		SigningKey: []byte(jwtKey),
+		SigningKey: []byte(jwtSecret),
 	}
 
 	e.Logger.SetLevel(log.DEBUG)
@@ -75,6 +122,7 @@ func main() {
 
 	// For user
 	user := api.Group("/users")
+	user.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
 	user.GET("/:username", User.GetByUsername)
 	user.DELETE("/:username", User.DeleteByUsername)
 	user.GET("", User.GetAll)

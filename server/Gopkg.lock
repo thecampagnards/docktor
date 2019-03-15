@@ -326,6 +326,13 @@
   version = "v1.0.1"
 
 [[projects]]
+  digest = "1:d4b2269e6262767e76b145ad15ac6d8bce8b3f0ffd4ecc37110d8ea9bc6c3615"
+  name = "github.com/namsral/flag"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "67f268f20922975c067ed799e4be6bacf152208c"
+
+[[projects]]
   digest = "1:ee4d4af67d93cc7644157882329023ce9a7bcfce956a079069a9405521c7cc8d"
   name = "github.com/opencontainers/go-digest"
   packages = ["."]
@@ -510,6 +517,22 @@
   revision = "9d24e82272b4f38b78bc8cff74fa936d31ccd8ef"
 
 [[projects]]
+  digest = "1:af07c44dc04418be522bfd4e21ca9130d58169ea084e3a883e23772003a381c4"
+  name = "gopkg.in/asn1-ber.v1"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "f715ec2f112d1e4195b827ad68cf44017a3ef2b1"
+  version = "v1.3"
+
+[[projects]]
+  digest = "1:2a792dde3ae5dc95000d4dee312523504ea875b097a2b119a2f55d1d1d32ed61"
+  name = "gopkg.in/ldap.v3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "729c20c2694d870bcd631f0dadaecd088bd7ccbc"
+  version = "v3.0.2"
+
+[[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
@@ -547,9 +570,11 @@
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
     "github.com/labstack/gommon/log",
+    "github.com/namsral/flag",
     "golang.org/x/crypto/ssh",
     "golang.org/x/net/context",
     "golang.org/x/net/websocket",
+    "gopkg.in/ldap.v3",
     "gopkg.in/yaml.v2",
   ]
   solver-name = "gps-cdcl"

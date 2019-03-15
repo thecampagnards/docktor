@@ -43,6 +43,14 @@
   name = "github.com/dgrijalva/jwt-go"
   version = "v3.2.0"
 
+[[constraint]]
+  name = "gopkg.in/ldap.v3"
+  version = "v3.0.2"
+
+[[constraint]]
+  name = "github.com/namsral/flag"
+  revision = "67f268f20922975c067ed799e4be6bacf152208c"
+
 [prune]
   go-tests = true
   unused-packages = true
