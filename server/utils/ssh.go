@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"docktor/server/types"
-
 	"bytes"
 	"fmt"
+
+	"docktor/server/types"
 
 	"golang.org/x/crypto/ssh"
 )

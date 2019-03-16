@@ -1,8 +1,9 @@
 package middleware
 
 import (
-	"docktor/server/handler"
 	"net/http"
+
+	"docktor/server/handler/users"
 
 	"github.com/labstack/echo"
 )
@@ -10,7 +11,7 @@ import (
 // IsAdmin is used to check if the connected user is admin
 func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := handler.AuthUser(c)
+		user, err := users.AuthUser(c)
 
 		if err != nil {
 			c.Logger().Errorf("Admin access denied: requestURI: %s, error: %s", c.Request().RequestURI, err)
@@ -32,7 +33,7 @@ func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 // WithUser
 func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := handler.AuthUser(c)
+		user, err := users.AuthUser(c)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
@@ -45,7 +46,7 @@ func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := handler.AuthUser(c)
+		user, err := users.AuthUser(c)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}

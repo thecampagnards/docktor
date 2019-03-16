@@ -25,7 +25,7 @@
     "start": "react-scripts-ts start",
     "stop": "pkill 'node'; exit 0",
     "build": "react-scripts-ts build",
-    "test": "react-scripts-ts test --env=jsdom",
+    "test": "react-scripts-ts test --env=jsdom --coverage",
     "eject": "react-scripts-ts eject"
   },
   "lint-staged": {

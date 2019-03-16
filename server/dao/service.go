@@ -1,15 +1,14 @@
 package dao
 
 import (
+	"errors"
+
 	"docktor/server/config"
 	"docktor/server/types"
-	"errors"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/imdario/mergo"
 )
-
-const colService string = "services"
 
 // GetServices get all services
 func GetServices() (types.Services, error) {
@@ -24,7 +23,7 @@ func GetServices() (types.Services, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	err = c.Find(bson.M{}).All(&t)
 
@@ -48,7 +47,7 @@ func GetServiceByID(id string) (types.Service, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&t)
 
@@ -72,7 +71,7 @@ func GetServiceBySubSeriveID(id string) (types.Service, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	err = c.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).One(&t)
 
@@ -96,7 +95,7 @@ func GetSubServiceByID(id string) (types.SubService, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	err = c.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).Select(bson.M{"subservices.$": 1}).One(&t)
 
@@ -119,7 +118,7 @@ func CreateOrUpdateService(t types.Service) (types.Service, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the service to the DB")
@@ -157,7 +156,7 @@ func DeleteService(id string) error {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colService)
+	c := s.DB(db.Name()).C(types.SERVICES_DB_COLUMN)
 
 	err = c.RemoveId(bson.ObjectIdHex(id))
 

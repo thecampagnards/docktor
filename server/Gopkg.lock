@@ -45,6 +45,14 @@
   revision = "004b46473808b3e7a4a3049c20e4376c91eb966d"
 
 [[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
+  name = "github.com/davecgh/go-spew"
+  packages = ["spew"]
+  pruneopts = "UT"
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
+  version = "v1.1.1"
+
+[[projects]]
   digest = "1:76dc72490af7174349349838f2fe118996381b31ea83243812a97e5a0fd5ed55"
   name = "github.com/dgrijalva/jwt-go"
   packages = ["."]
@@ -239,8 +247,8 @@
   name = "github.com/golang/protobuf"
   packages = ["proto"]
   pruneopts = "UT"
-  revision = "c823c79ea1570fb5ff454033735a8e68575d1d0f"
-  version = "v1.3.0"
+  revision = "b5d812f8a3706043e23a9cd5babf2e5423744d30"
+  version = "v1.3.1"
 
 [[projects]]
   digest = "1:53b3df42618947f09ba136ec3d1b53e7b6432549bcda37b36766ce8cf77a0fce"
@@ -371,6 +379,14 @@
   version = "v0.8.1"
 
 [[projects]]
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
+  name = "github.com/pmezard/go-difflib"
+  packages = ["difflib"]
+  pruneopts = "UT"
+  revision = "792786c7400a136282c1664665ae0a8db921c6c2"
+  version = "v1.0.0"
+
+[[projects]]
   digest = "1:93a746f1060a8acbcf69344862b2ceced80f854170e1caae089b2834c5fbf7f4"
   name = "github.com/prometheus/client_golang"
   packages = [
@@ -404,7 +420,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:01cd0cd47758f04c5604daa3be4637e2afa1e0c15af7e08289e95360369e4f48"
+  digest = "1:0573a48c92e778ad732779bf1e5064a5085ab3fbd236ad71e53cab5753ef3e6e"
   name = "github.com/prometheus/procfs"
   packages = [
     ".",
@@ -414,7 +430,7 @@
     "xfs",
   ]
   pruneopts = "UT"
-  revision = "d0f344d83b0c80a1bc03b547a2374a9ec6711144"
+  revision = "e56f2e22fc761e82a34aca553f6725e2aff4fe6c"
 
 [[projects]]
   digest = "1:e4c72127d910a96daf869a44f3dd563b86dbe6931a172863a0e99c5ff04b59e4"
@@ -425,6 +441,14 @@
   version = "v1.4.0"
 
 [[projects]]
+  digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
+  name = "github.com/stretchr/testify"
+  packages = ["assert"]
+  pruneopts = "UT"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
+
+[[projects]]
   digest = "1:c468422f334a6b46a19448ad59aaffdfc0a36b08fdcc1c749a0b29b6453d7e59"
   name = "github.com/valyala/bytebufferpool"
   packages = ["."]
@@ -433,12 +457,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:6f0258170b06ab9f8640a09dbabd1e0dadc57bd9e9add6d27e6c3336e9cb50ad"
+  digest = "1:4d29fdc69817829d8c78473d61613d984ce59675110cee7a2f0314f332cc70a2"
   name = "github.com/valyala/fasttemplate"
   packages = ["."]
   pruneopts = "UT"
-  revision = "189f40e8adae8acb7c6c3b065d7489f187a548e4"
-  version = "v1.0.0"
+  revision = "8b5e4e491ab636663841c42ea3c5a9adebabaf36"
+  version = "v1.0.1"
 
 [[projects]]
   branch = "master"
@@ -483,7 +507,6 @@
   revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
 
 [[projects]]
-  branch = "master"
   digest = "1:3597028cb527891e8c3a1a79050dc23b14fcde46684c66b5565efe4dc45249e9"
   name = "golang.org/x/net"
   packages = [
@@ -494,11 +517,11 @@
     "websocket",
   ]
   pruneopts = "UT"
-  revision = "5c2c250b6a70e39b74bb544433a348a892b10530"
+  revision = "9f648a60d9775ef5c977e7669d1673a7a67bef33"
 
 [[projects]]
   branch = "master"
-  digest = "1:426092407910bee4a539be5d377abbaf629bae216c8eb2f80409c8cbe2647508"
+  digest = "1:450becdbf6739398b40a71ea3416b67c74547e808849dbbd85f01a3b98e42417"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -506,7 +529,7 @@
     "windows",
   ]
   pruneopts = "UT"
-  revision = "fead79001313d15903fb4605b4a1b781532cd93e"
+  revision = "a2f829d7f35f2ed1c3520c553a6226495455cae0"
 
 [[projects]]
   branch = "master"
@@ -571,6 +594,8 @@
     "github.com/labstack/echo/middleware",
     "github.com/labstack/gommon/log",
     "github.com/namsral/flag",
+    "github.com/sirupsen/logrus",
+    "github.com/stretchr/testify/assert",
     "golang.org/x/crypto/ssh",
     "golang.org/x/net/context",
     "golang.org/x/net/websocket",

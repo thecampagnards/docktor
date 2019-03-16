@@ -3,17 +3,32 @@ sudo: required
 matrix:
   include:
     # Sonar scan
-    - language: generic
+    - language: go
+      go:
+        - 1.12
       addons:
         sonarcloud:
           organization: "thecampagnards-github"
       cache:
         directories:
           - "$HOME/.sonar/cache"
-      script:
-        - npm link typescript
+          - "$GOPATH/pkg/dep"
+          - "client/node_modules"
+      go_import_path: docktor
+      install:
         - git fetch --unshallow --quiet
-        - sonar-scanner
+        - npm link typescript
+        - go get -u github.com/golang/dep/cmd/dep
+      script:
+        - cd client
+        - npm install
+        - npm run test -- --coverage
+        - cd ..
+        - cd server
+        - dep ensure -v
+        - go test ./... -coverprofile="coverage.out"
+        - cd ..
+        - sonar-scanner -Dsonar.go.coverage.reportPaths="server/coverage.out" -Dsonar.javascript.coverage.lcovReportPath="client/coverage/lcov.info"
     # Docker build
     - language: sh
       services:
@@ -31,10 +46,9 @@ matrix:
         - DOCKER_BUILDS="$DOCKER_BUILDS $name"
       after_success:
         - docker login -u="$DOCKER_USERNAME" -p="$DOCKER_PASSWORD"
-        - for repo in $DOCKER_BUILDS;
-          do
-            for tag in $TAGS;
-            do
+        - |
+          for repo in $DOCKER_BUILDS; do
+            for tag in $TAGS; do
               echo "Deploying $repo:current as $repo:$tag...";
               docker tag "$repo:current" "$repo:$tag" || exit 1;
               docker push "$repo:$tag" || exit 1;

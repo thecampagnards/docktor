@@ -9,8 +9,6 @@ import (
 	"github.com/imdario/mergo"
 )
 
-const colDaemon string = "daemons"
-
 // GetDaemons get all daemons
 func GetDaemons() (types.Daemons, error) {
 	db := config.DB{}
@@ -24,7 +22,7 @@ func GetDaemons() (types.Daemons, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colDaemon)
+	c := s.DB(db.Name()).C(types.DAEMONS_DB_COLUMN)
 
 	err = c.Find(bson.M{}).All(&t)
 
@@ -48,7 +46,7 @@ func GetDaemonByID(id string) (types.Daemon, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colDaemon)
+	c := s.DB(db.Name()).C(types.DAEMONS_DB_COLUMN)
 
 	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&t)
 
@@ -71,7 +69,7 @@ func CreateOrUpdateDaemon(t types.Daemon) (types.Daemon, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colDaemon)
+	c := s.DB(db.Name()).C(types.DAEMONS_DB_COLUMN)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the daemon to the DB")
@@ -103,7 +101,7 @@ func DeleteDaemon(id string) error {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colDaemon)
+	c := s.DB(db.Name()).C(types.DAEMONS_DB_COLUMN)
 
 	err = c.RemoveId(bson.ObjectIdHex(id))
 

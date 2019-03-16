@@ -1,10 +1,10 @@
 package utils
 
 import (
-	"docktor/server/types"
+	"errors"
 	"os"
 
-	"golang.org/x/net/context"
+	"docktor/server/types"
 
 	"github.com/docker/go-connections/tlsconfig"
 	"github.com/docker/libcompose/docker"
@@ -12,10 +12,23 @@ import (
 	"github.com/docker/libcompose/docker/ctx"
 	"github.com/docker/libcompose/project"
 	"github.com/docker/libcompose/project/options"
+	"golang.org/x/net/context"
 )
 
-// GetComposeCli
-func GetComposeCli(daemon types.Daemon) (client.Factory, error) {
+type ComposeCli struct {
+	client.Factory
+	ca   string
+	cert string
+	key  string
+}
+
+func (cli *ComposeCli) Close() {
+	os.Remove(cli.ca)
+	os.Remove(cli.cert)
+	os.Remove(cli.key)
+}
+
+func getComposeCli(daemon types.Daemon) (cli ComposeCli, err error) {
 
 	c := client.Options{
 		Host: daemon.GetCompleteHost(),
@@ -23,127 +36,129 @@ func GetComposeCli(daemon types.Daemon) (client.Factory, error) {
 
 	if daemon.Docker.Cert != (types.Cert{}) {
 
-		ca, err := WriteStringToFile(daemon.Docker.Ca)
+		cli.ca, err = WriteStringToFile(daemon.Docker.Ca)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(ca)
 
-		cert, err := WriteStringToFile(daemon.Docker.Cert.Cert)
+		cli.cert, err = WriteStringToFile(daemon.Docker.Cert.Cert)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(cert)
 
-		key, err := WriteStringToFile(daemon.Docker.Key)
+		cli.key, err = WriteStringToFile(daemon.Docker.Key)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(key)
 
 		c = client.Options{
 			TLS:  true,
 			Host: daemon.GetCompleteHost(),
 			TLSOptions: tlsconfig.Options{
-				CAFile:             ca,
-				CertFile:           cert,
-				KeyFile:            key,
+				CAFile:             cli.ca,
+				CertFile:           cli.cert,
+				KeyFile:            cli.key,
 				InsecureSkipVerify: true,
 			},
 		}
 
 	}
 
-	return client.NewDefaultFactory(c)
+	cli.Factory, err = client.NewDefaultFactory(c)
+	return
 }
 
-// ComposeUp
-func ComposeUp(group types.Group, daemon types.Daemon, files ...[]byte) error {
+func getComposeProjectContext(projectName string, files interface{}) (con project.Context, err error) {
+	con.ProjectName = projectName
 
-	c, err := GetComposeCli(daemon)
-	if err != nil {
-		return err
+	switch files.(type) {
+	case []string:
+		con.ComposeFiles = files.([]string)
+	case [][]byte:
+		con.ComposeBytes = files.([][]byte)
+	default:
+		err = errors.New("Invalide type for file")
 	}
 
+	return
+}
+
+// ComposeUp run service, files has to be []string or [][]byte
+func ComposeUp(projectName string, daemon types.Daemon, files interface{}) (err error) {
+
+	con, err := getComposeProjectContext(projectName, files)
+	if err != nil {
+		return
+	}
+
+	c, err := getComposeCli(daemon)
+	if err != nil {
+		return
+	}
+
+	defer c.Close()
+
 	project, err := docker.NewProject(&ctx.Context{
-		Context: project.Context{
-			ComposeBytes: files,
-			ProjectName:  group.Name,
-		},
+		Context:       con,
 		ClientFactory: c,
 	}, nil)
 
 	if err != nil {
-		return err
+		return
 	}
 
 	return project.Up(context.Background(), options.Up{})
 }
 
-// ComposeUpDaemon run service for daemon
-func ComposeUpDaemon(daemon types.Daemon, files ...string) error {
+// ComposeStop stop service, files has to be []string or [][]byte
+func ComposeStop(projectName string, daemon types.Daemon, files interface{}) (err error) {
 
-	c, err := GetComposeCli(daemon)
+	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
-		return err
+		return
 	}
 
+	c, err := getComposeCli(daemon)
+	if err != nil {
+		return
+	}
+
+	defer c.Close()
+
 	project, err := docker.NewProject(&ctx.Context{
-		Context: project.Context{
-			ComposeFiles: files,
-			ProjectName:  "Docktor",
-		},
+		Context:       con,
 		ClientFactory: c,
 	}, nil)
 
 	if err != nil {
-		return err
-	}
-
-	return project.Up(context.Background(), options.Up{})
-}
-
-// ComposeStopDaemon stop service for daemon
-func ComposeStopDaemon(daemon types.Daemon, files ...string) error {
-
-	c, err := GetComposeCli(daemon)
-	if err != nil {
-		return err
-	}
-
-	project, err := docker.NewProject(&ctx.Context{
-		Context: project.Context{
-			ComposeFiles: files,
-			ProjectName:  "Docktor",
-		},
-		ClientFactory: c,
-	}, nil)
-
-	if err != nil {
-		return err
+		return
 	}
 
 	return project.Stop(context.Background(), 10)
 }
 
-// ComposeRemoveDaemon remove service for daemon
-func ComposeRemoveDaemon(daemon types.Daemon, files ...string) error {
+// ComposeRemove remove service, files has to be []string or [][]byte
+func ComposeRemove(projectName string, daemon types.Daemon, files interface{}) (err error) {
 
-	c, err := GetComposeCli(daemon)
+	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
-		return err
+		return
 	}
 
+	c, err := getComposeCli(daemon)
+	if err != nil {
+		return
+	}
+
+	defer c.Close()
+
 	project, err := docker.NewProject(&ctx.Context{
-		Context: project.Context{
-			ComposeFiles: files,
-			ProjectName:  "Docktor",
-		},
+		Context:       con,
 		ClientFactory: c,
 	}, nil)
 
 	if err != nil {
-		return err
+		return
 	}
 
 	return project.Delete(context.Background(), options.Delete{RemoveVolume: true, RemoveRunning: true})
