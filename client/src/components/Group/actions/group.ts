@@ -1,5 +1,5 @@
 import { checkStatus } from '../../../utils/promises';
-import auth from '../../User/actions/user';
+import { GetToken } from '../../User/actions/user';
 import { IGroup } from '../types/group';
 
 export const fetchGroups = () => {
@@ -7,11 +7,11 @@ export const fetchGroups = () => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)
-    .then((response) => response.json());
+    .then(response => response.json());
 };
 
 export const fetchGroup = (groupID: string) => {
@@ -19,11 +19,11 @@ export const fetchGroup = (groupID: string) => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)
-    .then((response) => response.json());
+    .then(response => response.json());
 };
 
 export const fetchContainers = (groupID: string) => {
@@ -31,11 +31,11 @@ export const fetchContainers = (groupID: string) => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)
-    .then((response) => response.json());
+    .then(response => response.json());
 };
 
 export const saveGroup = (group: IGroup) => {
@@ -45,11 +45,11 @@ export const saveGroup = (group: IGroup) => {
     body: JSON.stringify(group),
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     }
   })
     .then(checkStatus)
-    .then((response) => response.json());
+    .then(response => response.json());
 };
 
 export const deployService = (
@@ -58,22 +58,24 @@ export const deployService = (
   variables: any,
   opts: object
 ) => {
-  let opt = ""
+  let opt = "";
   for (const o in opts) {
     if (opts.hasOwnProperty(o)) {
       opt += `${o}=${opts[o]}&`;
     }
   }
-  opt = opt.slice(0, -1)
+  opt = opt.slice(0, -1);
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/create/${serviceID}?${opt}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/create/${serviceID}?${opt}`,
     {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(variables),
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${GetToken()}`
       }
     }
   )
@@ -81,10 +83,7 @@ export const deployService = (
     .then((response: Response) => response.json());
 };
 
-export const startService = (
-  groupID: string,
-  serviceID: string
-) => {
+export const startService = (groupID: string, serviceID: string) => {
   return fetch(
     `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}`,
     {
@@ -92,10 +91,10 @@ export const startService = (
       method: "POST",
       headers: {
         "Content-Type": "application/json",
-        "Authorization": `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${GetToken()}`
       }
     }
   )
     .then(checkStatus)
-    .then((response) => response.json());
+    .then(response => response.json());
 };

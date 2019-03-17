@@ -1,17 +1,26 @@
 import './layout.css';
 
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Dispatch } from 'redux';
 import { Button, Container, Icon, Menu } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
-import auth from '../User/actions/user';
+import { IStoreState } from '../../types/store';
+import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 
-class Layout extends React.Component {
-  public render() {
+interface ILayoutProps {
+  username: string;
+  isAdmin: boolean;
+  isAuthenticated: boolean;
+  logoutRequest?: () => void;
+}
 
-    const user = auth.getUser()
+class Layout extends React.Component<ILayoutProps> {
+  public render() {
+    const { isAuthenticated, username } = this.props
 
     return (
       <>
@@ -19,7 +28,9 @@ class Layout extends React.Component {
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
-              <Button icon={true} onClick={this.goBack}><Icon name="arrow left" /> Previous</Button>
+              <Button icon={true} onClick={this.goBack}>
+                <Icon name="arrow left" /> Previous
+              </Button>
             </Menu.Item>
           </Menu.Menu>
 
@@ -52,31 +63,56 @@ class Layout extends React.Component {
           </Menu.Item>
 
           <Menu.Menu position="right">
-            {user &&
+            {isAuthenticated && (
+              <Menu.Item>
+                <Button color="red" as={Link} to={path.login} onClick={this.props.logoutRequest}>
+                  Logout
+                </Button>
+              </Menu.Item>
+            )}
             <Menu.Item>
-              <Button color="red" as={Link} to={path.login} onClick={auth.signOut}>Logout</Button>
-            </Menu.Item>
-          }
-            <Menu.Item>
-              <Button animated="vertical" primary={true} as={Link} to={user ? path.profile : path.login}>
-                <Button.Content hidden={true}>{user ? user.Username : "Login"}</Button.Content>
-                <Button.Content visible={true}><Icon name="user" /></Button.Content>
+              <Button
+                animated="vertical"
+                primary={true}
+                as={Link}
+                to={isAuthenticated ? path.profile : path.login}
+              >
+                <Button.Content hidden={true}>
+                  {isAuthenticated ? username : "Login"}
+                </Button.Content>
+                <Button.Content visible={true}>
+                  <Icon name="user" />
+                </Button.Content>
               </Button>
             </Menu.Item>
           </Menu.Menu>
-
         </Menu>
 
-        <Container>
-          {this.props.children}
-        </Container>
+        <Container>{this.props.children}</Container>
       </>
-    )
+    );
   }
 
   private goBack = () => {
-    window.history.back()
-  }
+    window.history.back();
+  };
 }
 
-export default Layout
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    isAdmin: !!login.isAdmin,
+    isAuthenticated: login.username !== "",
+    username: login.username
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    logoutRequest: () => {
+      dispatch(logoutRequestThunk());
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);

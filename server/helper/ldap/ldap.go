@@ -26,10 +26,10 @@ type SearchConfig struct {
 
 // Attributes defines the users attributes to retrieve from the LDAP
 type Attributes struct {
-	Username  string `json:"username" validate:"required"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
-	Email     string `json:"email"`
+	Username  string `json:"Username" validate:"required"`
+	FirstName string `json:"FirstName"`
+	LastName  string `json:"LastName"`
+	Email     string `json:"Email"`
 }
 
 // Handler stores an LDAP configuration and allows to perform LDAP related operations

@@ -3,6 +3,7 @@ package users
 import (
 	"fmt"
 
+	"docktor/server/middleware"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -13,9 +14,9 @@ func AddRoute(e *echo.Group) {
 	users := e.Group("/users")
 
 	// Basic users request
-	users.GET("", getAll)
+	users.GET("", getAll, middleware.WithAdmin)
 	users.POST("", save)
-	users.POST("/login", login)
+	users.GET("/profile", profile)
 
 	{
 		user := users.Group(fmt.Sprintf("/:%s", types.USERNAME_PARAM))
@@ -23,4 +24,9 @@ func AddRoute(e *echo.Group) {
 		user.GET("", getByUsername)
 		user.DELETE("", deleteByUsername)
 	}
+}
+
+// AddAuthRoute add route on echo
+func AddAuthRoute(e *echo.Group) {
+	e.POST("/login", login)
 }

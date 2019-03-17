@@ -1,14 +1,24 @@
 import { IGroup } from 'src/components/Group/types/group';
 
-export type userTypes = "ADMIN" | "USER"
+export type userTypes = "admin" | "user";
+
+export interface ILoginState {
+  isFetching: boolean;
+  error: string;
+  isAdmin: boolean;
+  username: string | null;
+}
+
+export interface IUserToken {
+  Username: string;
+  IsAdmin: boolean;
+}
 
 export interface IUser {
-  Username: string
-  Password: string
-  Firstname: string
-  Lastname: string
-  Email: string
-  Groups: IGroup[]
-  Role: userTypes
-  exp: number
+  Username: string;
+  FirstName: string;
+  LastName: string;
+  Email: string;
+  Groups: IGroup[];
+  Role: userTypes;
 }

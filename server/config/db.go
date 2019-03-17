@@ -1,10 +1,10 @@
 package config
 
 import (
-	"os"
-
 	"github.com/globalsign/mgo"
 )
+
+var dburl string
 
 // DB
 type DB struct {
@@ -23,11 +23,15 @@ func (db *DB) Name() string {
 
 // DBUrl
 func DBUrl() string {
-	dburl := os.Getenv("MONGOHQ_URL")
 
 	if dburl == "" {
 		dburl = "localhost"
 	}
 
 	return dburl
+}
+
+// Init
+func Init(db string) {
+	dburl = db
 }
