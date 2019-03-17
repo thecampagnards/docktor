@@ -1,12 +1,12 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Grid, Image, Loader, Message, Search, SearchProps, Table
+    Button, Grid, Image, Label, Loader, Message, Search, SearchProps, Table
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { fetchServices } from '../actions/service';
-import { IService } from '../types/service';
+import { IService, ISubService } from '../types/service';
 
 interface IServicesStates {
   services: IService[]
@@ -74,24 +74,24 @@ class Services extends React.Component<{}, IServicesStates> {
             <Button primary={true} floated="right" as={Link} to={path.servicesNew}>Add service</Button>
           </Grid.Column>
         </Grid>
-        <Table sortable={true} celled={true}>
+        <Table celled={true}>
           <Table.Header>
             <Table.Row>
-              <Table.HeaderCell>
-                Image
-              </Table.HeaderCell>
-              <Table.HeaderCell>
-                Name
-              </Table.HeaderCell>
-              <Table.HeaderCell>Tools</Table.HeaderCell>
+              <Table.HeaderCell>Logo</Table.HeaderCell>
+              <Table.HeaderCell>Service</Table.HeaderCell>
+              <Table.HeaderCell>Versions</Table.HeaderCell>
+              <Table.HeaderCell>Options</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {servicesFiltered.slice(0, 20).map((service) => (
               <Table.Row key={service._id}>
-                <Table.Cell>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
-                <Table.Cell>{service.Name}</Table.Cell>
-                <Table.Cell>
+                <Table.Cell width={2}>{service.Image ? <Image size="small" src={"data:image/png;base64," + service.Image} /> : "No image"}</Table.Cell>
+                <Table.Cell width={2}>{service.Name}</Table.Cell>
+                <Table.Cell width={8}>{service.SubServices.map((version: ISubService) => {
+                  return version.Active ? <Label>{version.Name}</Label> : "";
+                })}</Table.Cell>
+                <Table.Cell width={4}>
                   <Button.Group>
                     <Button
                       icon="edit"

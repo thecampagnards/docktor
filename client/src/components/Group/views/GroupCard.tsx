@@ -21,7 +21,7 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
           <ReactMarkdown source={group.Description} />
         </Card.Content>}
         <Card.Content extra={true}>
-          <Button icon={true} labelPosition="left" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
+          <Button color="green" icon={true} labelPosition="left" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
             <Icon name="cubes" />
             Services
           </Button>

@@ -43,6 +43,10 @@ class Layout extends React.Component {
             <Icon name="cubes" /> Services
           </Menu.Item>
 
+          <Menu.Item as={Link} to={path.users} name="users">
+            <Icon name="users" /> Users
+          </Menu.Item>
+
           <Menu.Item as={Link} to={path.admin} name="admin">
             <Icon name="cogs" /> Admin
           </Menu.Item>

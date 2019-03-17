@@ -5,10 +5,10 @@ export interface IService {
   Link: string
   Tags: string[]
   Image: string
-  SubServices: ISubServices[]
+  SubServices: ISubService[]
 }
 
-export interface ISubServices {
+export interface ISubService {
   _id?: string
   Name: string
   File: string
