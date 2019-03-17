@@ -9,15 +9,16 @@ type Group struct {
 	Name        string
 	Description string
 	DaemonID    bson.ObjectId
-	Daemon      Daemon `json:"Daemon,omitempty" bson:"Daemon,omitempty"`
+	Daemon      *Daemon `json:",omitempty" bson:",omitempty"`
 	Services    []ServiceGroup
 	Admins      []string
 }
 
 type ServiceGroup struct {
 	SubServiceID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Variables    interface{}
-	Containers   []string
+	Variables    map[string]interface{}
+	AutoUpdate   bool
+	FixPort      bool
 }
 
 type Groups []Group

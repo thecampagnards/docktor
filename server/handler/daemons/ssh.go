@@ -1,25 +1,37 @@
-package handler
+package daemons
 
 import (
-	"docktor/server/dao"
-	"docktor/server/utils"
 	"io"
 	"net/http"
 
+	"docktor/server/dao"
+	"docktor/server/types"
+	"docktor/server/utils"
+
 	"github.com/labstack/echo"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/websocket"
 )
 
-// ExecSSHCommands execute comand on host
-func (st *Daemon) ExecSSHCommands(c echo.Context) error {
-	daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+// execSSH execute ssh commands on daemon
+func execSSH(c echo.Context) error {
+	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	var commands []string
 	if err := c.Bind(&commands); err != nil {
+		log.WithFields(log.Fields{
+			"daemon": daemon,
+			"body":   c.Request().Body,
+			"error":  err,
+		}).Error("Error when parsing ssh commands")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -31,21 +43,28 @@ func (st *Daemon) ExecSSHCommands(c echo.Context) error {
 	return c.JSON(http.StatusOK, result)
 }
 
-// RunSSHCommands is a ws which exec cmd on host
+// getSSHTerm is a ws which create a ssh term on daemon
 // Based on https://gist.github.com/josephspurrier/e83bcdbf9e6865500004
-func (st *Daemon) RunSSHCommands(c echo.Context) error {
+func getSSHTerm(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
-
 		defer ws.Close()
 
-		daemon, err := dao.GetDaemonByID(c.Param("daemonID"))
+		daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
 		if err != nil {
-			panic(err)
+			log.WithFields(log.Fields{
+				"daemonID": c.Param(types.DAEMON_ID_PARAM),
+				"error":    err,
+			}).Error("Error when retrieving daemon")
+			return
 		}
 
 		client, session, err := utils.GetSSHSession(daemon)
 		if err != nil {
-			panic(err)
+			log.WithFields(log.Fields{
+				"daemon": daemon,
+				"error":  err,
+			}).Error("Error when retrieving ssh session")
+			return
 		}
 
 		defer client.Close()
@@ -54,7 +73,11 @@ func (st *Daemon) RunSSHCommands(c echo.Context) error {
 		modes := ssh.TerminalModes{}
 
 		if err := session.RequestPty("xterm", 40, 80, modes); err != nil {
-			c.Logger().Errorf("request for pseudo terminal failed: %s", err)
+			log.WithFields(log.Fields{
+				"daemon": daemon,
+				"error":  err,
+			}).Error("Error request for pseudo terminal failed")
+			return
 		}
 
 		targetStdout, _ := session.StdoutPipe()
@@ -62,7 +85,11 @@ func (st *Daemon) RunSSHCommands(c echo.Context) error {
 		targetStdin, _ := session.StdinPipe()
 
 		if err := session.Shell(); err != nil {
-			panic(err)
+			log.WithFields(log.Fields{
+				"daemon": daemon,
+				"error":  err,
+			}).Error("Error when opening shell session")
+			return
 		}
 
 		// redirect output to ws
@@ -90,6 +117,10 @@ func (st *Daemon) RunSSHCommands(c echo.Context) error {
 				CloseWrite() error
 			}); ok {
 				if err := conn.CloseWrite(); err != nil {
+					log.WithFields(log.Fields{
+						"daemon": daemon,
+						"error":  err,
+					}).Error("Error when closing shell session")
 				}
 			}
 			return nil
@@ -98,7 +129,10 @@ func (st *Daemon) RunSSHCommands(c echo.Context) error {
 		// log errors
 		var receiveStdout chan error
 		if err := <-receiveStdout; err != nil {
-			c.Logger().Error(err)
+			log.WithFields(log.Fields{
+				"daemon": daemon,
+				"error":  err,
+			}).Error("Error in shell session")
 		}
 
 	}).ServeHTTP(c.Response(), c.Request())

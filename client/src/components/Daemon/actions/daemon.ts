@@ -7,11 +7,11 @@ export const fetchDaemons = () => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${auth.getToken()}`
     })
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then(response => response.json());
 };
 
 export const fetchDaemon = (daemonID: string) => {
@@ -19,23 +19,26 @@ export const fetchDaemon = (daemonID: string) => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${auth.getToken()}`
     })
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then(response => response.json());
 };
 
 export const fetchContainers = (daemonID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers`, {
-    credentials: "same-origin",
-    method: "GET",
-    headers: new Headers({
-      "Authorization": `Bearer ${auth.getToken()}`
-    })
-  })
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/containers`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${auth.getToken()}`
+      })
+    }
+  )
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then(response => response.json());
 };
 
 export const changeContainersStatus = (
@@ -44,12 +47,16 @@ export const changeContainersStatus = (
   containers: string[]
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/containers/status?status=${status}&containers=${containers.join(",")}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/daemons/${daemonID}/docker/containers/status?status=${status}&containers=${containers.join(
+      ","
+    )}`,
     {
       credentials: "same-origin",
       method: "POST",
       headers: new Headers({
-        "Authorization": `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${auth.getToken()}`
       })
     }
   )
@@ -57,13 +64,17 @@ export const changeContainersStatus = (
     .then((response: Response) => response.json());
 };
 
-export const changeServicesStatus = (
+export const changeComposeStatus = (
   daemonID: string,
   status: string,
   services: string[]
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/services/status?status=${status}&services=${services.join(",")}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/daemons/${daemonID}/compose/status?status=${status}&services=${services.join(
+      ","
+    )}`,
     {
       credentials: "same-origin",
       method: "POST"

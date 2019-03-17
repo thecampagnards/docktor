@@ -10,8 +10,6 @@ import (
 	"github.com/imdario/mergo"
 )
 
-const colGroup string = "groups"
-
 // GetGroups get all groups
 func GetGroups() (types.Groups, error) {
 	db := config.DB{}
@@ -25,9 +23,44 @@ func GetGroups() (types.Groups, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colGroup)
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
 	err = c.Find(bson.M{}).All(&t)
+
+	if err != nil {
+		return t, errors.New("There was an error trying to find the groups")
+	}
+
+	return t, err
+}
+
+// GetGroupsWithDaemons get all groups with daemons
+func GetGroupsWithDaemons() (types.Groups, error) {
+	db := config.DB{}
+	t := types.Groups{}
+
+	s, err := db.DoDial()
+
+	if err != nil {
+		return t, errors.New("There was an error trying to connect with the DB")
+	}
+
+	defer s.Close()
+
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
+
+	err = c.Pipe([]bson.M{
+		bson.M{"$lookup": bson.M{
+			"from":         types.DAEMONS_DB_COLUMN,
+			"localField":   "daemonid",
+			"foreignField": "_id",
+			"as":           "daemon",
+		}},
+		bson.M{"$unwind": bson.M{
+			"path": "$daemon",
+			"preserveNullAndEmptyArrays": true,
+		}},
+	}).All(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the groups")
@@ -49,7 +82,7 @@ func GetAdminGroupsOfUser(u types.User) (types.Groups, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colGroup)
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
 	err = c.Find(bson.M{"$in": bson.M{"admins": u.Username}}).All(&t)
 
@@ -73,7 +106,7 @@ func GetGroupByID(id string) (types.Group, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colGroup)
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
 	err = c.FindId(bson.ObjectIdHex(id)).One(&t)
 
@@ -96,7 +129,7 @@ func CreateOrUpdateGroup(t types.Group) (types.Group, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colGroup)
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the group to the DB")
@@ -128,7 +161,7 @@ func DeleteGroup(id string) error {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colGroup)
+	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
 	err = c.RemoveId(bson.ObjectIdHex(id))
 

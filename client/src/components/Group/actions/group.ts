@@ -11,7 +11,7 @@ export const fetchGroups = () => {
     })
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then((response) => response.json());
 };
 
 export const fetchGroup = (groupID: string) => {
@@ -23,7 +23,7 @@ export const fetchGroup = (groupID: string) => {
     })
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then((response) => response.json());
 };
 
 export const fetchContainers = (groupID: string) => {
@@ -35,7 +35,7 @@ export const fetchContainers = (groupID: string) => {
     })
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then((response) => response.json());
 };
 
 export const saveGroup = (group: IGroup) => {
@@ -49,7 +49,7 @@ export const saveGroup = (group: IGroup) => {
     }
   })
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then((response) => response.json());
 };
 
 export const deployService = (
@@ -66,16 +66,36 @@ export const deployService = (
   }
   opt = opt.slice(0, -1)
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}?${opt}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/create/${serviceID}?${opt}`,
     {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(variables),
       headers: {
-        "Content-Type": "application/json"
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${auth.getToken()}`
       }
     }
   )
     .then(checkStatus)
     .then((response: Response) => response.json());
+};
+
+export const startService = (
+  groupID: string,
+  serviceID: string
+) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${auth.getToken()}`
+      }
+    }
+  )
+    .then(checkStatus)
+    .then((response) => response.json());
 };

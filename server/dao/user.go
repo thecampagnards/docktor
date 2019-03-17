@@ -1,15 +1,14 @@
 package dao
 
 import (
+	"errors"
+
 	"docktor/server/config"
 	"docktor/server/types"
-	"errors"
 
 	"github.com/globalsign/mgo/bson"
 	"github.com/imdario/mergo"
 )
-
-const colUser string = "users"
 
 // GetUsers get all users
 func GetUsers() (types.Users, error) {
@@ -24,7 +23,7 @@ func GetUsers() (types.Users, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colUser)
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	err = c.Find(bson.M{}).All(&t)
 
@@ -48,7 +47,7 @@ func GetUserByUsername(username string) (types.User, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colUser)
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	err = c.Find(bson.M{"username": username}).One(&t)
 
@@ -72,7 +71,7 @@ func LoginUser(username string, password string) (types.User, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colUser)
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	err = c.Find(bson.M{"username": username, "password": password}).One(&t)
 
@@ -95,7 +94,7 @@ func CreateOrUpdateUser(t types.User) (types.User, error) {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colUser)
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to insert the user to the DB")
@@ -127,7 +126,7 @@ func DeleteUser(username string) error {
 
 	defer s.Close()
 
-	c := s.DB(db.Name()).C(colUser)
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	err = c.Remove(bson.M{"username": username})
 

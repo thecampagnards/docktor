@@ -1,13 +1,13 @@
 package utils
 
 import (
-	"docktor/server/types"
 	"errors"
 	"io"
 	"net/http"
 	"os"
 	"strings"
-	"time"
+
+	"docktor/server/types"
 
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/docker/client"
@@ -15,8 +15,21 @@ import (
 	"golang.org/x/net/context"
 )
 
-// GetDockerCli
-func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
+type DockerCli struct {
+	*client.Client
+	ca   string
+	cert string
+	key  string
+}
+
+func (cli *DockerCli) Close() {
+	os.Remove(cli.ca)
+	os.Remove(cli.cert)
+	os.Remove(cli.key)
+	cli.Client.Close()
+}
+
+func getDockerCli(daemon types.Daemon) (cli DockerCli, err error) {
 
 	c := &http.Client{
 		Transport:     &http.Transport{},
@@ -25,34 +38,31 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 
 	if daemon.Docker.Cert != (types.Cert{}) {
 
-		ca, err := WriteStringToFile(daemon.Docker.Ca)
+		cli.ca, err = WriteStringToFile(daemon.Docker.Ca)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(ca)
 
-		cert, err := WriteStringToFile(daemon.Docker.Cert.Cert)
+		cli.cert, err = WriteStringToFile(daemon.Docker.Cert.Cert)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(cert)
 
-		key, err := WriteStringToFile(daemon.Docker.Key)
+		cli.key, err = WriteStringToFile(daemon.Docker.Key)
 		if err != nil {
-			return nil, err
+			return
 		}
-		defer os.Remove(key)
 
 		options := tlsconfig.Options{
-			CAFile:             ca,
-			CertFile:           cert,
-			KeyFile:            key,
+			CAFile:             cli.ca,
+			CertFile:           cli.cert,
+			KeyFile:            cli.key,
 			InsecureSkipVerify: true,
 		}
 
 		tlsc, err := tlsconfig.Client(options)
 		if err != nil {
-			return nil, err
+			return DockerCli{}, err
 		}
 
 		c = &http.Client{
@@ -61,13 +71,14 @@ func GetDockerCli(daemon types.Daemon) (*client.Client, error) {
 		}
 	}
 
-	return client.NewClientWithOpts(client.WithHost(daemon.GetCompleteHost()), client.WithHTTPClient(c))
+	cli.Client, err = client.NewClientWithOpts(client.WithHost(daemon.GetCompleteHost()), client.WithHTTPClient(c))
+	return
 }
 
 // GetContainers
 func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
-	cli, err := GetDockerCli(daemon)
 
+	cli, err := getDockerCli(daemon)
 	if err != nil {
 		return nil, err
 	}
@@ -78,36 +89,33 @@ func GetContainers(daemon types.Daemon) ([]dockerTypes.Container, error) {
 }
 
 // GetContainersStartByName
-func GetContainersStartByName(daemon types.Daemon, name string) ([]dockerTypes.Container, error) {
+func GetContainersStartByName(daemon types.Daemon, name string) (containers []dockerTypes.Container, err error) {
 
 	cs, err := GetContainers(daemon)
-
 	if err != nil {
-		return nil, err
+		return
 	}
-
-	var containers []dockerTypes.Container
 
 	for _, c := range cs {
 		for _, n := range c.Names {
-			if strings.HasPrefix(n, "/"+strings.ToLower(name)) {
+			if strings.HasPrefix(strings.ToLower(n), "/"+strings.ToLower(name)) {
 				containers = append(containers, c)
 				break
 			}
 		}
 	}
 
-	return containers, nil
+	return
 }
 
 // InspectContainers
 func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerTypes.ContainerJSON, error) {
 
-	cli, err := GetDockerCli(daemon)
-
+	cli, err := getDockerCli(daemon)
 	if err != nil {
 		return nil, err
 	}
+
 	defer cli.Close()
 
 	var containers []dockerTypes.ContainerJSON
@@ -124,101 +132,99 @@ func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerT
 }
 
 // StartContainers
-func StartContainers(daemon types.Daemon, containersName ...string) error {
+func StartContainers(daemon types.Daemon, containersName ...string) (err error) {
 
-	cli, err := GetDockerCli(daemon)
-
+	cli, err := getDockerCli(daemon)
 	if err != nil {
-		return err
+		return
 	}
+
 	defer cli.Close()
 
 	for _, c := range containersName {
 		err = cli.ContainerStart(context.Background(), c, dockerTypes.ContainerStartOptions{})
 		if err != nil {
-			return err
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 // StopContainers
-func StopContainers(daemon types.Daemon, containersName ...string) error {
+func StopContainers(daemon types.Daemon, containersName ...string) (err error) {
 
-	cli, err := GetDockerCli(daemon)
-
+	cli, err := getDockerCli(daemon)
 	if err != nil {
-		return err
+		return
 	}
+
 	defer cli.Close()
 
-	var timeout = (10) * time.Second
-
+	var timeout = types.DOCKER_STOP_TIMEOUT
 	for _, c := range containersName {
 		err = cli.ContainerStop(context.Background(), c, &timeout)
 		if err != nil {
-			return err
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
 // RemoveContainers
-func RemoveContainers(daemon types.Daemon, containersName ...string) error {
+func RemoveContainers(daemon types.Daemon, containersName ...string) (err error) {
 
-	cli, err := GetDockerCli(daemon)
-
+	cli, err := getDockerCli(daemon)
 	if err != nil {
-		return err
+		return
 	}
+
 	defer cli.Close()
 
 	for _, c := range containersName {
 		err = cli.ContainerRemove(context.Background(), c, dockerTypes.ContainerRemoveOptions{Force: true})
 		if err != nil {
-			return err
+			return
 		}
 	}
 
-	return nil
+	return
 }
 
-// LogContainer
-func LogContainer(daemon types.Daemon, containerName string) (io.ReadCloser, error) {
+// GetContainerLog
+func GetContainerLog(daemon types.Daemon, containerName string) (io.ReadCloser, error) {
 
-	cli, err := GetDockerCli(daemon)
-
+	cli, err := getDockerCli(daemon)
 	if err != nil {
 		return nil, err
 	}
+
 	defer cli.Close()
 
 	return cli.ContainerLogs(context.Background(), containerName, dockerTypes.ContainerLogsOptions{})
 }
 
-// GetContainerLog
-func GetContainerLog(daemon types.Daemon, containerID string) (io.ReadCloser, error) {
-	cli, err := GetDockerCli(daemon)
+// GetContainerLogFollow
+func GetContainerLogFollow(daemon types.Daemon, containerName string) (io.ReadCloser, error) {
+
+	cli, err := getDockerCli(daemon)
 	if err != nil {
 		return nil, err
 	}
-	defer cli.Close()
 
-	return cli.ContainerLogs(context.Background(), containerID, dockerTypes.ContainerLogsOptions{ShowStdout: true, ShowStderr: true, Follow: true})
+	return cli.ContainerLogs(context.Background(), containerName, dockerTypes.ContainerLogsOptions{Since: types.DOCKER_LOG_SINCE, ShowStdout: true, ShowStderr: true, Follow: true})
 }
 
-// RunContainerCommands
-func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.HijackedResponse, error) {
+// GetContainerTerm
+func GetContainerTerm(daemon types.Daemon, containerName string) (dockerTypes.HijackedResponse, error) {
 
-	cli, err := GetDockerCli(daemon)
+	cli, err := getDockerCli(daemon)
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}
-	defer cli.Close()
 
-	exec, err := cli.ContainerExecCreate(context.Background(), containerID, dockerTypes.ExecConfig{
+	exec, err := cli.ContainerExecCreate(context.Background(), containerName, dockerTypes.ExecConfig{
 		AttachStdin:  true,
 		AttachStdout: true,
 		AttachStderr: true,
@@ -234,7 +240,9 @@ func RunContainerCommands(daemon types.Daemon, containerID string) (dockerTypes.
 		return dockerTypes.HijackedResponse{}, errors.New("exec ID empty")
 	}
 
-	cli, err = GetDockerCli(daemon)
+	cli.Close()
+
+	cli, err = getDockerCli(daemon)
 	if err != nil {
 		return dockerTypes.HijackedResponse{}, err
 	}

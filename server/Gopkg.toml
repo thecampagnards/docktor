@@ -29,10 +29,6 @@
 
 [[constraint]]
   branch = "master"
-  name = "golang.org/x/net"
-
-[[constraint]]
-  branch = "master"
   name = "github.com/globalsign/mgo"
 
 [[constraint]]
@@ -50,6 +46,18 @@
 [[constraint]]
   name = "github.com/namsral/flag"
   revision = "67f268f20922975c067ed799e4be6bacf152208c"
+
+[[constraint]]
+  name = "github.com/sirupsen/logrus"
+  version = "v1.4.0"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  version = "v1.3.0"
+
+[[constraint]]
+  name = "golang.org/x/net"
+  revision = "9f648a60d9775ef5c977e7669d1673a7a67bef33"
 
 [prune]
   go-tests = true
