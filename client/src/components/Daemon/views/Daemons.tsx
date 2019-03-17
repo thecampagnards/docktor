@@ -105,6 +105,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
+              {/*<Table.HeaderCell>Status</Table.HeaderCell>*/}
               <Table.HeaderCell>Host</Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
@@ -113,6 +114,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             {daemonsFiltered.slice(0, 20).map((daemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
+                {/*<Table.Cell><Icon color="green" name="check circle outline"/></Table.Cell>*/}
                 <Table.Cell>{daemon.Host}</Table.Cell>
                 <Table.Cell>
                   <Button.Group fluid={true}>

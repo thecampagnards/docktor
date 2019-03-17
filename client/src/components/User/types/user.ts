@@ -1,4 +1,4 @@
-import { IGroup } from 'src/components/Group/types/group';
+import { IGroup } from '../../Group/types/group'
 
 export type userTypes = "admin" | "user";
 

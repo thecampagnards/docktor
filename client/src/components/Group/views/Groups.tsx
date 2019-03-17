@@ -98,7 +98,6 @@ class Groups extends React.Component<{}, IGroupsStates> {
             </Button>
           </Grid.Column>
         </Grid>
-        {/* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */}
         <Grid>
           {groupsFiltered.slice(0, 16).map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
