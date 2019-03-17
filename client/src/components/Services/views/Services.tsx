@@ -36,11 +36,9 @@ class Services extends React.Component<{}, IServicesStates> {
     if (error.message) {
       return (
         <>
-          <h2>Service</h2>
+          <h2>Services</h2>
           <Message negative={true}>
-            <Message.Header>
-              There was an issue
-          </Message.Header>
+            <Message.Header>Failed to load services with error :</Message.Header>
             <p>{error.message}</p>
           </Message>
         </>

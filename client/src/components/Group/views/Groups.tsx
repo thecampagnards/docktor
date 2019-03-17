@@ -38,9 +38,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
         <>
           <h2>Groups</h2>
           <Message negative={true}>
-            <Message.Header>
-              There was an issue
-          </Message.Header>
+            <Message.Header>Failed to load groups with error :</Message.Header>
             <p>{error.message}</p>
           </Message>
         </>

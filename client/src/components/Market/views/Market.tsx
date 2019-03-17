@@ -48,7 +48,7 @@ class Market extends React.Component<{}, IServicesStates> {
       return <>
         <h2>Market</h2>
         <Message negative={true}>
-          <Message.Header>There was an issue</Message.Header>
+          <Message.Header>Failed to load data with error :</Message.Header>
           <p>{error.message}</p>
         </Message>
       </>

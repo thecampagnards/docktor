@@ -1,6 +1,5 @@
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
-import { Button, Card, Table } from 'semantic-ui-react';
+import { Button, Card, Loader, Message, Table } from 'semantic-ui-react';
 
 import { GetProfile } from '../actions/user';
 import { IUser } from '../types/user';
@@ -26,13 +25,37 @@ class Profile extends React.Component<{}, IProfileStates> {
   }
 
   public render() {
+    const { user, isFetching, error } = this.state;
+
+    if (!user) {
+      return (
+        <>
+          <Message negative={true}>
+            <Message.Header>
+              Failed to load profile with error :
+            </Message.Header>
+              <p>{error.message}</p>
+          </Message>
+        </>
+      )
+    }
+
+    if (isFetching) {
+      return (
+        <>
+          <Loader active={true} />
+        </>
+      )
+    }
+
     return (
       <>
-      <Card centered={true} fluid={true} width={6} height={6}>
+
+      <Card centered={true}>
 
         <Card.Content>
-          <Card.Header>{this.user.Username}</Card.Header>
-          <Card.Meta>{this.user.Firstname + " " + this.user.Lastname}</Card.Meta>
+          <Card.Header>{user.Username}</Card.Header>
+          <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
         </Card.Content>
 
         <Card.Content>
@@ -45,7 +68,7 @@ class Profile extends React.Component<{}, IProfileStates> {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {this.user.Groups.map((group: IGroup) => (
+              {user.Groups.map((group: IGroup) => (
                 <Table.Row key={group._id}>
                   <Table.Cell width={2}>{group.Name}</Table.Cell>
                   <Table.Cell width={4}>{group.Description}</Table.Cell>
