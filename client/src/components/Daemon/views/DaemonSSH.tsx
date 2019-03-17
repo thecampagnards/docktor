@@ -26,24 +26,25 @@ interface ICommand {
 }
 
 class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
-
   public state = {
     commands: [] as ICommand[],
     error: Error(),
     isSuccess: false,
     isFetching: false
-  }
+  };
 
   public componentWillMount() {
-    const commands = this.props.daemon.SSH.Commands.map(c => ({
-      command: c,
-      data: "",
-      error: Error(),
-      isOpen: false,
-      isFetching: false
-    }));
+    if (this.props.daemon.SSH.Commands) {
+      const commands = this.props.daemon.SSH.Commands.map(c => ({
+        command: c,
+        data: "",
+        error: Error(),
+        isOpen: false,
+        isFetching: false
+      }));
 
-    this.setState({ commands });
+      this.setState({ commands });
+    }
   }
 
   public render() {
@@ -69,20 +70,32 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
                 onChange={this.handleChange}
               />
               <Modal
-                trigger={<Button loading={command.isFetching} disabled={!command.command.length} color={command.error ? "red" : "green"} icon="chevron right" onClick={this.handleOpen.bind(this, command, index)} />}
+                trigger={
+                  <Button
+                    loading={command.isFetching}
+                    disabled={!command.command.length}
+                    color={command.error ? "red" : "green"}
+                    icon="chevron right"
+                    onClick={this.handleOpen.bind(this, command, index)}
+                  />
+                }
                 open={command.isOpen}
                 onClose={this.handleClose.bind(this, command, index)}
                 basic={true}
                 size="small"
               >
                 <Modal.Content>
-                  <span style={{ whiteSpace: "pre-line" }}>{command.error.message || command.data}</span>
+                  <span style={{ whiteSpace: "pre-line" }}>
+                    {command.error.message || command.data}
+                  </span>
                 </Modal.Content>
               </Modal>
             </Form.Group>
           ))}
           <Message error={true} header="Error" content={error.message} />
-          <Button type="submit" loading={isFetching} onClick={this.submit}>Save</Button>
+          <Button type="submit" loading={isFetching} onClick={this.submit}>
+            Save
+          </Button>
         </Form>
       </>
     );
@@ -92,39 +105,38 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
     const { daemon } = this.props;
     const { commands } = this.state;
 
-    command.isFetching = true
-    commands[index] = command
+    command.isFetching = true;
+    commands[index] = command;
 
-    this.setState({ commands })
+    this.setState({ commands });
 
-    command.isOpen = true
-    command.isFetching = false
+    command.isOpen = true;
+    command.isFetching = false;
 
     execCommand(daemon, [command.command])
       .then((d: string[]) => {
-        command.data = d[command.command]
-        command.error = Error()
+        command.data = d[command.command];
+        command.error = Error();
 
-        commands[index] = command
-        this.setState({ commands })
-      }
-      )
+        commands[index] = command;
+        this.setState({ commands });
+      })
       .catch((error: Error) => {
-        command.data = ""
-        command.error = error
+        command.data = "";
+        command.error = error;
 
-        commands[index] = command
-        this.setState({ commands })
+        commands[index] = command;
+        this.setState({ commands });
       });
-  }
+  };
 
   private handleClose = (command: ICommand, index: number) => {
     const { commands } = this.state;
-    command.isOpen = false
-    command.isFetching = false
-    commands[index] = command
+    command.isOpen = false;
+    command.isFetching = false;
+    commands[index] = command;
     this.setState({ commands });
-  }
+  };
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
@@ -141,27 +153,36 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
       error: Error(),
       isOpen: false,
       isFetching: false
-    })
+    });
     this.setState({ commands });
-  }
+  };
 
   private submit = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
     event.preventDefault();
 
     this.setState({ isFetching: true });
 
-    const commands = this.state.commands.filter(c => c.command)
+    const commands = this.state.commands.filter(c => c.command);
 
     const d: any = {
       _id: this.props.daemon._id,
       SSH: {
         Commands: commands.map(c => c.command)
       }
-    }
+    };
 
     saveDaemon(d)
-      .then(() => this.setState({ isSuccess: true, isFetching: false, commands, error: Error() }))
-      .catch((error: Error) => this.setState({ error, isFetching: false, commands }));
+      .then(() =>
+        this.setState({
+          isSuccess: true,
+          isFetching: false,
+          commands,
+          error: Error()
+        })
+      )
+      .catch((error: Error) =>
+        this.setState({ error, isFetching: false, commands })
+      );
   };
 }
 

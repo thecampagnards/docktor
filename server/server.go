@@ -1,15 +1,19 @@
 package main
 
 import (
-	"docktor/server/handler"
+	"docktor/server/handler/admin"
+	"docktor/server/handler/daemons"
+	"docktor/server/handler/groups"
+	"docktor/server/handler/services"
+	"docktor/server/handler/users"
 	"docktor/server/helper/ldap"
 	customMiddleware "docktor/server/middleware"
-	"docktor/server/types"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
 	"github.com/labstack/gommon/log"
 	"github.com/namsral/flag"
+	"github.com/sirupsen/logrus"
 )
 
 var (
@@ -24,7 +28,7 @@ var (
 )
 
 func parseFlags() {
-	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
+	flag.String(flag.DefaultConfigFlagname, "", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "error", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
@@ -64,7 +68,8 @@ func main() {
 	e := echo.New()
 	configure(e)
 
-	e.Use(middleware.Logger())
+	e.Logger = customMiddleware.Logger{Logger: logrus.StandardLogger()}
+	e.Use(customMiddleware.Hook())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
@@ -72,68 +77,20 @@ func main() {
 		Index: "index.html",
 	}))
 
-	config := middleware.JWTConfig{
+	/*config := middleware.JWTConfig{
 		Claims:     &types.User{},
 		SigningKey: []byte(jwtSecret),
-	}
-
-	e.Logger.SetLevel(log.DEBUG)
+	}*/
 
 	api := e.Group("/api")
+	api.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
+	// api.Use(middleware.JWTWithConfig(config))
 
-	Daemon := handler.Daemon{}
-	Group := handler.Group{}
-	Admin := handler.Admin{}
-	Compose := handler.Compose{}
-	Service := handler.Service{}
-	User := handler.User{}
-
-	daemon := api.Group("/daemons")
-	daemon.GET("/:daemonID/log/:containerID", Daemon.GetContainerLog)
-	daemon.GET("/:daemonID/commands/:containerID", Daemon.RunContainerCommands)
-	daemon.GET("/:daemonID/ssh/term", Daemon.RunSSHCommands)
-	daemon.POST("/:daemonID/ssh/exec", Daemon.ExecSSHCommands)
-	daemon.POST("/:daemonID/containers/status", Daemon.StatusContainers)
-	daemon.POST("/:daemonID/services/status", Compose.StartDaemonService)
-	daemon.GET("/:daemonID/containers", Daemon.GetContainers)
-	daemon.GET("/:daemonID/cadvisor/machine", Daemon.GetCAdvisorMachineInfo)
-	daemon.GET("/:daemonID/cadvisor/container", Daemon.GetCAdvisorContainerInfo)
-	daemon.GET("/:daemonID", Daemon.GetByID)
-	daemon.DELETE("/:daemonID", Daemon.DeleteByID)
-	daemon.GET("", Daemon.GetAll)
-	daemon.POST("", Daemon.Save)
-
-	// For service
-	service := api.Group("/services")
-	service.GET("/subservice/:subserviceID", Service.GetBySubServiceID)
-	service.GET("/:serviceID", Service.GetByID)
-	service.DELETE("/:serviceID", Service.DeleteByID)
-	service.GET("", Service.GetAll)
-	service.POST("", Service.Save)
-
-	// For group
-	group := api.Group("/groups")
-	group.GET("/:groupID", Group.GetByID)
-	group.DELETE("/:groupID", Group.DeleteByID)
-	group.POST("/:groupID/start/:subserviceID", Compose.StartSubService)
-	group.GET("/:groupID/containers", Group.GetContainers)
-	group.GET("", Group.GetAll)
-	group.POST("", Group.Save)
-
-	// For user
-	user := api.Group("/users")
-	user.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
-	user.GET("/:username", User.GetByUsername)
-	user.DELETE("/:username", User.DeleteByUsername)
-	user.GET("", User.GetAll)
-	user.POST("", User.Save)
-	user.POST("/login", User.Login)
-
-	// For admin
-	admin := api.Group("/admin")
-	admin.Use(middleware.JWTWithConfig(config))
-	admin.GET("/assets", Admin.GetAssets)
-	admin.POST("/assets/:assetName", Admin.SaveAsset)
+	admin.AddRoute(api)
+	daemons.AddRoute(api)
+	groups.AddRoute(api)
+	services.AddRoute(api)
+	users.AddRoute(api)
 
 	e.GET("/*", GetIndex)
 

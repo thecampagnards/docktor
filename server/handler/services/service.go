@@ -1,4 +1,4 @@
-package handler
+package services
 
 import (
 	"encoding/json"
@@ -11,12 +11,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// Service struct which contains the functions of this class
-type Service struct {
-}
-
-// GetAll find all
-func (st *Service) GetAll(c echo.Context) error {
+// getAll find all
+func getAll(c echo.Context) error {
 	s, err := dao.GetServices()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -29,9 +25,9 @@ func (st *Service) GetAll(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-// GetByID find one by id
-func (st *Service) GetByID(c echo.Context) error {
-	s, err := dao.GetServiceByID(c.Param("serviceID"))
+// getByID find one by id
+func getByID(c echo.Context) error {
+	s, err := dao.GetServiceByID(c.Param(types.SERVICE_ID_PARAM))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -44,9 +40,9 @@ func (st *Service) GetByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-// GetBySubServiceID find one by id
-func (st *Service) GetBySubServiceID(c echo.Context) error {
-	s, err := dao.GetServiceBySubSeriveID(c.Param("subserviceID"))
+// getBySubServiceID find one by id
+func getBySubServiceID(c echo.Context) error {
+	s, err := dao.GetServiceBySubSeriveID(c.Param(types.SUBSERVICE_ID_PARAM))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -54,8 +50,8 @@ func (st *Service) GetBySubServiceID(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-// Save a Service server
-func (st *Service) Save(c echo.Context) error {
+// save a Service server
+func save(c echo.Context) error {
 	var u types.Service
 
 	// get form data
@@ -109,8 +105,8 @@ func (st *Service) Save(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-// DeleteByID delete one by id
-func (st *Service) DeleteByID(c echo.Context) error {
+// deleteByID delete one by id
+func deleteByID(c echo.Context) error {
 	err := dao.DeleteService(c.Param("serviceID"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())

@@ -19,7 +19,7 @@ interface IDaemonCAdvisorStates {
 class DaemonCAdvisor extends React.Component<
   IDaemonCAdvisorProps,
   IDaemonCAdvisorStates
-  > {
+> {
   public state = {
     daemon: {} as IDaemon,
     containerInfo: {} as IContainerInfo,
@@ -27,6 +27,8 @@ class DaemonCAdvisor extends React.Component<
     isFetching: false,
     error: Error()
   };
+
+  private refreshIntervalId: NodeJS.Timeout;
 
   public componentWillMount() {
     const { daemon } = this.props;
@@ -50,12 +52,22 @@ class DaemonCAdvisor extends React.Component<
     };
 
     fetch();
-    setTimeout(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+  }
+
+  public componentWillUnmount() {
+    clearInterval(this.refreshIntervalId);
   }
 
   public render() {
-    const { daemon, containerInfo, machineInfo, error, isFetching } = this.state;
-    const buttons = serviceButton(daemon, ["cadvisor"])
+    const {
+      daemon,
+      containerInfo,
+      machineInfo,
+      error,
+      isFetching
+    } = this.state;
+    const buttons = serviceButton(daemon, ["cadvisor"]);
 
     if (error.message) {
       return (

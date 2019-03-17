@@ -8,13 +8,13 @@ import CmdSocket from './CmdSocket';
 import ContainerLogSocket from './ContainerLogSocket';
 
 interface ITableProps {
-  daemon: IDaemon
-  containers: IContainer[]
+  daemon: IDaemon;
+  containers: IContainer[];
 }
 
 export default class ContainerTable extends React.Component<ITableProps> {
   public render() {
-    const { daemon, containers } = this.props
+    const { daemon, containers } = this.props;
     return (
       <Table celled={true} padded={true}>
         <Table.Header>
@@ -34,22 +34,24 @@ export default class ContainerTable extends React.Component<ITableProps> {
             .map((container: IContainer) => (
               <Table.Row key={container.Id}>
                 <Table.Cell singleLine={true}>
-                  {container.Id.substring(0, 12)}<br/>{container.Names}
+                  {container.Id.substring(0, 12)}
+                  <br />
+                  {container.Names}
                 </Table.Cell>
                 <Table.Cell>
                   <List>
-                    {container.Ports.filter(port => port.PublicPort && port.IP === "0.0.0.0").map(
-                      (port: IPort) => (
-                        <List.Item
-                          key={port.PublicPort}
-                          as="a"
-                          href={"http://" + daemon.Host + ":" + port.PublicPort}
-                          target="_blank"
-                        >
-                          {daemon.Host + ":" + port.PublicPort}
-                        </List.Item>
-                      )
-                    )}
+                    {container.Ports.filter(
+                      port => port.PublicPort && port.IP === "0.0.0.0"
+                    ).map((port: IPort) => (
+                      <List.Item
+                        key={port.PublicPort}
+                        as="a"
+                        href={"http://" + daemon.Host + ":" + port.PublicPort}
+                        target="_blank"
+                      >
+                        {daemon.Host + ":" + port.PublicPort}
+                      </List.Item>
+                    ))}
                   </List>
                 </Table.Cell>
                 <Table.Cell>{container.Image}</Table.Cell>
@@ -95,18 +97,32 @@ export default class ContainerTable extends React.Component<ITableProps> {
                       Start
                     </Button>
                   </Button.Group>
-                  <Modal trigger={<Button icon="align left"/>}>
-                    <Modal.Content>
-                      <ContainerLogSocket
-                        daemon={daemon}
-                        containerID={container.Id}
-                      />
+                  <Modal trigger={<Button icon="align left" />}>
+                    <Modal.Content
+                      style={{ background: "black", color: "white" }}
+                    >
+                      <pre style={{ whiteSpace: "pre-line" }}>
+                        <ContainerLogSocket
+                          daemon={daemon}
+                          containerID={container.Id}
+                        />
+                      </pre>
                     </Modal.Content>
                   </Modal>
-                  <Modal trigger={<Button disabled={status.Started.indexOf(container.State) < -1} icon="terminal"/>} size="large" >
+                  <Modal
+                    trigger={
+                      <Button
+                        disabled={status.Started.indexOf(container.State) < -1}
+                        icon="terminal"
+                      />
+                    }
+                    size="large"
+                  >
                     <Modal.Content style={{ background: "black" }}>
                       <CmdSocket
-                        apiURL={`/api/daemons/${daemon._id}/commands/${container.Id}`}
+                        apiURL={`/api/daemons/${daemon._id}/docker/containers/${
+                          container.Id
+                        }/term`}
                       />
                     </Modal.Content>
                   </Modal>
@@ -115,6 +131,6 @@ export default class ContainerTable extends React.Component<ITableProps> {
             ))}
         </Table.Body>
       </Table>
-    )
+    );
   }
 }

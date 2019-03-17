@@ -4,67 +4,73 @@ import { Message } from 'semantic-ui-react';
 import { IDaemon } from '../Daemon/types/daemon';
 
 interface ISocketProps {
-  daemon: IDaemon
-  containerID: string
+  daemon: IDaemon;
+  containerID: string;
 }
 
 interface ISocketStates {
-  logs: string
-  error: Error
-  ws: WebSocket
+  logs: string;
+  error: Error;
+  ws: WebSocket;
 }
 
 export default class ContainerLogSocket extends React.Component<
   ISocketProps,
   ISocketStates
-  > {
+> {
   public state = {
     logs: "",
     error: Error(),
     ws: {} as WebSocket
-  }
+  };
 
   public componentWillMount() {
-    const { daemon, containerID } = this.props
+    const { daemon, containerID } = this.props;
 
-    const loc = window.location
-    let uri = "ws:"
+    const loc = window.location;
+    let uri = "ws:";
 
     if (loc.protocol === "https:") {
-      uri = "wss:"
+      uri = "wss:";
     }
-    uri += `//${loc.hostname}:`
-    uri += process.env.NODE_ENV === "development" ? "8080" : loc.port
-    uri += "/api/daemons/"
+    uri += `//${loc.hostname}:`;
+    uri += process.env.NODE_ENV === "development" ? "8080" : loc.port;
+    uri += "/api/daemons/";
 
-    const ws = new WebSocket(uri + daemon._id + "/log/" + containerID)
+    const ws = new WebSocket(
+      uri + daemon._id + "/docker/containers/" + containerID + "/log"
+    );
 
     ws.onmessage = e => {
-      const logs = this.state.logs.concat(e.data)
-      this.setState({ logs })
-    }
-    ws.onerror = e => this.setState({ error: new Error("WebSocket error") })
+      const logs = this.state.logs.concat(e.data);
+      this.setState({ logs });
+    };
+    ws.onerror = e => this.setState({ error: new Error("WebSocket error") });
     ws.onclose = e =>
       !e.wasClean &&
-      this.setState({ error: new Error(`WebSocket error: ${e.code} ${e.reason}`) })
+      this.setState({
+        error: new Error(`WebSocket error: ${e.code} ${e.reason}`)
+      });
 
-    this.setState({ ws })
+    this.setState({ ws });
   }
 
   public componentWillUnmount() {
-    this.state.ws.close()
+    this.state.ws.close();
   }
 
   public render() {
-    const { logs, error } = this.state
+    const { logs, error } = this.state;
 
     if (error.message) {
-      return <Message negative={true}>
-        <Message.Header>Error with the websocket</Message.Header>
-        <p>{error.message}</p>
-      </Message>
+      return (
+        <Message negative={true}>
+          <Message.Header>Error with the websocket</Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      );
     }
 
-    return <p>{logs}</p>
+    return logs;
   }
 }

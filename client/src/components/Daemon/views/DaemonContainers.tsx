@@ -20,25 +20,31 @@ interface IDaemonContainersStates {
 class Daemon extends React.Component<
   IDaemonContainersProps,
   IDaemonContainersStates
-  > {
+> {
   public state = {
     containers: [],
     isFetching: true,
     error: Error()
   };
 
+  private refreshIntervalId: NodeJS.Timeout;
+
   public componentWillMount() {
     const { daemon } = this.props;
 
     const fetch = () => {
       fetchContainers(daemon._id)
-        .then((containers: IContainer[]) => this.setState({ containers, error: Error() }))
-        .catch((error: Error) => this.setState({ error }))
-        .finally(() => this.setState({ isFetching: false }))
+        .then(containers => this.setState({ containers, error: Error() }))
+        .catch(error => this.setState({ error }))
+        .finally(() => this.setState({ isFetching: false }));
     };
 
     fetch();
-    setInterval(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+  }
+
+  public componentWillUnmount() {
+    clearInterval(this.refreshIntervalId);
   }
 
   public render() {
@@ -60,10 +66,12 @@ class Daemon extends React.Component<
       return <Loader active={true} />;
     }
 
-    return <>
-      {serviceButton(daemon, ["cadvisor", "watchtower"])}
-      <ContainerTable daemon={daemon} containers={containers} />
-    </>;
+    return (
+      <>
+        {serviceButton(daemon, ["cadvisor", "watchtower"])}
+        <ContainerTable daemon={daemon} containers={containers} />
+      </>
+    );
   }
 }
 

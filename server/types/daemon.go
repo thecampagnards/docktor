@@ -6,10 +6,6 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-var (
-	WATCHTOWER_LABEL = "com.centurylinklabs.watchtower.enable=true"
-)
-
 type Daemon struct {
 	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name        string
@@ -48,5 +44,5 @@ func (d Daemon) GetCompleteHost() string {
 		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Docker.Port)
 	}
 	// Can be a socket
-	return d.Host
+	return "unix:///" + d.Host
 }

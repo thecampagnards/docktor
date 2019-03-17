@@ -9,19 +9,13 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
-var (
-	ADMIN_ROLE = "admin"
-	USER_ROLE  = "user"
-	// ROLES List of user rights
-	ROLES = [...]string{ADMIN_ROLE, USER_ROLE}
-)
-
 type User struct {
 	ldap.Attributes
 	Salt     string
 	Password string
 	Groups   []bson.ObjectId
 	Admin    string
+	Role     string
 	jwt.StandardClaims
 }
 
