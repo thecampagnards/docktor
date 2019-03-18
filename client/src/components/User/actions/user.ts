@@ -3,46 +3,51 @@ import * as JWT from 'jwt-decode';
 import { checkStatus } from '../../../utils/promises';
 import { IUser } from '../types/user';
 
-class Auth {
+export const IsAuthenticated = (): boolean => {
+  return !!GetUsername();
+};
 
-  public isAuthenticated = (): boolean => {
-    return !!this.getUser()
-  }
-
-  public signIn = (user: IUser, ldap: boolean) => {
-    return fetch(`${process.env.PUBLIC_URL}/api/users/login?ldap=${ldap}`, {
-      credentials: "same-origin",
-      method: "POST",
-      body: JSON.stringify(user),
-      headers: {
-        "Content-Type": "application/json"
-      }
+export const GetProfile = () => {
+  return fetch(`${process.env.PUBLIC_URL}/api/users/profile`, {
+    credentials: "same-origin",
+    method: "GET",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
     })
-      .then(checkStatus)
-      .then((response: Response) => response.json())
-      .then((token: string) => {
-        localStorage.setItem("token", token)
-        return this.getUser()
-      })
-  }
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
 
-  public signOut = () => {
-    localStorage.removeItem("token")
-  }
-
-  public getUser = (): IUser | undefined => {
-    const token = localStorage.getItem("token")
-    if (token) {
-      return JWT(token)
+export const SignIn = (user: IUser, ldap: boolean) => {
+  return fetch(`${process.env.PUBLIC_URL}/auth/login?ldap=${ldap}`, {
+    credentials: "same-origin",
+    method: "POST",
+    body: JSON.stringify(user),
+    headers: {
+      "Content-Type": "application/json"
     }
-    return undefined
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json())
+    .then((token: string) => {
+      localStorage.setItem("token", token);
+      return GetUsername();
+    });
+};
+
+export const SignOut = () => {
+  localStorage.removeItem("token");
+};
+
+export const GetUsername = (): string | undefined => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    return (JWT(token) as IUser).Username;
   }
+  return undefined;
+};
 
-  public getToken = ():string | null => {
-    return localStorage.getItem("token")
-  }
-}
-
-const auth = new Auth()
-
-export default auth
+export const GetToken = (): string | null => {
+  return localStorage.getItem("token");
+};

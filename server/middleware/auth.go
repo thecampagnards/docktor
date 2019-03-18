@@ -69,7 +69,7 @@ func AuthUser(c echo.Context) (types.User, error) {
 	// TODO: fix convert
 	// claims := user.Claims.(*types.Claims)
 	claims := user.Claims.(jwt.MapClaims)
-	username := claims["username"].(string)
+	username := claims["Username"].(string)
 
 	log.WithField("claims", claims).Info("Getting db user")
 	return dao.GetUserByUsername(username)

@@ -1,27 +1,30 @@
 import * as React from 'react';
-import { RouteComponentProps } from 'react-router-dom';
 
-import auth from '../actions/user';
+import { GetProfile } from '../actions/user';
 import { IUser } from '../types/user';
 
-class Profile extends React.Component<RouteComponentProps> {
+interface IProfileStates {
+  user: IUser;
+  isFetching: boolean;
+  error: Error;
+}
 
-  private user : IUser
+class Profile extends React.Component<{}, IProfileStates> {
+  public state = {
+    user: {} as IUser,
+    isFetching: true,
+    error: Error()
+  };
 
-  public componentWillMount(){
-    const user = auth.getUser()
-    if (user) {
-      this.user = user
-    }
+  public componentWillMount() {
+    GetProfile()
+      .then(user => this.setState({ user, isFetching: false }))
+      .catch(error => this.setState({ error, isFetching: false }));
   }
 
   public render() {
-    return (
-      <pre>
-        {JSON.stringify(this.user)}
-      </pre>
-    )
+    return <pre>{JSON.stringify(this.state.user)}</pre>;
   }
 }
 
-export default Profile
+export default Profile;

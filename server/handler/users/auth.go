@@ -2,6 +2,7 @@ package users
 
 import (
 	"net/http"
+	"strconv"
 
 	"docktor/server/dao"
 	"docktor/server/helper/ldap"
@@ -10,6 +11,14 @@ import (
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
 )
+
+// login a User server
+func login(c echo.Context) error {
+	if ok, _ := strconv.ParseBool(c.QueryParam("ldap")); ok {
+		return loginLDAP(c)
+	}
+	return loginLocal(c)
+}
 
 // loginLDAP a User server
 func loginLDAP(c echo.Context) error {
@@ -50,7 +59,7 @@ func loginLDAP(c echo.Context) error {
 	}
 
 	// JWT token creation
-	token, err := user.CreateToken()
+	token, err := user.CreateToken(c.Get("jwtSecret").(string))
 	if err != nil {
 		log.WithError(err).WithField("username", u.Username).Error("Token creation error")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user token")
@@ -84,7 +93,7 @@ func loginLocal(c echo.Context) error {
 	}
 
 	// JWT token creation
-	token, err := user.CreateToken()
+	token, err := user.CreateToken(c.Get("jwtSecret").(string))
 	if err != nil {
 		log.WithError(err).WithField("username", u.Username).Error("Token creation error")
 		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user token")

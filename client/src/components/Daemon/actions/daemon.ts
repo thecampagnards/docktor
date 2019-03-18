@@ -1,5 +1,5 @@
 import { checkStatus } from '../../../utils/promises';
-import auth from '../../User/actions/user';
+import { GetToken } from '../../User/actions/user';
 import { IDaemon } from '../types/daemon';
 
 export const fetchDaemons = () => {
@@ -7,7 +7,7 @@ export const fetchDaemons = () => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      Authorization: `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)
@@ -19,7 +19,7 @@ export const fetchDaemon = (daemonID: string) => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      Authorization: `Bearer ${auth.getToken()}`
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)
@@ -33,7 +33,7 @@ export const fetchContainers = (daemonID: string) => {
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${GetToken()}`
       })
     }
   )
@@ -56,7 +56,7 @@ export const changeContainersStatus = (
       credentials: "same-origin",
       method: "POST",
       headers: new Headers({
-        Authorization: `Bearer ${auth.getToken()}`
+        Authorization: `Bearer ${GetToken()}`
       })
     }
   )

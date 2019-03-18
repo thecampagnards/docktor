@@ -1,6 +1,7 @@
 package main
 
 import (
+	"docktor/server/dao"
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
@@ -8,10 +9,10 @@ import (
 	"docktor/server/handler/users"
 	"docktor/server/helper/ldap"
 	customMiddleware "docktor/server/middleware"
+	"docktor/server/types"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
-	"github.com/labstack/gommon/log"
 	"github.com/namsral/flag"
 	"github.com/sirupsen/logrus"
 )
@@ -32,7 +33,7 @@ func parseFlags() {
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "error", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
-	flag.StringVar(&defaultAdminPassword, "default-admin-password", "", "The password of a default administrator account")
+	flag.StringVar(&defaultAdminPassword, "default-admin-password", "root", "The password of a default administrator account")
 	flag.StringVar(&ldapAuthConfig.Host, "ldap-host", "", "The host of the LDAP to connect to")
 	flag.IntVar(&ldapAuthConfig.Port, "ldap-port", 389, "The port of the LDAP to connect to")
 	flag.BoolVar(&ldapAuthConfig.Secure, "ldap-secure", false, "The LDAP needs TLS connection")
@@ -50,15 +51,30 @@ func parseFlags() {
 }
 
 func configure(e *echo.Echo) {
-	e.Logger.SetLevel(log.DEBUG)
+	l, err := logrus.ParseLevel(logLevel)
+	if err != nil {
+		logrus.Fatalf("Error when parsing log level: %s", err)
+	}
+	logrus.SetLevel(l)
+
+	user := types.User{}
+	user.Username = defaultAdminAccount
+	user.Role = types.ADMIN_ROLE
+	user.Password = user.EncodePassword(defaultAdminPassword)
+
+	user, err = dao.CreateOrUpdateUser(user)
+	if err != nil {
+		logrus.Fatalf("Error when creating the admin account: %s", err)
+	}
+	logrus.WithField("user", user).Info("Admin account successfully created")
 
 	if production {
-		e.Logger.Info("Running in production mode")
+		logrus.Info("Running in production mode")
 		if len(jwtSecret) < 32 { // 32 bytes is a sane default to protect against bruteforce attacks
-			e.Logger.Fatal("JWT secret must be at least 32 characters long")
+			logrus.Fatal("JWT secret must be at least 32 characters long")
 		}
 	} else {
-		e.Logger.Warn("Running in development mode")
+		logrus.Warn("Running in development mode")
 	}
 }
 
@@ -77,8 +93,13 @@ func main() {
 		Index: "index.html",
 	}))
 
+	auth := e.Group("/auth")
+	auth.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
+	auth.Use(customMiddleware.JWT(jwtSecret))
+	users.AddAuthRoute(auth)
+
 	api := e.Group("/api")
-	api.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
+	api.Use(middleware.JWT([]byte(jwtSecret)))
 
 	admin.AddRoute(api)
 	daemons.AddRoute(api)

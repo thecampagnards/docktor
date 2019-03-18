@@ -69,5 +69,5 @@ func TestAddRoute(t *testing.T) {
 
 	AddRoute(g)
 
-	assert.Regexp(t, "/api/admin.*", e.Routes()[len(e.Routes())-1].Path)
+	assert.Regexp(t, "/api.*", e.Routes()[len(e.Routes())-1].Path)
 }
