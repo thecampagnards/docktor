@@ -24,6 +24,7 @@ const (
 	USERS_DB_COLUMN = "users"
 	ADMIN_ROLE      = "admin"
 	USER_ROLE       = "user"
+	authValidity    = 72 * time.Hour
 
 	// Service
 	SERVICE_ID_PARAM            = "serviceID"

@@ -28,7 +28,7 @@ var (
 )
 
 func parseFlags() {
-	flag.String(flag.DefaultConfigFlagname, "", "Path to config file")
+	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "error", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
@@ -77,14 +77,8 @@ func main() {
 		Index: "index.html",
 	}))
 
-	/*config := middleware.JWTConfig{
-		Claims:     &types.User{},
-		SigningKey: []byte(jwtSecret),
-	}*/
-
 	api := e.Group("/api")
 	api.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
-	// api.Use(middleware.JWTWithConfig(config))
 
 	admin.AddRoute(api)
 	daemons.AddRoute(api)

@@ -49,10 +49,10 @@ func GetUserByUsername(username string) (types.User, error) {
 
 	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
-	err = c.Find(bson.M{"username": username}).One(&t)
+	err = c.Find(bson.M{"attributes.username": username}).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the deaemon")
+		return t, errors.New("There was an error trying to find the user")
 	}
 
 	return t, err
@@ -73,10 +73,10 @@ func LoginUser(username string, password string) (types.User, error) {
 
 	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
-	err = c.Find(bson.M{"username": username, "password": password}).One(&t)
+	err = c.Find(bson.M{"attributes.username": username, "password": password}).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the deaemon")
+		return t, errors.New("There was an error trying to find the user")
 	}
 
 	return t, err
@@ -103,12 +103,13 @@ func CreateOrUpdateUser(t types.User) (types.User, error) {
 	user, err := GetUserByUsername(t.Username)
 
 	if err != nil {
+		t.Password = t.EncodePassword(t.Password)
 		err = c.Insert(t)
 	} else {
 		if err := mergo.Merge(&t, user); err != nil {
 			return t, err
 		}
-		err = c.Update(bson.M{"username": t.Username}, t)
+		err = c.Update(bson.M{"attributes.username": t.Username}, t)
 	}
 
 	return t, err
@@ -128,7 +129,7 @@ func DeleteUser(username string) error {
 
 	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
-	err = c.Remove(bson.M{"username": username})
+	err = c.Remove(bson.M{"attributes.username": username})
 
 	if err != nil {
 		return errors.New("There was an error trying to remove the user")

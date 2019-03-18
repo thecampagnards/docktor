@@ -1,13 +1,26 @@
 package types
 
 import (
+	"crypto/sha256"
 	"docktor/server/helper/ldap"
-	"os"
+	"fmt"
+	"math/rand"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/globalsign/mgo/bson"
 )
+
+// CustomClaims contains claims identifying the owner of a token
+type CustomClaims struct {
+	Username string `json:"username"`
+}
+
+// Claims contains standard JWT claims and custom claims
+type Claims struct {
+	CustomClaims
+	jwt.StandardClaims
+}
 
 type User struct {
 	ldap.Attributes
@@ -16,7 +29,6 @@ type User struct {
 	Groups   []bson.ObjectId
 	Admin    string
 	Role     string
-	jwt.StandardClaims
 }
 
 type Users []User
@@ -43,16 +55,39 @@ func (u User) IsMyGroup(g Group) bool {
 
 // CreateToken create a jwt token for user
 func (u User) CreateToken() (string, error) {
-	u.StandardClaims = jwt.StandardClaims{
-		ExpiresAt: time.Now().Add(time.Hour * 72).Unix(),
+
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+		CustomClaims{
+			u.Username,
+		},
+		jwt.StandardClaims{
+			ExpiresAt: time.Now().Add(authValidity).Unix(),
+			IssuedAt:  time.Now().Unix(),
+		},
+	})
+
+	return token.SignedString([]byte("secret"))
+}
+
+// CheckPassword
+func (u User) CheckPassword(password string) bool {
+	return u.EncodePassword(password) == u.Password
+}
+
+// EncodePassword
+func (u *User) EncodePassword(password string) string {
+	h := sha256.New()
+	if u.Salt == "" {
+		u.Salt = randomString(12)
 	}
+	h.Write([]byte(u.Salt + password))
+	return fmt.Sprintf("%x", h.Sum(nil))
+}
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, u)
-
-	jwtKey := os.Getenv("JWT_SECRET")
-	if jwtKey == "" {
-		jwtKey = "secret"
+func randomString(len int) string {
+	bytes := make([]byte, len)
+	for i := 0; i < len; i++ {
+		bytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
 	}
-
-	return token.SignedString([]byte(jwtKey))
+	return string(bytes)
 }

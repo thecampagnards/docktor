@@ -3,15 +3,18 @@ package middleware
 import (
 	"net/http"
 
-	"docktor/server/handler/users"
+	"docktor/server/dao"
+	"docktor/server/types"
 
+	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/labstack/echo"
+	log "github.com/sirupsen/logrus"
 )
 
 // IsAdmin is used to check if the connected user is admin
 func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := users.AuthUser(c)
+		user, err := AuthUser(c)
 
 		if err != nil {
 			c.Logger().Errorf("Admin access denied: requestURI: %s, error: %s", c.Request().RequestURI, err)
@@ -33,7 +36,7 @@ func IsAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 // WithUser
 func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := users.AuthUser(c)
+		user, err := AuthUser(c)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
@@ -46,7 +49,7 @@ func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := users.AuthUser(c)
+		user, err := AuthUser(c)
 		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
@@ -54,4 +57,20 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 		c.Set("user", user)
 		return next(c)
 	}
+}
+
+// AuthUser
+func AuthUser(c echo.Context) (types.User, error) {
+
+	log.Info("Getting user from token")
+	user := c.Get("user").(*jwt.Token)
+
+	log.WithField("user", user).Info("Getting claims")
+	// TODO: fix convert
+	// claims := user.Claims.(*types.Claims)
+	claims := user.Claims.(jwt.MapClaims)
+	username := claims["username"].(string)
+
+	log.WithField("claims", claims).Info("Getting db user")
+	return dao.GetUserByUsername(username)
 }
