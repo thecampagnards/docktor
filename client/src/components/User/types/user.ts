@@ -2,6 +2,18 @@ import { IGroup } from 'src/components/Group/types/group';
 
 export type userTypes = "admin" | "user";
 
+export interface ILoginState {
+  isFetching: boolean;
+  error: string;
+  isAdmin: boolean;
+  username: string | null;
+}
+
+export interface IUserToken {
+  Username: string;
+  IsAdmin: boolean;
+}
+
 export interface IUser {
   Username: string;
   FirstName: string;

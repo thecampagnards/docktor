@@ -13,7 +13,8 @@ import (
 
 // CustomClaims contains claims identifying the owner of a token
 type CustomClaims struct {
-	Username string `json:"Username"`
+	Username string
+	IsAdmin  bool
 }
 
 // Claims contains standard JWT claims and custom claims
@@ -25,7 +26,7 @@ type Claims struct {
 type User struct {
 	ldap.Attributes
 	Salt     string `json:"-"`
-	Password string `json:"-"`
+	Password string
 	Groups   []bson.ObjectId
 	Role     string
 }
@@ -55,9 +56,10 @@ func (u User) IsMyGroup(g Group) bool {
 // CreateToken create a jwt token for user
 func (u User) CreateToken(jwtSecret string) (string, error) {
 
-	token := jwt.NewWithClaims(jwt.SigningMethodHS256, Claims{
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
 		CustomClaims{
 			u.Username,
+			u.IsAdmin(),
 		},
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(authValidity).Unix(),

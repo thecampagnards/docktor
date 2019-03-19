@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 
+	"docktor/server/middleware"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -14,13 +15,13 @@ func AddRoute(e *echo.Group) {
 
 	// Basic services request
 	services.GET("", getAll)
-	services.POST("", save)
+	services.POST("", save, middleware.WithAdmin)
 
 	{
 		service := services.Group(fmt.Sprintf("/:%s", types.SERVICE_ID_PARAM))
 
 		service.GET("", getByID)
-		service.DELETE("", deleteByID)
+		service.DELETE("", deleteByID, middleware.WithAdmin)
 	}
 
 	{

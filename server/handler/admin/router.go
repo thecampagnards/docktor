@@ -1,6 +1,7 @@
 package admin
 
 import (
+	"docktor/server/middleware"
 	"docktor/server/types"
 	"fmt"
 
@@ -12,7 +13,7 @@ func AddRoute(e *echo.Group) {
 	admin := e.Group("/admin")
 	{
 		assets := admin.Group("/assets")
-		assets.GET("", getAssets)
+		assets.GET("", getAssets, middleware.WithAdmin)
 		assets.POST(fmt.Sprintf("/:%s", types.ASSET_NAME_PARAM), saveAsset)
 	}
 }

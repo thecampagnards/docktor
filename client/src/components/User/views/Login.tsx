@@ -1,29 +1,29 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
+import { Dispatch } from 'redux';
 import {
     Button, Checkbox, CheckboxProps, Form, Grid, InputOnChangeData, Message, Segment
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { SignIn } from '../actions/user';
+import { IStoreState } from '../../../types/store';
+import { loginRequestThunk } from '../actions/user';
 import { IUser } from '../types/user';
 
-interface ILoginStates {
+interface ILoginProps {
   isFetching: boolean;
-  error: Error;
+  error: string;
+  loginRequest: (user: IUser, ldap: boolean) => void;
 }
 
-class Login extends React.Component<RouteComponentProps, ILoginStates> {
-  public state = {
-    isFetching: false,
-    error: Error()
-  };
+class Login extends React.Component<RouteComponentProps & ILoginProps> {
 
   private user = {} as IUser;
   private LDAP = true;
 
   public render() {
-    const { isFetching, error } = this.state;
+    const { isFetching, error } = this.props;
     return (
       <>
         <Grid>
@@ -48,7 +48,7 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
         </Grid>
 
         <Form
-          error={!!error.message}
+          error={!!error}
           onSubmit={this.submit}
           loading={isFetching}
         >
@@ -72,7 +72,7 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
           <a>Forgot password ?</a>
           <br />
           <br />
-          <Message error={true} header="Error" content={error.message} />
+          <Message error={true} header="Error" content={error} />
           <Button type="submit" color="green">
             Sign in
           </Button>
@@ -83,9 +83,9 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
 
   private handleLDAP = (
     e: React.ChangeEvent<HTMLInputElement>,
-    { value }: CheckboxProps
+    { checked }: CheckboxProps
   ) => {
-    this.LDAP = !!value;
+    this.LDAP = !!checked;
   };
 
   private handleChange = (
@@ -99,11 +99,25 @@ class Login extends React.Component<RouteComponentProps, ILoginStates> {
     e.preventDefault();
 
     this.setState({ isFetching: true });
-    SignIn(this.user, this.LDAP)
-      .then(() => this.props.history.push(path.home))
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
+    this.props.loginRequest(this.user, this.LDAP)
   };
 }
 
-export default Login;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    error: login.error || "",
+    isFetching: login.isFetching || false,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    loginRequest: (user: IUser, ldap: boolean) => {
+      dispatch(loginRequestThunk(user, ldap));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Login);
+

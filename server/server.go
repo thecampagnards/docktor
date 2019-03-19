@@ -31,7 +31,7 @@ var (
 func parseFlags() {
 	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
-	flag.StringVar(&logLevel, "log-level", "error", "The log level to use (debug, info, warn, error, fatal, panic)")
+	flag.StringVar(&logLevel, "log-level", "debug", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
 	flag.StringVar(&defaultAdminPassword, "default-admin-password", "root", "The password of a default administrator account")
 	flag.StringVar(&ldapAuthConfig.Host, "ldap-host", "", "The host of the LDAP to connect to")
@@ -45,7 +45,7 @@ func parseFlags() {
 	flag.StringVar(&ldapSearchConfig.Attributes.FirstName, "ldap-attr-firstname", "", "The LDAP attribute corresponding to the first name of an account")
 	flag.StringVar(&ldapSearchConfig.Attributes.LastName, "ldap-attr-lastname", "", "The LDAP attribute corresponding to the last name of an account")
 	flag.StringVar(&ldapSearchConfig.Attributes.Email, "ldap-attr-email", "", "The LDAP attribute corresponding to the email address of an account")
-	flag.StringVar(&jwtSecret, "jwt-secret", "CHANGE-ME", "The secret used to sign JWT tokens")
+	flag.StringVar(&jwtSecret, "jwt-secret", "secret", "The secret used to sign JWT tokens")
 	flag.StringVar(&mongoURL, "mongo-url", "localhost", "The mongo db url")
 	flag.Parse()
 }
@@ -93,13 +93,17 @@ func main() {
 		Index: "index.html",
 	}))
 
-	auth := e.Group("/auth")
+	auth := e.Group("/api/auth")
 	auth.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
 	auth.Use(customMiddleware.JWT(jwtSecret))
 	users.AddAuthRoute(auth)
 
 	api := e.Group("/api")
-	api.Use(middleware.JWT([]byte(jwtSecret)))
+	api.Use(middleware.JWTWithConfig(middleware.JWTConfig{
+		Claims:     &types.Claims{},
+		SigningKey: []byte(jwtSecret),
+	}))
+	api.Use(customMiddleware.WithUser)
 
 	admin.AddRoute(api)
 	daemons.AddRoute(api)
