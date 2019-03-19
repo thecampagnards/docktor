@@ -3,6 +3,7 @@ package daemons
 import (
 	"fmt"
 
+	"docktor/server/middleware"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -14,7 +15,7 @@ func AddRoute(e *echo.Group) {
 
 	// Basic daemon request
 	daemons.GET("", getAll)
-	daemons.POST("", save)
+	daemons.POST("", save, middleware.WithAdmin)
 
 	{
 		daemon := daemons.Group(fmt.Sprintf("/:%s", types.DAEMON_ID_PARAM))

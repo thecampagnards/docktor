@@ -1,16 +1,26 @@
 import './layout.css';
 
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
+import { Dispatch } from 'redux';
 import { Button, Container, Icon, Menu } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
-import { GetUsername, SignOut } from '../User/actions/user';
+import { IStoreState } from '../../types/store';
+import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 
-class Layout extends React.Component {
+interface ILayoutProps {
+  username: string;
+  isAdmin: boolean;
+  isAuthenticated: boolean;
+  logoutRequest?: () => void;
+}
+
+class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const username = GetUsername();
+    const { isAuthenticated, username } = this.props
 
     return (
       <>
@@ -24,7 +34,7 @@ class Layout extends React.Component {
             </Menu.Item>
           </Menu.Menu>
 
-          {username && (
+          {isAuthenticated && (
             <>
               <Menu.Item as={Link} to={path.home} name="home">
                 <Icon name="home" /> Home
@@ -52,9 +62,9 @@ class Layout extends React.Component {
             </>
           )}
           <Menu.Menu position="right">
-            {username && (
+            {isAuthenticated && (
               <Menu.Item>
-                <Button color="red" as={Link} to={path.login} onClick={SignOut}>
+                <Button color="red" as={Link} to={path.login} onClick={this.props.logoutRequest}>
                   Logout
                 </Button>
               </Menu.Item>
@@ -64,10 +74,10 @@ class Layout extends React.Component {
                 animated="vertical"
                 primary={true}
                 as={Link}
-                to={username ? path.profile : path.login}
+                to={isAuthenticated ? path.profile : path.login}
               >
                 <Button.Content hidden={true}>
-                  {username ? username : "Login"}
+                  {isAuthenticated ? username : "Login"}
                 </Button.Content>
                 <Button.Content visible={true}>
                   <Icon name="user" />
@@ -87,4 +97,21 @@ class Layout extends React.Component {
   };
 }
 
-export default Layout;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    isAdmin: !!login.isAdmin,
+    isAuthenticated: login.username !== "",
+    username: login.username
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    logoutRequest: () => {
+      dispatch(logoutRequestThunk());
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);

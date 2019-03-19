@@ -3,6 +3,7 @@ package groups
 import (
 	"fmt"
 
+	"docktor/server/middleware"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -14,13 +15,13 @@ func AddRoute(e *echo.Group) {
 
 	// Basic daemon request
 	groups.GET("", getAllWithDaemons)
-	groups.POST("", save)
+	groups.POST("", save, middleware.WithAdmin)
 
 	{
 		group := groups.Group(fmt.Sprintf("/:%s", types.GROUP_ID_PARAM))
 
 		group.GET("", getByID)
-		group.DELETE("", deleteByID)
+		group.DELETE("", deleteByID, middleware.WithAdmin)
 		group.POST("/start/:subserviceID", startSubService)
 		group.POST("/create/:subserviceID", createSubService)
 		group.GET("/containers", getContainers)

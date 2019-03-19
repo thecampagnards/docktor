@@ -28,7 +28,7 @@ matrix:
         - dep ensure -v
         - go test ./... -coverprofile="coverage.out"
         - cd ..
-        - sonar-scanner -Dsonar.go.coverage.reportPaths="server/coverage.out" -Dsonar.typescript.lcov.reportPaths="client/coverage/lcov.info"
+        - sonar-scanner
     # Docker build
     - language: sh
       services:

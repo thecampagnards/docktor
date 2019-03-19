@@ -46,6 +46,20 @@ func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// WithAdmin
+func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(types.User)
+
+		if !user.IsAdmin() {
+			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required")
+		}
+
+		c.Set("user", user)
+		return next(c)
+	}
+}
+
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
@@ -66,11 +80,8 @@ func AuthUser(c echo.Context) (types.User, error) {
 	user := c.Get("user").(*jwt.Token)
 
 	log.WithField("user", user).Info("Getting claims")
-	// TODO: fix convert
-	// claims := user.Claims.(*types.Claims)
-	claims := user.Claims.(jwt.MapClaims)
-	username := claims["Username"].(string)
+	claims := user.Claims.(*types.Claims)
 
 	log.WithField("claims", claims).Info("Getting db user")
-	return dao.GetUserByUsername(username)
+	return dao.GetUserByUsername(claims.Username)
 }
