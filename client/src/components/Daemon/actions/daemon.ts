@@ -77,7 +77,10 @@ export const changeComposeStatus = (
     )}`,
     {
       credentials: "same-origin",
-      method: "POST"
+      method: "POST",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
     }
   )
     .then(checkStatus)
@@ -89,7 +92,10 @@ export const fetchCadvisorContainers = (daemonID: string) => {
     `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/container`,
     {
       credentials: "same-origin",
-      method: "GET"
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
     }
   )
     .then(checkStatus)
@@ -101,7 +107,10 @@ export const fetchCadvisorMachine = (daemonID: string) => {
     `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/machine`,
     {
       credentials: "same-origin",
-      method: "GET"
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
     }
   )
     .then(checkStatus)
@@ -113,9 +122,10 @@ export const saveDaemon = (daemon: IDaemon) => {
     credentials: "same-origin",
     method: "POST",
     body: JSON.stringify(daemon),
-    headers: {
-      "Content-Type": "application/json"
-    }
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`,
+      ContentType: "application/json"
+    })
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -126,9 +136,10 @@ export const execCommand = (daemon: IDaemon, commands: string[]) => {
     credentials: "same-origin",
     method: "POST",
     body: JSON.stringify(commands),
-    headers: {
-      "Content-Type": "application/json"
-    }
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`,
+      ContentType: "application/json"
+    })
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
