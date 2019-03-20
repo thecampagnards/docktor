@@ -1,6 +1,7 @@
 package main
 
 import (
+	"docktor/server/config"
 	"docktor/server/dao"
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
@@ -56,6 +57,8 @@ func configure(e *echo.Echo) {
 		logrus.Fatalf("Error when parsing log level: %s", err)
 	}
 	logrus.SetLevel(l)
+
+	config.Init(mongoURL)
 
 	user := types.User{}
 	user.Username = defaultAdminAccount
