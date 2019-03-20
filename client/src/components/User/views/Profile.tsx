@@ -1,9 +1,11 @@
 import * as React from 'react';
+import * as ReactMarkdown from 'react-markdown';
+import { Link } from 'react-router-dom';
 import { Button, Card, Loader, Message, Table } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { GetProfile } from '../actions/user';
 import { IUser } from '../types/user';
-import { IGroup } from 'src/components/Group/types/group';
 
 interface IProfileStates {
   user: IUser;
@@ -27,38 +29,29 @@ class Profile extends React.Component<{}, IProfileStates> {
   public render() {
     const { user, isFetching, error } = this.state;
 
-    if (!user) {
+    if (error.message) {
       return (
-        <>
-          <Message negative={true}>
-            <Message.Header>
-              Failed to load profile with error :
-            </Message.Header>
-              <p>{error.message}</p>
-          </Message>
-        </>
-      )
+        <Message negative={true}>
+          <Message.Header>Failed to load profile with error :</Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      );
     }
 
     if (isFetching) {
-      return (
-        <>
-          <Loader active={true} />
-        </>
-      )
+      return <Loader active={true} />;
     }
 
     return (
       <>
+        <Card centered={true}>
+          <Card.Content>
+            <Card.Header>{user.Username}</Card.Header>
+            <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
+          </Card.Content>
+        </Card>
 
-      <Card centered={true}>
-
-        <Card.Content>
-          <Card.Header>{user.Username}</Card.Header>
-          <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
-        </Card.Content>
-
-        <Card.Content>
+        {user.Groups.length > 0 && (
           <Table>
             <Table.Header>
               <Table.Row>
@@ -68,27 +61,28 @@ class Profile extends React.Component<{}, IProfileStates> {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {user.Groups.map((group: IGroup) => (
+              {user.Groups.map(group => (
                 <Table.Row key={group._id}>
                   <Table.Cell width={2}>{group.Name}</Table.Cell>
-                  <Table.Cell width={4}>{group.Description}</Table.Cell>
                   <Table.Cell width={4}>
-                  <Button.Group>
+                    <ReactMarkdown source={group.Description} />
+                  </Table.Cell>
+                  <Table.Cell width={4}>
+                    <Button icon="trash" color="red" title="Exit this group" />
                     <Button
-                      icon="trash"
-                      color="red"
+                      icon="info"
+                      as={Link}
+                      to={path.groupsMore.replace(":groupID", group._id)}
+                      title="Access to this group"
                     />
-                  </Button.Group>
                   </Table.Cell>
                 </Table.Row>
               ))}
             </Table.Body>
           </Table>
-        </Card.Content>
-
-      </Card>
+        )}
       </>
-    )
+    );
   }
 }
 
