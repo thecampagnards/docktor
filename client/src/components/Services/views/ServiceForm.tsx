@@ -12,7 +12,7 @@ import {
 } from 'semantic-ui-react';
 
 import { fetchService, saveService } from '../actions/service';
-import { IService, ISubServices } from '../types/service';
+import { IService, ISubService } from '../types/service';
 
 interface IRouterProps {
   serviceID: string
@@ -45,7 +45,7 @@ class ServiceForm extends React.Component<
         )
         .catch((error) => this.setState({ error, isFetching: false }))
     } else {
-      this.setState({ service: { SubServices: [] as ISubServices[] } as IService, isFetching: false })
+      this.setState({ service: { SubServices: [] as ISubService[] } as IService, isFetching: false })
     }
   }
 
@@ -215,7 +215,7 @@ class ServiceForm extends React.Component<
     event.preventDefault()
 
     const service = this.state.service
-    const sub: ISubServices = {
+    const sub: ISubService = {
       Name: "",
       File: "",
       Active: true

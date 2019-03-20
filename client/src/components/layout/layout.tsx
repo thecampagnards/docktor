@@ -20,7 +20,7 @@ interface ILayoutProps {
 
 class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const { isAuthenticated, isAdmin, username } = this.props
+    const { isAuthenticated, isAdmin, username } = this.props;
 
     return (
       <>
@@ -34,12 +34,12 @@ class Layout extends React.Component<ILayoutProps> {
             </Menu.Item>
           </Menu.Menu>
 
+          <Menu.Item as={Link} to={path.home} name="home">
+            <Icon name="home" /> Home
+          </Menu.Item>
+
           {isAuthenticated && (
             <>
-              <Menu.Item as={Link} to={path.home} name="home">
-                <Icon name="home" /> Home
-              </Menu.Item>
-
               <Menu.Item as={Link} to={path.market} name="market">
                 <Icon name="shopping cart" /> Market
               </Menu.Item>
@@ -57,6 +57,10 @@ class Layout extends React.Component<ILayoutProps> {
                     <Icon name="cubes" /> Services
                   </Menu.Item>
 
+                  <Menu.Item as={Link} to={path.users} name="users">
+                    <Icon name="users" /> Users
+                  </Menu.Item>
+
                   <Menu.Item as={Link} to={path.admin} name="admin">
                     <Icon name="cogs" /> Admin
                   </Menu.Item>
@@ -67,7 +71,12 @@ class Layout extends React.Component<ILayoutProps> {
           <Menu.Menu position="right">
             {isAuthenticated && (
               <Menu.Item>
-                <Button color="red" as={Link} to={path.login} onClick={this.props.logoutRequest}>
+                <Button
+                  color="red"
+                  as={Link}
+                  to={path.login}
+                  onClick={this.props.logoutRequest}
+                >
                   Logout
                 </Button>
               </Menu.Item>
@@ -113,8 +122,11 @@ const mapDispatchToProps = (dispatch: Dispatch<any>) => {
   return {
     logoutRequest: () => {
       dispatch(logoutRequestThunk());
-    },
+    }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Layout);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Layout);

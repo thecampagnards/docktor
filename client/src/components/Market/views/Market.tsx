@@ -9,12 +9,12 @@ import { IService } from '../../Services/types/service';
 import MarketCard from './MarketCard';
 
 interface IServicesStates {
-  services: IService[]
-  servicesFiltered: IService[]
-  tagsFilter: string[]
-  groups: IGroup[]
-  isFetching: boolean
-  error: Error
+  services: IService[];
+  servicesFiltered: IService[];
+  tagsFilter: string[];
+  groups: IGroup[];
+  isFetching: boolean;
+  error: Error;
 }
 
 class Market extends React.Component<{}, IServicesStates> {
@@ -25,33 +25,46 @@ class Market extends React.Component<{}, IServicesStates> {
     groups: [] as IGroup[],
     isFetching: true,
     error: Error()
-  }
+  };
 
-  private searchField = ""
+  private searchField = "";
 
   public componentWillMount() {
     fetchServices()
       .then((services: IService[]) =>
-        this.setState({ services, servicesFiltered: services, isFetching: false })
+        this.setState({
+          services,
+          servicesFiltered: services,
+          isFetching: false
+        })
       )
-      .catch((error: Error) => this.setState({ error, isFetching: false }))
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
 
     fetchGroups()
       .then((groups: IGroup[]) => this.setState({ groups }))
-      .catch((error: Error) => this.setState({ error }))
+      .catch((error: Error) => this.setState({ error }));
   }
 
   public render() {
-    const { services, servicesFiltered, tagsFilter, groups, error, isFetching } = this.state
+    const {
+      services,
+      servicesFiltered,
+      tagsFilter,
+      groups,
+      error,
+      isFetching
+    } = this.state;
 
     if (error.message) {
-      return <>
-        <h2>Market</h2>
-        <Message negative={true}>
-          <Message.Header>There was an issue</Message.Header>
-          <p>{error.message}</p>
-        </Message>
-      </>
+      return (
+        <>
+          <h2>Market</h2>
+          <Message negative={true}>
+            <Message.Header>Failed to load data with error :</Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        </>
+      );
     }
 
     if (isFetching) {
@@ -60,12 +73,12 @@ class Market extends React.Component<{}, IServicesStates> {
           <h2>Market</h2>
           <Loader active={true} />
         </>
-      )
+      );
     }
 
-    let tags: string[] = []
+    let tags: string[] = [];
     for (const s of services) {
-      tags = _.union(tags, s.Tags)
+      tags = _.union(tags, s.Tags);
     }
 
     return (
@@ -83,12 +96,20 @@ class Market extends React.Component<{}, IServicesStates> {
             />
           </Grid.Column>
           <Grid.Column width={10}>
-            {tags.map(tag =>
-              <Button key={tag} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
-            )}
+            {tags.map(tag => (
+              <Button
+                key={tag}
+                toggle={true}
+                active={tagsFilter.indexOf(tag) > -1}
+                onClick={this.filterAddTags}
+                value={tag}
+              >
+                {tag}
+              </Button>
+            ))}
           </Grid.Column>
         </Grid>
-        <Grid>
+        <Grid verticalAlign="middle">
           {servicesFiltered.map((service: IService) => (
             <Grid.Column key={service._id} width={4}>
               <MarketCard groups={groups} service={service} />
@@ -96,31 +117,41 @@ class Market extends React.Component<{}, IServicesStates> {
           ))}
         </Grid>
       </>
-    )
+    );
   }
 
   private filter = () => {
-    const { tagsFilter } = this.state
+    const { tagsFilter } = this.state;
 
-    let servicesFiltered = this.state.services.filter(service => service.Name.toLowerCase().includes(this.searchField.toLowerCase()))
+    let servicesFiltered = this.state.services.filter(service =>
+      service.Name.toLowerCase().includes(this.searchField.toLowerCase())
+    );
     if (tagsFilter.length > 0) {
-      servicesFiltered = servicesFiltered.filter(s => _.intersectionWith(s.Tags, tagsFilter, _.isEqual).length !== 0)
+      servicesFiltered = servicesFiltered.filter(
+        s => _.intersectionWith(s.Tags, tagsFilter, _.isEqual).length !== 0
+      );
     }
-    this.setState({ servicesFiltered })
-  }
+    this.setState({ servicesFiltered });
+  };
 
-  private filterAddSearchField = (event: React.SyntheticEvent, { value }: SearchProps) => {
-    this.searchField = value as string
-    this.filter()
-  }
+  private filterAddSearchField = (
+    event: React.SyntheticEvent,
+    { value }: SearchProps
+  ) => {
+    this.searchField = value as string;
+    this.filter();
+  };
 
-  private filterAddTags = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, { value }: ButtonProps) => {
-    const { tagsFilter } = this.state
-    const index = tagsFilter.indexOf(value)
-    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1)
-    this.setState({ tagsFilter })
-    this.filter()
-  }
+  private filterAddTags = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    { value }: ButtonProps
+  ) => {
+    const { tagsFilter } = this.state;
+    const index = tagsFilter.indexOf(value);
+    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1);
+    this.setState({ tagsFilter });
+    this.filter();
+  };
 }
 
-export default Market
+export default Market;

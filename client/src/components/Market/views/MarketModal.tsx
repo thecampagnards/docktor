@@ -10,7 +10,7 @@ import {
 import { path } from '../../../constants/path';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubServices } from '../../Services/types/service';
+import { IService, ISubService } from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string
@@ -61,7 +61,7 @@ class MarketModal extends React.Component<
             Info
         </Button>
         }
-        <Button icon={true} labelPosition="right" onClick={this.open}>
+        <Button color="green" icon={true} labelPosition="right" onClick={this.open}>
           <Icon name="play" />
           Deploy
         </Button>
@@ -156,7 +156,7 @@ class MarketModal extends React.Component<
   private renderModalStage2 = () => {
     const { service } = this.props
     const { variables, error, isFetching, selectedSubServiceID } = this.state
-    const ss = service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices
+    const ss = service.SubServices.find(s => s._id === selectedSubServiceID) as ISubService
 
     return (
       <>
@@ -258,7 +258,7 @@ class MarketModal extends React.Component<
   private handleForm = () => {
     const { service } = this.props
     const { selectedGroupID, selectedSubServiceID, variables, opts } = this.state
-    const v = (service.SubServices.find(s => s._id === selectedSubServiceID) as ISubServices).Variables
+    const v = (service.SubServices.find(s => s._id === selectedSubServiceID) as ISubService).Variables
 
     if (v) {
       for (const key of v) {
