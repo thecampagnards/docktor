@@ -1,6 +1,7 @@
 package main
 
 import (
+	"docktor/server/config"
 	"docktor/server/dao"
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
@@ -46,7 +47,7 @@ func parseFlags() {
 	flag.StringVar(&ldapSearchConfig.Attributes.LastName, "ldap-attr-lastname", "", "The LDAP attribute corresponding to the last name of an account")
 	flag.StringVar(&ldapSearchConfig.Attributes.Email, "ldap-attr-email", "", "The LDAP attribute corresponding to the email address of an account")
 	flag.StringVar(&jwtSecret, "jwt-secret", "secret", "The secret used to sign JWT tokens")
-	flag.StringVar(&mongoURL, "mongo-url", "localhost", "The mongo db url")
+	flag.StringVar(&mongoURL, "mongo-url", "root:qLCnB7FT7XGBLhRA@dlnxcdkqualif04.marc.fr.ssg:10200", "The mongo db url")
 	flag.Parse()
 }
 
@@ -56,6 +57,8 @@ func configure(e *echo.Echo) {
 		logrus.Fatalf("Error when parsing log level: %s", err)
 	}
 	logrus.SetLevel(l)
+
+	config.Init(mongoURL)
 
 	user := types.User{}
 	user.Username = defaultAdminAccount
