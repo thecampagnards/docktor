@@ -3,7 +3,7 @@ import 'semantic-ui-css/semantic.min.css';
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
+import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import Admin from './components/Admin/views/Admin';
 import DaemonForm from './components/Daemon/views/DaemonForm';
@@ -19,6 +19,7 @@ import Service from './components/Services/views/Service';
 import ServiceForm from './components/Services/views/ServiceForm';
 import Services from './components/Services/views/Services';
 import { validateThunk } from './components/User/actions/user';
+import { UserIsAdmin, UserIsAuthenticated, UserIsNotAuthenticated } from './components/User/auth';
 import Login from './components/User/views/Login';
 import Profile from './components/User/views/Profile';
 import { path } from './constants/path';
@@ -32,37 +33,38 @@ ReactDOM.render(
     <Router basename={process.env.PUBLIC_URL}>
       <Layout>
         <Switch>
-          <Route exact={true} path={path.home} component={Home} />
-          <Route exact={true} path={path.admin} component={Admin} />
-          <Route exact={true} path={path.market} component={Market} />
+          <Route exact={true} path={path.home} component={UserIsAuthenticated(Home)} />
+          <Route exact={true} path={path.admin} component={UserIsAdmin(Admin)} />
+          <Route exact={true} path={path.market} component={UserIsAuthenticated(Market)} />
 
-          <Route exact={true} path={path.groups} component={Groups} />
-          <Route exact={true} path={path.groupsNew} component={GroupForm} />
+          <Route exact={true} path={path.groups} component={UserIsAuthenticated(Groups)} />
+          <Route exact={true} path={path.groupsNew} component={UserIsAuthenticated(GroupForm)} />
           <Route
             exact={true}
             path={path.groupsMore + "/*"}
-            component={GroupIndex}
+            component={UserIsAuthenticated(GroupIndex)}
           />
 
-          <Route exact={true} path={path.daemons} component={Daemons} />
-          <Route exact={true} path={path.daemonsNew} component={DaemonForm} />
+          <Route exact={true} path={path.daemons} component={UserIsAdmin(Daemons)} />
+          <Route exact={true} path={path.daemonsNew} component={UserIsAdmin(DaemonForm)} />
           <Route
             exact={true}
             path={path.daemonsMore + "/*"}
-            component={DaemonIndex}
+            component={UserIsAdmin(DaemonIndex)}
           />
 
-          <Route exact={true} path={path.services} component={Services} />
-          <Route exact={true} path={path.servicesNew} component={ServiceForm} />
-          <Route exact={true} path={path.servicesMore} component={Service} />
+          <Route exact={true} path={path.services} component={UserIsAdmin(Services)} />
+          <Route exact={true} path={path.servicesNew} component={UserIsAdmin(ServiceForm)} />
+          <Route exact={true} path={path.servicesMore} component={UserIsAdmin(Service)} />
           <Route
             exact={true}
             path={path.servicesEdit}
-            component={ServiceForm}
+            component={UserIsAdmin(ServiceForm)}
           />
 
-          <Route exact={true} path={path.login} component={Login} />
-          <Route exact={true} path={path.profile} component={Profile} />
+          <Route exact={true} path={path.login} component={UserIsNotAuthenticated(Login)} />
+          <Route exact={true} path={path.profile} component={UserIsAuthenticated(Profile)} />
+          <Redirect to="/" />
         </Switch>
       </Layout>
     </Router>

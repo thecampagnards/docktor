@@ -20,7 +20,7 @@ interface ILayoutProps {
 
 class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const { isAuthenticated, username } = this.props
+    const { isAuthenticated, isAdmin, username } = this.props
 
     return (
       <>
@@ -47,18 +47,21 @@ class Layout extends React.Component<ILayoutProps> {
               <Menu.Item as={Link} to={path.groups} name="groups">
                 <Icon name="users" /> Groups
               </Menu.Item>
+              {isAdmin && (
+                <>
+                  <Menu.Item as={Link} to={path.daemons} name="daemons">
+                    <Icon name="sitemap" /> Daemons
+                  </Menu.Item>
 
-              <Menu.Item as={Link} to={path.daemons} name="daemons">
-                <Icon name="sitemap" /> Daemons
-              </Menu.Item>
+                  <Menu.Item as={Link} to={path.services} name="services">
+                    <Icon name="cubes" /> Services
+                  </Menu.Item>
 
-              <Menu.Item as={Link} to={path.services} name="services">
-                <Icon name="cubes" /> Services
-              </Menu.Item>
-
-              <Menu.Item as={Link} to={path.admin} name="admin">
-                <Icon name="cogs" /> Admin
-              </Menu.Item>
+                  <Menu.Item as={Link} to={path.admin} name="admin">
+                    <Icon name="cogs" /> Admin
+                  </Menu.Item>
+                </>
+              )}
             </>
           )}
           <Menu.Menu position="right">
