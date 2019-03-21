@@ -25,6 +25,7 @@ const (
 	ADMIN_ROLE      = "admin"
 	USER_ROLE       = "user"
 	authValidity    = 72 * time.Hour
+	JWT_QUERY_PARAM = "jwt_token"
 
 	// Service
 	SERVICE_ID_PARAM            = "serviceID"

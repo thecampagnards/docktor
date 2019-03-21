@@ -2,6 +2,7 @@ import { compose } from 'redux';
 import locationHelperBuilder from 'redux-auth-wrapper/history4/locationHelper';
 import { connectedRouterRedirect } from 'redux-auth-wrapper/history4/redirect';
 
+import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 
 const locationHelper = locationHelperBuilder({});
@@ -12,7 +13,7 @@ export const UserIsNotAuthenticated = connectedRouterRedirect<any, IStoreState>(
     allowRedirectBack: false,
     authenticatedSelector: state => state.login.username === "",
     redirectPath: (state, ownProps) =>
-      locationHelper.getRedirectQueryParam(ownProps) || "/",
+      locationHelper.getRedirectQueryParam(ownProps) || path.home,
     wrapperDisplayName: "UserIsNotAuthenticated",
   },
 );
@@ -20,7 +21,7 @@ export const UserIsNotAuthenticated = connectedRouterRedirect<any, IStoreState>(
 // Redirect to the login page if the user is not authenticated
 export const UserIsAuthenticated = connectedRouterRedirect<any, IStoreState>({
   authenticatedSelector: state => state.login.username !== "",
-  redirectPath: "/login",
+  redirectPath: path.login,
   wrapperDisplayName: "UserIsAuthenticated",
 });
 
@@ -31,7 +32,7 @@ export const UserIsAdmin = compose(
     allowRedirectBack: false,
     authenticatedSelector: state =>
       state.login.username !== "" && state.login.isAdmin,
-    redirectPath: "/",
+    redirectPath: path.home,
     wrapperDisplayName: "UserIsAdmin",
   }),
 );

@@ -11,6 +11,7 @@ import (
 	"docktor/server/helper/ldap"
 	customMiddleware "docktor/server/middleware"
 	"docktor/server/types"
+	"fmt"
 
 	"github.com/labstack/echo"
 	"github.com/labstack/echo/middleware"
@@ -105,6 +106,12 @@ func main() {
 	api.Use(middleware.JWTWithConfig(middleware.JWTConfig{
 		Claims:     &types.Claims{},
 		SigningKey: []byte(jwtSecret),
+		BeforeFunc: func(c echo.Context) {
+			if c.Request().Header.Get(echo.HeaderAuthorization) == "" {
+				token := c.QueryParam(types.JWT_QUERY_PARAM)
+				c.Request().Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", token))
+			}
+		},
 	}))
 	api.Use(customMiddleware.WithUser)
 

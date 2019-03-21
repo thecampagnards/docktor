@@ -2,6 +2,7 @@ import * as React from 'react';
 import { Message } from 'semantic-ui-react';
 
 import { IDaemon } from '../Daemon/types/daemon';
+import { GetToken } from '../User/actions/user';
 
 interface ISocketProps {
   daemon: IDaemon;
@@ -38,7 +39,7 @@ export default class ContainerLogSocket extends React.Component<
     uri += "/api/daemons/";
 
     const ws = new WebSocket(
-      uri + daemon._id + "/docker/containers/" + containerID + "/log"
+      `${uri}${daemon._id}/docker/containers/${containerID}/log?jwt_token=${GetToken()}`
     );
 
     ws.onmessage = e => {

@@ -4,6 +4,8 @@ import * as React from 'react';
 import { Terminal } from 'xterm';
 import { fit } from 'xterm/lib/addons/fit/fit';
 
+import { GetToken } from '../User/actions/user';
+
 interface ISocketProps {
   apiURL: string
 }
@@ -30,7 +32,7 @@ export default class CmdSocket extends React.Component<
     uri += `//${loc.hostname}:`
     uri += process.env.NODE_ENV === "development" ? "8080" : loc.port
 
-    this.ws = new WebSocket(uri + apiURL)
+    this.ws = new WebSocket(`${uri}${apiURL}?jwt_token=${GetToken()}`)
 
     this.ws.onopen = () => {
       this.term = new Terminal({
