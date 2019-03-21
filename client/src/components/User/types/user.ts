@@ -12,6 +12,7 @@ export interface ILoginState {
 export interface IUserToken {
   Username: string;
   IsAdmin: boolean;
+  exp: number;
 }
 
 export interface IUser {

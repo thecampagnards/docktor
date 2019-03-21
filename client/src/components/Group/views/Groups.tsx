@@ -1,3 +1,4 @@
+import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -23,11 +24,15 @@ class Groups extends React.Component<{}, IGroupsStates> {
     isFetching: false,
     error: Error()
   };
+  private searchDaemonID: string = "";
+  private searchFilter: string = "";
 
   public componentWillMount() {
     fetchGroups()
-      .then((groups) => this.setState({ groups, groupsFiltered: groups, isFetching: false }))
-      .catch((error) => this.setState({ error, isFetching: false }));
+      .then(groups =>
+        this.setState({ groups, groupsFiltered: groups, isFetching: false })
+      )
+      .catch(error => this.setState({ error, isFetching: false }));
   }
 
   public render() {
@@ -38,15 +43,12 @@ class Groups extends React.Component<{}, IGroupsStates> {
         <>
           <h2>Groups</h2>
           <Message negative={true}>
-            <Message.Header>
-              There was an issue
-          </Message.Header>
+            <Message.Header>Failed to load groups with error :</Message.Header>
             <p>{error.message}</p>
           </Message>
         </>
       );
     }
-
 
     if (isFetching) {
       return (
@@ -68,7 +70,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               size="tiny"
               placeholder="Search groups..."
               showNoResults={false}
-              onSearchChange={this.filterGroups}
+              onSearchChange={this.filterSearch}
             />
           </Grid.Column>
           <Grid.Column width={4}>
@@ -79,17 +81,24 @@ class Groups extends React.Component<{}, IGroupsStates> {
               label="Daemon"
               name="DaemonID"
               placeholder="Select daemon"
-              options={groups.map((g: IGroup) => {
+              options={_.uniqBy(groups, "DaemonID").map(g => {
                 return { text: g.Daemon.Name, value: g.DaemonID };
               })}
               onChange={this.filterByDaemon}
             />
           </Grid.Column>
           <Grid.Column width={6}>
-            <Button primary={true} floated="right" as={Link} to={path.groupsNew}>Create group</Button>
+            <Button
+              primary={true}
+              floated="right"
+              as={Link}
+              to={path.groupsNew}
+            >
+              Create group
+            </Button>
           </Grid.Column>
         </Grid>
-        { /* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */}
+        {/* TODO Favourite groups ... <Button>Project 1</Button><Button>Project 2</Button> */}
         <Grid>
           {groupsFiltered.slice(0, 16).map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
@@ -101,13 +110,30 @@ class Groups extends React.Component<{}, IGroupsStates> {
     );
   }
 
-  private filterGroups = (event: React.SyntheticEvent, { value }: SearchProps) => {
-    this.setState({ groupsFiltered: this.state.groups.filter(group => group.Name.toLowerCase().includes((value as string).toLowerCase())) })
-  }
+  private filterGroups = () => {
+    const groupsFiltered = this.state.groups.filter(
+      group =>
+        group.Name.toLowerCase().includes(this.searchFilter.toLowerCase()) &&
+        (this.searchDaemonID === "" || this.searchDaemonID === group.DaemonID)
+    );
+    this.setState({ groupsFiltered });
+  };
 
-  private filterByDaemon = (event: React.SyntheticEvent, { value }: DropdownProps) => {
-    console.log("Display groups on daemon " + value)
-  }
+  private filterSearch = (
+    event: React.SyntheticEvent,
+    { value }: SearchProps
+  ) => {
+    this.searchFilter = value as string;
+    this.filterGroups();
+  };
+
+  private filterByDaemon = (
+    event: React.SyntheticEvent,
+    { value }: DropdownProps
+  ) => {
+    this.searchDaemonID = value as string;
+    this.filterGroups();
+  };
 }
 
 export default Groups;

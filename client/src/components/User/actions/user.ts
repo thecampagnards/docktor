@@ -72,7 +72,7 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
 export const validateThunk = () => {
   return (dispatch: Dispatch<AuthAction>) => {
     const token = GetToken();
-    if (token) {
+    if (token && (JWT(token) as IUserToken).exp * 1000 > Date.now()) {
       dispatch({
         type: LoginSuccess,
         username: (JWT(token) as IUserToken).Username,
