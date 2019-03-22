@@ -12,14 +12,18 @@ import (
 
 // getAllWithDaemons find all groups with daemons
 func getAllWithDaemons(c echo.Context) error {
-	groups, err := dao.GetGroupsWithDaemons()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Error when retrieving groups with daemons")
-		return c.JSON(http.StatusBadRequest, err.Error())
+	user := c.Get("user").(types.User)
+	if user.IsAdmin() {
+		groups, err := dao.GetGroupsWithDaemons()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when retrieving groups with daemons")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, groups)
 	}
-	return c.JSON(http.StatusOK, groups)
+	return c.JSON(http.StatusOK, user.GroupsData)
 }
 
 // getByID find one by id

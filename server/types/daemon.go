@@ -11,10 +11,10 @@ type Daemon struct {
 	Name        string
 	Description string
 	Tags        []string
-	CAdvisor    string
+	CAdvisor    string `json:",omitempty"`
 	Host        string
-	Docker      Docker
-	SSH         SSH
+	Docker      Docker `json:",omitempty"`
+	SSH         SSH    `json:",omitempty"`
 }
 
 type Docker struct {

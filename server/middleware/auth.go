@@ -83,5 +83,5 @@ func AuthUser(c echo.Context) (types.User, error) {
 	claims := user.Claims.(*types.Claims)
 
 	log.WithField("claims", claims).Info("Getting db user")
-	return dao.GetUserByUsername(claims.Username)
+	return dao.GetUserByUsernameWithGroupsAndDaemons(claims.Username)
 }

@@ -60,6 +60,12 @@ func GetGroupsWithDaemons() (types.Groups, error) {
 			"path": "$daemon",
 			"preserveNullAndEmptyArrays": true,
 		}},
+		bson.M{"$project": bson.M{
+			"daemon.ssh":         0,
+			"daemon.docker":      0,
+			"daemon.cadvisor":    0,
+			"daemon.description": 0,
+		}},
 	}).All(&t)
 
 	if err != nil {

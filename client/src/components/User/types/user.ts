@@ -20,6 +20,6 @@ export interface IUser {
   FirstName: string;
   LastName: string;
   Email: string;
-  Groups: IGroup[];
+  GroupsData: IGroup[];
   Role: userTypes;
 }
