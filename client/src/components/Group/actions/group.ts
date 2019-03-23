@@ -98,3 +98,18 @@ export const startService = (groupID: string, serviceID: string) => {
     .then(checkStatus)
     .then(response => response.json());
 };
+
+export const fetchCadvisorContainers = (groupID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor/container`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};

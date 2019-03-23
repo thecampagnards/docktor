@@ -51,7 +51,7 @@ func GetDaemonByID(id string) (types.Daemon, error) {
 	err = c.Find(bson.M{"_id": bson.ObjectIdHex(id)}).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the deaemon")
+		return t, errors.New("There was an error trying to find the daemon")
 	}
 
 	return t, err

@@ -101,6 +101,7 @@ func GetUserByUsernameWithGroupsAndDaemons(username string) (types.User, error) 
 			"_id":        "$_id",
 			"attributes": bson.M{"$first": "$attributes"},
 			"role":       bson.M{"$first": "$role"},
+			"groups":     bson.M{"$first": "$groups"},
 			"groupsdata": bson.M{"$push": "$groupsdata"},
 		}},
 		bson.M{"$project": bson.M{

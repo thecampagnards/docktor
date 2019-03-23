@@ -48,7 +48,7 @@ func parseFlags() {
 	flag.StringVar(&ldapSearchConfig.Attributes.LastName, "ldap-attr-lastname", "", "The LDAP attribute corresponding to the last name of an account")
 	flag.StringVar(&ldapSearchConfig.Attributes.Email, "ldap-attr-email", "", "The LDAP attribute corresponding to the email address of an account")
 	flag.StringVar(&jwtSecret, "jwt-secret", "secret", "The secret used to sign JWT tokens")
-	flag.StringVar(&mongoURL, "mongo-url", "root:qLCnB7FT7XGBLhRA@dlnxcdkqualif04.marc.fr.ssg:10200", "The mongo db url")
+	flag.StringVar(&mongoURL, "mongo-url", "localhost", "The mongo db url")
 	flag.Parse()
 }
 

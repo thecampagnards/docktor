@@ -117,7 +117,7 @@ func GetGroupByID(id string) (types.Group, error) {
 	err = c.FindId(bson.ObjectIdHex(id)).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the deaemon")
+		return t, errors.New("There was an error trying to find the group")
 	}
 
 	return t, err
