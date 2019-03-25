@@ -44,7 +44,7 @@ class Layout extends React.Component<ILayoutProps> {
               </Menu.Item>
 
               <Menu.Item as={Link} to={path.groups} name="groups">
-                <Icon name="users" /> Groups
+                <Icon name="cubes" /> Groups
               </Menu.Item>
               {isAdmin && (
                 <>
@@ -53,7 +53,7 @@ class Layout extends React.Component<ILayoutProps> {
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.services} name="services">
-                    <Icon name="cubes" /> Services
+                    <Icon name="th list" /> Services
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.users} name="users">

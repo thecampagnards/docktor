@@ -54,7 +54,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <h2>Daemons</h2>
           <Message negative={true}>
             <Message.Header>
-              There was an issue
+              Failed to fetch daemons with error :
           </Message.Header>
             <p>{error.message}</p>
           </Message>

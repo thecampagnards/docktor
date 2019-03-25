@@ -23,6 +23,7 @@ import { UserIsAdmin, UserIsAuthenticated, UserIsNotAuthenticated } from './comp
 import Login from './components/User/views/Login';
 import Profile from './components/User/views/Profile';
 import UserForm from './components/User/views/UserForm';
+import Users from './components/User/views/Users';
 import { path } from './constants/path';
 import registerServiceWorker from './registerServiceWorker';
 import store from './store';
@@ -63,6 +64,7 @@ ReactDOM.render(
             component={UserIsAdmin(ServiceForm)}
           />
 
+          <Route exact={true} path={path.users} component={UserIsAdmin(Users)} />
           <Route exact={true} path={path.login} component={UserIsNotAuthenticated(Login)} />
           <Route exact={true} path={path.profile} component={UserIsAuthenticated(Profile)} />
           <Route exact={true} path={path.usersNew} component={UserIsNotAuthenticated(UserForm)} />

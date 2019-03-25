@@ -76,7 +76,7 @@ class Profile extends React.Component<{}, IProfileStates> {
                     <Checkbox
                       toggle={true}
                       label="Admin"
-                      disabled={user.Role === "admin"}
+                      disabled={user.Role === "user"}
                     />
                     </Table.Cell>
                     <Table.Cell width={4}>
