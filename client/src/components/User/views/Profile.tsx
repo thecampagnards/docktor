@@ -45,7 +45,7 @@ class Profile extends React.Component<{}, IProfileStates> {
 
     return (
       <>
-        <Card centered={true}>
+        <Card centered={true} className="profile">
           <Card.Content>
             <Grid>
               <Grid.Column width={13}>
