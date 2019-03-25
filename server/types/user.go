@@ -25,10 +25,11 @@ type Claims struct {
 
 type User struct {
 	ldap.Attributes
-	Salt     string `json:"-"`
-	Password string
-	Groups   []bson.ObjectId
-	Role     string
+	Salt       string `json:"-"`
+	Password   string `json:",omitempty"`
+	Groups     []bson.ObjectId
+	Role       string
+	GroupsData *Groups `json:",omitempty" bson:",omitempty"`
 }
 
 type Users []User

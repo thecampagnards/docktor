@@ -60,6 +60,12 @@ func GetGroupsWithDaemons() (types.Groups, error) {
 			"path": "$daemon",
 			"preserveNullAndEmptyArrays": true,
 		}},
+		bson.M{"$project": bson.M{
+			"daemon.ssh":         0,
+			"daemon.docker":      0,
+			"daemon.cadvisor":    0,
+			"daemon.description": 0,
+		}},
 	}).All(&t)
 
 	if err != nil {
@@ -111,7 +117,7 @@ func GetGroupByID(id string) (types.Group, error) {
 	err = c.FindId(bson.ObjectIdHex(id)).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the deaemon")
+		return t, errors.New("There was an error trying to find the group")
 	}
 
 	return t, err

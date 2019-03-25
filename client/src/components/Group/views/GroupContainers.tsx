@@ -1,17 +1,18 @@
 import * as React from 'react';
 import { Loader, Message } from 'semantic-ui-react';
-import ContainerTable from 'src/components/layout/ContainersTable';
 
+import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
+import ContainerTable from '../../layout/ContainersTable';
 import { fetchContainers } from '../actions/group';
 import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
-  daemon: IDaemon;
 }
 
 interface IGroupStates {
+  daemon: IDaemon;
   containers: IContainer[];
   isFetching: boolean;
   error: Error;
@@ -19,6 +20,7 @@ interface IGroupStates {
 
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
+    daemon: {} as IDaemon,
     containers: [],
     isFetching: true,
     error: Error()
@@ -27,14 +29,19 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public componentWillMount() {
     const { group } = this.props;
 
+    fetchDaemon(group.DaemonID)
+      .then((daemon: IDaemon) => this.setState({ daemon }))
+      .catch((error: Error) => this.setState({ error }));
+
     fetchContainers(group._id)
-      .then((containers: IContainer[]) => this.setState({ containers }))
+      .then((containers: IContainer[]) =>
+        this.setState({ isFetching: false, containers })
+      )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
   public render() {
-    const { daemon } = this.props;
-    const { containers, error, isFetching } = this.state;
+    const { daemon, containers, error, isFetching } = this.state;
 
     if (error.message) {
       return (

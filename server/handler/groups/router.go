@@ -15,15 +15,17 @@ func AddRoute(e *echo.Group) {
 
 	// Basic daemon request
 	groups.GET("", getAllWithDaemons)
-	groups.POST("", save, middleware.WithAdmin)
+	groups.POST("", save)
 
 	{
 		group := groups.Group(fmt.Sprintf("/:%s", types.GROUP_ID_PARAM))
+		group.Use(middleware.WithGroup)
 
 		group.GET("", getByID)
 		group.DELETE("", deleteByID, middleware.WithAdmin)
 		group.POST("/start/:subserviceID", startSubService)
 		group.POST("/create/:subserviceID", createSubService)
 		group.GET("/containers", getContainers)
+		group.GET("/cadvisor/container", getCAdvisorContainerInfo)
 	}
 }

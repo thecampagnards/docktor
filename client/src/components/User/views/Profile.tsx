@@ -55,7 +55,7 @@ class Profile extends React.Component<{}, IProfileStates> {
             </Grid>
             <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
           </Card.Content>
-          {user.Groups.length > 0 && (
+          {user.GroupsData.length > 0 && (
           <Card.Content>
             <Table>
               <Table.Header>
@@ -66,7 +66,7 @@ class Profile extends React.Component<{}, IProfileStates> {
                 </Table.Row>
               </Table.Header>
               <Table.Body>
-                {user.Groups.map(group => (
+                {user.GroupsData.map(group => (
                   <Table.Row key={group._id}>
                     <Table.Cell width={6}>{group.Name}</Table.Cell>
                     <Table.Cell width={2}>

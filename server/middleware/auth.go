@@ -63,12 +63,31 @@ func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user, err := AuthUser(c)
+		user := c.Get("user").(types.User)
+
+		group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"groupID": c.Param(types.GROUP_ID_PARAM),
+				"error":   err,
+			}).Error("Error when retrieving group")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
 		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
 
-		c.Set("user", user)
+		log.WithFields(log.Fields{
+			"group": group,
+			"user":  user,
+		}).Info("Check if user is your group")
+
+		if !user.IsMyGroup(group) {
+			return echo.NewHTTPError(http.StatusForbidden, "This is not your group")
+		}
+
+		c.Set("group", group)
 		return next(c)
 	}
 }
@@ -83,5 +102,5 @@ func AuthUser(c echo.Context) (types.User, error) {
 	claims := user.Claims.(*types.Claims)
 
 	log.WithField("claims", claims).Info("Getting db user")
-	return dao.GetUserByUsername(claims.Username)
+	return dao.GetUserByUsernameWithGroupsAndDaemons(claims.Username)
 }

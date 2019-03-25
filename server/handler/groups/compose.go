@@ -27,14 +27,7 @@ func createSubService(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupID": c.Param(types.GROUP_ID_PARAM),
-			"error":   err,
-		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	group := c.Get("group").(types.Group)
 
 	subService, err := dao.GetSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
@@ -79,14 +72,7 @@ func createSubService(c echo.Context) error {
 // startSubService this function run a group service via compose
 func startSubService(c echo.Context) error {
 
-	group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupID": c.Param(types.GROUP_ID_PARAM),
-			"error":   err,
-		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	group := c.Get("group").(types.Group)
 
 	var serviceGroup types.ServiceGroup
 	for _, s := range group.Services {
@@ -100,12 +86,11 @@ func startSubService(c echo.Context) error {
 		log.WithFields(log.Fields{
 			"group":        group,
 			"subserviceID": types.SUBSERVICE_ID_PARAM,
-			"error":        err,
 		}).Error("Error when retrieving group")
 		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
 	}
 
-	err = startServiceGroup(group, serviceGroup)
+	err := startServiceGroup(group, serviceGroup)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,

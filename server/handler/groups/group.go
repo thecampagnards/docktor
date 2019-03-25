@@ -12,27 +12,23 @@ import (
 
 // getAllWithDaemons find all groups with daemons
 func getAllWithDaemons(c echo.Context) error {
-	groups, err := dao.GetGroupsWithDaemons()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Error when retrieving groups with daemons")
-		return c.JSON(http.StatusBadRequest, err.Error())
+	user := c.Get("user").(types.User)
+	if user.IsAdmin() {
+		groups, err := dao.GetGroupsWithDaemons()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when retrieving groups with daemons")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, groups)
 	}
-	return c.JSON(http.StatusOK, groups)
+	return c.JSON(http.StatusOK, user.GroupsData)
 }
 
 // getByID find one by id
 func getByID(c echo.Context) error {
-	s, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupID": c.Param(types.GROUP_ID_PARAM),
-			"error":   err,
-		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, c.Get("group"))
 }
 
 // save a Group server
@@ -46,6 +42,12 @@ func save(c echo.Context) error {
 		}).Error("Error when parsing group")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	user := c.Get("user").(types.User)
+	if !user.IsMyGroup(u) {
+		return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
+	}
+
 	s, err := dao.CreateOrUpdateGroup(u)
 	if err != nil {
 		log.WithFields(log.Fields{

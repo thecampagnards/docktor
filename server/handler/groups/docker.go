@@ -14,14 +14,7 @@ import (
 // getContainers get containers info starting by group name
 func getContainers(c echo.Context) error {
 
-	group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupID": c.Param(types.GROUP_ID_PARAM),
-			"error":   err,
-		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
+	group := c.Get("group").(types.Group)
 
 	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
 	if err != nil {

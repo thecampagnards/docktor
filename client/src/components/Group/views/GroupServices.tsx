@@ -1,21 +1,19 @@
 import * as React from 'react';
 import { Card, Loader, Message } from 'semantic-ui-react';
 
-import { IDaemon } from '../../Daemon/types/daemon';
 import MarketCard from '../../Market/views/MarketCard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 
 interface IGroupProps {
-  group: IGroup
-  daemon: IDaemon
+  group: IGroup;
 }
 
 interface IGroupStates {
-  services: IService[]
-  isFetching: boolean
-  error: Error
+  services: IService[];
+  isFetching: boolean;
+  error: Error;
 }
 
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
@@ -23,34 +21,36 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     services: [],
     isFetching: true,
     error: Error()
-  }
+  };
 
   public componentWillMount() {
-    const { group } = this.props
+    const { group } = this.props;
     group.Services.map(service => {
       fetchServiceBySubService(service._id)
-        .then((s) => {
-          const services: IService[] = this.state.services
-          services.push(s)
-          this.setState({ services, isFetching: false })
+        .then(s => {
+          const services: IService[] = this.state.services;
+          services.push(s);
+          this.setState({ services, isFetching: false });
         })
-        .catch((error) => this.setState({ error, isFetching: false }))
-    })
+        .catch(error => this.setState({ error, isFetching: false }));
+    });
   }
 
   public render() {
-    const { group } = this.props
-    const { services, error, isFetching } = this.state
+    const { group } = this.props;
+    const { services, error, isFetching } = this.state;
 
     if (error.message) {
-      return <Message negative={true}>
-        <Message.Header>There was an issue</Message.Header>
-        <p>{error.message}</p>
-      </Message>
+      return (
+        <Message negative={true}>
+          <Message.Header>There was an issue</Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      );
     }
 
     if (isFetching) {
-      return <Loader active={true} />
+      return <Loader active={true} />;
     }
 
     return (
@@ -59,8 +59,8 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           <MarketCard service={service} groups={[group]} key={index} />
         ))}
       </Card.Group>
-    )
+    );
   }
 }
 
-export default GroupServices
+export default GroupServices;
