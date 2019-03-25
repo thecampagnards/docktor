@@ -16,7 +16,15 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
 
     return (
       <Card fluid={true}>
-        <Card.Content header={group.Name} />
+        <Card.Content>
+          <Card.Header>{group.Name.toUpperCase()}</Card.Header>
+          <Card.Description>
+            Admins : ...
+            {group.Users && group.Users.map(user => (
+              user.Admin ? user.Username : ""
+            ))}
+          </Card.Description>
+        </Card.Content>
         {group.Description && <Card.Content>
           <ReactMarkdown source={group.Description} />
         </Card.Content>}

@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps
+    Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps, Checkbox
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -65,7 +65,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
           <Grid.Column width={2}>
             <h2>Groups</h2>
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Search
               size="tiny"
               placeholder="Search groups..."
@@ -73,7 +73,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onSearchChange={this.filterSearch}
             />
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Dropdown
               search={true}
               selection={true}
@@ -87,7 +87,16 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onChange={this.filterByDaemon}
             />
           </Grid.Column>
-          <Grid.Column width={6}>
+          <Grid.Column width={4}>
+            <Checkbox
+              floated="right"
+              slider={true}
+              defaultChecked={true}
+              label="Display all groups"
+
+            />
+          </Grid.Column>
+          <Grid.Column width={4}>
             <Button
               primary={true}
               floated="right"

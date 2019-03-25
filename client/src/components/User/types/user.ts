@@ -17,6 +17,7 @@ export interface IUserToken {
 
 export interface IUser {
   Username: string;
+  Password: string;
   FirstName: string;
   LastName: string;
   Email: string;

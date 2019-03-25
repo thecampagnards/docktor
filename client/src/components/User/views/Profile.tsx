@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Grid, Label, Loader, Message, Table } from 'semantic-ui-react';
+import { Button, Card, Grid, Label, Loader, Message, Table, Checkbox } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { GetProfile } from '../actions/user';
 import { IUser } from '../types/user';
+
+import './Profile.css'
 
 interface IProfileStates {
   user: IUser;
@@ -46,17 +48,18 @@ class Profile extends React.Component<{}, IProfileStates> {
         <Card centered={true}>
           <Card.Content>
             <Grid>
-              <Grid.Column width={12}>
+              <Grid.Column width={13}>
                 <Card.Header>{user.Username.toUpperCase()}</Card.Header>
               </Grid.Column>
-              <Grid.Column width={4}>
+              <Grid.Column width={3}>
                 <Label compact={true} color="green">{user.Role}</Label>
               </Grid.Column>
             </Grid>
             <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
+            <Card.Description>{user.Email}</Card.Description>
           </Card.Content>
-          {user.GroupsData.length > 0 && (
           <Card.Content>
+            {user.GroupsData.length > 0 && (
             <Table>
               <Table.Header>
                 <Table.Row>
@@ -68,11 +71,15 @@ class Profile extends React.Component<{}, IProfileStates> {
               <Table.Body>
                 {user.GroupsData.map(group => (
                   <Table.Row key={group._id}>
-                    <Table.Cell width={6}>{group.Name}</Table.Cell>
-                    <Table.Cell width={2}>
-                      <Label compact={true} color="green">User</Label>
+                    <Table.Cell width={8}>{group.Name}</Table.Cell>
+                    <Table.Cell width={4}>
+                    <Checkbox
+                      toggle={true}
+                      label="Admin"
+                      disabled={user.Role === "admin"}
+                    />
                     </Table.Cell>
-                    <Table.Cell width={8}>
+                    <Table.Cell width={4}>
                       <Button icon="trash" color="red" title="Exit this group" />
                       <Button
                         icon="info"
@@ -85,8 +92,13 @@ class Profile extends React.Component<{}, IProfileStates> {
                 ))}
               </Table.Body>
             </Table>
+            )}
+            {user.GroupsData.length === 0 && (
+              <p>
+                Your account is not assigned to any group.
+              </p>
+            )}
           </Card.Content>
-          )}
         </Card>
       </>
     );

@@ -1,29 +1,42 @@
 
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
+import { Dispatch } from 'redux';
 import {
   Button, Form, InputOnChangeData, Message
 } from 'semantic-ui-react';
 import { IUser } from "../types/user";
+import { IStoreState } from '../../../types/store';
+import { registerRequestThunk } from '../actions/user';
 
 interface IUserFormProps {
+  registerRequest: (user: IUser) => void;
   isFetching: boolean;
   error: string;
-  registerRequest: (user: IUser) => void;
 }
 
-class UserForm extends React.Component<RouteComponentProps &IUserFormProps> {
+interface IUserFormStates {
+  error: Error;
+  pwd: string;
+}
 
+class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUserFormStates> {
+  public state = {
+    pwd: "",
+    error: Error()
+  }
   private user = {} as IUser;
 
   public render() {
-    const { isFetching, error } = this.props;
+    const { error } = this.state;
+    const { isFetching } = this.props;
     return (
       <>
       <h2>Register</h2>
 
       <Form
-          error={!!error}
+          error={!!error.message || !!this.props.error}
           onSubmit={this.submit}
           loading={isFetching}
         >
@@ -35,13 +48,13 @@ class UserForm extends React.Component<RouteComponentProps &IUserFormProps> {
             placeholder="Username"
             onChange={this.handleChange}
           />
-          <Form.Group fuild={true}>
+          <Form.Group>
             <Form.Input
               required={true}
               width={8}
               label="First Name"
               name="FirstName"
-              placeholder="First Name"
+              placeholder="First name"
               onChange={this.handleChange}
             />
             <Form.Input
@@ -49,7 +62,7 @@ class UserForm extends React.Component<RouteComponentProps &IUserFormProps> {
               width={8}
               label="Last Name"
               name="LastName"
-              placeholder="Last Name"
+              placeholder="Last name"
               onChange={this.handleChange}
             />
           </Form.Group>
@@ -75,16 +88,15 @@ class UserForm extends React.Component<RouteComponentProps &IUserFormProps> {
             required={true}
             fluid={true}
             label="Confirm Password"
-            name="ConfirmPwd"
-            placeholder="Confirm Password"
+            placeholder="Confirm password"
             type="password"
-            onChange={this.checkPassword}
+            value={this.state.pwd}
+            onChange={this.handlePasswordChange}
           />
           <br />
-          <br />
-          <Message error={true} header="Error" content={error} />
+          <Message error={true} header="Error" content={error.message || this.props.error} />
           <Button type="submit" color="green">
-            Sign in
+            Create account
           </Button>
         </Form>
       </>
@@ -98,21 +110,41 @@ class UserForm extends React.Component<RouteComponentProps &IUserFormProps> {
     this.user[name] = value;
   };
 
-  private checkPassword = (
+  private handlePasswordChange = (
     e: React.ChangeEvent<HTMLInputElement>,
     { value }: InputOnChangeData
   ) => {
-    return;
-  }
+    this.setState({pwd: value});
+  };
 
   private submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
+    if (this.state.pwd !== this.user.Password) {
+      this.setState({error: Error("Password confirmation does not match")})
+      return;
+    }
+
     this.user.Role = "user";
 
-    this.setState({ isFetching: true });
-    this.props.registerRequest(this.user)
+    this.props.registerRequest(this.user);
   };
 }
 
-export default UserForm
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    error: login.error || "",
+    isFetching: login.isFetching || false,
+  };
+};
+
+const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+  return {
+    registerRequest: (user: IUser) => {
+      dispatch(registerRequestThunk(user));
+    },
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(UserForm)

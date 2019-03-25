@@ -1,0 +1,8 @@
+
+.ui.card {
+    width: 500px;
+}
+
+.ui.card:first-child {
+    margin-top: 100px;
+}
