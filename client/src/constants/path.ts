@@ -27,5 +27,6 @@ export const path = {
   login: "/login",
   profile: "/profile",
   users: "/users",
+  usersProfile: "/users/:userID",
   usersNew: "/users/new"
 };

@@ -24,6 +24,7 @@ import Login from './components/User/views/Login';
 import Profile from './components/User/views/Profile';
 import UserForm from './components/User/views/UserForm';
 import Users from './components/User/views/Users';
+import User from './components/User/views/User';
 import { path } from './constants/path';
 import registerServiceWorker from './registerServiceWorker';
 import store from './store';
@@ -68,6 +69,7 @@ ReactDOM.render(
           <Route exact={true} path={path.login} component={UserIsNotAuthenticated(Login)} />
           <Route exact={true} path={path.profile} component={UserIsAuthenticated(Profile)} />
           <Route exact={true} path={path.usersNew} component={UserIsNotAuthenticated(UserForm)} />
+          <Route exact={true} path={path.usersProfile + "/*"} component={UserIsAdmin(User)} />
           <Redirect to="/" />
         </Switch>
       </Layout>
