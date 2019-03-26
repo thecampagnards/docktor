@@ -10,6 +10,41 @@ import (
 	"github.com/imdario/mergo"
 )
 
+var groupRestRequest = []bson.M{
+	bson.M{"$lookup": bson.M{
+		"from":         types.DAEMONS_DB_COLUMN,
+		"localField":   "daemonid",
+		"foreignField": "_id",
+		"as":           "daemondata",
+	}},
+	bson.M{"$unwind": bson.M{
+		"path":                       "$daemondata",
+		"preserveNullAndEmptyArrays": true,
+	}},
+	bson.M{"$lookup": bson.M{
+		"from":         types.USERS_DB_COLUMN,
+		"localField":   "users",
+		"foreignField": "attributes.username",
+		"as":           "usersdata",
+	}},
+	bson.M{"$lookup": bson.M{
+		"from":         types.USERS_DB_COLUMN,
+		"localField":   "admins",
+		"foreignField": "attributes.username",
+		"as":           "adminsdata",
+	}},
+	bson.M{"$project": bson.M{
+		"daemondata.ssh":         0,
+		"daemondata.docker":      0,
+		"daemondata.cadvisor":    0,
+		"daemondata.description": 0,
+		"adminsdata.password":    0,
+		"adminsdata.salt":        0,
+		"usersdata.password":     0,
+		"usersdata.salt":         0,
+	}},
+}
+
 // GetGroups get all groups
 func GetGroups() (types.Groups, error) {
 	db := config.DB{}
@@ -34,10 +69,10 @@ func GetGroups() (types.Groups, error) {
 	return t, err
 }
 
-// GetGroupsWithDaemons get all groups with daemons
-func GetGroupsWithDaemons() (types.Groups, error) {
+// GetGroupsRest get all groups with daemons, users and admins
+func GetGroupsRest() (types.GroupsRest, error) {
 	db := config.DB{}
-	t := types.Groups{}
+	t := types.GroupsRest{}
 
 	s, err := db.DoDial()
 
@@ -49,24 +84,7 @@ func GetGroupsWithDaemons() (types.Groups, error) {
 
 	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
-	err = c.Pipe([]bson.M{
-		bson.M{"$lookup": bson.M{
-			"from":         types.DAEMONS_DB_COLUMN,
-			"localField":   "daemonid",
-			"foreignField": "_id",
-			"as":           "daemon",
-		}},
-		bson.M{"$unwind": bson.M{
-			"path": "$daemon",
-			"preserveNullAndEmptyArrays": true,
-		}},
-		bson.M{"$project": bson.M{
-			"daemon.ssh":         0,
-			"daemon.docker":      0,
-			"daemon.cadvisor":    0,
-			"daemon.description": 0,
-		}},
-	}).All(&t)
+	err = c.Pipe(groupRestRequest).All(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the groups")
@@ -75,10 +93,10 @@ func GetGroupsWithDaemons() (types.Groups, error) {
 	return t, err
 }
 
-// GetAdminGroupsOfUser get all admin groups of user
-func GetAdminGroupsOfUser(u types.User) (types.Groups, error) {
+// GetGroupRestByID get one group by id with daemon, users and admins
+func GetGroupRestByID(id string) (types.GroupRest, error) {
 	db := config.DB{}
-	t := types.Groups{}
+	t := types.GroupRest{}
 
 	s, err := db.DoDial()
 
@@ -90,10 +108,12 @@ func GetAdminGroupsOfUser(u types.User) (types.Groups, error) {
 
 	c := s.DB(db.Name()).C(types.GROUPS_DB_COLUMN)
 
-	err = c.Find(bson.M{"$in": bson.M{"admins": u.Username}}).All(&t)
+	customRequest := append([]bson.M{bson.M{"$match": bson.M{"_id": bson.ObjectIdHex(id)}}}, groupRestRequest...)
+
+	err = c.Pipe(customRequest).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the groups")
+		return t, errors.New("There was an error trying to find the group")
 	}
 
 	return t, err

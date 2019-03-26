@@ -10,6 +10,54 @@ import (
 	"github.com/imdario/mergo"
 )
 
+var userRestRequest = []bson.M{
+	bson.M{"$lookup": bson.M{
+		"from":         types.GROUPS_DB_COLUMN,
+		"localField":   "attributes.username",
+		"foreignField": "users",
+		"as":           "groupsdata",
+	}},
+	bson.M{"$lookup": bson.M{
+		"from":         types.GROUPS_DB_COLUMN,
+		"localField":   "attributes.username",
+		"foreignField": "admins",
+		"as":           "adminsdata",
+	}},
+	bson.M{"$project": bson.M{
+		"attributes": 1,
+		"role":       1,
+		"groupsdata": bson.M{
+			"$concatArrays": []string{"$adminsdata", "$groupsdata"},
+		},
+	}},
+	bson.M{"$unwind": bson.M{
+		"path":                       "$groupsdata",
+		"preserveNullAndEmptyArrays": true,
+	}},
+	bson.M{"$lookup": bson.M{
+		"from":         types.DAEMONS_DB_COLUMN,
+		"localField":   "groupsdata.daemonid",
+		"foreignField": "_id",
+		"as":           "groupsdata.daemondata",
+	}},
+	bson.M{"$unwind": bson.M{
+		"path":                       "$groupsdata.daemondata",
+		"preserveNullAndEmptyArrays": true,
+	}},
+	bson.M{"$group": bson.M{
+		"_id":        "$_id",
+		"attributes": bson.M{"$first": "$attributes"},
+		"role":       bson.M{"$first": "$role"},
+		"groupsdata": bson.M{"$push": "$groupsdata"},
+	}},
+	bson.M{"$project": bson.M{
+		"groupsdata.daemondata.ssh":         0,
+		"groupsdata.daemondata.docker":      0,
+		"groupsdata.daemondata.cadvisor":    0,
+		"groupsdata.daemondata.description": 0,
+	}},
+}
+
 // GetUsers get all users
 func GetUsers() (types.Users, error) {
 	db := config.DB{}
@@ -58,10 +106,10 @@ func GetUserByUsername(username string) (types.User, error) {
 	return t, err
 }
 
-// GetUserByUsernameWithGroupsAndDaemons get one user by username with group and daemons
-func GetUserByUsernameWithGroupsAndDaemons(username string) (types.User, error) {
+// GetUserRestByUsername get one user by username with groups and daemons
+func GetUserRestByUsername(username string) (types.UserRest, error) {
 	db := config.DB{}
-	t := types.User{}
+	t := types.UserRest{}
 
 	s, err := db.DoDial()
 
@@ -73,44 +121,11 @@ func GetUserByUsernameWithGroupsAndDaemons(username string) (types.User, error) 
 
 	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
-	err = c.Pipe([]bson.M{
-		bson.M{"$match": bson.M{
-			"attributes.username": username,
-		}},
-		bson.M{"$lookup": bson.M{
-			"from":         types.GROUPS_DB_COLUMN,
-			"localField":   "groups",
-			"foreignField": "_id",
-			"as":           "groupsdata",
-		}},
-		bson.M{"$unwind": bson.M{
-			"path": "$groupsdata",
-			"preserveNullAndEmptyArrays": true,
-		}},
-		bson.M{"$lookup": bson.M{
-			"from":         types.DAEMONS_DB_COLUMN,
-			"localField":   "groupsdata.daemonid",
-			"foreignField": "_id",
-			"as":           "groupsdata.daemon",
-		}},
-		bson.M{"$unwind": bson.M{
-			"path": "$groupsdata.daemon",
-			"preserveNullAndEmptyArrays": true,
-		}},
-		bson.M{"$group": bson.M{
-			"_id":        "$_id",
-			"attributes": bson.M{"$first": "$attributes"},
-			"role":       bson.M{"$first": "$role"},
-			"groups":     bson.M{"$first": "$groups"},
-			"groupsdata": bson.M{"$push": "$groupsdata"},
-		}},
-		bson.M{"$project": bson.M{
-			"groupsdata.daemon.ssh":         0,
-			"groupsdata.daemon.docker":      0,
-			"groupsdata.daemon.cadvisor":    0,
-			"groupsdata.daemon.description": 0,
-		}},
-	}).One(&t)
+	customRequest := append([]bson.M{bson.M{"$match": bson.M{
+		"attributes.username": username,
+	}}}, userRestRequest...)
+
+	err = c.Pipe(customRequest).One(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the user")

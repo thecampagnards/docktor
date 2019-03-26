@@ -1,13 +1,17 @@
 import { IDaemon } from '../../Daemon/types/daemon';
 import { IService } from '../../Services/types/service';
+import { IUser } from '../../User/types/user';
 
 export interface IGroup {
   _id: string;
   Name: string;
   Description: string;
   DaemonID: string;
-  Daemon: IDaemon;
   Services: IServiceGroup[];
+
+  DaemonData: IDaemon;
+  UsersData: IUser[];
+  AdminsData: IUser[];
 }
 
 export interface IServiceGroup {

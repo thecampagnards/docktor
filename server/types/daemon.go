@@ -13,8 +13,8 @@ type Daemon struct {
 	Tags        []string
 	CAdvisor    string `json:",omitempty"`
 	Host        string
-	Docker      Docker `json:",omitempty"`
-	SSH         SSH    `json:",omitempty"`
+	Docker      *Docker `json:",omitempty"`
+	SSH         *SSH    `json:",omitempty"`
 }
 
 type Docker struct {
