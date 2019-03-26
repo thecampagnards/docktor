@@ -47,7 +47,7 @@ interface IUserStates {
         return <Loader active={true} />;
       }
   
-      return <ProfileCard user={user} />;
+      return <ProfileCard user={user} perm={true} />;
     }
   }
   

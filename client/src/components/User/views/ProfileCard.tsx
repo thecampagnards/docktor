@@ -1,15 +1,17 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Grid, Label, Table, Checkbox } from 'semantic-ui-react';
+import { Button, Card, Grid, Label, Table, Checkbox, CheckboxProps } from 'semantic-ui-react';
 
 import { IUser } from '../types/user';
 import { path } from '../../../constants/path';
 
 import './Profile.css'
-import { IGroup } from 'src/components/Group/types/group';
+import { IGroup } from '../../Group/types/group';
+import { updateUser } from '../../Group/actions/group';
 
 interface IProfileCardProps {
-    user: IUser
+    user: IUser,
+    perm: boolean
 }
 
 export default class ProfileCard extends React.Component<IProfileCardProps> {
@@ -45,20 +47,21 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                                     <Table.Row key={group._id}>
                                         <Table.Cell width={8}>{group.Name}</Table.Cell>
                                         <Table.Cell width={4}>
-                                            <Checkbox
-                                                toggle={true}
-                                                label={this.computeGroupRole(group, user.Username)}
-                                                disabled={user.Role === "user"}
-                                            />
+                                            {this.computeGroupRole(group)}
                                         </Table.Cell>
                                         <Table.Cell width={4}>
-                                            <Button icon="trash" color="red" title="Exit this group" />
                                             <Button
-                                                icon="info"
+                                                icon="box"
                                                 as={Link}
-                                                to={path.groupsMore.replace(":groupID", group._id)}
+                                                to={path.groupsServices.replace(":groupID", group._id)}
                                                 title="Access to this group"
                                             />
+                                            <Button 
+                                                name={group._id}
+                                                icon="trash" 
+                                                color="red" 
+                                                title="Exit this group" 
+                                                onClick={this.deleteFromGroup} />
                                         </Table.Cell>
                                     </Table.Row>
                                 ))}
@@ -79,17 +82,61 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
     
     }
 
-    private computeGroupRole = (group: IGroup, username: string) => {
-        if (group.AdminsData) {
-            if (group.AdminsData.filter((u) => u.Username === username).length > 0) {
-                return "admin";
+    private handleRoleChange = (
+        event: React.SyntheticEvent,
+        { name, checked }: CheckboxProps
+    ) => {
+        const username = this.props.user.Username;
+        if (checked as boolean) {
+            updateUser(name as string, username, "admin");
+        } else {
+            updateUser(name as string, username, "user");
+        }
+    }
+
+    private deleteFromGroup = (
+        event: React.SyntheticEvent
+    ) => {
+        const username = this.props.user.Username;
+        updateUser(name as string, username, "delete");
+        window.location.reload();
+    }
+
+    private computeGroupRole = (group: IGroup) => {
+        const user = this.props.user;
+        if (group.Admins) {
+            if (group.Admins.indexOf(user.Username) > -1) {
+                return (
+                    <Checkbox
+                        name={group._id}
+                        toggle={true}
+                        defaultChecked={true}
+                        label="admin"
+                        onChange={this.handleRoleChange}
+                        disabled={!this.props.perm}
+                    />
+                );
             }
         }
-        if (group.UsersData) {
-            if (group.UsersData.filter((u) => u.Username === username).length > 0) {
-                return "user";
+        if (group.Users) {
+            if (group.Users.indexOf(user.Username) > -1) {
+                return (
+                    <Checkbox
+                        name={group._id}
+                        toggle={true}
+                        label="user"
+                        onChange={this.handleRoleChange}
+                        disabled={!this.props.perm}
+                    />
+                );
             }
         }
-        return "unknown";
+        return (
+            <Checkbox
+                toggle={true}
+                label="unknown"
+                disabled={true}
+            />
+        );
     }
 }

@@ -112,7 +112,7 @@ class DaemonIndex extends React.Component<
     return (
       <>
         <h1>{daemon.Name || "Daemon"}</h1>
-        <ReactMarkdown source={daemon.Description} />
+        <ReactMarkdown source={daemon.Description} escapeHtml={false} />
         <Tab
           panes={panes}
           renderActiveOnly={false}

@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps, Checkbox
+  Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps, Checkbox, CheckboxProps
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -28,7 +28,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
   private searchFilter: string = "";
 
   public componentWillMount() {
-    fetchGroups()
+    fetchGroups(false)
       .then(groups =>
         this.setState({ groups, groupsFiltered: groups, isFetching: false })
       )
@@ -73,7 +73,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onSearchChange={this.filterSearch}
             />
           </Grid.Column>
-          <Grid.Column width={3}>
+          <Grid.Column width={5}>
             <Dropdown
               search={true}
               selection={true}
@@ -87,16 +87,15 @@ class Groups extends React.Component<{}, IGroupsStates> {
               onChange={this.filterByDaemon}
             />
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Checkbox
               floated="right"
               slider={true}
-              defaultChecked={true}
               label="Display all groups"
-
+              onChange={this.handleToggle}
             />
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Button
               primary={true}
               floated="right"
@@ -116,6 +115,17 @@ class Groups extends React.Component<{}, IGroupsStates> {
         </Grid>
       </>
     );
+  }
+
+  private handleToggle = (
+    event: React.SyntheticEvent,
+    { checked }: CheckboxProps
+  ) => {
+    fetchGroups(checked as boolean)
+      .then(groups =>
+        this.setState({ groups, groupsFiltered: groups, isFetching: false })
+      )
+      .catch(error => this.setState({ error, isFetching: false }));
   }
 
   private filterGroups = () => {

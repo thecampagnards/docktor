@@ -12,7 +12,7 @@ import (
 
 // getAll find all
 func getAll(c echo.Context) error {
-	s, err := dao.GetUsers()
+	s, err := dao.GetUsersRest()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -24,7 +24,7 @@ func getAll(c echo.Context) error {
 
 // getByUsername find one by name
 func getByUsername(c echo.Context) error {
-	s, err := dao.GetUserByUsername(c.Param(types.USERNAME_PARAM))
+	s, err := dao.GetUserRestByUsername(c.Param(types.USERNAME_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"username": c.Param(types.USERNAME_PARAM),

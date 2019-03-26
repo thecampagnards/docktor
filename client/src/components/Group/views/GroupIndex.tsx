@@ -117,7 +117,7 @@ class GroupIndex extends React.Component<
     return (
       <>
         <h1>{group.Name || "Group"}</h1>
-        <ReactMarkdown source={group.Description} />
+        <ReactMarkdown source={group.Description} escapeHtml={false} />
         <Tab
           panes={panes}
           renderActiveOnly={false}

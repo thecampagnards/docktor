@@ -43,7 +43,7 @@ class Profile extends React.Component<{}, IProfileStates> {
 
     return (
       <>
-        <ProfileCard user={user} />
+        <ProfileCard user={user} perm={user.Role === "admin"} />
       </>
     );
   }

@@ -1,7 +1,9 @@
 package groups
 
 import (
+	"errors"
 	"net/http"
+	"strconv"
 
 	"docktor/server/dao"
 	"docktor/server/types"
@@ -13,7 +15,7 @@ import (
 // getAllWithDaemons find all groups with daemons
 func getAllWithDaemons(c echo.Context) error {
 	user := c.Get("user").(types.UserRest)
-	if user.IsAdmin() {
+	if all, _ := strconv.ParseBool(c.QueryParam("all")); all {
 		groups, err := dao.GetGroupsRest()
 		if err != nil {
 			log.WithFields(log.Fields{
@@ -70,4 +72,44 @@ func deleteByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "ok")
+}
+
+// updateUser updates the role of a user in the group or delete it
+func updateUser(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	username := c.Param("username")
+
+	for i, v := range group.Users {
+		if v == username {
+			group.Users = append(group.Users[:i], group.Users[i+1:]...)
+			break
+		}
+	}
+	for i, v := range group.Admins {
+		if v == username {
+			group.Admins = append(group.Admins[:i], group.Admins[i+1:]...)
+			break
+		}
+	}
+
+	switch c.Param("status") {
+	case "admin":
+		group.Admins = append(group.Admins, username)
+	case "user":
+		group.Users = append(group.Users, username)
+	case "delete":
+		log.Infof("User %s has been removed from group %s [%s]", username, group.Name, group.ID)
+	default:
+		return errors.New("Invalid status parameter")
+	}
+
+	s, err := dao.CreateOrUpdateGroup(group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"group": group,
+			"error": err,
+		}).Error("Error when updating/creating group")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, s)
 }
