@@ -26,6 +26,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
   };
   private searchDaemonID: string = "";
   private searchFilter: string = "";
+  private toggleLoading: boolean = false;
 
   public componentWillMount() {
     fetchGroups(false)
@@ -93,6 +94,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               slider={true}
               label="Display all groups"
               onChange={this.handleToggle}
+              disabled={this.toggleLoading}
             />
           </Grid.Column>
           <Grid.Column width={3}>
@@ -121,11 +123,13 @@ class Groups extends React.Component<{}, IGroupsStates> {
     event: React.SyntheticEvent,
     { checked }: CheckboxProps
   ) => {
+    this.toggleLoading = true;
     fetchGroups(checked as boolean)
       .then(groups =>
         this.setState({ groups, groupsFiltered: groups, isFetching: false })
       )
       .catch(error => this.setState({ error, isFetching: false }));
+      this.toggleLoading = false;
   }
 
   private filterGroups = () => {
