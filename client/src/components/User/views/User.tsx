@@ -5,7 +5,7 @@ import { deleteUser, fetchUser, setGlobalRole } from '../actions/users';
 import { IUser } from '../types/user';
 
 import ProfileCard from './ProfileCard';
-import { RouteComponentProps, Redirect } from 'react-router-dom';
+import { RouteComponentProps } from 'react-router-dom';
 import { path } from '../../../constants/path'
 
 interface IUserStates {
@@ -24,6 +24,7 @@ interface IUserStates {
       isFetching: true,
       error: Error()
     };
+    private userID = "";
   
     public componentWillMount() {
       this.refreshUser();
@@ -76,29 +77,29 @@ interface IUserStates {
       );
     }
 
-    private refreshUser(){
+    private refreshUser = () => {
       const { userID } = this.props.match.params;
+      this.userID = userID;
       fetchUser(userID)
         .then(user => this.setState({ user, isFetching: false }))
         .catch(error => this.setState({ error, isFetching: false }));
     }
 
-    private deleteUser(){
-      const { userID } = this.props.match.params;
-      deleteUser(userID)
-        .then(() => <Redirect to={path.users} />)
-        .catch(error => this.setState({ error }))
+    private deleteUser = () => {
+      deleteUser(this.userID)
+        .then(() => this.props.history.push(path.users))
+        .catch(error => this.setState({ error }));
     }
 
-    private logAsUser(){
-      const { userID } = this.props.match.params;
-      console.log("Impersonate " + userID);
+    private logAsUser = () => {
+      console.log("Impersonate " + this.userID);
       // TODO
     }
 
-    private setGlobalPermissions(){
-      const { userID } = this.props.match.params;
-      setGlobalRole(userID, "admin")
+    private setGlobalPermissions = () => {
+      setGlobalRole(this.userID, "admin")
+        .then(user => this.setState({ user }))
+        .catch(error => this.setState({ error }));
     }
   }
   

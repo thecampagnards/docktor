@@ -20,7 +20,6 @@ class Profile extends React.Component<{}, IProfileStates> {
   };
 
   public componentWillMount() {
-    this.refreshUser = this.refreshUser.bind(this);
     this.refreshUser();
   }
 
@@ -47,7 +46,7 @@ class Profile extends React.Component<{}, IProfileStates> {
     );
   }
 
-  private refreshUser(){
+  private refreshUser = () => {
     GetProfile()
       .then(user => this.setState({ user, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));

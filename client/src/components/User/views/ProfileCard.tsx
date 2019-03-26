@@ -15,7 +15,15 @@ interface IProfileCardProps {
     refresh: () => void;
 }
 
-export default class ProfileCard extends React.Component<IProfileCardProps> {
+interface IProfileCardStates {
+    isFetching: boolean;
+}
+
+export default class ProfileCard extends React.Component<IProfileCardProps, IProfileCardStates> {
+    public state = {
+        isFetching: false
+    }
+
     public render() {
         const { user } = this.props
 
@@ -71,10 +79,10 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                     )}
                     {!user.GroupsData && (
                         <p>
-                            <p style={{color: 'red'}}>This account is not assigned to any group.</p>
+                            <pre style={{color: 'red'}}>This account is not assigned to any group.</pre>
                             Contact an administrator of the group you want to join : <br />
                             Groups -> Toggle "Display all groups" > use the search filter to find your group > admins of the group are listed below the group title.
-            </p>
+                        </p>
                     )}
                 </Card.Content>
             </Card>
@@ -87,21 +95,33 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
         event: React.SyntheticEvent,
         { name, checked }: CheckboxProps
     ) => {
+        this.setState({ isFetching: true});
         const username = this.props.user.Username;
         if (checked as boolean) {
-            updateUser(name as string, username, "admin");
+            updateUser(name as string, username, "admin")
+                .then(() => {
+                    this.props.refresh();
+                    this.setState({ isFetching: false});
+                });
         } else {
-            updateUser(name as string, username, "user");
+            updateUser(name as string, username, "user")
+                .then(() => {
+                    this.props.refresh();
+                    this.setState({ isFetching: false});
+                });
         }
-        this.props.refresh();
     }
 
     private deleteFromGroup = (
         event: React.SyntheticEvent
     ) => {
+        this.setState({ isFetching: true});
         const username = this.props.user.Username;
-        updateUser(name as string, username, "delete");
-        this.props.refresh();
+        updateUser(name as string, username, "delete")
+            .then(() => {
+                this.props.refresh();
+                this.setState({ isFetching: false});
+            });
     }
 
     private computeGroupRole = (group: IGroup) => {
@@ -115,7 +135,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                         defaultChecked={true}
                         label="admin"
                         onChange={this.handleRoleChange}
-                        disabled={!this.props.perm}
+                        disabled={!this.props.perm || this.state.isFetching}
                     />
                 );
             }
@@ -128,7 +148,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                         toggle={true}
                         label="user"
                         onChange={this.handleRoleChange}
-                        disabled={!this.props.perm}
+                        disabled={!this.props.perm || this.state.isFetching}
                     />
                 );
             }

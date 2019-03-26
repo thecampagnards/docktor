@@ -28,7 +28,7 @@ export const fetchUser = (username: string) => {
 export const deleteUser = (username: string) => {
     return fetch(`${process.env.PUBLIC_URL}/api/users/${username}`, {
         credentials: "same-origin",
-        method: "GET",
+        method: "DELETE",
         headers: new Headers({
             Authorization: `Bearer ${GetToken()}`
         })
