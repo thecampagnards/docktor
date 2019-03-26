@@ -82,7 +82,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
               name="DaemonID"
               placeholder="Select daemon"
               options={_.uniqBy(groups, "DaemonID").map(g => {
-                return { text: g.Daemon.Name, value: g.DaemonID };
+                return { text: g.DaemonData.Name, value: g.DaemonID };
               })}
               onChange={this.filterByDaemon}
             />

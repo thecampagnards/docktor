@@ -8,7 +8,6 @@ import (
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
-	"github.com/globalsign/mgo/bson"
 )
 
 // CustomClaims contains claims identifying the owner of a token
@@ -25,33 +24,22 @@ type Claims struct {
 
 type User struct {
 	ldap.Attributes
-	Salt       string `json:"-"`
-	Password   string `json:",omitempty"`
-	Groups     []bson.ObjectId
-	Role       string
-	GroupsData *Groups `json:",omitempty" bson:",omitempty"`
+	Salt     string `json:"-"`
+	Password string `json:",omitempty"`
+	Role     string
+}
+
+type UserRest struct {
+	User       `bson:",inline"`
+	GroupsData *GroupsRest `json:",omitempty" bson:",omitempty"`
 }
 
 type Users []User
+type UsersRest []UserRest
 
 // IsAdmin check is user is admin
 func (u User) IsAdmin() bool {
 	return u.Role == ADMIN_ROLE
-}
-
-// IsMyGroup check if this is a group of the user
-func (u User) IsMyGroup(g Group) bool {
-
-	if u.IsAdmin() {
-		return true
-	}
-
-	for _, group := range u.Groups {
-		if group == g.ID {
-			return true
-		}
-	}
-	return false
 }
 
 // CreateToken create a jwt token for user

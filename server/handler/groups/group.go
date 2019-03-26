@@ -12,9 +12,9 @@ import (
 
 // getAllWithDaemons find all groups with daemons
 func getAllWithDaemons(c echo.Context) error {
-	user := c.Get("user").(types.User)
+	user := c.Get("user").(types.UserRest)
 	if user.IsAdmin() {
-		groups, err := dao.GetGroupsWithDaemons()
+		groups, err := dao.GetGroupsRest()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
@@ -43,10 +43,10 @@ func save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	user := c.Get("user").(types.User)
-	if !user.IsMyGroup(u) {
-		return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
-	}
+	// user := c.Get("user").(types.UserRest)
+	// if !user.IsMyGroup(u) {
+	//	return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
+	//}
 
 	s, err := dao.CreateOrUpdateGroup(u)
 	if err != nil {

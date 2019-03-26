@@ -9,9 +9,16 @@ type Group struct {
 	Name        string
 	Description string
 	DaemonID    bson.ObjectId
-	Daemon      *Daemon `json:",omitempty" bson:",omitempty"`
 	Services    []ServiceGroup
 	Admins      []string
+	Users       []string
+}
+
+type GroupRest struct {
+	Group      `bson:",inline"`
+	UsersData  *Users  `json:",omitempty" bson:",omitempty"`
+	AdminsData *Users  `json:",omitempty" bson:",omitempty"`
+	DaemonData *Daemon `json:",omitempty" bson:",omitempty"`
 }
 
 type ServiceGroup struct {
@@ -22,6 +29,7 @@ type ServiceGroup struct {
 }
 
 type Groups []Group
+type GroupsRest []GroupRest
 
 // IsAdmin check if a user is admin in this group
 func (g Group) IsAdmin(u User) bool {
@@ -32,6 +40,21 @@ func (g Group) IsAdmin(u User) bool {
 
 	for _, admin := range g.Admins {
 		if admin == u.Username {
+			return true
+		}
+	}
+	return false
+}
+
+// IsMyGroup check if this is a group of the user
+func (g Group) IsMyGroup(u User) bool {
+
+	if u.IsAdmin() {
+		return true
+	}
+
+	for _, user := range g.Users {
+		if user == u.Username {
 			return true
 		}
 	}

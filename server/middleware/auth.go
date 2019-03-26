@@ -49,13 +49,12 @@ func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 // WithAdmin
 func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(types.User)
+		user := c.Get("user").(types.UserRest)
 
 		if !user.IsAdmin() {
 			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required")
 		}
 
-		c.Set("user", user)
 		return next(c)
 	}
 }
@@ -63,7 +62,7 @@ func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(types.User)
+		user := c.Get("user").(types.UserRest)
 
 		group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
 		if err != nil {
@@ -83,7 +82,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 			"user":  user,
 		}).Info("Check if user is your group")
 
-		if !user.IsMyGroup(group) {
+		if !group.IsMyGroup(user.User) {
 			return echo.NewHTTPError(http.StatusForbidden, "This is not your group")
 		}
 
@@ -93,7 +92,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // AuthUser
-func AuthUser(c echo.Context) (types.User, error) {
+func AuthUser(c echo.Context) (types.UserRest, error) {
 
 	log.Info("Getting user from token")
 	user := c.Get("user").(*jwt.Token)
@@ -102,5 +101,5 @@ func AuthUser(c echo.Context) (types.User, error) {
 	claims := user.Claims.(*types.Claims)
 
 	log.WithField("claims", claims).Info("Getting db user")
-	return dao.GetUserByUsernameWithGroupsAndDaemons(claims.Username)
+	return dao.GetUserRestByUsername(claims.Username)
 }
