@@ -8,7 +8,7 @@
 
 [[override]]
   name = "github.com/docker/cli"
-  version = "^18.09.3"
+  version = "^18.09.4"
 
 [[override]]
   name = "github.com/docker/distribution"
