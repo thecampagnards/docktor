@@ -51,7 +51,7 @@ func save(c echo.Context) error {
 	//	return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
 	//}
 
-	s, err := dao.CreateOrUpdateGroup(u)
+	s, err := dao.CreateOrUpdateGroup(u, true)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": u,
@@ -94,7 +94,7 @@ func updateUser(c echo.Context) error {
 		return errors.New("Invalid status parameter")
 	}
 
-	s, err := dao.CreateOrUpdateGroup(group)
+	s, err := dao.CreateOrUpdateGroup(group, false)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": group,

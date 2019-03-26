@@ -57,7 +57,7 @@ func createSubService(c echo.Context) error {
 
 	group.Services = append(group.Services, serviceGroup)
 
-	_, err = dao.CreateOrUpdateGroup(group)
+	_, err = dao.CreateOrUpdateGroup(group, false)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": group,
