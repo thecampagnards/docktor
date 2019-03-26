@@ -6,6 +6,7 @@ import { IUser } from '../types/user';
 import { path } from '../../../constants/path';
 
 import './Profile.css'
+import { IGroup } from 'src/components/Group/types/group';
 
 interface IProfileCardProps {
     user: IUser
@@ -46,7 +47,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                                         <Table.Cell width={4}>
                                             <Checkbox
                                                 toggle={true}
-                                                label="Admin"
+                                                label={this.computeGroupRole(group, user.Username)}
                                                 disabled={user.Role === "user"}
                                             />
                                         </Table.Cell>
@@ -66,11 +67,29 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                     )}
                     {!user.GroupsData && (
                         <p>
-                            Your account is not assigned to any group.
+                            <p style={{color: 'red'}}>This account is not assigned to any group.</p>
+                            Contact an administrator of the group you want to join : <br />
+                            Groups -> Toggle "Display all groups" > use the search filter to find your group > admins of the group are listed below the group title.
             </p>
                     )}
                 </Card.Content>
             </Card>
         )
+
+    
+    }
+
+    private computeGroupRole = (group: IGroup, username: string) => {
+        if (group.AdminsData) {
+            if (group.AdminsData.filter((u) => u.Username === username).length > 0) {
+                return "admin";
+            }
+        }
+        if (group.UsersData) {
+            if (group.UsersData.filter((u) => u.Username === username).length > 0) {
+                return "user";
+            }
+        }
+        return "unknown";
     }
 }

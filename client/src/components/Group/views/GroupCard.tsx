@@ -19,10 +19,7 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
         <Card.Content>
           <Card.Header>{group.Name.toUpperCase()}</Card.Header>
           <Card.Description>
-            Admins : ...
-            {group.Users && group.Users.map(user => (
-              user.Admin ? user.Username : ""
-            ))}
+            Admins : {group.AdminsData && (group.AdminsData.length > 0 ? group.AdminsData.map(adminUser => (adminUser.Username)) : "None")}
           </Card.Description>
         </Card.Content>
         {group.Description && <Card.Content>
