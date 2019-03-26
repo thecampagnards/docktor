@@ -111,7 +111,7 @@ class DaemonIndex extends React.Component<
 
     return (
       <>
-        <h1>{daemon.Name || "Daemon"}</h1>
+        <h1>{daemon ? "Daemon : " + daemon.Name : "Unknown daemon"}</h1>
         <ReactMarkdown source={daemon.Description} escapeHtml={false} />
         <Tab
           panes={panes}
