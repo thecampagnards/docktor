@@ -34,11 +34,12 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	log.WithField("fs", in.Stats[0].Filesystem).Info("Retrieve container info fs")
+	log.Info("Retrieve container info fs")
 
 	// keeping only the project fs
 	for i := len(in.Stats[0].Filesystem) - 1; i >= 0; i-- {
 		if !strings.HasSuffix(in.Stats[0].Filesystem[i].Device, group.Name) {
+			log.WithField("fs", in.Stats[0].Filesystem[i].Device).Info("Removing info fs")
 			in.Stats[0].Filesystem = append(in.Stats[0].Filesystem[:i], in.Stats[0].Filesystem[i+1:]...)
 		}
 	}

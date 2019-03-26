@@ -40,9 +40,7 @@ func getContainers(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	log.WithFields(log.Fields{
-		"containers": cs,
-	}).Info("Daemon containers retrieved")
+	log.Info("Daemon containers retrieved")
 
 	return c.JSON(http.StatusOK, cs)
 }

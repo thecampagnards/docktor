@@ -124,7 +124,7 @@ export const saveDaemon = (daemon: IDaemon) => {
     body: JSON.stringify(daemon),
     headers: new Headers({
       Authorization: `Bearer ${GetToken()}`,
-      ContentType: "application/json"
+      "Content-Type": "application/json"
     })
   })
     .then(checkStatus)
@@ -138,7 +138,7 @@ export const execCommand = (daemon: IDaemon, commands: string[]) => {
     body: JSON.stringify(commands),
     headers: new Headers({
       Authorization: `Bearer ${GetToken()}`,
-      ContentType: "application/json"
+      "Content-Type": "application/json"
     })
   })
     .then(checkStatus)

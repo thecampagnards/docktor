@@ -74,7 +74,7 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
                   <Button
                     loading={command.isFetching}
                     disabled={!command.command.length}
-                    color={command.error ? "red" : "green"}
+                    color={command.error.message ? "red" : "green"}
                     icon="chevron right"
                     onClick={this.handleOpen.bind(this, command, index)}
                   />

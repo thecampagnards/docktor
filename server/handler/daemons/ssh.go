@@ -40,6 +40,10 @@ func execSSH(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	log.WithFields(log.Fields{
+		"result": result,
+	}).Info("Results of commands")
+
 	return c.JSON(http.StatusOK, result)
 }
 
