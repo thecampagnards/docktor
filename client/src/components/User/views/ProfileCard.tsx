@@ -11,7 +11,8 @@ import { updateUser } from '../../Group/actions/group';
 
 interface IProfileCardProps {
     user: IUser,
-    perm: boolean
+    perm: boolean,
+    refresh: () => void;
 }
 
 export default class ProfileCard extends React.Component<IProfileCardProps> {
@@ -26,7 +27,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                             <Card.Header>{user.Username.toUpperCase()}</Card.Header>
                         </Grid.Column>
                         <Grid.Column width={3}>
-                            <Label compact={true} color="green">{user.Role}</Label>
+                            <Label compact="true" color="green">{user.Role}</Label>
                         </Grid.Column>
                     </Grid>
                     <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
@@ -92,6 +93,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
         } else {
             updateUser(name as string, username, "user");
         }
+        this.props.refresh();
     }
 
     private deleteFromGroup = (
@@ -99,13 +101,13 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
     ) => {
         const username = this.props.user.Username;
         updateUser(name as string, username, "delete");
-        window.location.reload();
+        this.props.refresh();
     }
 
     private computeGroupRole = (group: IGroup) => {
-        const user = this.props.user;
+        const username = this.props.user.Username;
         if (group.Admins) {
-            if (group.Admins.indexOf(user.Username) > -1) {
+            if (group.Admins.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={group._id}
@@ -119,7 +121,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
             }
         }
         if (group.Users) {
-            if (group.Users.indexOf(user.Username) > -1) {
+            if (group.Users.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={group._id}

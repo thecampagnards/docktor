@@ -36,8 +36,8 @@ func getByID(c echo.Context) error {
 
 // save a Group server
 func save(c echo.Context) error {
-	var u types.Group
-	err := c.Bind(&u)
+	var g types.Group
+	err := c.Bind(&g)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"body":  c.Request().Body,
@@ -47,14 +47,14 @@ func save(c echo.Context) error {
 	}
 
 	// user := c.Get("user").(types.UserRest)
-	// if !user.IsMyGroup(u) {
+	// if !user.IsMyGroup(g) {
 	//	return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
 	//}
 
-	s, err := dao.CreateOrUpdateGroup(u, true)
+	s, err := dao.CreateOrUpdateGroup(g, true)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"group": u,
+			"group": g,
 			"error": err,
 		}).Error("Error when updating/creating group")
 		return c.JSON(http.StatusBadRequest, err.Error())
