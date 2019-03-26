@@ -14,7 +14,7 @@ export const fetchUsers = () => {
 };
 
 export const fetchUser = (username: string) => {
-    return fetch(`${process.env.PUBLIC_URL}/api/daemons/${username}`, {
+    return fetch(`${process.env.PUBLIC_URL}/api/users/${username}`, {
         credentials: "same-origin",
         method: "GET",
         headers: new Headers({

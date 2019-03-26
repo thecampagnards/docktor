@@ -30,7 +30,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                     <Card.Description>{user.Email}</Card.Description>
                 </Card.Content>
                 <Card.Content>
-                    {user.GroupsData.length > 0 && (
+                    {user.GroupsData && (
                         <Table>
                             <Table.Header>
                                 <Table.Row>
@@ -64,7 +64,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                             </Table.Body>
                         </Table>
                     )}
-                    {user.GroupsData.length === 0 && (
+                    {!user.GroupsData && (
                         <p>
                             Your account is not assigned to any group.
             </p>

@@ -5,6 +5,7 @@ import { fetchUser } from '../actions/users';
 import { IUser } from '../types/user';
 
 import ProfileCard from './ProfileCard';
+import { RouteComponentProps } from 'react-router-dom';
 
 interface IUserStates {
     user: IUser;
@@ -12,11 +13,11 @@ interface IUserStates {
     error: Error;
   }
 
-  interface IUserProps {
-      username: string;
+  interface IRouterProps {
+      userID: string;
   }
 
-  class User extends React.Component<IUserProps, IUserStates> {
+  class User extends React.Component<RouteComponentProps<IRouterProps>, IUserStates> {
     public state = {
       user: {} as IUser,
       isFetching: true,
@@ -24,7 +25,8 @@ interface IUserStates {
     };
   
     public componentWillMount() {
-      fetchUser(this.props.username)
+      const { userID } = this.props.match.params
+      fetchUser(userID)
         .then(user => this.setState({ user, isFetching: false }))
         .catch(error => this.setState({ error, isFetching: false }));
     }
@@ -45,11 +47,7 @@ interface IUserStates {
         return <Loader active={true} />;
       }
   
-      return (
-        <>
-          <ProfileCard user={user} />
-        </>
-      );
+      return <ProfileCard user={user} />;
     }
   }
   

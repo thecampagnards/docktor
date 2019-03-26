@@ -69,7 +69,7 @@ ReactDOM.render(
           <Route exact={true} path={path.login} component={UserIsNotAuthenticated(Login)} />
           <Route exact={true} path={path.profile} component={UserIsAuthenticated(Profile)} />
           <Route exact={true} path={path.usersNew} component={UserIsNotAuthenticated(UserForm)} />
-          <Route exact={true} path={path.usersProfile + "/*"} component={UserIsAdmin(User)} />
+          <Route exact={true} path={path.usersProfile} component={UserIsAdmin(User)} />
           <Redirect to="/" />
         </Switch>
       </Layout>

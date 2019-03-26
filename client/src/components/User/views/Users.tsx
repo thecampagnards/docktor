@@ -109,7 +109,7 @@ class Users extends React.Component<{}, IUsersStates> {
                             )}
                         </Table.Cell>
                         <Table.Cell width={2}>
-                            <Button compact={true} as={Link} to={path.usersProfile.replace(":userID", user.Username)}>Profile</Button>
+                            <Button compact={true} color="blue" as={Link} to={path.usersProfile.replace(":userID", user.Username)}>Profile</Button>
                         </Table.Cell>
                     </Table.Row>
                     ))}
