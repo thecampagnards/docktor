@@ -61,12 +61,14 @@ class DaemonCAdvisor extends React.Component<
 
   public render() {
     const {
-      daemon,
       containerInfo,
       machineInfo,
       error,
       isFetching
     } = this.state;
+
+    const { daemon } = this.props;
+
     const buttons = serviceButton(daemon, ["cadvisor"]);
 
     if (error.message) {
@@ -90,8 +92,8 @@ class DaemonCAdvisor extends React.Component<
     return (
       <>
         <Grid>
-          <Grid.Column width={6}>
-            <Button icon={true} labelPosition="right" as="a" href={daemon.CAdvisor}>
+          <Grid.Column width={10}>
+            <Button icon={true} labelPosition="right" as="a" title={daemon.CAdvisor} href={daemon.CAdvisor} target="_blank">
               <Icon name="external alternate" /> Open cAdvisor webpage 
             </Button>
           </Grid.Column>
