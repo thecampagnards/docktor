@@ -27,3 +27,14 @@ func WriteStringToFile(content string) (string, error) {
 
 	return tmpfile.Name(), nil
 }
+
+// Remove removes a value in a string array
+func Remove(array []string, value string) []string {
+	for i, v := range array {
+		if v == value {
+			array[i] = array[len(array)-1]
+			return array[:len(array)-1]
+		}
+	}
+	return array
+}

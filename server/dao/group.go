@@ -18,7 +18,7 @@ var groupRestRequest = []bson.M{
 		"as":           "daemondata",
 	}},
 	bson.M{"$unwind": bson.M{
-		"path":                       "$daemondata",
+		"path": "$daemondata",
 		"preserveNullAndEmptyArrays": true,
 	}},
 	bson.M{"$lookup": bson.M{
@@ -144,7 +144,7 @@ func GetGroupByID(id string) (types.Group, error) {
 }
 
 // CreateOrUpdateGroup create or update group
-func CreateOrUpdateGroup(t types.Group) (types.Group, error) {
+func CreateOrUpdateGroup(t types.Group, merge bool) (types.Group, error) {
 	db := config.DB{}
 
 	s, err := db.DoDial()
@@ -162,9 +162,11 @@ func CreateOrUpdateGroup(t types.Group) (types.Group, error) {
 	}
 
 	if t.ID.Valid() {
-		group, _ := GetGroupByID(t.ID.Hex())
-		if err := mergo.Merge(&t, group); err != nil {
-			return t, err
+		if merge {
+			group, _ := GetGroupByID(t.ID.Hex())
+			if err := mergo.Merge(&t, group); err != nil {
+				return t, err
+			}
 		}
 		err = c.UpdateId(t.ID, t)
 	} else {

@@ -7,6 +7,7 @@ import (
 
 	"docktor/server/dao"
 	"docktor/server/types"
+	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -50,7 +51,7 @@ func save(c echo.Context) error {
 	//	return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
 	//}
 
-	s, err := dao.CreateOrUpdateGroup(u)
+	s, err := dao.CreateOrUpdateGroup(u, true)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": u,
@@ -79,31 +80,21 @@ func updateUser(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	username := c.Param("username")
 
-	for i, v := range group.Users {
-		if v == username {
-			group.Users = append(group.Users[:i], group.Users[i+1:]...)
-			break
-		}
-	}
-	for i, v := range group.Admins {
-		if v == username {
-			group.Admins = append(group.Admins[:i], group.Admins[i+1:]...)
-			break
-		}
-	}
-
 	switch c.Param("status") {
 	case "admin":
+		group.Users = utils.Remove(group.Users, username)
 		group.Admins = append(group.Admins, username)
 	case "user":
+		group.Admins = utils.Remove(group.Admins, username)
 		group.Users = append(group.Users, username)
 	case "delete":
-		log.Infof("User %s has been removed from group %s [%s]", username, group.Name, group.ID)
+		group.Users = utils.Remove(group.Users, username)
+		group.Admins = utils.Remove(group.Admins, username)
 	default:
 		return errors.New("Invalid status parameter")
 	}
 
-	s, err := dao.CreateOrUpdateGroup(group)
+	s, err := dao.CreateOrUpdateGroup(group, false)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": group,
