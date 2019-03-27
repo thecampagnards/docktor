@@ -123,8 +123,7 @@ export const saveDaemon = (daemon: IDaemon) => {
     method: "POST",
     body: JSON.stringify(daemon),
     headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`,
-      "Content-Type": "application/json"
+      Authorization: `Bearer ${GetToken()}`
     })
   })
     .then(checkStatus)

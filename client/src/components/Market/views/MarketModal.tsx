@@ -102,7 +102,7 @@ class MarketModal extends React.Component<
         <Modal.Content>
           <Grid>
             <Grid.Column width={4}>
-              {service.Image && <Image size="small" src={"data:image/png;base64," + service.Image} />}
+              {service.Image && <Image size="small" src={service.Image} />}
               {error.message &&
                 <Message negative={true}>
                   <Message.Header>{error.message}</Message.Header>

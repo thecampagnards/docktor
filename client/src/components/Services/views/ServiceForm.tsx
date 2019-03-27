@@ -92,7 +92,7 @@ class ServiceForm extends React.Component<
 
           <Form.Group widths="equal">
             {service.Image && (
-              <img src={"data:image/png;base64," + service.Image} />
+              <img src={service.Image} />
             )}
 
             <Form.Input
@@ -160,7 +160,7 @@ class ServiceForm extends React.Component<
                   <Grid.Row verticalAlign="middle">
                     <Grid.Column>
                       <CodeMirror
-                        value={ss.File}
+                        value={this.isURL(ss.File) ? "" : ss.File}
                         options={{
                           mode: "yaml",
                           theme: "material",
@@ -177,8 +177,9 @@ class ServiceForm extends React.Component<
                         Remote file
                       </Header>
                       <Form.Input
-                        type="Url"
-                        name={`SubServices.${key}.Url`}
+                        value={this.isURL(ss.File) ? ss.File : ""}
+                        type="url"
+                        name={`SubServices.${key}.File`}
                         onChange={this.handleChange}
                       />
                     </Grid.Column>
@@ -201,6 +202,15 @@ class ServiceForm extends React.Component<
         </Form>
       </>
     )
+  }
+
+  private isURL(str: string) : boolean {
+    try {
+      const u = new URL(str)
+      return !!u.host
+    } catch (_) {
+      return false
+    }
   }
 
   private removeSubService = (key: number) => (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -239,7 +249,7 @@ class ServiceForm extends React.Component<
             service: _.set(
               service,
               name,
-              reader.result.replace(/data:image\/.*?base64,/gi, "")
+              reader.result
             )
           })
         }

@@ -3,7 +3,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
-  Button, Dropdown, DropdownProps, Grid, Loader, Message, Search, SearchProps, Checkbox, CheckboxProps
+    Button, Checkbox, CheckboxProps, Dropdown, DropdownProps, Grid, Loader, Message, Search,
+    SearchProps
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -92,7 +93,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               name="DaemonID"
               placeholder="Select daemon"
               options={_.uniqBy(groups, "DaemonID").map(g => {
-                return { text: g.DaemonData.Name, value: g.DaemonID };
+                return g.DaemonData ? { text: g.DaemonData.Name, value: g.DaemonID } : { text: '', value: '' };
               })}
               onChange={this.filterByDaemon}
             />
