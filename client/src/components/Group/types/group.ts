@@ -8,8 +8,10 @@ export interface IGroup {
   Description: string;
   DaemonID: string;
   Services: IServiceGroup[];
-
   DaemonData: IDaemon;
+  Users: string[];
+  Admins: string[];
+  
   UsersData: IUser[];
   AdminsData: IUser[];
 }

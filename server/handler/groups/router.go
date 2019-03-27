@@ -27,5 +27,6 @@ func AddRoute(e *echo.Group) {
 		group.POST("/create/:subserviceID", createSubService)
 		group.GET("/containers", getContainers)
 		group.GET("/cadvisor/container", getCAdvisorContainerInfo)
+		group.POST("/updateuser/:username/:status", updateUser)
 	}
 }

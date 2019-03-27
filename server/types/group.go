@@ -15,7 +15,7 @@ type Group struct {
 }
 
 type GroupRest struct {
-	Group      `bson:",inline"`
+	Group      `json:",omitempty" bson:",inline,omitempty"`
 	UsersData  *Users  `json:",omitempty" bson:",omitempty"`
 	AdminsData *Users  `json:",omitempty" bson:",omitempty"`
 	DaemonData *Daemon `json:",omitempty" bson:",omitempty"`

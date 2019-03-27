@@ -1,4 +1,4 @@
-import { IGroup } from 'src/components/Group/types/group';
+import { IGroup } from '../../Group/types/group'
 
 export type userTypes = "admin" | "user";
 
@@ -17,6 +17,7 @@ export interface IUserToken {
 
 export interface IUser {
   Username: string;
+  Password: string;
   FirstName: string;
   LastName: string;
   Email: string;

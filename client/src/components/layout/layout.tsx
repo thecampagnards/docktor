@@ -12,7 +12,6 @@ import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 
 interface ILayoutProps {
-  username: string;
   isAdmin: boolean;
   isAuthenticated: boolean;
   logoutRequest?: () => void;
@@ -20,7 +19,7 @@ interface ILayoutProps {
 
 class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const { isAuthenticated, isAdmin, username } = this.props;
+    const { isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
@@ -45,7 +44,7 @@ class Layout extends React.Component<ILayoutProps> {
               </Menu.Item>
 
               <Menu.Item as={Link} to={path.groups} name="groups">
-                <Icon name="users" /> Groups
+                <Icon name="box" /> Groups
               </Menu.Item>
               {isAdmin && (
                 <>
@@ -89,7 +88,7 @@ class Layout extends React.Component<ILayoutProps> {
                 to={isAuthenticated ? path.profile : path.login}
               >
                 <Button.Content hidden={true}>
-                  {isAuthenticated ? username : "Login"}
+                  {isAuthenticated ? "Profile" : "Login"}
                 </Button.Content>
                 <Button.Content visible={true}>
                   <Icon name="user" />
@@ -113,8 +112,7 @@ const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
     isAdmin: !!login.isAdmin,
-    isAuthenticated: login.username !== "",
-    username: login.username
+    isAuthenticated: login.username !== ""
   };
 };
 

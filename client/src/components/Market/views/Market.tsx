@@ -40,7 +40,7 @@ class Market extends React.Component<{}, IServicesStates> {
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchGroups()
+    fetchGroups(true)
       .then((groups: IGroup[]) => this.setState({ groups }))
       .catch((error: Error) => this.setState({ error }));
   }

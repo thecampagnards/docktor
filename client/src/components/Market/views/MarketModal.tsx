@@ -111,7 +111,7 @@ class MarketModal extends React.Component<
             </Grid.Column>
             <Grid.Column width={service.Link ? 10 : 12}>
               <Modal.Description>
-                <ReactMarkdown source={service.Description} />
+                <ReactMarkdown source={service.Description} escapeHtml={false} />
               </Modal.Description>
             </Grid.Column>
             {service.Link &&

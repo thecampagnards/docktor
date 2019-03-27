@@ -31,7 +31,7 @@ var userRestRequest = []bson.M{
 		},
 	}},
 	bson.M{"$unwind": bson.M{
-		"path":                       "$groupsdata",
+		"path": "$groupsdata",
 		"preserveNullAndEmptyArrays": true,
 	}},
 	bson.M{"$lookup": bson.M{
@@ -41,7 +41,7 @@ var userRestRequest = []bson.M{
 		"as":           "groupsdata.daemondata",
 	}},
 	bson.M{"$unwind": bson.M{
-		"path":                       "$groupsdata.daemondata",
+		"path": "$groupsdata.daemondata",
 		"preserveNullAndEmptyArrays": true,
 	}},
 	bson.M{"$group": bson.M{
@@ -74,6 +74,30 @@ func GetUsers() (types.Users, error) {
 	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
 
 	err = c.Find(bson.M{}).All(&t)
+
+	if err != nil {
+		return t, errors.New("There was an error trying to find the users")
+	}
+
+	return t, err
+}
+
+// GetUsersRest get all users with groups and daemons
+func GetUsersRest() (types.UsersRest, error) {
+	db := config.DB{}
+	t := types.UsersRest{}
+
+	s, err := db.DoDial()
+
+	if err != nil {
+		return t, errors.New("There was an error trying to connect with the DB")
+	}
+
+	defer s.Close()
+
+	c := s.DB(db.Name()).C(types.USERS_DB_COLUMN)
+
+	err = c.Pipe(userRestRequest).All(&t)
 
 	if err != nil {
 		return t, errors.New("There was an error trying to find the users")

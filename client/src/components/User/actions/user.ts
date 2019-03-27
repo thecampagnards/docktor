@@ -31,11 +31,34 @@ export interface ILogoutSuccess {
   type: LogoutSuccess;
 }
 
+type RegisterRequest = "REGISTER_REQUEST";
+export const RegisterRequest: RegisterRequest = "REGISTER_REQUEST";
+export interface IRegisterRequest {
+  type: RegisterRequest;
+}
+
+type RegisterSuccess = "REGISTER_SUCCESS";
+export const RegisterSuccess: RegisterSuccess = "REGISTER_SUCCESS";
+export interface IRegisterSuccess {
+  type: RegisterSuccess;
+  username: string;
+}
+
+type RegisterFailure = "REGISTER_FAILURE";
+export const RegisterFailure: RegisterFailure = "REGISTER_FAILURE";
+export interface IRegisterFailure {
+  type: RegisterFailure;
+  message: string;
+}
+
 export type AuthAction =
   | ILoginRequest
   | ILoginSuccess
   | ILoginFailure
-  | ILogoutSuccess;
+  | ILogoutSuccess
+  | IRegisterRequest
+  | IRegisterSuccess
+  | IRegisterFailure;
 
 export const loginRequestThunk = (u: IUser, ldap: boolean) => {
   return (dispatch: Dispatch<AuthAction>) => {
@@ -64,6 +87,35 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
         dispatch({
           message: error.message,
           type: LoginFailure
+        });
+      });
+  };
+};
+
+export const registerRequestThunk = (u: IUser) => {
+  return (dispatch: Dispatch<AuthAction>) => {
+    dispatch({
+      type: RegisterRequest
+    });
+    return fetch(`${process.env.PUBLIC_URL}/api/auth/register`, {
+      credentials: "same-origin",
+      method: "POST",
+      body: JSON.stringify(u),
+      headers: { "Content-Type": "application/json" }
+    })
+      .then(checkStatus)
+      .then((response: Response) => response.json())
+      .then((token: string) => {
+        localStorage.setItem("token", token);
+        dispatch({
+          type: RegisterSuccess,
+          username: (JWT(token) as IUserToken).Username
+        });
+      })
+      .catch((error: Error) => {
+        dispatch({
+          message: error.message,
+          type: RegisterFailure
         });
       });
   };

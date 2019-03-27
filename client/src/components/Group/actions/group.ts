@@ -2,8 +2,8 @@ import { checkStatus } from '../../../utils/promises';
 import { GetToken } from '../../User/actions/user';
 import { IGroup } from '../types/group';
 
-export const fetchGroups = () => {
-  return fetch(`${process.env.PUBLIC_URL}/api/groups`, {
+export const fetchGroups = (all: boolean) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups?all=${all}`, {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
@@ -113,3 +113,19 @@ export const fetchCadvisorContainers = (groupID: string) => {
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
+
+export const updateUser = (groupID: string, userID: string, status: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/updateuser/${userID}/${status}`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GetToken()}`
+      }
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+}
