@@ -97,19 +97,9 @@ export default class ProfileCard extends React.Component<IProfileCardProps, IPro
     ) => {
         this.setState({ isFetching: true});
         const username = this.props.user.Username;
-        if (checked as boolean) {
-            updateUser(name as string, username, "admin")
-                .then(() => {
-                    this.props.refresh();
-                    this.setState({ isFetching: false});
-                });
-        } else {
-            updateUser(name as string, username, "user")
-                .then(() => {
-                    this.props.refresh();
-                    this.setState({ isFetching: false});
-                });
-        }
+        updateUser(name as string, username, checked as boolean ? "admin" : "user")
+            .then(() => this.props.refresh())
+            .finally(() => this.setState({ isFetching: false}));
     }
 
     private deleteFromGroup = (

@@ -1,5 +1,6 @@
 import { checkStatus } from '../../../utils/promises';
 import { GetToken } from './user';
+import { userTypes } from '../types/user'
 
 export const fetchUsers = () => {
     return fetch(`${process.env.PUBLIC_URL}/api/users`, {
@@ -37,7 +38,7 @@ export const deleteUser = (username: string) => {
         .then(response => response.json());
 }
 
-export const setGlobalRole = (username: string, role: 'admin' | 'user') => {
+export const setGlobalRole = (username: string, role: userTypes) => {
     return fetch(`${process.env.PUBLIC_URL}/api/users/${username}/role/${role}`, {
       credentials: "same-origin",
       method: "PUT",
