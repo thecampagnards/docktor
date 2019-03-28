@@ -49,6 +49,14 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
+    if (group.Services.length === 0) {
+      return (
+        <Message info={true}>
+          <Message.Header>You don't have any services</Message.Header>
+        </Message>
+      );
+    }
+
     if (isFetching) {
       return <Loader active={true} />;
     }

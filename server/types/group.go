@@ -49,7 +49,7 @@ func (g Group) IsAdmin(u User) bool {
 // IsMyGroup check if this is a group of the user
 func (g Group) IsMyGroup(u User) bool {
 
-	if u.IsAdmin() {
+	if g.IsAdmin(u) {
 		return true
 	}
 
