@@ -14,12 +14,13 @@ import KonamiCode from './KonamiCode';
 interface ILayoutProps {
   isAdmin: boolean;
   isAuthenticated: boolean;
+  username: string;
   logoutRequest?: () => void;
 }
 
 class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const { isAuthenticated, isAdmin } = this.props;
+    const { username, isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
@@ -69,16 +70,7 @@ class Layout extends React.Component<ILayoutProps> {
           )}
           <Menu.Menu position="right">
             {isAuthenticated && (
-              <Menu.Item>
-                <Button
-                  color="red"
-                  as={Link}
-                  to={path.login}
-                  onClick={this.props.logoutRequest}
-                >
-                  Logout
-                </Button>
-              </Menu.Item>
+              <Menu.Item>{username}</Menu.Item>
             )}
             <Menu.Item>
               <Button
@@ -94,6 +86,16 @@ class Layout extends React.Component<ILayoutProps> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
+              <pre>{" "}</pre>
+              {isAuthenticated && (
+                <Button
+                  color="red"
+                  icon="sign-out"
+                  as={Link}
+                  to={path.login}
+                  onClick={this.props.logoutRequest}
+                />
+              )}
             </Menu.Item>
           </Menu.Menu>
         </Menu>
@@ -111,6 +113,7 @@ class Layout extends React.Component<ILayoutProps> {
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
+    username: login.username,
     isAdmin: !!login.isAdmin,
     isAuthenticated: login.username !== ""
   };

@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Dropdown, DropdownProps, Grid, Loader, Message, Search,
@@ -10,7 +11,13 @@ import { path } from '../../../constants/path';
 import { fetchGroups } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCard from './GroupCard';
+import { IStoreState } from '../../../types/store';
 
+
+interface IGroupsProps {
+  username: string;
+  isAdmin: boolean;
+}
 interface IGroupsStates {
   groups: IGroup[];
   groupsFiltered: IGroup[];
@@ -18,7 +25,7 @@ interface IGroupsStates {
   error: Error;
 }
 
-class Groups extends React.Component<{}, IGroupsStates> {
+class Groups extends React.Component<IGroupsProps, IGroupsStates> {
   public state = {
     groups: [] as IGroup[],
     groupsFiltered: [] as IGroup[],
@@ -28,6 +35,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
   private searchDaemonID: string = "";
   private searchFilter: string = "";
   private toggleLoading: boolean = false;
+  private displayAll: boolean = false;
 
   public componentWillMount() {
     fetchGroups(false)
@@ -39,6 +47,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
 
   public render() {
     const { groups, groupsFiltered, error, isFetching } = this.state;
+    const { username, isAdmin } = this.props;
 
     if (error.message) {
       return (
@@ -112,7 +121,7 @@ class Groups extends React.Component<{}, IGroupsStates> {
         <Grid>
           {groupsFiltered.slice(0, 16).map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
-              <GroupCard group={group} />
+              <GroupCard group={group} admin={isAdmin} groupAdmin={isAdmin || (group.Admins.indexOf(username) > -1)} displayButtons={!this.displayAll} />
             </Grid.Column>
           ))}
         </Grid>
@@ -125,7 +134,8 @@ class Groups extends React.Component<{}, IGroupsStates> {
     { checked }: CheckboxProps
   ) => {
     this.toggleLoading = true;
-    fetchGroups(checked as boolean)
+    this.displayAll = checked as boolean;
+    fetchGroups(this.displayAll)
       .then(groups =>
         this.setState({ groups, groupsFiltered: groups, isFetching: false })
       )
@@ -159,4 +169,13 @@ class Groups extends React.Component<{}, IGroupsStates> {
   };
 }
 
-export default Groups;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    username: login.username,
+    isAdmin: !!login.isAdmin,
+    isAuthenticated: login.username !== ""
+  };
+};
+
+export default connect(mapStateToProps)(Groups);

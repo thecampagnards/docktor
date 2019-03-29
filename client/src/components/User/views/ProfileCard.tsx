@@ -11,10 +11,19 @@ import { updateUser } from '../../Group/actions/group';
 
 interface IProfileCardProps {
     user: IUser,
-    perm: boolean
+    perm: boolean,
+    refresh: () => void;
 }
 
-export default class ProfileCard extends React.Component<IProfileCardProps> {
+interface IProfileCardStates {
+    isFetching: boolean;
+}
+
+export default class ProfileCard extends React.Component<IProfileCardProps, IProfileCardStates> {
+    public state = {
+        isFetching: false
+    }
+
     public render() {
         const { user } = this.props
 
@@ -26,7 +35,7 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                             <Card.Header>{user.Username.toUpperCase()}</Card.Header>
                         </Grid.Column>
                         <Grid.Column width={3}>
-                            <Label compact={true} color="green">{user.Role}</Label>
+                            <Label compact="true" color="green">{user.Role}</Label>
                         </Grid.Column>
                     </Grid>
                     <Card.Meta>{user.FirstName + " " + user.LastName}</Card.Meta>
@@ -70,10 +79,10 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                     )}
                     {!user.GroupsData && (
                         <p>
-                            <p style={{color: 'red'}}>This account is not assigned to any group.</p>
+                            <pre style={{color: 'red'}}>This account is not assigned to any group.</pre>
                             Contact an administrator of the group you want to join : <br />
                             Groups -> Toggle "Display all groups" > use the search filter to find your group > admins of the group are listed below the group title.
-            </p>
+                        </p>
                     )}
                 </Card.Content>
             </Card>
@@ -86,26 +95,29 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
         event: React.SyntheticEvent,
         { name, checked }: CheckboxProps
     ) => {
+        this.setState({ isFetching: true});
         const username = this.props.user.Username;
-        if (checked as boolean) {
-            updateUser(name as string, username, "admin");
-        } else {
-            updateUser(name as string, username, "user");
-        }
+        updateUser(name as string, username, checked as boolean ? "admin" : "user")
+            .then(() => this.props.refresh())
+            .finally(() => this.setState({ isFetching: false}));
     }
 
     private deleteFromGroup = (
         event: React.SyntheticEvent
     ) => {
+        this.setState({ isFetching: true});
         const username = this.props.user.Username;
-        updateUser(name as string, username, "delete");
-        window.location.reload();
+        updateUser(name as string, username, "delete")
+            .then(() => {
+                this.props.refresh();
+                this.setState({ isFetching: false});
+            });
     }
 
     private computeGroupRole = (group: IGroup) => {
-        const user = this.props.user;
+        const username = this.props.user.Username;
         if (group.Admins) {
-            if (group.Admins.indexOf(user.Username) > -1) {
+            if (group.Admins.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={group._id}
@@ -113,20 +125,20 @@ export default class ProfileCard extends React.Component<IProfileCardProps> {
                         defaultChecked={true}
                         label="admin"
                         onChange={this.handleRoleChange}
-                        disabled={!this.props.perm}
+                        disabled={!this.props.perm || this.state.isFetching}
                     />
                 );
             }
         }
         if (group.Users) {
-            if (group.Users.indexOf(user.Username) > -1) {
+            if (group.Users.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={group._id}
                         toggle={true}
                         label="user"
                         onChange={this.handleRoleChange}
-                        disabled={!this.props.perm}
+                        disabled={!this.props.perm || this.state.isFetching}
                     />
                 );
             }

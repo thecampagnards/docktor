@@ -6,7 +6,7 @@ import { IDaemon } from '../types/daemon';
 
 export function serviceButton(daemon: IDaemon, services: string[]) {
   return <h4>
-    {services.join(",")} :
+    {services.join(", ") + " : "}
     <Button.Group>
       <Button color="orange" disabled={false}
         onClick={changeComposeStatus.bind(

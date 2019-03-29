@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Loader, Message, Progress } from 'semantic-ui-react';
+import { Icon, Loader, Message, Progress, Grid, Button } from 'semantic-ui-react';
 
 import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/daemon';
 import { IContainerInfo, IDaemon, IMachineInfo } from '../types/daemon';
@@ -61,12 +61,14 @@ class DaemonCAdvisor extends React.Component<
 
   public render() {
     const {
-      daemon,
       containerInfo,
       machineInfo,
       error,
       isFetching
     } = this.state;
+
+    const { daemon } = this.props;
+
     const buttons = serviceButton(daemon, ["cadvisor"]);
 
     if (error.message) {
@@ -89,7 +91,16 @@ class DaemonCAdvisor extends React.Component<
 
     return (
       <>
-        {buttons}
+        <Grid>
+          <Grid.Column width={10}>
+            <Button icon={true} labelPosition="right" as="a" title={daemon.CAdvisor} href={daemon.CAdvisor} target="_blank">
+              <Icon name="external alternate" /> Open cAdvisor webpage 
+            </Button>
+          </Grid.Column>
+          <Grid.Column width={6}>
+            {buttons}
+          </Grid.Column>
+        </Grid>
         <Progress
           value={
             (containerInfo.name &&

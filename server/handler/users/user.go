@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"docktor/server/dao"
+	"docktor/server/helper/ldap"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -59,6 +60,7 @@ func save(c echo.Context) error {
 
 // deleteByUsername delete one by username
 func deleteByUsername(c echo.Context) error {
+	// TODO also delete user in all groups
 	err := dao.DeleteUser(c.Param(types.USERNAME_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -68,4 +70,25 @@ func deleteByUsername(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "ok")
+}
+
+// setGlobalRole sets the role of a user to 'admin' or 'user'
+func setGlobalRole(c echo.Context) error {
+
+	user := types.User{
+		Attributes: ldap.Attributes{
+			Username: c.Param("username"),
+		},
+		Role: c.Param("role"),
+	}
+
+	s, err := dao.CreateOrUpdateUser(user)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"username": c.Param(types.USERNAME_PARAM),
+			"error":    err,
+		}).Error("Error when updating user's role")
+		return c.JSON(http.StatusInternalServerError, err.Error())
+	}
+	return c.JSON(http.StatusOK, s)
 }

@@ -120,7 +120,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                       icon="chart area"
                       content="CAdvisor"
                       disabled={!daemon.CAdvisor}
-                      href={daemon.CAdvisor}
+                      as={Link}
+                      to={path.daemonsCAdvisor.replace(":daemonID", daemon._id)}
                     />
                     <Button
                       icon="docker"

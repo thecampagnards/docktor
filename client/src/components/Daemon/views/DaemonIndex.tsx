@@ -28,7 +28,7 @@ class DaemonIndex extends React.Component<
   > {
   public state = {
     activeTab: 0,
-    isFetching: false,
+    isFetching: true,
     daemon: {} as IDaemon,
     error: Error()
   };
@@ -38,7 +38,7 @@ class DaemonIndex extends React.Component<
     const path = window.location.pathname;
 
     fetchDaemon(daemonID)
-      .then((daemon: IDaemon) => this.setState({ daemon }))
+      .then((daemon: IDaemon) => this.setState({ daemon, isFetching: false }))
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
     let activeTab: number;
@@ -74,12 +74,21 @@ class DaemonIndex extends React.Component<
       );
     }
 
+
+    if (isFetching) {
+      return (
+        <Message negative={true}>
+loading
+        </Message>
+      );
+    }
+
     const panes = [
       {
         menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={1} disabled={!daemon.Docker || !daemon.Docker.Port}>
-            {daemon._id && <DaemonContainers daemon={daemon} />}
+           <DaemonContainers daemon={daemon} />
           </Tab.Pane>
         )
       },
@@ -87,7 +96,7 @@ class DaemonIndex extends React.Component<
         menuItem: "CAdvisor",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {daemon._id && <DaemonCAdvisor daemon={daemon} />}
+           <DaemonCAdvisor daemon={daemon} />
           </Tab.Pane>
         )
       },
@@ -95,7 +104,7 @@ class DaemonIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            {daemon._id && <DaemonForm daemon={daemon} />}
+           <DaemonForm daemon={daemon} />
           </Tab.Pane>
         )
       },
@@ -103,7 +112,7 @@ class DaemonIndex extends React.Component<
         menuItem: "SSH",
         pane: (
           <Tab.Pane loading={isFetching} key={4} disabled={!daemon.SSH || !daemon.SSH.Port}>
-            {daemon._id && <DaemonSSH daemon={daemon} />}
+           <DaemonSSH daemon={daemon} />
           </Tab.Pane>
         )
       }
@@ -111,7 +120,7 @@ class DaemonIndex extends React.Component<
 
     return (
       <>
-        <h1>{daemon.Name || "Daemon"}</h1>
+        <h1>{daemon ? "Daemon : " + daemon.Name : "Unknown daemon"}</h1>
         <ReactMarkdown source={daemon.Description} escapeHtml={false} />
         <Tab
           panes={panes}
