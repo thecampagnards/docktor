@@ -4,12 +4,14 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Dispatch } from 'redux';
-import { Button, Container, Icon, Menu } from 'semantic-ui-react';
+import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
 import { IStoreState } from '../../types/store';
 import { logoutRequestThunk } from '../User/actions/user';
+import { fetchMesage } from './actions/layout';
 import KonamiCode from './KonamiCode';
+import { IMessage } from './types/layout';
 
 interface ILayoutProps {
   isAdmin: boolean;
@@ -18,9 +20,20 @@ interface ILayoutProps {
   logoutRequest?: () => void;
 }
 
-class Layout extends React.Component<ILayoutProps> {
+interface ILayoutStates {
+  message: IMessage;
+}
+
+class Layout extends React.Component<ILayoutProps, ILayoutStates> {
+
+  public componentWillMount() {
+    fetchMesage()
+      .then((message) => this.setState({ message }))
+  }
+
   public render() {
     const { username, isAuthenticated, isAdmin } = this.props;
+    const { message } = this.state;
 
     return (
       <>
@@ -100,7 +113,15 @@ class Layout extends React.Component<ILayoutProps> {
           </Menu.Menu>
         </Menu>
 
-        <Container>{this.props.children}</Container>
+        {
+          message && <Container>
+            <Message {...message} />
+          </Container>
+        }
+
+        <Container>
+          {this.props.children}
+        </Container>
       </>
     );
   }

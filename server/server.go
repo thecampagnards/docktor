@@ -1,9 +1,9 @@
 package main
 
 import (
-	"docktor/server/config"
 	"docktor/server/dao"
 	"docktor/server/handler/admin"
+	"docktor/server/handler/config"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
 	"docktor/server/handler/services"
@@ -120,6 +120,7 @@ func main() {
 	groups.AddRoute(api)
 	services.AddRoute(api)
 	users.AddRoute(api)
+	config.AddRoute(api)
 
 	e.GET("/*", GetIndex)
 

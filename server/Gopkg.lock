@@ -420,17 +420,11 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:0573a48c92e778ad732779bf1e5064a5085ab3fbd236ad71e53cab5753ef3e6e"
+  digest = "1:f806b417865e83457c3659232926203f5b0d39aa741b71d9e3e4c0c774e71a5c"
   name = "github.com/prometheus/procfs"
-  packages = [
-    ".",
-    "internal/util",
-    "iostats",
-    "nfs",
-    "xfs",
-  ]
+  packages = ["."]
   pruneopts = "UT"
-  revision = "e56f2e22fc761e82a34aca553f6725e2aff4fe6c"
+  revision = "af7bedc223fba51343f25a6fa7aba84355d0357a"
 
 [[projects]]
   digest = "1:e4c72127d910a96daf869a44f3dd563b86dbe6931a172863a0e99c5ff04b59e4"
@@ -489,7 +483,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:d6c5bf96a6b49d238a6293a2774e3668ad4b546509c7f5b106e4d1a45f393080"
+  digest = "1:5c699dd1e56092c9ff0112ec5634a2e82be138d338875d64a4a579987b7cb9a6"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -504,7 +498,7 @@
     "ssh/terminal",
   ]
   pruneopts = "UT"
-  revision = "a1f597ede03a7bef967a422b5b3a5bd08805a01e"
+  revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
 
 [[projects]]
   digest = "1:3597028cb527891e8c3a1a79050dc23b14fcde46684c66b5565efe4dc45249e9"
@@ -521,7 +515,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:450becdbf6739398b40a71ea3416b67c74547e808849dbbd85f01a3b98e42417"
+  digest = "1:30d79a7786136afb612559f0f18766abef329ee1bdde840e696d7fcf869211d1"
   name = "golang.org/x/sys"
   packages = [
     "cpu",
@@ -529,7 +523,7 @@
     "windows",
   ]
   pruneopts = "UT"
-  revision = "a2f829d7f35f2ed1c3520c553a6226495455cae0"
+  revision = "9eb1bfa1ce65ae8a6ff3114b0aaf9a41a6cf3560"
 
 [[projects]]
   branch = "master"
