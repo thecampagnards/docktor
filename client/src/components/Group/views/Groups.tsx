@@ -108,6 +108,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             />
           </Grid.Column>
           <Grid.Column width={3}>
+            {isAdmin &&
             <Button
               primary={true}
               floated="right"
@@ -116,6 +117,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             >
               Create group
             </Button>
+            }
           </Grid.Column>
         </Grid>
         <Grid>

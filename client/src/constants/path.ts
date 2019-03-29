@@ -10,6 +10,7 @@ export const path = {
   groupsContainers: "/groups/:groupID/containers",
   groupCAdvisor: "/groups/:groupID/cadvisor",
   groupsServices: "/groups/:groupID/services",
+  groupsMembers: "/groups/:groupID/members",
 
   daemons: "/daemons",
   daemonsNew: "/daemons/new",

@@ -8,6 +8,7 @@ import { fetchGroup } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCAdvisor from './GroupCAdvisor';
 import GroupContainers from './GroupContainers';
+import GroupMembers from './GroupMembers';
 import GroupForm from './GroupForm';
 import GroupServices from './GroupServices';
 
@@ -51,11 +52,14 @@ class GroupIndex extends React.Component<
       case path === constPath.groupsContainers.replace(":groupID", groupID):
         activeTab = 1;
         break;
-      case path === constPath.groupCAdvisor.replace(":groupID", groupID):
+      case path === constPath.groupsMembers.replace(":groupID", groupID):
         activeTab = 2;
         break;
-      case path === constPath.groupsEdit.replace(":groupID", groupID):
+      case path === constPath.groupCAdvisor.replace(":groupID", groupID):
         activeTab = 3;
+        break;
+      case path === constPath.groupsEdit.replace(":groupID", groupID):
+        activeTab = 4;
         break;
       default:
         activeTab = 0;
@@ -97,9 +101,17 @@ class GroupIndex extends React.Component<
         )
       },
       {
-        menuItem: "CAdvisor",
+        menuItem: "Members",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
+            {group._id && <GroupMembers group={group} />}
+          </Tab.Pane>
+        )
+      },
+      {
+        menuItem: "CAdvisor",
+        pane: (
+          <Tab.Pane loading={isFetching} key={4}>
             {group._id && <GroupCAdvisor group={group} />}
           </Tab.Pane>
         )
@@ -107,7 +119,7 @@ class GroupIndex extends React.Component<
       {
         menuItem: "Edit",
         pane: (
-          <Tab.Pane loading={isFetching} key={4}>
+          <Tab.Pane loading={isFetching} key={5}>
             {group._id && <GroupForm group={group} />}
           </Tab.Pane>
         )
@@ -146,10 +158,15 @@ class GroupIndex extends React.Component<
         break;
       case 2:
         this.props.history.push(
-          constPath.groupCAdvisor.replace(":groupID", groupID)
+          constPath.groupsMembers.replace(":groupID", groupID)
         );
         break;
       case 3:
+        this.props.history.push(
+          constPath.groupCAdvisor.replace(":groupID", groupID)
+        );
+        break;
+      case 4:
         this.props.history.push(
           constPath.groupsEdit.replace(":groupID", groupID)
         );
