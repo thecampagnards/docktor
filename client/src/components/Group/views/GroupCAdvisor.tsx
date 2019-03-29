@@ -92,6 +92,7 @@ class GroupCAdvisor extends React.Component<
           progress="percent"
           indicating={true}
           label="CPU"
+          className="reverse"
         />
         <Progress
           value={
@@ -104,6 +105,7 @@ class GroupCAdvisor extends React.Component<
           progress="percent"
           indicating={true}
           label="RAM"
+          className="reverse"
         />
         {containerInfo.name &&
           containerInfo.stats[0].filesystem &&
@@ -119,6 +121,7 @@ class GroupCAdvisor extends React.Component<
                 progress="ratio"
                 indicating={true}
                 label={"Disk - " + fs.device}
+                className="reverse"
               />
             ))}
       </>
