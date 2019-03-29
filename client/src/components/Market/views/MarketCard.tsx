@@ -19,7 +19,7 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
     return (
       <Card fluid={true}>
         {service.Image && (
-          <Image src={`data:image/png;base64,${service.Image}`} />
+          <Image src={service.Image} />
         )}
         <Card.Content>
           <Card.Header>{service.Name}</Card.Header>

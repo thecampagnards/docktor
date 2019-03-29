@@ -184,7 +184,11 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 		return
 	}
 
-	err = utils.ComposeUp(group.Name, daemon, service)
+	log.WithFields(log.Fields{
+		"service": string(service),
+	}).Info("Sub service converted")
+
+	err = utils.ComposeUp(group.Name, daemon, [][]byte{service})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group":   group,

@@ -102,7 +102,7 @@ class Services extends React.Component<{}, IServicesStates> {
                   {service.Image ? (
                     <Image
                       size="small"
-                      src={"data:image/png;base64," + service.Image}
+                      src={service.Image}
                     />
                   ) : (
                     "No image"
