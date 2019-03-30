@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 
-	"docktor/server/config"
+	"docktor/server/db"
 	"docktor/server/types"
 
 	"github.com/globalsign/mgo/bson"
@@ -12,7 +12,7 @@ import (
 
 // GetServices get all services
 func GetServices() (types.Services, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Services{}
 
 	s, err := db.DoDial()
@@ -36,7 +36,7 @@ func GetServices() (types.Services, error) {
 
 // GetServiceByID get one service by id
 func GetServiceByID(id string) (types.Service, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Service{}
 
 	s, err := db.DoDial()
@@ -60,7 +60,7 @@ func GetServiceByID(id string) (types.Service, error) {
 
 // GetServiceBySubSeriveID get one service by subservice id
 func GetServiceBySubSeriveID(id string) (types.Service, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Service{}
 
 	s, err := db.DoDial()
@@ -84,7 +84,7 @@ func GetServiceBySubSeriveID(id string) (types.Service, error) {
 
 // GetSubServiceByID get one sub service by subservice id
 func GetSubServiceByID(id string) (types.SubService, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Service{}
 
 	s, err := db.DoDial()
@@ -108,7 +108,7 @@ func GetSubServiceByID(id string) (types.SubService, error) {
 
 // CreateOrUpdateService create or update service
 func CreateOrUpdateService(t types.Service) (types.Service, error) {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
@@ -146,7 +146,7 @@ func CreateOrUpdateService(t types.Service) (types.Service, error) {
 
 // DeleteService remove a service by id
 func DeleteService(id string) error {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 

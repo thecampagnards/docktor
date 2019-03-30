@@ -34,6 +34,9 @@ const (
 	FORM_DATA_IMAGES_FIELD_NAME = "images"
 	FORM_DATA_FILES_FIELD_NAME  = "files"
 	FORM_DATA_DATA_FIELD_NAME   = "data"
+
+	// Config
+	CONFIG_DB_COLUMN = "config"
 )
 
 var (

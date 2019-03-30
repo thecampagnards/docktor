@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"html/template"
+	"math/rand"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -35,8 +36,8 @@ type Services []Service
 
 // GetRemoteFile Check if file is remote and pull it
 func (sub *SubService) GetRemoteFile() (err error) {
-	_, err = url.ParseRequestURI(sub.File)
-	if err != nil {
+	u, err := url.ParseRequestURI(sub.File)
+	if err != nil || u.Host == "" {
 		return nil
 	}
 
@@ -62,7 +63,7 @@ func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
 		return nil, err
 	}
 
-	tmpl, err := template.New("template").Parse(sub.File)
+	tmpl, err := template.New("template").Funcs(template.FuncMap{"split": split, "randString": randString}).Parse(sub.File)
 	if err != nil {
 		return nil, err
 	}
@@ -84,7 +85,7 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 		return err
 	}
 
-	tmpl, err := template.New("").Option("missingkey=error").Parse(sub.File)
+	tmpl, err := template.New("").Funcs(template.FuncMap{"split": split, "randString": randString}).Option("missingkey=error").Parse(sub.File)
 	if err != nil {
 		return err
 	}
@@ -92,7 +93,7 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 	var b bytes.Buffer
 	var data = make(map[string]interface{})
 	data["Group"] = Group{}
-	data["Daemon"] = Daemon{}
+	data["Daemon"] = Daemon{Host: "vm.loc.cn.ssg"}
 	var keys []string
 	r, _ := regexp.Compile(`key "(.*?)"`)
 
@@ -116,4 +117,17 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 
 	sub.Variables = keys
 	return nil
+}
+
+func split(s string, d string) []string {
+	return strings.Split(d, s)
+}
+
+func randString(n int) string {
+	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = letterBytes[rand.Intn(len(letterBytes))]
+	}
+	return string(b)
 }

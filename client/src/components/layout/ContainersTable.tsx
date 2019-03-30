@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Grid, Icon, List, Modal, Table, Search, SearchProps } from 'semantic-ui-react';
+import { Button, Grid, Icon, List, Modal, Search, SearchProps, Table } from 'semantic-ui-react';
 
 import { status } from '../../constants/container';
 import { changeContainersStatus } from '../Daemon/actions/daemon';
@@ -137,7 +137,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                     </Button.Group>
                   </Table.Cell>
                   <Table.Cell width={5}>
-                    <Button 
+                    <Button
                       icon="clipboard"
                       content="Image"
                       title={container.Image}
@@ -211,11 +211,14 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
   };
 
   private copyImage = (value: string) => {
-    document.addEventListener("copy", (e: ClipboardEvent) => {
-      e.clipboardData.setData("text/plain", value);
+
+    const f = (e: ClipboardEvent) => {
+      e.clipboardData!.setData("text/plain", value);
       e.preventDefault();
-      document.removeEventListener("copy", this.copyImage.bind(this));
-    });
+      document.removeEventListener("copy", f)
+    };
+
+    document.addEventListener("copy", f)
     document.execCommand("copy");
   };
 

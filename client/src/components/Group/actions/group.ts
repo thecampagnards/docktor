@@ -66,9 +66,8 @@ export const deployService = (
   }
   opt = opt.slice(0, -1);
   return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/create/${serviceID}?${opt}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/create/${serviceID}${opt &&
+      "?" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -116,7 +115,9 @@ export const fetchCadvisorContainers = (groupID: string) => {
 
 export const updateUser = (groupID: string, userID: string, status: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/updateuser/${userID}/${status}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/updateuser/${userID}/${status}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -128,4 +129,4 @@ export const updateUser = (groupID: string, userID: string, status: string) => {
   )
     .then(checkStatus)
     .then(response => response.json());
-}
+};

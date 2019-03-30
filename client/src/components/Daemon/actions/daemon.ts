@@ -64,6 +64,21 @@ export const changeContainersStatus = (
     .then((response: Response) => response.json());
 };
 
+export const fetchComposeServices = (daemonID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/compose/services`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
 export const changeComposeStatus = (
   daemonID: string,
   status: string,

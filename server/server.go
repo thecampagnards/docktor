@@ -1,8 +1,8 @@
 package main
 
 import (
-	"docktor/server/config"
 	"docktor/server/dao"
+	"docktor/server/db"
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
@@ -59,7 +59,7 @@ func configure(e *echo.Echo) {
 	}
 	logrus.SetLevel(l)
 
-	config.Init(mongoURL)
+	db.Init(mongoURL)
 
 	user := types.User{}
 	user.Username = defaultAdminAccount

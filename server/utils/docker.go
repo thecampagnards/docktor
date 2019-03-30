@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"net/http"
 	"os"
@@ -10,6 +11,7 @@ import (
 	"docktor/server/types"
 
 	dockerTypes "github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/tlsconfig"
 	"golang.org/x/net/context"
@@ -73,6 +75,42 @@ func getDockerCli(daemon types.Daemon) (cli DockerCli, err error) {
 
 	cli.Client, err = client.NewClientWithOpts(client.WithHost(daemon.GetCompleteHost()), client.WithHTTPClient(c))
 	return
+}
+
+// CreateNetwork
+func CreateNetwork(daemon types.Daemon, networkName string, subnet string) (dockerTypes.NetworkCreateResponse, error) {
+
+	cli, err := getDockerCli(daemon)
+	if err != nil {
+		return dockerTypes.NetworkCreateResponse{}, err
+	}
+
+	defer cli.Close()
+
+	net := dockerTypes.NetworkCreate{
+		CheckDuplicate: true,
+	}
+
+	if subnet != "" {
+		ip := strings.Split(subnet, ".")
+		ip = ip[:len(ip)-1]
+		ip[len(ip)] = "1"
+		gateway := strings.Join(ip, ".")
+		net.IPAM = &network.IPAM{
+			Config: []network.IPAMConfig{
+				network.IPAMConfig{
+					Subnet:  subnet,
+					Gateway: gateway,
+				},
+			},
+		}
+	}
+
+	resp, err := cli.NetworkCreate(context.Background(), networkName, net)
+	if err != nil && !strings.Contains(err.Error(), fmt.Sprintf("network with name %s already exists", networkName)) {
+		return dockerTypes.NetworkCreateResponse{}, err
+	}
+	return resp, nil
 }
 
 // GetContainers

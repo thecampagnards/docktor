@@ -44,7 +44,6 @@ func createSubService(c echo.Context) error {
 	}
 
 	serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
-	serviceGroup.FixPort, _ = strconv.ParseBool(c.QueryParam("fix-port"))
 
 	err = startServiceGroup(group, serviceGroup)
 	if err != nil {
@@ -144,7 +143,7 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 	var config config.Config
 	if err = yaml.Unmarshal(service, &config); err != nil {
 		log.WithFields(log.Fields{
-			"service": service,
+			"service": string(service),
 			"error":   err,
 		}).Error("Error when unmarshal service")
 		return
@@ -168,13 +167,6 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 		}).Infof("Configuration updated for %s", subService.Name)
 	}
 
-	if serviceGroup.FixPort {
-		log.WithFields(log.Fields{
-			"config": config,
-		}).Infof("Add fixed port for %s", subService.Name)
-		// TODO
-	}
-
 	service, err = yaml.Marshal(config)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -188,12 +180,12 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 		"service": string(service),
 	}).Info("Sub service converted")
 
-	err = utils.ComposeUp(group.Name, daemon, [][]byte{service})
+	err = utils.ComposeUp(group.Name, group.Subnet, daemon, [][]byte{service})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group":   group,
 			"daemon":  daemon,
-			"service": service,
+			"service": string(service),
 			"error":   err,
 		}).Error("Error when compose up")
 		return

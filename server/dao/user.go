@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 
-	"docktor/server/config"
+	"docktor/server/db"
 	"docktor/server/types"
 
 	"github.com/globalsign/mgo/bson"
@@ -60,7 +60,7 @@ var userRestRequest = []bson.M{
 
 // GetUsers get all users
 func GetUsers() (types.Users, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Users{}
 
 	s, err := db.DoDial()
@@ -84,7 +84,7 @@ func GetUsers() (types.Users, error) {
 
 // GetUsersRest get all users with groups and daemons
 func GetUsersRest() (types.UsersRest, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.UsersRest{}
 
 	s, err := db.DoDial()
@@ -108,7 +108,7 @@ func GetUsersRest() (types.UsersRest, error) {
 
 // GetUserByUsername get one user by username
 func GetUserByUsername(username string) (types.User, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.User{}
 
 	s, err := db.DoDial()
@@ -132,7 +132,7 @@ func GetUserByUsername(username string) (types.User, error) {
 
 // GetUserRestByUsername get one user by username with groups and daemons
 func GetUserRestByUsername(username string) (types.UserRest, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.UserRest{}
 
 	s, err := db.DoDial()
@@ -160,7 +160,7 @@ func GetUserRestByUsername(username string) (types.UserRest, error) {
 
 // LoginUser check username and password
 func LoginUser(username string, password string) (types.User, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.User{}
 
 	s, err := db.DoDial()
@@ -184,7 +184,7 @@ func LoginUser(username string, password string) (types.User, error) {
 
 // CreateOrUpdateUser create or update user
 func CreateOrUpdateUser(t types.User) (types.User, error) {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
@@ -217,7 +217,7 @@ func CreateOrUpdateUser(t types.User) (types.User, error) {
 
 // DeleteUser remove a user by username
 func DeleteUser(username string) error {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
