@@ -12,6 +12,9 @@ type Group struct {
 	Services    []ServiceGroup
 	Admins      []string
 	Users       []string
+	Subnet      string
+	MinPort     uint16
+	MaxPort     uint16
 }
 
 type GroupRest struct {
@@ -25,7 +28,7 @@ type ServiceGroup struct {
 	SubServiceID bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Variables    map[string]interface{}
 	AutoUpdate   bool
-	FixPort      bool
+	Ports        []uint16
 }
 
 type Groups []Group
@@ -55,6 +58,31 @@ func (g Group) IsMyGroup(u User) bool {
 
 	for _, user := range g.Users {
 		if user == u.Username {
+			return true
+		}
+	}
+	return false
+}
+
+// GetFreePort return the first available port
+func (g Group) GetFreePort() uint16 {
+	var ports []uint16
+	for _, s := range g.Services {
+		ports = append(ports, s.Ports...)
+	}
+
+	for i := g.MinPort; i < g.MaxPort; i++ {
+		if !findPort(i, ports) {
+			return i
+		}
+	}
+
+	return 0
+}
+
+func findPort(port uint16, ports []uint16) bool {
+	for _, p := range ports {
+		if port == p {
 			return true
 		}
 	}

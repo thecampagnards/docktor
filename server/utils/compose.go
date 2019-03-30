@@ -2,6 +2,7 @@ package utils
 
 import (
 	"errors"
+	"fmt"
 	"os"
 
 	"docktor/server/types"
@@ -84,7 +85,14 @@ func getComposeProjectContext(projectName string, files interface{}) (con projec
 }
 
 // ComposeUp run service, files has to be []string or [][]byte
-func ComposeUp(projectName string, daemon types.Daemon, files interface{}) (err error) {
+func ComposeUp(projectName string, subnet string, daemon types.Daemon, files interface{}) (err error) {
+
+	if subnet != "" {
+		_, err = CreateNetwork(daemon, fmt.Sprintf("%s-net", projectName), subnet)
+		if err != nil {
+			return
+		}
+	}
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {

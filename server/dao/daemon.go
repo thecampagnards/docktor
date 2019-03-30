@@ -1,7 +1,7 @@
 package dao
 
 import (
-	"docktor/server/config"
+	"docktor/server/db"
 	"docktor/server/types"
 	"errors"
 
@@ -11,7 +11,7 @@ import (
 
 // GetDaemons get all daemons
 func GetDaemons() (types.Daemons, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Daemons{}
 
 	s, err := db.DoDial()
@@ -35,7 +35,7 @@ func GetDaemons() (types.Daemons, error) {
 
 // GetDaemonByID get one daemon by id
 func GetDaemonByID(id string) (types.Daemon, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Daemon{}
 
 	s, err := db.DoDial()
@@ -59,7 +59,7 @@ func GetDaemonByID(id string) (types.Daemon, error) {
 
 // CreateOrUpdateDaemon create or update daemon
 func CreateOrUpdateDaemon(t types.Daemon) (types.Daemon, error) {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
@@ -91,7 +91,7 @@ func CreateOrUpdateDaemon(t types.Daemon) (types.Daemon, error) {
 
 // DeleteDaemon remove a daemon by id
 func DeleteDaemon(id string) error {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 

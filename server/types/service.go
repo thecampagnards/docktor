@@ -35,8 +35,8 @@ type Services []Service
 
 // GetRemoteFile Check if file is remote and pull it
 func (sub *SubService) GetRemoteFile() (err error) {
-	_, err = url.ParseRequestURI(sub.File)
-	if err != nil {
+	u, err := url.ParseRequestURI(sub.File)
+	if err != nil || u.Host == "" {
 		return nil
 	}
 

@@ -3,7 +3,7 @@ package dao
 import (
 	"errors"
 
-	"docktor/server/config"
+	"docktor/server/db"
 	"docktor/server/types"
 
 	"github.com/globalsign/mgo/bson"
@@ -47,7 +47,7 @@ var groupRestRequest = []bson.M{
 
 // GetGroups get all groups
 func GetGroups() (types.Groups, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Groups{}
 
 	s, err := db.DoDial()
@@ -71,7 +71,7 @@ func GetGroups() (types.Groups, error) {
 
 // GetGroupsRest get all groups with daemons, users and admins
 func GetGroupsRest() (types.GroupsRest, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.GroupsRest{}
 
 	s, err := db.DoDial()
@@ -95,7 +95,7 @@ func GetGroupsRest() (types.GroupsRest, error) {
 
 // GetGroupRestByID get one group by id with daemon, users and admins
 func GetGroupRestByID(id string) (types.GroupRest, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.GroupRest{}
 
 	s, err := db.DoDial()
@@ -121,7 +121,7 @@ func GetGroupRestByID(id string) (types.GroupRest, error) {
 
 // GetGroupByID get one group by id
 func GetGroupByID(id string) (types.Group, error) {
-	db := config.DB{}
+	db := db.DB{}
 	t := types.Group{}
 
 	s, err := db.DoDial()
@@ -145,7 +145,7 @@ func GetGroupByID(id string) (types.Group, error) {
 
 // CreateOrUpdateGroup create or update group
 func CreateOrUpdateGroup(t types.Group, merge bool) (types.Group, error) {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
@@ -179,7 +179,7 @@ func CreateOrUpdateGroup(t types.Group, merge bool) (types.Group, error) {
 
 // DeleteGroup remove a group by id
 func DeleteGroup(id string) error {
-	db := config.DB{}
+	db := db.DB{}
 
 	s, err := db.DoDial()
 

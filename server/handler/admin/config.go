@@ -1,4 +1,4 @@
-package config
+package admin
 
 import (
 	"docktor/server/dao"
@@ -11,7 +11,7 @@ import (
 
 // getMessage get the message banner
 func getMessage(c echo.Context) error {
-	m, err := dao.GetMessage()
+	m, err := dao.GetConfig()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -19,27 +19,40 @@ func getMessage(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	return c.JSON(http.StatusOK, m.Message)
+}
+
+// getConfig get the config
+func getConfig(c echo.Context) error {
+	m, err := dao.GetConfig()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Error when retrieving config")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	return c.JSON(http.StatusOK, m)
 }
 
-// save a Group server
-func saveMessage(c echo.Context) error {
-	var m types.Message
+// saveConfig
+func saveConfig(c echo.Context) error {
+	var m types.Config
 	err := c.Bind(&m)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"body":  c.Request().Body,
 			"error": err,
-		}).Error("Error when parsing message")
+		}).Error("Error when parsing config")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	m, err = dao.CreateOrUpdateMessage(m)
+	m, err = dao.CreateOrUpdateConfig(m)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"message": m,
-			"error":   err,
-		}).Error("Error when updating/creating message")
+			"config": m,
+			"error":  err,
+		}).Error("Error when updating/creating config")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 

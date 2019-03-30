@@ -16,4 +16,15 @@ func AddRoute(e *echo.Group) {
 		assets.GET("", getAssets, middleware.WithAdmin)
 		assets.POST(fmt.Sprintf("/:%s", types.ASSET_NAME_PARAM), saveAsset)
 	}
+
+	{
+		config := admin.Group("/config")
+		config.GET("", getConfig, middleware.WithAdmin)
+		config.POST("", saveConfig, middleware.WithAdmin)
+
+		{
+			message := config.Group("/message")
+			message.GET("", getMessage)
+		}
+	}
 }

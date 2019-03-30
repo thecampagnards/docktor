@@ -6,3 +6,7 @@ type Message struct {
 	Header  string `json:"header,omitempty"`
 	Content string `json:"content,omitempty"`
 }
+
+type Config struct {
+	Message Message
+}

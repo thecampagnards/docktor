@@ -1,17 +1,18 @@
 package dao
 
 import (
-	"docktor/server/config"
+	"docktor/server/db"
 	"docktor/server/types"
 	"errors"
 
 	"github.com/globalsign/mgo/bson"
+	"github.com/imdario/mergo"
 )
 
-// GetMessage get the banner message
-func GetMessage() (types.Message, error) {
-	db := config.DB{}
-	t := types.Message{}
+// GetConfig get the config
+func GetConfig() (types.Config, error) {
+	db := db.DB{}
+	t := types.Config{}
 
 	s, err := db.DoDial()
 
@@ -26,15 +27,15 @@ func GetMessage() (types.Message, error) {
 	err = c.Find(bson.M{}).One(&t)
 
 	if err != nil {
-		return t, errors.New("There was an error trying to find the message")
+		return t, errors.New("There was an error trying to find the config")
 	}
 
 	return t, err
 }
 
-// CreateOrUpdateMessage create or update the banner message
-func CreateOrUpdateMessage(t types.Message) (types.Message, error) {
-	db := config.DB{}
+// CreateOrUpdateConfig create or update the config
+func CreateOrUpdateConfig(t types.Config) (types.Config, error) {
+	db := db.DB{}
 
 	s, err := db.DoDial()
 
@@ -46,12 +47,19 @@ func CreateOrUpdateMessage(t types.Message) (types.Message, error) {
 
 	c := s.DB(db.Name()).C(types.CONFIG_DB_COLUMN)
 
-	if err != nil {
-		return t, errors.New("There was an error trying to insert the message to the DB")
-	}
+	config, err := GetConfig()
 
-	err = c.Insert(t)
-	err = c.Update(bson.M{}, t)
+	if err != nil {
+		err = c.Insert(t)
+	} else {
+		if err := mergo.Merge(&t, config); err != nil {
+			return t, err
+		}
+		err = c.Update(bson.M{}, t)
+	}
+	if err != nil {
+		return t, errors.New("There was an error trying to insert the config to the DB")
+	}
 
 	return t, err
 }

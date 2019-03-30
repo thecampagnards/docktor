@@ -24,6 +24,7 @@ func AddRoute(e *echo.Group) {
 		{
 			// Compose requests
 			compose := daemon.Group("/compose")
+			compose.GET("/services", getComposeServices)
 			compose.POST("/status", updateDaemonComposeStatus)
 		}
 		{

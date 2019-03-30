@@ -26,18 +26,24 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     error: Error()
   };
 
-  private searchField = ""
+  private searchField = "";
 
   public componentWillMount() {
     fetchDaemons()
-      .then((daemons) =>
+      .then(daemons =>
         this.setState({ daemons, daemonsFiltered: daemons, isFetching: false })
       )
-      .catch((error) => this.setState({ error, isFetching: false }));
+      .catch(error => this.setState({ error, isFetching: false }));
   }
 
   public render() {
-    const { daemons, daemonsFiltered, tagsFilter, error, isFetching } = this.state;
+    const {
+      daemons,
+      daemonsFiltered,
+      tagsFilter,
+      error,
+      isFetching
+    } = this.state;
 
     if (!daemons) {
       return (
@@ -55,7 +61,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Message negative={true}>
             <Message.Header>
               Failed to fetch daemons with error :
-          </Message.Header>
+            </Message.Header>
             <p>{error.message}</p>
           </Message>
         </>
@@ -71,9 +77,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       );
     }
 
-    let tags: string[] = []
+    let tags: string[] = [];
     for (const d of daemons) {
-      tags = _.union(tags, d.Tags)
+      tags = _.union(tags, d.Tags);
     }
 
     return (
@@ -91,12 +97,28 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             />
           </Grid.Column>
           <Grid.Column width={7}>
-            {tags.map(tag =>
-              <Button key={tag} compact={true} toggle={true} active={tagsFilter.indexOf(tag) > -1} onClick={this.filterAddTags} value={tag}>{tag}</Button>
-            )}
+            {tags.map(tag => (
+              <Button
+                key={tag}
+                compact={true}
+                toggle={true}
+                active={tagsFilter.indexOf(tag) > -1}
+                onClick={this.filterAddTags}
+                value={tag}
+              >
+                {tag}
+              </Button>
+            ))}
           </Grid.Column>
           <Grid.Column width={3}>
-            <Button primary={true} floated="right" as={Link} to={path.daemonsNew}>Add daemon</Button>
+            <Button
+              primary={true}
+              floated="right"
+              as={Link}
+              to={path.daemonsNew}
+            >
+              Add daemon
+            </Button>
           </Grid.Column>
         </Grid>
         <Table celled={true}>
@@ -109,7 +131,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.slice(0, 20).map((daemon) => (
+            {daemonsFiltered.slice(0, 20).map(daemon => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 {/*<Table.Cell><Icon color="green" name="check circle outline"/></Table.Cell>*/}
@@ -126,14 +148,17 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     <Button
                       icon="docker"
                       content="Containers"
-                      disabled={!daemon.Docker.Port}
+                      disabled={!daemon.Docker}
                       as={Link}
-                      to={path.daemonsContainers.replace(":daemonID", daemon._id)}
+                      to={path.daemonsContainers.replace(
+                        ":daemonID",
+                        daemon._id
+                      )}
                     />
                     <Button
                       icon="terminal"
                       content="SSH"
-                      disabled={!daemon.SSH.Port}
+                      disabled={!daemon.SSH}
                       as={Link}
                       to={path.daemonsSSH.replace(":daemonID", daemon._id)}
                     />
@@ -160,27 +185,37 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   }
 
   private filter = () => {
-    const { tagsFilter } = this.state
+    const { tagsFilter } = this.state;
 
-    let daemonsFiltered = this.state.daemons.filter(daemons => daemons.Name.toLowerCase().includes(this.searchField.toLowerCase()))
+    let daemonsFiltered = this.state.daemons.filter(daemons =>
+      daemons.Name.toLowerCase().includes(this.searchField.toLowerCase())
+    );
     if (tagsFilter.length > 0) {
-      daemonsFiltered = daemonsFiltered.filter(d => _.intersectionWith(d.Tags, tagsFilter, _.isEqual).length !== 0)
+      daemonsFiltered = daemonsFiltered.filter(
+        d => _.intersectionWith(d.Tags, tagsFilter, _.isEqual).length !== 0
+      );
     }
-    this.setState({ daemonsFiltered })
-  }
+    this.setState({ daemonsFiltered });
+  };
 
-  private filterAddSearchField = (event: React.SyntheticEvent, { value }: SearchProps) => {
-    this.searchField = value as string
-    this.filter()
-  }
+  private filterAddSearchField = (
+    event: React.SyntheticEvent,
+    { value }: SearchProps
+  ) => {
+    this.searchField = value as string;
+    this.filter();
+  };
 
-  private filterAddTags = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>, { value }: ButtonProps) => {
-    const { tagsFilter } = this.state
-    const index = tagsFilter.indexOf(value)
-    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1)
-    this.setState({ tagsFilter })
-    this.filter()
-  }
+  private filterAddTags = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    { value }: ButtonProps
+  ) => {
+    const { tagsFilter } = this.state;
+    const index = tagsFilter.indexOf(value);
+    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1);
+    this.setState({ tagsFilter });
+    this.filter();
+  };
 }
 
 export default Daemons;

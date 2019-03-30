@@ -1,9 +1,10 @@
 import * as React from 'react';
 import { Loader, Message } from 'semantic-ui-react';
 
+import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTable';
-import { fetchContainers } from '../actions/daemon';
+import { fetchComposeServices, fetchContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import { serviceButton } from './DaemonServiceButtons';
 
@@ -15,6 +16,7 @@ interface IDaemonContainersStates {
   containers: IContainer[];
   isFetching: boolean;
   error: Error;
+  services: string[];
 }
 
 class Daemon extends React.Component<
@@ -24,13 +26,18 @@ class Daemon extends React.Component<
   public state = {
     containers: [],
     isFetching: true,
-    error: Error()
+    error: Error(),
+    services: defaultDaemonServices
   };
 
   private refreshIntervalId: NodeJS.Timeout;
 
   public componentWillMount() {
     const { daemon } = this.props;
+
+    fetchComposeServices(daemon._id).then(services =>
+      this.setState({ services })
+    );
 
     const fetch = () => {
       fetchContainers(daemon._id)
@@ -48,7 +55,7 @@ class Daemon extends React.Component<
   }
 
   public render() {
-    const { containers, error, isFetching } = this.state;
+    const { services, containers, error, isFetching } = this.state;
     const { daemon } = this.props;
 
     if (error.message) {
@@ -68,7 +75,7 @@ class Daemon extends React.Component<
 
     return (
       <>
-        {serviceButton(daemon, ["cadvisor", "watchtower"])}
+        {serviceButton(daemon, services)}
         <ContainerTable daemon={daemon} containers={containers} />
       </>
     );

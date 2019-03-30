@@ -8,11 +8,10 @@ import {
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
+import { IStoreState } from '../../../types/store';
 import { fetchGroups } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCard from './GroupCard';
-import { IStoreState } from '../../../types/store';
-
 
 interface IGroupsProps {
   username: string;
@@ -93,7 +92,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               name="DaemonID"
               placeholder="Select daemon"
               options={_.uniqBy(groups, "DaemonID").map(g => {
-                return g.DaemonData ? { text: g.DaemonData.Name, value: g.DaemonID } : { text: '', value: '' };
+                return g.DaemonData
+                  ? { text: g.DaemonData.Name, value: g.DaemonID }
+                  : { text: "", value: "" };
               })}
               onChange={this.filterByDaemon}
             />
@@ -121,7 +122,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
         <Grid>
           {groupsFiltered.slice(0, 16).map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
-              <GroupCard group={group} admin={isAdmin} groupAdmin={isAdmin || (group.Admins.indexOf(username) > -1)} displayButtons={!this.displayAll} />
+              <GroupCard
+                group={group}
+                admin={isAdmin}
+                groupAdmin={isAdmin || group.Admins.indexOf(username) > -1}
+                displayButtons={!this.displayAll}
+              />
             </Grid.Column>
           ))}
         </Grid>
@@ -140,8 +146,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
         this.setState({ groups, groupsFiltered: groups, isFetching: false })
       )
       .catch(error => this.setState({ error, isFetching: false }));
-      this.toggleLoading = false;
-  }
+    this.toggleLoading = false;
+  };
 
   private filterGroups = () => {
     const groupsFiltered = this.state.groups.filter(
