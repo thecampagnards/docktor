@@ -101,14 +101,11 @@ class Users extends React.Component<{}, IUsersStates> {
                         <Table.Cell width={3}>{user.FirstName + " " + user.LastName}</Table.Cell>
                         <Table.Cell width={1}>{user.Role}</Table.Cell>
                         <Table.Cell width={8}>
-                            {user.GroupsData && user.GroupsData.slice(0, 6).map((group: IGroup) => (
+                            {user.GroupsData && user.GroupsData.map((group: IGroup) => (
                                 <Button compact={true} as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
                                     {group.Name /*+ (group.Admins.indexOf(user.Username) > -1 ? "*": "")*/}
                                 </Button>
                             ))}
-                            {user.GroupsData && user.GroupsData.length > 6 && (
-                                <p>...</p>
-                            )}
                         </Table.Cell>
                         <Table.Cell width={2}>
                             <Button compact={true} color="blue" as={Link} to={path.usersProfile.replace(":userID", user.Username)}>Profile</Button>

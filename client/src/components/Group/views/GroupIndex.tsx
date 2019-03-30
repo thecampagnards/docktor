@@ -29,7 +29,7 @@ class GroupIndex extends React.Component<
 > {
   public state = {
     activeTab: 0,
-    isFetching: false,
+    isFetching: true,
     group: {} as IGroup,
     error: Error()
   };
@@ -38,11 +38,7 @@ class GroupIndex extends React.Component<
     const { groupID } = this.props.match.params;
     const path = window.location.pathname;
 
-    fetchGroup(groupID)
-      .then((group: IGroup) => {
-        this.setState({ group });
-      })
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    this.refreshGroup();
 
     let activeTab: number;
     switch (true) {
@@ -104,7 +100,7 @@ class GroupIndex extends React.Component<
         menuItem: "Members",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            {group._id && <GroupMembers group={group} />}
+            {group._id && <GroupMembers group={group} refresh={this.refreshGroup} />}
           </Tab.Pane>
         )
       },
@@ -173,6 +169,13 @@ class GroupIndex extends React.Component<
         break;
     }
   };
+
+  private refreshGroup = () => {
+    const { groupID } = this.props.match.params;
+    fetchGroup(groupID)
+      .then((group: IGroup) => this.setState({ group, isFetching: false }))
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
+  }
 }
 
 export default GroupIndex;
