@@ -5,6 +5,7 @@ import (
 
 	"docktor/server/dao"
 	"docktor/server/types"
+	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -33,6 +34,28 @@ func getByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, s)
+}
+
+func getDaemonStatus(c echo.Context) error {
+	s, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	info, err := utils.GetDockerInfo(s)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon info")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, info)
 }
 
 // save create/update a daemon

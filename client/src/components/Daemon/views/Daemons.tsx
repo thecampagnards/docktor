@@ -2,16 +2,17 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, ButtonProps, Grid, Loader, Message, Search, SearchProps, Table
+    Button, ButtonProps, Grid, Loader, Icon, Message, Search, SearchProps, Table
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { fetchDaemons } from '../actions/daemon';
+import { fetchDaemons, checkDaemonStatus } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
   daemonsFiltered: IDaemon[];
+  daemonStatuses: boolean[];
   tagsFilter: string[];
   isFetching: boolean;
   error: Error;
@@ -21,6 +22,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public state = {
     daemons: [] as IDaemon[],
     daemonsFiltered: [] as IDaemon[],
+    daemonStatuses: [] as boolean[],
     tagsFilter: [] as string[],
     isFetching: false,
     error: Error()
@@ -30,9 +32,22 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   public componentWillMount() {
     fetchDaemons()
-      .then(daemons =>
-        this.setState({ daemons, daemonsFiltered: daemons, isFetching: false })
-      )
+      .then(daemons => {
+        this.setState({ daemons, daemonsFiltered: daemons, isFetching: false });
+        for (const daemon of daemons) {
+          checkDaemonStatus(daemon._id)
+            .then(() => {
+              const { daemonStatuses } = this.state
+              daemonStatuses[daemon._id] = true
+              this.setState({daemonStatuses})
+            })
+            .catch(() => {
+              const { daemonStatuses } = this.state
+              daemonStatuses[daemon._id] = false
+              this.setState({daemonStatuses})
+            });
+        }
+      })
       .catch(error => this.setState({ error, isFetching: false }));
   }
 
@@ -40,6 +55,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const {
       daemons,
       daemonsFiltered,
+      daemonStatuses,
       tagsFilter,
       error,
       isFetching
@@ -125,7 +141,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Table.Header>
             <Table.Row>
               <Table.HeaderCell>Name</Table.HeaderCell>
-              {/*<Table.HeaderCell>Status</Table.HeaderCell>*/}
+              <Table.HeaderCell>Status</Table.HeaderCell>
               <Table.HeaderCell>Host</Table.HeaderCell>
               <Table.HeaderCell>Tools</Table.HeaderCell>
             </Table.Row>
@@ -134,7 +150,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             {daemonsFiltered.slice(0, 20).map(daemon => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
-                {/*<Table.Cell><Icon color="green" name="check circle outline"/></Table.Cell>*/}
+                <Table.Cell>
+                  {daemonStatuses[daemon._id] ?
+                    <Icon color="green" name="check circle outline" /> :
+                    <Icon color="red" name="warning" />
+                  }
+                </Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
                 <Table.Cell>
                   <Button.Group fluid={true}>

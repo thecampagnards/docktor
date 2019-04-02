@@ -191,6 +191,19 @@ func GetContainersStartByName(daemon types.Daemon, name string) (containers []do
 	return
 }
 
+// GetDockerInfo
+func GetDockerInfo(daemon types.Daemon) (dockerTypes.Info, error) {
+
+	cli, err := getDockerCli(daemon)
+	if err != nil {
+		return dockerTypes.Info{}, err
+	}
+
+	defer cli.Close()
+
+	return cli.Info(context.Background())
+}
+
 // InspectContainers
 func InspectContainers(daemon types.Daemon, containersName ...string) ([]dockerTypes.ContainerJSON, error) {
 
