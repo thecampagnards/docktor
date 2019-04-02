@@ -18,7 +18,7 @@ var groupRestRequest = []bson.M{
 		"as":           "daemondata",
 	}},
 	bson.M{"$unwind": bson.M{
-		"path": "$daemondata",
+		"path":                       "$daemondata",
 		"preserveNullAndEmptyArrays": true,
 	}},
 	bson.M{"$lookup": bson.M{
@@ -34,14 +34,17 @@ var groupRestRequest = []bson.M{
 		"as":           "adminsdata",
 	}},
 	bson.M{"$project": bson.M{
-		"daemondata.ssh":         0,
-		"daemondata.docker":      0,
-		"daemondata.cadvisor":    0,
-		"daemondata.description": 0,
-		"adminsdata.password":    0,
-		"adminsdata.salt":        0,
-		"usersdata.password":     0,
-		"usersdata.salt":         0,
+		"containers.mounts":          0,
+		"containers.config":          0,
+		"containers.networksettings": 0,
+		"daemondata.ssh":             0,
+		"daemondata.docker":          0,
+		"daemondata.cadvisor":        0,
+		"daemondata.description":     0,
+		"adminsdata.password":        0,
+		"adminsdata.salt":            0,
+		"usersdata.password":         0,
+		"usersdata.salt":             0,
 	}},
 }
 

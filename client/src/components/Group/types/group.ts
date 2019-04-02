@@ -1,4 +1,4 @@
-import { IDaemon } from '../../Daemon/types/daemon';
+import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import { IService } from '../../Services/types/service';
 import { IUser } from '../../User/types/user';
 
@@ -11,7 +11,8 @@ export interface IGroup {
   DaemonData: IDaemon;
   Users: string[];
   Admins: string[];
-  
+  Containers: IContainer[];
+
   UsersData: IUser[];
   AdminsData: IUser[];
 }

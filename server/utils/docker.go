@@ -94,7 +94,7 @@ func CreateNetwork(daemon types.Daemon, networkName string, subnet string) (dock
 	if subnet != "" {
 		ip := strings.Split(subnet, ".")
 		ip = ip[:len(ip)-1]
-		ip[len(ip)] = "1"
+		ip = append(ip, "1")
 		gateway := strings.Join(ip, ".")
 		net.IPAM = &network.IPAM{
 			Config: []network.IPAMConfig{
@@ -111,6 +111,51 @@ func CreateNetwork(daemon types.Daemon, networkName string, subnet string) (dock
 		return dockerTypes.NetworkCreateResponse{}, err
 	}
 	return resp, nil
+}
+
+// CreateContainer
+func CreateContainer(daemon types.Daemon, container dockerTypes.ContainerJSON) (err error) {
+
+	ctx := context.Background()
+	cli, err := getDockerCli(daemon)
+	if err != nil {
+		return
+	}
+
+	defer cli.Close()
+
+	// Pulling the image
+	_, err = cli.ImagePull(ctx, container.Config.Image, dockerTypes.ImagePullOptions{})
+	if err != nil {
+		return
+	}
+
+	// Creating the networks
+	for key, net := range container.NetworkSettings.Networks {
+		ip := strings.Split(".", net.IPAddress)
+		ip = ip[:len(ip)-1]
+		ip = append(ip, "0")
+		_, err = CreateNetwork(daemon, key, fmt.Sprintf("%s/%v", strings.Join(ip, "."), net.IPPrefixLen))
+		if err != nil {
+			return
+		}
+	}
+
+	// Creating the container
+	resp, err := cli.ContainerCreate(
+		ctx,
+		container.Config,
+		container.HostConfig,
+		&network.NetworkingConfig{
+			EndpointsConfig: container.NetworkSettings.Networks,
+		},
+		container.Name,
+	)
+	if err != nil {
+		return
+	}
+
+	return cli.ContainerStart(ctx, resp.ID, dockerTypes.ContainerStartOptions{})
 }
 
 // GetContainers

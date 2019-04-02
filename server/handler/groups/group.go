@@ -31,7 +31,17 @@ func getAllWithDaemons(c echo.Context) error {
 
 // getByID find one by id
 func getByID(c echo.Context) error {
-	return c.JSON(http.StatusOK, c.Get("group"))
+
+	group := c.Get("group").(types.Group)
+	g, err := dao.GetGroupRestByID(group.ID.Hex())
+	if err != nil {
+		log.WithFields(log.Fields{
+			"group": group,
+			"error": err,
+		}).Error("Error when retrieving group")
+	}
+
+	return c.JSON(http.StatusOK, g)
 }
 
 // save a Group server
