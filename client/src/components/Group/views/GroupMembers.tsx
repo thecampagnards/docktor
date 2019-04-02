@@ -96,9 +96,9 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                     <Table.Body>
                     {members.map(user => (
                         <Table.Row key={user.Username}>
-                            <Table.Cell>{`${user.FirstName} ${user.LastName}  (${user.Username})`}</Table.Cell>
-                            <Table.Cell>{this.computeGroupRole(user.Username)}</Table.Cell>
-                            <Table.Cell>
+                            <Table.Cell width={8}>{`${user.FirstName} ${user.LastName}  (${user.Username})`}</Table.Cell>
+                            <Table.Cell width={3}>{this.computeGroupRole(user.Username)}</Table.Cell>
+                            <Table.Cell width={5}>
                                 <Button icon="copy" title="Copy Email" onClick={this.copyEmail.bind(this, user.Email)} />
                                 <Button icon="trash" title="Delete from group" color="red" name={user.Username} onClick={this.deleteFromGroup} />
                             </Table.Cell>
