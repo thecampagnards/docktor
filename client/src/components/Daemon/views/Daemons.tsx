@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, ButtonProps, Grid, Loader, Icon, Message, Search, SearchProps, Table
+  Button, ButtonProps, Grid, Loader, Icon, Message, Search, SearchProps, Table
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -33,20 +33,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public componentWillMount() {
     fetchDaemons()
       .then(daemons => {
-        this.setState({ daemons, daemonsFiltered: daemons, isFetching: false });
-        for (const daemon of daemons) {
-          checkDaemonStatus(daemon._id)
-            .then(() => {
-              const { daemonStatuses } = this.state
-              daemonStatuses[daemon._id] = true
-              this.setState({daemonStatuses})
-            })
-            .catch(() => {
-              const { daemonStatuses } = this.state
-              daemonStatuses[daemon._id] = false
-              this.setState({daemonStatuses})
-            });
-        }
+        this.setState({ daemons, daemonsFiltered: daemons.slice(0, 20), isFetching: false });
       })
       .catch(error => this.setState({ error, isFetching: false }));
   }
@@ -98,6 +85,10 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       tags = _.union(tags, d.Tags);
     }
 
+    for (const daemon of daemonsFiltered) {
+      this.setDaemonStatus(daemon._id, daemonStatuses);
+    }
+
     return (
       <>
         <Grid>
@@ -147,14 +138,14 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.slice(0, 20).map(daemon => (
+            {daemonsFiltered.map(daemon => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>
-                  {daemonStatuses[daemon._id] ?
-                    <Icon color="green" name="check circle outline" /> :
-                    <Icon color="red" name="warning" />
-                  }
+                    {daemonStatuses[daemon._id] ?
+                      <Icon color="green" name="check circle outline" /> :
+                      <Icon color="red" name="warning sign" />
+                    }
                 </Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
                 <Table.Cell>
@@ -205,6 +196,20 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
+  private setDaemonStatus = (daemonID: string, daemonStatuses: boolean[]) => {
+    if (!(daemonID in daemonStatuses)) {
+      checkDaemonStatus(daemonID)
+        .then(() => {
+          daemonStatuses[daemonID] = true
+          this.setState({ daemonStatuses })
+        })
+        .catch(() => {
+          daemonStatuses[daemonID] = false
+          this.setState({ daemonStatuses })
+        });
+    }
+  }
+
   private filter = () => {
     const { tagsFilter } = this.state;
 
@@ -216,6 +221,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
         d => _.intersectionWith(d.Tags, tagsFilter, _.isEqual).length !== 0
       );
     }
+    daemonsFiltered = daemonsFiltered.slice(0, 20);
     this.setState({ daemonsFiltered });
   };
 
