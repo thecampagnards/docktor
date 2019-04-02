@@ -1,4 +1,9 @@
 
+.banner {
+  margin: 0 !important;
+  border-radius: 0 !important;
+}
+
 .ui.container {
     width: 90%;
     padding-bottom: 30px;

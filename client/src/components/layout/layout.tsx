@@ -39,6 +39,10 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 
     return (
       <>
+        {message.header && (
+          <Message className="banner" {...message} />
+        )}
+
         <KonamiCode />
         <Menu size="tiny">
           <Menu.Menu position="left">
@@ -114,12 +118,6 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
             </Menu.Item>
           </Menu.Menu>
         </Menu>
-
-        {message.header && (
-          <Container>
-            <Message {...message} />
-          </Container>
-        )}
 
         <Container>{this.props.children}</Container>
       </>

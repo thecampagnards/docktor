@@ -161,24 +161,19 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
             this.setState({ labelText: "This user is already in the group" });
             return;
         }
-        let newMember: IUser;
-        let ok = false;
+        
         fetchUser(username)
             .then(u => {
-                newMember = u;
-                ok = true;
+                this.setState({ isFetching: true });
+                updateUser(groupID, username, "user")
+                    .then(() => {
+                        members.push(u);
+                        this.setState({ members, labelText: "Add a user to the group" });
+                    })
+                    .catch((error: Error) => this.setState({ labelText: error.message }))
+                    .finally(() => this.setState({ isFetching: false }));
             })
             .catch((error: Error) => this.setState({ labelText: `User "${username}" does not exist` }));
-        if (!ok) { return; }
-
-        this.setState({ isFetching: true });
-        updateUser(groupID, username, "user")
-            .then(() => {
-                members.push(newMember);
-                this.setState({ members, labelText: "Add a user to the group" });
-            })
-            .catch((error: Error) => this.setState({ labelText: error.message }))
-            .finally(() => this.setState({ isFetching: false }));
     }
 
     private deleteFromGroup = (
