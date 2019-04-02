@@ -4,6 +4,7 @@ import { IUser } from '../../User/types/user';
 import { fetchUser, fetchUsers } from '../../User/actions/users';
 import { Message, Table, Button, Checkbox, CheckboxProps, ButtonProps, Grid, Icon, Search, Label, SearchProps } from 'semantic-ui-react';
 import { updateUser } from '../../Group/actions/group';
+import { copy } from '../../../utils/clipboard';
 
 interface IGroupProps {
     group: IGroup;
@@ -102,7 +103,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                             <Table.Cell width={8}>{`${user.FirstName} ${user.LastName}  (${user.Username})`}</Table.Cell>
                             <Table.Cell width={3}>{this.computeGroupRole(user.Username, admin)}</Table.Cell>
                             <Table.Cell width={5}>
-                                <Button icon="copy" title="Copy Email" onClick={this.copyEmail.bind(this, user.Email)} />
+                                <Button icon="copy" title="Copy Email" onClick={copy.bind(this, user.Email)} />
                                 <Button icon="trash" title="Delete from group" color="red" name={user.Username} onClick={this.deleteFromGroup} disabled={!admin} />
                             </Table.Cell>
                         </Table.Row>
@@ -120,19 +121,10 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
         )
     }
 
-    private copyEmail = (value: string) => {
-        document.addEventListener("copy", (e: ClipboardEvent) => {
-            e.clipboardData.setData("text/plain", value);
-            e.preventDefault();
-            document.removeEventListener("copy", this.copyEmail.bind(this));
-        });
-        document.execCommand("copy");
-    };
-
     private copyAll = () => {
         const { members } = this.state;
         const mails = members.map(u => u.Email).join(";");
-        this.copyEmail(mails);
+        copy(mails);
     }
 
     private handleSearchChange = (

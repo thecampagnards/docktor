@@ -8,6 +8,7 @@ import { createContainer } from '../Group/actions/group';
 import { IGroup } from '../Group/types/group';
 import CmdSocket from './CmdSocket';
 import ContainerLogSocket from './ContainerLogSocket';
+import { copy } from '../../utils/clipboard';
 
 interface ITableProps {
   daemon: IDaemon;
@@ -163,7 +164,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                           icon="clipboard"
                           content="Image"
                           title={container.Image}
-                          onClick={this.copyImage.bind(this, container.Image)}
+                          onClick={copy.bind(this, container.Image)}
                         />
                         <Modal trigger={<Button icon="align left" content="Logs" />}>
                           <Modal.Content
@@ -229,18 +230,6 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
   ) => {
     this.searchFilter = value as string;
     this.filterContainers();
-  };
-
-  private copyImage = (value: string) => {
-
-    const f = (e: ClipboardEvent) => {
-      e.clipboardData!.setData("text/plain", value);
-      e.preventDefault();
-      document.removeEventListener("copy", f)
-    };
-
-    document.addEventListener("copy", f)
-    document.execCommand("copy");
   };
 
 }
