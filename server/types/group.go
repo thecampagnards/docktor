@@ -1,6 +1,7 @@
 package types
 
 import (
+	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -15,6 +16,7 @@ type Group struct {
 	Subnet      string
 	MinPort     uint16
 	MaxPort     uint16
+	Containers  []dockerTypes.ContainerJSON
 }
 
 type GroupRest struct {

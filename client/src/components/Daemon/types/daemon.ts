@@ -43,6 +43,7 @@ export interface IContainer {
       RW: boolean;
     }
   ];
+  Name: string;
   Names: string[];
   NetworkSettings: any;
   Ports: IPort[];

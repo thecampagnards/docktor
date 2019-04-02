@@ -27,9 +27,33 @@ export const fetchGroup = (groupID: string) => {
 };
 
 export const fetchContainers = (groupID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/containers`, {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`, {
     credentials: "same-origin",
     method: "GET",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
+export const saveContainers = (groupID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`, {
+    credentials: "same-origin",
+    method: "POST",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
+export const createContainer = (groupID: string, containerId: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/create/${containerId}`, {
+    credentials: "same-origin",
+    method: "POST",
     headers: new Headers({
       Authorization: `Bearer ${GetToken()}`
     })
@@ -66,7 +90,7 @@ export const deployService = (
   }
   opt = opt.slice(0, -1);
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/create/${serviceID}${opt &&
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/create/${serviceID}${opt &&
       "?" + opt}`,
     {
       credentials: "same-origin",
@@ -84,7 +108,7 @@ export const deployService = (
 
 export const startService = (groupID: string, serviceID: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/start/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/start/${serviceID}`,
     {
       credentials: "same-origin",
       method: "POST",

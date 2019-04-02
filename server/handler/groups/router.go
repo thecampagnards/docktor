@@ -23,10 +23,21 @@ func AddRoute(e *echo.Group) {
 
 		group.GET("", getByID)
 		group.DELETE("", deleteByID, middleware.WithAdmin)
-		group.POST("/start/:subserviceID", startSubService)
-		group.POST("/create/:subserviceID", createSubService)
-		group.GET("/containers", getContainers)
-		group.GET("/cadvisor/container", getCAdvisorContainerInfo)
 		group.POST("/updateuser/:username/:status", updateUser)
+
+		{
+			group.POST("/compose/start/:subserviceID", startSubService)
+			group.POST("/compose/create/:subserviceID", createSubService)
+		}
+
+		{
+			group.GET("/docker/containers", getContainers)
+			group.POST("/docker/containers", saveContainers)
+			group.POST(fmt.Sprintf("/docker/containers/create/:%s", types.CONTAINER_ID_PARAM), createContainer)
+		}
+
+		{
+			group.GET("/cadvisor/container", getCAdvisorContainerInfo)
+		}
 	}
 }

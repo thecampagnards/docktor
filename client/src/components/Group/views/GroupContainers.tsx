@@ -1,10 +1,11 @@
+import * as _ from 'lodash';
 import * as React from 'react';
-import { Loader, Message } from 'semantic-ui-react';
+import { Button, Loader, Message } from 'semantic-ui-react';
 
 import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTable';
-import { fetchContainers } from '../actions/group';
+import { fetchContainers, saveContainers } from '../actions/group';
 import { IGroup } from '../types/group';
 
 interface IGroupProps {
@@ -16,6 +17,9 @@ interface IGroupStates {
   containers: IContainer[];
   isFetching: boolean;
   error: Error;
+
+  isSaveFetching: boolean;
+  saveError: Error;
 }
 
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
@@ -23,8 +27,13 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     daemon: {} as IDaemon,
     containers: [],
     isFetching: true,
-    error: Error()
+    error: Error(),
+
+    isSaveFetching: false,
+    saveError: Error(),
   };
+
+  private refreshIntervalId: NodeJS.Timeout;
 
   public componentWillMount() {
     const { group } = this.props;
@@ -33,15 +42,30 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       .then((daemon: IDaemon) => this.setState({ daemon }))
       .catch((error: Error) => this.setState({ error }));
 
-    fetchContainers(group._id)
-      .then((containers: IContainer[]) =>
-        this.setState({ isFetching: false, containers })
-      )
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    const fetch = () => {
+      fetchContainers(group._id)
+        .then((containers: IContainer[]) => {
+          for (const container of group.Containers) {
+            if (!containers.find((c) => c.Names.indexOf(container.Name) !== -1)) {
+              containers.push(container)
+            }
+          }
+          this.setState({ isFetching: false, containers })
+        })
+        .catch((error: Error) => this.setState({ error, isFetching: false }));
+    }
+
+    fetch();
+    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+  }
+
+  public componentWillUnmount() {
+    clearInterval(this.refreshIntervalId);
   }
 
   public render() {
-    const { daemon, containers, error, isFetching } = this.state;
+    const { group } = this.props;
+    const { daemon, containers, saveError, error, isFetching, isSaveFetching } = this.state;
 
     if (error.message) {
       return (
@@ -58,7 +82,28 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       return <Loader active={true} />;
     }
 
-    return <ContainerTable daemon={daemon} containers={containers} />;
+    return (
+      <>
+        {saveError.message &&
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue to save Docker containers
+          </Message.Header>
+            <p>{saveError.message}</p>
+          </Message>
+        }
+        <Button content="Save my containers" onClick={this.handleSaveContainer} loading={isSaveFetching} />
+        <ContainerTable daemon={daemon} containers={containers} group={group} />
+      </>
+    );
+  }
+
+  private handleSaveContainer = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    event.preventDefault()
+    this.setState({ isSaveFetching: true })
+    saveContainers(this.props.group._id)
+      .catch(saveError => this.setState({ saveError }))
+      .finally(() => this.setState({ isSaveFetching: false }))
   }
 }
 
