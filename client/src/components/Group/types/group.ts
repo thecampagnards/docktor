@@ -12,6 +12,9 @@ export interface IGroup {
   Users: string[];
   Admins: string[];
   Containers: IContainer[];
+  MinPort: string;
+  MaxPort: string;
+  Subnet: string;
 
   UsersData: IUser[];
   AdminsData: IUser[];

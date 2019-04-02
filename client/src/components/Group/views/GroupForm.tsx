@@ -72,6 +72,33 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             onChange={this.handleChange}
             required={true}
           />
+          <Form.Group widths='equal'>
+            <Form.Input
+              label="Docker MinPort"
+              name="MinPort"
+              type="number"
+              value={group.MinPort}
+              onChange={this.handleChange}
+              required={true}
+            />
+            <Form.Input
+              label="Docker MaxPort"
+              name="MaxPort"
+              type="number"
+              value={group.MaxPort}
+              onChange={this.handleChange}
+              required={true}
+            />
+          </Form.Group>
+          <Form.Input
+            label="Docker Subnet"
+            name="Subnet"
+            type="string"
+            pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
+            value={group.Subnet}
+            onChange={this.handleChange}
+            required={true}
+          />
           <Message
             success={true}
             header="Saved"
@@ -88,9 +115,12 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
-    { name, value }: any
+    { name, value, type }: any
   ) => {
     const group = this.state.group;
+    if (type === "number") {
+      value = parseInt(value, undefined)
+    }
     this.setState({ group: _.set(group, name, value) });
   };
 
