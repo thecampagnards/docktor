@@ -92,7 +92,17 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             <p>{saveError.message}</p>
           </Message>
         }
-        <Button color="teal" icon="save" labelPosition="right" content="SAVE CONTAINERS" onClick={this.handleSaveContainer} loading={isSaveFetching} floated="right" />
+        {containers && containers.length > 0 && (
+          <Button 
+            color="teal" 
+            icon="save" 
+            labelPosition="right" 
+            content="SAVE CONTAINERS" 
+            onClick={this.handleSaveContainer} 
+            loading={isSaveFetching} 
+            floated="right" 
+          />
+        )}
         <ContainerTable daemon={daemon} containers={containers} group={group} />
       </>
     );

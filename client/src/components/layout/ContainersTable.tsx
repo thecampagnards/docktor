@@ -35,6 +35,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
     const { containersFiltered } = this.state;
     return (
       <>
+        {containersFiltered && containersFiltered.length > 0 && (
         <Grid>
           <Grid.Column width={4}>
             <Search
@@ -48,12 +49,13 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
           <Grid.Column width={4}>
             <Button color="orange" icon={true} floated="right">
               <Icon name="stop" /> STOP ALL
-          </Button>
+            </Button>
             <Button color="green" icon={true} floated="right">
               <Icon name="play" /> START ALL
-          </Button>
+            </Button>
           </Grid.Column>
         </Grid>
+        )}
         <Table celled={true} padded={true}>
           <Table.Header>
             <Table.Row>
