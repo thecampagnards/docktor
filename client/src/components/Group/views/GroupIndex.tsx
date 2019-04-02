@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import * as ReactMarkdown from 'react-markdown';
 import { RouteComponentProps } from 'react-router';
 import { Message, Tab, TabProps } from 'semantic-ui-react';
@@ -11,9 +12,15 @@ import GroupContainers from './GroupContainers';
 import GroupMembers from './GroupMembers';
 import GroupForm from './GroupForm';
 import GroupServices from './GroupServices';
+import { IStoreState } from '../../../types/store';
 
 interface IRouterProps {
   groupID: string;
+}
+
+interface IGroupIndexProps {
+  username: string;
+  isAdmin: boolean;
 }
 
 interface IGroupIndexStates {
@@ -24,7 +31,7 @@ interface IGroupIndexStates {
 }
 
 class GroupIndex extends React.Component<
-  RouteComponentProps<IRouterProps>,
+  RouteComponentProps<IRouterProps> & IGroupIndexProps,
   IGroupIndexStates
 > {
   public state = {
@@ -66,6 +73,7 @@ class GroupIndex extends React.Component<
 
   public render() {
     const { group, activeTab, isFetching, error } = this.state;
+    const { username, isAdmin } = this.props;
 
     if (error.message) {
       return (
@@ -79,12 +87,14 @@ class GroupIndex extends React.Component<
       );
     }
 
+    const admin = isAdmin || (group.Admins && group.Admins.includes(username));
+
     const panes = [
       {
         menuItem: "Services",
         pane: (
           <Tab.Pane loading={isFetching} key={1}>
-            {group._id && <GroupServices group={group} />}
+            {group._id && <GroupServices group={group} admin={admin} />}
           </Tab.Pane>
         )
       },
@@ -92,7 +102,7 @@ class GroupIndex extends React.Component<
         menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {group._id && <GroupContainers group={group} />}
+            {group._id && <GroupContainers group={group} admin={admin} />}
           </Tab.Pane>
         )
       },
@@ -100,7 +110,7 @@ class GroupIndex extends React.Component<
         menuItem: "Members",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            {group._id && <GroupMembers group={group} refresh={this.refreshGroup} />}
+            {group._id && <GroupMembers group={group} admin={admin} refresh={this.refreshGroup} />}
           </Tab.Pane>
         )
       },
@@ -108,19 +118,22 @@ class GroupIndex extends React.Component<
         menuItem: "CAdvisor",
         pane: (
           <Tab.Pane loading={isFetching} key={4}>
-            {group._id && <GroupCAdvisor group={group} />}
+            {group._id && <GroupCAdvisor group={group} admin={admin} />}
           </Tab.Pane>
         )
-      },
-      {
+      }
+    ];
+
+    if (admin) {
+      panes.push({
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={5}>
             {group._id && <GroupForm group={group} />}
           </Tab.Pane>
         )
-      }
-    ];
+      })
+    }
 
     return (
       <>
@@ -178,4 +191,13 @@ class GroupIndex extends React.Component<
   }
 }
 
-export default GroupIndex;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    username: login.username,
+    isAdmin: !!login.isAdmin,
+    isAuthenticated: login.username !== ""
+  };
+};
+
+export default connect(mapStateToProps)(GroupIndex);

@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { Button, Loader, Message } from 'semantic-ui-react';
 
@@ -10,6 +9,7 @@ import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
+  admin: boolean;
 }
 
 interface IGroupStates {
@@ -64,7 +64,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { group } = this.props;
+    const { group, admin } = this.props;
     const { daemon, containers, saveError, error, isFetching, isSaveFetching } = this.state;
 
     if (error.message) {
@@ -103,7 +103,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             floated="right" 
           />
         )}
-        <ContainerTable daemon={daemon} containers={containers} group={group} />
+        <ContainerTable daemon={daemon} containers={containers} group={group} admin={admin} />
       </>
     );
   }

@@ -8,6 +8,7 @@ import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
+  admin: boolean;
 }
 
 interface IGroupStates {

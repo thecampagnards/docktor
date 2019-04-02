@@ -7,6 +7,7 @@ import { updateUser } from '../../Group/actions/group';
 
 interface IGroupProps {
     group: IGroup;
+    admin: boolean;
     refresh: () => void;
 }
 
@@ -50,6 +51,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
 
     public render() {
         const { members, allUsers, labelText, searchText, error, isFetching } = this.state;
+        const { admin } = this.props;
 
         if (error.message) {
             return (
@@ -70,10 +72,11 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                             onResultSelect={this.handleSelectResult}
                             onSearchChange={this.handleSearchChange}
                             results={allUsers.filter(s => s.includes(searchText)).map(s => ({ title: s }))}
+                            disabled={!admin}
                         />
                     </Grid.Column>
                     <Grid.Column width={6}>
-                        <Button color="green" icon={true} labelPosition="right" onClick={this.addToGroup} disabled={isFetching}>
+                        <Button color="green" icon={true} labelPosition="right" onClick={this.addToGroup} disabled={isFetching || !admin}>
                             <Icon name="add user"/>Confirm
                         </Button>
                         <Label pointing="left">{labelText}</Label>
@@ -97,10 +100,10 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                     {members.map(user => (
                         <Table.Row key={user.Username}>
                             <Table.Cell width={8}>{`${user.FirstName} ${user.LastName}  (${user.Username})`}</Table.Cell>
-                            <Table.Cell width={3}>{this.computeGroupRole(user.Username)}</Table.Cell>
+                            <Table.Cell width={3}>{this.computeGroupRole(user.Username, admin)}</Table.Cell>
                             <Table.Cell width={5}>
                                 <Button icon="copy" title="Copy Email" onClick={this.copyEmail.bind(this, user.Email)} />
-                                <Button icon="trash" title="Delete from group" color="red" name={user.Username} onClick={this.deleteFromGroup} />
+                                <Button icon="trash" title="Delete from group" color="red" name={user.Username} onClick={this.deleteFromGroup} disabled={!admin} />
                             </Table.Cell>
                         </Table.Row>
                     ))}
@@ -204,8 +207,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
             .finally(() => this.setState({ isFetching: false }));
     }
 
-    private computeGroupRole = (username: string) => {
-        // TODO handle perm
+    private computeGroupRole = (username: string, admin: boolean) => {
         const { group } = this.props;
         if (group.Admins) {
             if (group.Admins.indexOf(username) > -1) {
@@ -216,7 +218,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                         defaultChecked={true}
                         label="admin"
                         onChange={this.handleRoleChange}
-                        disabled={false || this.state.isFetching}
+                        disabled={!admin || this.state.isFetching}
                     />
                 );
             }
@@ -229,7 +231,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                         toggle={true}
                         label="user"
                         onChange={this.handleRoleChange}
-                        disabled={false || this.state.isFetching}
+                        disabled={!admin || this.state.isFetching}
                     />
                 );
             }

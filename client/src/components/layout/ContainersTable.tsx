@@ -11,6 +11,7 @@ import ContainerLogSocket from './ContainerLogSocket';
 
 interface ITableProps {
   daemon: IDaemon;
+  admin: boolean;
   group?: IGroup;
   containers: IContainer[];
 }
@@ -31,7 +32,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
   }
 
   public render() {
-    const { daemon, group } = this.props;
+    const { daemon, group, admin } = this.props;
     const { containersFiltered } = this.state;
     return (
       <>
@@ -179,9 +180,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                         <Modal
                           trigger={
                             <Button
-                              disabled={
-                                status.Started.indexOf(container.State) < -1
-                              }
+                              disabled={!admin || !status.Started.includes(container.State)}
                               icon="terminal"
                               content="Exec"
                             />
