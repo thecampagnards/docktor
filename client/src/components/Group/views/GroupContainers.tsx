@@ -50,7 +50,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
               containers.push(container)
             }
           }
-          this.setState({ isFetching: false, containers })
+          this.setState({ isFetching: false, containers, error: Error() })
         })
         .catch((error: Error) => this.setState({ error, isFetching: false }));
     }

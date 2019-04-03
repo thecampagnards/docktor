@@ -93,16 +93,14 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 	var b bytes.Buffer
 	var data = make(map[string]interface{})
 	data["Group"] = Group{}
-	data["Daemon"] = Daemon{Host: "vm.loc.cn.ssg"}
+	data["Daemon"] = Daemon{Host: "vm.loc.cn.ssg", Docker: &Docker{}}
 	var keys []string
-	r, _ := regexp.Compile(`key "(.*?)"`)
+	r, _ := regexp.Compile(`map has no entry for key "(.*?)"`)
 
 	for {
 		err = tmpl.Execute(&b, data)
 		if err != nil {
-			if !strings.Contains(err.Error(), "map has no entry key") {
-				// r, _ := regexp.Compile("<(.*)>")
-				// field := r.FindStringSubmatch(err.Error())[1]
+			if len(r.FindStringIndex(err.Error())) > 0 {
 				key := r.FindStringSubmatch(err.Error())[1]
 				data[key] = "<no value>"
 				keys = append(keys, key)
