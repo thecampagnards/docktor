@@ -8,6 +8,7 @@ import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
+  admin: boolean;
 }
 
 interface IGroupStates {
@@ -52,7 +53,8 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     if (group.Services.length === 0) {
       return (
         <Message info={true}>
-          <Message.Header>You don't have any services</Message.Header>
+          <Message.Header>There is no service in this group yet.</Message.Header>
+          <Message.Content>Check the documentation...</Message.Content>
         </Message>
       );
     }

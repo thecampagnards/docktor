@@ -8,9 +8,11 @@ import { createContainer } from '../Group/actions/group';
 import { IGroup } from '../Group/types/group';
 import CmdSocket from './CmdSocket';
 import ContainerLogSocket from './ContainerLogSocket';
+import { copy } from '../../utils/clipboard';
 
 interface ITableProps {
   daemon: IDaemon;
+  admin: boolean;
   group?: IGroup;
   containers: IContainer[];
 }
@@ -31,10 +33,11 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
   }
 
   public render() {
-    const { daemon, group } = this.props;
+    const { daemon, group, admin } = this.props;
     const { containersFiltered } = this.state;
     return (
       <>
+        {containersFiltered && containersFiltered.length > 0 && (
         <Grid>
           <Grid.Column width={4}>
             <Search
@@ -48,12 +51,13 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
           <Grid.Column width={4}>
             <Button color="orange" icon={true} floated="right">
               <Icon name="stop" /> STOP ALL
-          </Button>
+            </Button>
             <Button color="green" icon={true} floated="right">
               <Icon name="play" /> START ALL
-          </Button>
+            </Button>
           </Grid.Column>
         </Grid>
+        )}
         <Table celled={true} padded={true}>
           <Table.Header>
             <Table.Row>
@@ -160,7 +164,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                           icon="clipboard"
                           content="Image"
                           title={container.Image}
-                          onClick={this.copyImage.bind(this, container.Image)}
+                          onClick={copy.bind(this, container.Image)}
                         />
                         <Modal trigger={<Button icon="align left" content="Logs" />}>
                           <Modal.Content
@@ -177,9 +181,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                         <Modal
                           trigger={
                             <Button
-                              disabled={
-                                status.Started.indexOf(container.State) < -1
-                              }
+                              disabled={!admin || !status.Started.includes(container.State)}
                               icon="terminal"
                               content="Exec"
                             />
@@ -228,18 +230,6 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
   ) => {
     this.searchFilter = value as string;
     this.filterContainers();
-  };
-
-  private copyImage = (value: string) => {
-
-    const f = (e: ClipboardEvent) => {
-      e.clipboardData!.setData("text/plain", value);
-      e.preventDefault();
-      document.removeEventListener("copy", f)
-    };
-
-    document.addEventListener("copy", f)
-    document.execCommand("copy");
   };
 
 }

@@ -97,20 +97,17 @@ class Users extends React.Component<{}, IUsersStates> {
                 <Table.Body>
                     {usersFiltered.slice(0, 20).map((user) => (
                     <Table.Row key={user.Username}>
-                        <Table.Cell width={2}>{user.Username}</Table.Cell>
-                        <Table.Cell width={3}>{user.FirstName + " " + user.LastName}</Table.Cell>
+                        <Table.Cell width={1}>{user.Username}</Table.Cell>
+                        <Table.Cell width={2}>{user.FirstName + " " + user.LastName}</Table.Cell>
                         <Table.Cell width={1}>{user.Role}</Table.Cell>
-                        <Table.Cell width={8}>
-                            {user.GroupsData && user.GroupsData.slice(0, 6).map((group: IGroup) => (
+                        <Table.Cell width={11}>
+                            {user.GroupsData && user.GroupsData.map((group: IGroup) => (
                                 <Button compact={true} as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
                                     {group.Name /*+ (group.Admins.indexOf(user.Username) > -1 ? "*": "")*/}
                                 </Button>
                             ))}
-                            {user.GroupsData && user.GroupsData.length > 6 && (
-                                <p>...</p>
-                            )}
                         </Table.Cell>
-                        <Table.Cell width={2}>
+                        <Table.Cell width={1}>
                             <Button compact={true} color="blue" as={Link} to={path.usersProfile.replace(":userID", user.Username)}>Profile</Button>
                         </Table.Cell>
                     </Table.Row>

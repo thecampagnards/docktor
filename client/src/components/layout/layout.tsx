@@ -30,7 +30,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
   };
 
   public componentWillMount() {
-    fetchMesage().then(message => this.setState({ message }));
+    fetchMesage().then((message: IMessage) => this.setState({ message }));
   }
 
   public render() {
@@ -39,6 +39,10 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 
     return (
       <>
+        {message.header && (
+          <Message className="banner" {...message} />
+        )}
+
         <KonamiCode />
         <Menu size="tiny">
           <Menu.Menu position="left">
@@ -84,7 +88,9 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
             </>
           )}
           <Menu.Menu position="right">
-            {isAuthenticated && <Menu.Item>{username}</Menu.Item>}
+            {isAuthenticated && (
+              <Menu.Item>{username}</Menu.Item>
+            )}
             <Menu.Item>
               <Button
                 animated="vertical"
@@ -99,6 +105,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
+              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
@@ -106,18 +113,11 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   as={Link}
                   to={path.login}
                   onClick={this.props.logoutRequest}
-                  style={{ marginLeft: 5 }}
                 />
               )}
             </Menu.Item>
           </Menu.Menu>
         </Menu>
-
-        {message.header && (
-          <Container>
-            <Message {...message} />
-          </Container>
-        )}
 
         <Container>{this.props.children}</Container>
       </>

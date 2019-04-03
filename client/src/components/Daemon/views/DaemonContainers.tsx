@@ -76,7 +76,7 @@ class Daemon extends React.Component<
     return (
       <>
         {serviceButton(daemon, services)}
-        <ContainerTable daemon={daemon} containers={containers} />
+        <ContainerTable daemon={daemon} containers={containers} admin={true} />
       </>
     );
   }

@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { connect } from 'react-redux';
 import * as ReactMarkdown from 'react-markdown';
 import { RouteComponentProps } from 'react-router';
 import { Message, Tab, TabProps } from 'semantic-ui-react';
@@ -8,11 +9,18 @@ import { fetchGroup } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCAdvisor from './GroupCAdvisor';
 import GroupContainers from './GroupContainers';
+import GroupMembers from './GroupMembers';
 import GroupForm from './GroupForm';
 import GroupServices from './GroupServices';
+import { IStoreState } from '../../../types/store';
 
 interface IRouterProps {
   groupID: string;
+}
+
+interface IGroupIndexProps {
+  username: string;
+  isAdmin: boolean;
 }
 
 interface IGroupIndexStates {
@@ -23,12 +31,12 @@ interface IGroupIndexStates {
 }
 
 class GroupIndex extends React.Component<
-  RouteComponentProps<IRouterProps>,
+  RouteComponentProps<IRouterProps> & IGroupIndexProps,
   IGroupIndexStates
 > {
   public state = {
     activeTab: 0,
-    isFetching: false,
+    isFetching: true,
     group: {} as IGroup,
     error: Error()
   };
@@ -37,11 +45,7 @@ class GroupIndex extends React.Component<
     const { groupID } = this.props.match.params;
     const path = window.location.pathname;
 
-    fetchGroup(groupID)
-      .then((group: IGroup) => {
-        this.setState({ group });
-      })
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
+    this.refreshGroup();
 
     let activeTab: number;
     switch (true) {
@@ -51,11 +55,14 @@ class GroupIndex extends React.Component<
       case path === constPath.groupsContainers.replace(":groupID", groupID):
         activeTab = 1;
         break;
-      case path === constPath.groupCAdvisor.replace(":groupID", groupID):
+      case path === constPath.groupsMembers.replace(":groupID", groupID):
         activeTab = 2;
         break;
-      case path === constPath.groupsEdit.replace(":groupID", groupID):
+      case path === constPath.groupCAdvisor.replace(":groupID", groupID):
         activeTab = 3;
+        break;
+      case path === constPath.groupsEdit.replace(":groupID", groupID):
+        activeTab = 4;
         break;
       default:
         activeTab = 0;
@@ -66,6 +73,7 @@ class GroupIndex extends React.Component<
 
   public render() {
     const { group, activeTab, isFetching, error } = this.state;
+    const { username, isAdmin } = this.props;
 
     if (error.message) {
       return (
@@ -79,12 +87,14 @@ class GroupIndex extends React.Component<
       );
     }
 
+    const admin = isAdmin || (group.Admins && group.Admins.includes(username));
+
     const panes = [
       {
         menuItem: "Services",
         pane: (
           <Tab.Pane loading={isFetching} key={1}>
-            {group._id && <GroupServices group={group} />}
+            {group._id && <GroupServices group={group} admin={admin} />}
           </Tab.Pane>
         )
       },
@@ -92,27 +102,38 @@ class GroupIndex extends React.Component<
         menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {group._id && <GroupContainers group={group} />}
+            {group._id && <GroupContainers group={group} admin={admin} />}
+          </Tab.Pane>
+        )
+      },
+      {
+        menuItem: "Members",
+        pane: (
+          <Tab.Pane loading={isFetching} key={3}>
+            {group._id && <GroupMembers group={group} admin={admin} refresh={this.refreshGroup} />}
           </Tab.Pane>
         )
       },
       {
         menuItem: "CAdvisor",
         pane: (
-          <Tab.Pane loading={isFetching} key={3}>
-            {group._id && <GroupCAdvisor group={group} />}
-          </Tab.Pane>
-        )
-      },
-      {
-        menuItem: "Edit",
-        pane: (
           <Tab.Pane loading={isFetching} key={4}>
-            {group._id && <GroupForm group={group} />}
+            {group._id && <GroupCAdvisor group={group} admin={admin} />}
           </Tab.Pane>
         )
       }
     ];
+
+    if (admin) {
+      panes.push({
+        menuItem: "Edit",
+        pane: (
+          <Tab.Pane loading={isFetching} key={5}>
+            {group._id && <GroupForm group={group} />}
+          </Tab.Pane>
+        )
+      })
+    }
 
     return (
       <>
@@ -146,16 +167,37 @@ class GroupIndex extends React.Component<
         break;
       case 2:
         this.props.history.push(
-          constPath.groupCAdvisor.replace(":groupID", groupID)
+          constPath.groupsMembers.replace(":groupID", groupID)
         );
         break;
       case 3:
+        this.props.history.push(
+          constPath.groupCAdvisor.replace(":groupID", groupID)
+        );
+        break;
+      case 4:
         this.props.history.push(
           constPath.groupsEdit.replace(":groupID", groupID)
         );
         break;
     }
   };
+
+  private refreshGroup = () => {
+    const { groupID } = this.props.match.params;
+    fetchGroup(groupID)
+      .then((group: IGroup) => this.setState({ group, isFetching: false }))
+      .catch((error: Error) => this.setState({ error, isFetching: false }));
+  }
 }
 
-export default GroupIndex;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    username: login.username,
+    isAdmin: !!login.isAdmin,
+    isAuthenticated: login.username !== ""
+  };
+};
+
+export default connect(mapStateToProps)(GroupIndex);
