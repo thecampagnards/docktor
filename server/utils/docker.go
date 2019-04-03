@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"regexp"
 	"strings"
 
 	"docktor/server/types"
@@ -181,7 +182,7 @@ func GetContainersStartByName(daemon types.Daemon, name string) (containers []do
 
 	for _, c := range cs {
 		for _, n := range c.Names {
-			if strings.HasPrefix(strings.ToLower(n), "/"+strings.ToLower(name)) {
+			if strings.HasPrefix(normalizeName(n), normalizeName(name)) {
 				containers = append(containers, c)
 				break
 			}
@@ -332,4 +333,9 @@ func GetContainerTerm(daemon types.Daemon, containerName string) (dockerTypes.Hi
 	defer cli.Close()
 
 	return cli.ContainerExecAttach(context.Background(), exec.ID, dockerTypes.ExecStartCheck{Detach: false, Tty: true})
+}
+
+func normalizeName(name string) string {
+	r := regexp.MustCompile("[^a-z0-9]+")
+	return r.ReplaceAllString(strings.ToLower(name), "")
 }

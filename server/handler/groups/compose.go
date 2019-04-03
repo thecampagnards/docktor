@@ -59,8 +59,8 @@ func createSubService(c echo.Context) error {
 	_, err = dao.CreateOrUpdateGroup(group, false)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"group": group,
-			"error": err,
+			"groupName": group.Name,
+			"error":     err,
 		}).Error("Error when updating group")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -83,7 +83,7 @@ func startSubService(c echo.Context) error {
 
 	if (serviceGroup.SubServiceID == types.ServiceGroup{}.SubServiceID) {
 		log.WithFields(log.Fields{
-			"group":        group,
+			"groupName":    group.Name,
 			"subserviceID": types.SUBSERVICE_ID_PARAM,
 		}).Error("Error when retrieving group")
 		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
@@ -107,9 +107,9 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID": group.DaemonID,
-			"group":    group,
-			"error":    err,
+			"daemonID":  group.DaemonID,
+			"groupName": group.Name,
+			"error":     err,
 		}).Error("Error when retrieving daemon")
 		return
 	}
@@ -118,24 +118,32 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": serviceGroup.SubServiceID,
-			"group":        group,
-			"daemon":       daemon,
+			"groupName":    group.Name,
+			"daemonID":     group.DaemonID,
 			"error":        err,
 		}).Error("Error when retrieving sub service")
 		return
 	}
 
-	serviceGroup.Variables["Group"] = group
-	serviceGroup.Variables["Daemon"] = daemon
+	variables := map[string]interface{}{
+		"Group":  group,
+		"Daemon": daemon,
+	}
 
-	service, err := subService.ConvertSubService(serviceGroup.Variables)
+	// Copy of variables
+	for k, v := range serviceGroup.Variables {
+		variables[k] = v
+	}
+
+	service, err := subService.ConvertSubService(variables)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"serviceGroup": serviceGroup,
-			"subService":   subService,
-			"group":        group,
-			"daemon":       daemon,
-			"error":        err,
+			"serviceGroup":   serviceGroup.Variables,
+			"subServiceName": subService.Name,
+			"groupName":      group.Name,
+			"daemonHost":     daemon.Host,
+			"variables":      serviceGroup.Variables,
+			"error":          err,
 		}).Error("Error when converting sub service")
 		return
 	}
@@ -183,10 +191,10 @@ func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err 
 	err = utils.ComposeUp(group.Name, group.Subnet, daemon, [][]byte{service})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"group":   group,
-			"daemon":  daemon,
-			"service": string(service),
-			"error":   err,
+			"groupName":  group.Name,
+			"daemonHost": daemon.Host,
+			"service":    string(service),
+			"error":      err,
 		}).Error("Error when compose up")
 		return
 	}
