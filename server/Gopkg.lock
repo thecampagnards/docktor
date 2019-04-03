@@ -427,12 +427,12 @@
   revision = "af7bedc223fba51343f25a6fa7aba84355d0357a"
 
 [[projects]]
-  digest = "1:e4c72127d910a96daf869a44f3dd563b86dbe6931a172863a0e99c5ff04b59e4"
+  digest = "1:fd61cf4ae1953d55df708acb6b91492d538f49c305b364a014049914495db426"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "dae0fa8d5b0c810a8ab733fbd5510c7cae84eca4"
-  version = "v1.4.0"
+  revision = "8bdbc7bcc01dcbb8ec23dc8a28e332258d25251f"
+  version = "v1.4.1"
 
 [[projects]]
   digest = "1:972c2427413d41a1e06ca4897e8528e5a1622894050e2f527b38ddf0f343f759"
@@ -483,7 +483,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:5c699dd1e56092c9ff0112ec5634a2e82be138d338875d64a4a579987b7cb9a6"
+  digest = "1:c3c889f9f8de8a746e0593cd1b52dd2a335d9ee63f4407aa439e5194f7f8f9c3"
   name = "golang.org/x/crypto"
   packages = [
     "acme",
@@ -495,7 +495,6 @@
     "internal/subtle",
     "poly1305",
     "ssh",
-    "ssh/terminal",
   ]
   pruneopts = "UT"
   revision = "a5d413f7728c81fb97d96a2b722368945f651e78"
