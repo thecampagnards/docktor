@@ -6,7 +6,7 @@ import { IContainer } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTable';
 import { fetchComposeServices, fetchContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
-import { serviceButton } from './DaemonServiceButtons';
+import DaemonServiceButtons from './DaemonServiceButtons';
 
 interface IDaemonContainersProps {
   daemon: IDaemon;
@@ -75,8 +75,8 @@ class Daemon extends React.Component<
 
     return (
       <>
-        {serviceButton(daemon, services)}
-        <ContainerTable daemon={daemon} containers={containers} admin={true} />
+        <DaemonServiceButtons daemon={daemon} services={services} />
+        <ContainerTable daemon={daemon} containers={containers} admin={true}/>
       </>
     );
   }
