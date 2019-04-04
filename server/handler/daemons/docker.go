@@ -45,8 +45,8 @@ func getContainers(c echo.Context) error {
 	return c.JSON(http.StatusOK, cs)
 }
 
-// updateContainersStatus change the status of caontiners param split by ','
-func updateContainersStatus(c echo.Context) error {
+// UpdateContainersStatus change the status of caontiners param split by ','
+func UpdateContainersStatus(c echo.Context) error {
 
 	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {

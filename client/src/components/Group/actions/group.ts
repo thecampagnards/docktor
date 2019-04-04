@@ -62,6 +62,25 @@ export const createContainer = (groupID: string, containerId: string) => {
     .then(response => response.json());
 };
 
+export const changeContainersStatus = (
+  groupID: string,
+  status: string,
+  containers: string[]
+) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/status?status=${status}&containers=${containers.join(",")}`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
 export const saveGroup = (group: IGroup) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups`, {
     credentials: "same-origin",
@@ -91,7 +110,7 @@ export const deployService = (
   opt = opt.slice(0, -1);
   return fetch(
     `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/create/${serviceID}${opt &&
-      "?" + opt}`,
+    "?" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -140,7 +159,7 @@ export const fetchCadvisorContainers = (groupID: string) => {
 export const updateUser = (groupID: string, userID: string, status: string) => {
   return fetch(
     `${
-      process.env.PUBLIC_URL
+    process.env.PUBLIC_URL
     }/api/groups/${groupID}/updateuser/${userID}/${status}`,
     {
       credentials: "same-origin",

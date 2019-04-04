@@ -56,7 +56,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     }
 
     fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 10);
   }
 
   public componentWillUnmount() {
@@ -93,14 +93,14 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
           </Message>
         }
         {containers && containers.length > 0 && (
-          <Button 
-            color="teal" 
-            icon="save" 
-            labelPosition="right" 
-            content="SAVE CONTAINERS" 
-            onClick={this.handleSaveContainer} 
-            loading={isSaveFetching} 
-            floated="right" 
+          <Button
+            color="teal"
+            icon="save"
+            labelPosition="right"
+            content="SAVE CONTAINERS"
+            onClick={this.handleSaveContainer}
+            loading={isSaveFetching}
+            floated="right"
           />
         )}
         <ContainerTable daemon={daemon} containers={containers} group={group} admin={admin} />

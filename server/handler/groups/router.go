@@ -33,6 +33,7 @@ func AddRoute(e *echo.Group) {
 		{
 			group.GET("/docker/containers", getContainers)
 			group.POST("/docker/containers", saveContainers)
+			group.POST("/docker/containers/status", updateContainersStatus)
 			group.POST(fmt.Sprintf("/docker/containers/create/:%s", types.CONTAINER_ID_PARAM), createContainer)
 		}
 

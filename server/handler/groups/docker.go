@@ -3,14 +3,13 @@ package groups
 import (
 	"net/http"
 
-	"github.com/docker/libcompose/labels"
-
 	"docktor/server/dao"
+	"docktor/server/handler/daemons"
 	"docktor/server/types"
 	"docktor/server/utils"
 
 	dockerTypes "github.com/docker/docker/api/types"
-
+	"github.com/docker/libcompose/labels"
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
 )
@@ -131,4 +130,12 @@ func saveContainers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, g)
+}
+
+func updateContainersStatus(c echo.Context) error {
+
+	group := c.Get("group").(types.Group)
+	c.SetParamNames(types.DAEMON_ID_PARAM)
+	c.SetParamValues(group.DaemonID.Hex())
+	return daemons.UpdateContainersStatus(c)
 }
