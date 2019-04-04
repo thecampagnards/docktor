@@ -10,7 +10,7 @@ import ContainerLogSocket from './ContainerLogSocket';
 import ContainersButtons from './ContainersButtons';
 
 interface ITableProps {
-  daemon: IDaemon;
+  daemon?: IDaemon;
   admin: boolean;
   group?: IGroup;
   containers: IContainer[];
@@ -89,10 +89,10 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                         <List.Item
                           key={port.PublicPort}
                           as="a"
-                          href={"http://" + daemon.Host + ":" + port.PublicPort}
+                          href={"http://" + (group ? group.DaemonData.Host : daemon!.Host) + ":" + port.PublicPort}
                           target="_blank"
                         >
-                          {daemon.Host + ":" + port.PublicPort}
+                          {(group ? group.DaemonData.Host : daemon!.Host) + ":" + port.PublicPort}
                         </List.Item>
                       ))}
                     </List>
@@ -135,9 +135,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                       >
                         <Modal.Content style={{ background: "black" }}>
                           <CmdSocket
-                            apiURL={`/api/daemons/${
-                              daemon._id
-                              }/docker/containers/${container.Id}/term`}
+                            apiURL={`/api${group ? `/groups/${group._id}` : `/daemons/${daemon!._id}` }/docker/containers/${container.Id}/term`}
                           />
                         </Modal.Content>
                       </Modal>

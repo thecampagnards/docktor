@@ -19,6 +19,7 @@ func getAll(c echo.Context) error {
 		}).Error("Error when retrieving daemons")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// TODO clean data when not admin
 	return c.JSON(http.StatusOK, s)
 }
 
@@ -32,6 +33,7 @@ func getByID(c echo.Context) error {
 		}).Error("Error when retrieving daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// TODO clean data when not admin
 	return c.JSON(http.StatusOK, s)
 }
 

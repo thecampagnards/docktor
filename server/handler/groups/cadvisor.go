@@ -2,6 +2,7 @@ package groups
 
 import (
 	"docktor/server/dao"
+	"docktor/server/handler/daemons"
 	"docktor/server/types"
 	"docktor/server/utils"
 	"net/http"
@@ -45,4 +46,11 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, in)
+}
+
+func getCAdvisorMachineInfo(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	c.SetParamNames(types.DAEMON_ID_PARAM)
+	c.SetParamValues(group.DaemonID.Hex())
+	return daemons.GetCAdvisorMachineInfo(c)
 }

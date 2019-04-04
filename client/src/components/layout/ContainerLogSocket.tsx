@@ -2,10 +2,12 @@ import * as React from 'react';
 import { Message } from 'semantic-ui-react';
 
 import { IDaemon } from '../Daemon/types/daemon';
+import { IGroup } from '../Group/types/group';
 import { GetToken } from '../User/actions/user';
 
 interface ISocketProps {
-  daemon: IDaemon;
+  daemon?: IDaemon;
+  group?: IGroup;
   containerID: string;
 }
 
@@ -26,7 +28,7 @@ export default class ContainerLogSocket extends React.Component<
   };
 
   public componentWillMount() {
-    const { daemon, containerID } = this.props;
+    const { group, daemon, containerID } = this.props;
 
     const loc = window.location;
     let uri = "ws:";
@@ -36,10 +38,11 @@ export default class ContainerLogSocket extends React.Component<
     }
     uri += `//${loc.hostname}:`;
     uri += process.env.NODE_ENV === "development" ? "8080" : loc.port;
-    uri += "/api/daemons/";
+    uri += "/api"
+    uri += group ? `/groups/${group._id}` : `/daemons/${daemon!._id}`;
 
     const ws = new WebSocket(
-      `${uri}${daemon._id}/docker/containers/${containerID}/log?jwt_token=${GetToken()}`
+      `${uri}/docker/containers/${containerID}/log?jwt_token=${GetToken()}`
     );
 
     ws.onmessage = e => {

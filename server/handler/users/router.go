@@ -14,12 +14,13 @@ func AddRoute(e *echo.Group) {
 	users := e.Group("/users")
 
 	// Basic users request
-	users.GET("", getAll, middleware.WithAdmin)
+	users.GET("", getAll)
 	users.POST("", save)
 	users.GET("/profile", profile)
 
 	{
 		user := users.Group(fmt.Sprintf("/:%s", types.USERNAME_PARAM))
+		user.Use(middleware.WithAdmin)
 
 		user.GET("", getByUsername)
 		user.DELETE("", deleteByUsername)

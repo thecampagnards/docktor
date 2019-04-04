@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Button, Loader, Message } from 'semantic-ui-react';
 
-import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTable';
 import { fetchContainers, saveContainers } from '../actions/group';
@@ -38,10 +37,6 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public componentWillMount() {
     const { group } = this.props;
 
-    fetchDaemon(group.DaemonID)
-      .then((daemon: IDaemon) => this.setState({ daemon }))
-      .catch((error: Error) => this.setState({ error }));
-
     const fetch = () => {
       fetchContainers(group._id)
         .then((containers: IContainer[]) => {
@@ -65,7 +60,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { group, admin } = this.props;
-    const { daemon, containers, saveError, error, isFetching, isSaveFetching } = this.state;
+    const { containers, saveError, error, isFetching, isSaveFetching } = this.state;
 
     if (error.message) {
       return (
@@ -103,7 +98,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             floated="right"
           />
         )}
-        <ContainerTable daemon={daemon} containers={containers} group={group} admin={admin} />
+        <ContainerTable containers={containers} group={group} admin={admin} />
       </>
     );
   }

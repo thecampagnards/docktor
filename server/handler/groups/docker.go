@@ -133,9 +133,25 @@ func saveContainers(c echo.Context) error {
 }
 
 func updateContainersStatus(c echo.Context) error {
-
 	group := c.Get("group").(types.Group)
 	c.SetParamNames(types.DAEMON_ID_PARAM)
 	c.SetParamValues(group.DaemonID.Hex())
+	// TODO check if group container
 	return daemons.UpdateContainersStatus(c)
+}
+
+func getContainerLog(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	c.SetParamNames(types.DAEMON_ID_PARAM, types.CONTAINER_ID_PARAM)
+	c.SetParamValues(group.DaemonID.Hex(), c.Param(types.CONTAINER_ID_PARAM))
+	// TODO check if group container
+	return daemons.GetContainerLog(c)
+}
+
+func getContainerTerm(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	c.SetParamNames(types.DAEMON_ID_PARAM, types.CONTAINER_ID_PARAM)
+	c.SetParamValues(group.DaemonID.Hex(), c.Param(types.CONTAINER_ID_PARAM))
+	// TODO check if group container
+	return daemons.GetContainerTerm(c)
 }

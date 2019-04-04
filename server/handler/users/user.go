@@ -38,6 +38,7 @@ func getByUsername(c echo.Context) error {
 
 // save a User server
 func save(c echo.Context) error {
+	// TODO update only yours
 	var u types.User
 	err := c.Bind(&u)
 	if err != nil {
