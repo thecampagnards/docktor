@@ -1,7 +1,7 @@
 package admin
 
 import (
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"net/http"
 
@@ -11,7 +11,9 @@ import (
 
 // getMessage get the message banner
 func getMessage(c echo.Context) error {
-	m, err := dao.GetConfig()
+	db := c.Get("DB").(*storage.Docktor)
+
+	m, err := db.Config().Find()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -24,7 +26,8 @@ func getMessage(c echo.Context) error {
 
 // getConfig get the config
 func getConfig(c echo.Context) error {
-	m, err := dao.GetConfig()
+	db := c.Get("DB").(*storage.Docktor)
+	m, err := db.Config().Find()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -46,8 +49,8 @@ func saveConfig(c echo.Context) error {
 		}).Error("Error when parsing config")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-
-	m, err = dao.CreateOrUpdateConfig(m)
+	db := c.Get("DB").(*storage.Docktor)
+	m, err = db.Config().Save(m)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"config": m,

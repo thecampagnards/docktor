@@ -79,8 +79,8 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
         localStorage.setItem("token", token);
         dispatch({
           type: LoginSuccess,
-          username: (JWT(token) as IUserToken).Username,
-          isAdmin: (JWT(token) as IUserToken).IsAdmin
+          username: (JWT(token) as IUserToken).username,
+          isAdmin: (JWT(token) as IUserToken).isAdmin
         });
       })
       .catch((error: Error) => {
@@ -109,7 +109,7 @@ export const registerRequestThunk = (u: IUser) => {
         localStorage.setItem("token", token);
         dispatch({
           type: RegisterSuccess,
-          username: (JWT(token) as IUserToken).Username
+          username: (JWT(token) as IUserToken).username
         });
       })
       .catch((error: Error) => {
@@ -127,8 +127,8 @@ export const validateThunk = () => {
     if (token && (JWT(token) as IUserToken).exp * 1000 > Date.now()) {
       dispatch({
         type: LoginSuccess,
-        username: (JWT(token) as IUserToken).Username,
-        isAdmin: (JWT(token) as IUserToken).IsAdmin
+        username: (JWT(token) as IUserToken).username,
+        isAdmin: (JWT(token) as IUserToken).isAdmin
       });
     }
   };

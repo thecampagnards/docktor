@@ -1,18 +1,20 @@
 import * as React from 'react';
-import { connect } from 'react-redux';
 import * as ReactMarkdown from 'react-markdown';
+import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { Message, Tab, TabProps } from 'semantic-ui-react';
+import { IDaemon } from 'src/components/Daemon/types/daemon';
 
 import { path as constPath } from '../../../constants/path';
+import { IStoreState } from '../../../types/store';
+import { fetchDaemons } from '../../Daemon/actions/daemon';
 import { fetchGroup } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCAdvisor from './GroupCAdvisor';
 import GroupContainers from './GroupContainers';
-import GroupMembers from './GroupMembers';
 import GroupForm from './GroupForm';
+import GroupMembers from './GroupMembers';
 import GroupServices from './GroupServices';
-import { IStoreState } from '../../../types/store';
 
 interface IRouterProps {
   groupID: string;
@@ -25,6 +27,8 @@ interface IGroupIndexProps {
 
 interface IGroupIndexStates {
   group: IGroup;
+  daemons: IDaemon[];
+  daemon: IDaemon;
   isFetching: boolean;
   error: Error;
   activeTab: number;
@@ -38,6 +42,8 @@ class GroupIndex extends React.Component<
     activeTab: 0,
     isFetching: true,
     group: {} as IGroup,
+    daemons: [],
+    daemon: {} as IDaemon,
     error: Error()
   };
 
@@ -72,7 +78,7 @@ class GroupIndex extends React.Component<
   }
 
   public render() {
-    const { group, activeTab, isFetching, error } = this.state;
+    const { daemon, group, activeTab, isFetching, error } = this.state;
     const { username, isAdmin } = this.props;
 
     if (error.message) {
@@ -87,7 +93,7 @@ class GroupIndex extends React.Component<
       );
     }
 
-    const admin = isAdmin || (group.Admins && group.Admins.includes(username));
+    const admin = isAdmin || (group.admins && group.admins.includes(username));
 
     const panes = [
       {
@@ -102,7 +108,7 @@ class GroupIndex extends React.Component<
         menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {group._id && <GroupContainers group={group} admin={admin} />}
+            {group._id && <GroupContainers group={group} admin={admin} daemon={daemon}/>}
           </Tab.Pane>
         )
       },
@@ -129,7 +135,7 @@ class GroupIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={5}>
-            {group._id && <GroupForm group={group} />}
+            {group._id && <GroupForm group={group}/>}
           </Tab.Pane>
         )
       })
@@ -137,8 +143,8 @@ class GroupIndex extends React.Component<
 
     return (
       <>
-        <h1>{group.Name || "Group"}</h1>
-        <ReactMarkdown source={group.Description} escapeHtml={false} />
+        <h1>{group.name || "Group"}</h1>
+        <ReactMarkdown source={group.description} escapeHtml={false} />
         <Tab
           panes={panes}
           renderActiveOnly={false}
@@ -186,7 +192,11 @@ class GroupIndex extends React.Component<
   private refreshGroup = () => {
     const { groupID } = this.props.match.params;
     fetchGroup(groupID)
-      .then((group: IGroup) => this.setState({ group, isFetching: false }))
+      .then((group: IGroup) => {
+        fetchDaemons()
+        .then((daemons: IDaemon[]) => this.setState({ daemons, daemon: daemons.find(d => d._id === this.state.group.daemon_id) as IDaemon }))
+        this.setState({ group, isFetching: false })
+      })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 }

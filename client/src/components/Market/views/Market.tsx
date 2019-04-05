@@ -78,7 +78,7 @@ class Market extends React.Component<{}, IServicesStates> {
 
     let tags: string[] = [];
     for (const s of services) {
-      tags = _.union(tags, s.Tags);
+      tags = _.union(tags, s.tags);
     }
 
     return (
@@ -124,11 +124,11 @@ class Market extends React.Component<{}, IServicesStates> {
     const { tagsFilter } = this.state;
 
     let servicesFiltered = this.state.services.filter(service =>
-      service.Name.toLowerCase().includes(this.searchField.toLowerCase())
+      service.name.toLowerCase().includes(this.searchField.toLowerCase())
     );
     if (tagsFilter.length > 0) {
       servicesFiltered = servicesFiltered.filter(
-        s => _.intersectionWith(s.Tags, tagsFilter, _.isEqual).length !== 0
+        s => _.intersectionWith(s.tags, tagsFilter, _.isEqual).length !== 0
       );
     }
     this.setState({ servicesFiltered });

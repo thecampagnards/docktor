@@ -14,30 +14,40 @@ import (
 	"github.com/globalsign/mgo/bson"
 )
 
+// Service data
 type Service struct {
 	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name        string
-	Description string
-	Tags        []string
-	Link        string
-	// Base 64 encoded
-	Image       string
-	SubServices []SubService
+	Name        string        `json:"name" bson:"name" validate:"required"`
+	Description string        `json:"description" bson:"description"`
+	Tags        []string      `json:"tags" bson:"tags"`
+	Link        string        `json:"link" bson:"link"`
+	Image       string        `json:"image" bson:"image"` // Base 64 encoded
+	SubServices []SubService  `json:"sub_services" bson:"sub_services"`
 }
 
+// SubService data
 type SubService struct {
 	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name      string
-	File      string
-	Active    bool
-	Variables interface{} `bson:"-"`
+	Name      string        `json:"name" bson:"name" validate:"required"`
+	Active    bool          `json:"active" bson:"active"`
+	File      string        `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables interface{}   `bson:"-"`
 }
 
+// GetVariablesOfSubServices get all the variables of all subservices
+func (s *Service) GetVariablesOfSubServices() {
+	for index := 0; index < len(s.SubServices); index++ {
+		s.SubServices[index].GetVariables()
+	}
+}
+
+// Services data
 type Services []Service
 
 // GetRemoteFile Check if file is remote and pull it
 func (sub *SubService) GetRemoteFile() (err error) {
 	u, err := url.ParseRequestURI(sub.File)
+	// Check if plain file or url
 	if err != nil || u.Host == "" {
 		return nil
 	}
@@ -45,15 +55,18 @@ func (sub *SubService) GetRemoteFile() (err error) {
 	cli := &http.Client{
 		Timeout: 10 * time.Second,
 		Transport: &http.Transport{
+			// Disable https check
 			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
 		},
 	}
+	// Get the template file
 	r, err := cli.Get(sub.File)
 	if err != nil {
 		return
 	}
 	defer r.Body.Close()
 
+	// Convert to string
 	buf := new(bytes.Buffer)
 	buf.ReadFrom(r.Body)
 
@@ -62,14 +75,18 @@ func (sub *SubService) GetRemoteFile() (err error) {
 }
 
 // ConvertSubService this methode replace all the variables in the service
-func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
+func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) {
 
+	// Get remote file if needed
 	err := sub.GetRemoteFile()
 	if err != nil {
 		return nil, err
 	}
 
-	tmpl, err := template.New("template").Funcs(template.FuncMap{"split": split, "randString": randString}).Parse(sub.File)
+	// Convert it
+	tmpl, err := template.New("template").
+		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Parse(sub.File)
 	if err != nil {
 		return nil, err
 	}
@@ -83,33 +100,40 @@ func (sub SubService) ConvertSubService(variables interface{}) ([]byte, error) {
 	return b.Bytes(), nil
 }
 
-// GetVariablesOfSubServices retrieve the variables of a template
-func (sub *SubService) GetVariablesOfSubServices() error {
+// GetVariables retrieve the variables of a template
+func (sub *SubService) GetVariables() (err error) {
 
-	err := sub.GetRemoteFile()
+	// Get remote file if needed
+	err = sub.GetRemoteFile()
 	if err != nil {
-		return err
+		return
 	}
 
-	tmpl, err := template.New("").Funcs(template.FuncMap{"split": split, "randString": randString}).Option("missingkey=error").Parse(sub.File)
+	// Convert it and enable missingkey to find the missing variables
+	tmpl, err := template.New("template").
+		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Option("missingkey=error").
+		Parse(sub.File)
 	if err != nil {
-		return err
+		return
 	}
 
-	var b bytes.Buffer
-	var data = make(map[string]interface{})
-	data["Group"] = Group{}
-	data["Daemon"] = Daemon{Host: "vm.loc.cn.ssg", Docker: &Docker{}}
-	var keys []string
+	data := map[string]interface{}{
+		"Group":  Group{},
+		"Daemon": Daemon{Host: "vm.loc.cn.ssg"},
+	}
+
 	r, _ := regexp.Compile(`map has no entry for key "(.*?)"`)
 
+	var variables []string
+	var b bytes.Buffer
 	for {
 		err = tmpl.Execute(&b, data)
 		if err != nil {
 			if len(r.FindStringIndex(err.Error())) > 0 {
-				key := r.FindStringSubmatch(err.Error())[1]
-				data[key] = "<no value>"
-				keys = append(keys, key)
+				variable := r.FindStringSubmatch(err.Error())[1]
+				data[variable] = "<no value>"
+				variables = append(variables, variable)
 				b.Reset()
 			} else {
 				return err
@@ -119,14 +143,16 @@ func (sub *SubService) GetVariablesOfSubServices() error {
 		}
 	}
 
-	sub.Variables = keys
+	sub.Variables = variables
 	return nil
 }
 
+// split used in go template
 func split(s string, d string) []string {
 	return strings.Split(d, s)
 }
 
+// randString used in go template
 func randString(n int) string {
 	const letterBytes = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 	b := make([]byte, n)

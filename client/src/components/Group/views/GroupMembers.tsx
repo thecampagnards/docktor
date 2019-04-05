@@ -1,10 +1,14 @@
-import { IGroup } from "../types/group";
 import * as React from 'react';
-import { IUser } from '../../User/types/user';
-import { fetchUser, fetchUsers } from '../../User/actions/users';
-import { Message, Table, Button, Checkbox, CheckboxProps, ButtonProps, Grid, Icon, Search, Label, SearchProps } from 'semantic-ui-react';
-import { updateUser } from '../../Group/actions/group';
+import {
+    Button, ButtonProps, Checkbox, CheckboxProps, Grid, Icon, Label, Message, Search, SearchProps,
+    Table
+} from 'semantic-ui-react';
+
 import { copy } from '../../../utils/clipboard';
+import { updateUser } from '../../Group/actions/group';
+import { fetchUser, fetchUsers } from '../../User/actions/users';
+import { IUser } from '../../User/types/user';
+import { IGroup } from '../types/group';
 
 interface IGroupProps {
     group: IGroup;
@@ -34,10 +38,10 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
     public componentWillMount() {
 
         fetchUsers()
-            .then(users => this.setState({ allUsers: users.map((u: IUser) => (u.Username)) }));
+            .then(users => this.setState({ allUsers: users.map((u: IUser) => (u.username)) }));
 
         const { group } = this.props;
-        const usernames = group.Users.concat(group.Admins);
+        const usernames = group.users.concat(group.admins);
         usernames.map(username => {
             fetchUser(username)
                 .then(u => {
@@ -99,12 +103,12 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                     </Table.Header>
                     <Table.Body>
                     {members.map(user => (
-                        <Table.Row key={user.Username}>
-                            <Table.Cell width={8}>{`${user.FirstName} ${user.LastName}  (${user.Username})`}</Table.Cell>
-                            <Table.Cell width={3}>{this.computeGroupRole(user.Username, admin)}</Table.Cell>
+                        <Table.Row key={user.username}>
+                            <Table.Cell width={8}>{`${user.firstName} ${user.lastName}  (${user.username})`}</Table.Cell>
+                            <Table.Cell width={3}>{this.computeGroupRole(user.username, admin)}</Table.Cell>
                             <Table.Cell width={5}>
-                                <Button icon="copy" title="Copy Email" onClick={copy.bind(this, user.Email)} />
-                                <Button icon="trash" title="Delete from group" color="red" name={user.Username} onClick={this.deleteFromGroup} disabled={!admin} />
+                                <Button icon="copy" title="Copy Email" onClick={copy.bind(this, user.email)} />
+                                <Button icon="trash" title="Delete from group" color="red" name={user.username} onClick={this.deleteFromGroup} disabled={!admin} />
                             </Table.Cell>
                         </Table.Row>
                     ))}
@@ -123,7 +127,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
 
     private copyAll = () => {
         const { members } = this.state;
-        const mails = members.map(u => u.Email).join(";");
+        const mails = members.map(u => u.email).join(";");
         copy(mails);
     }
 
@@ -152,11 +156,11 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
             this.setState({ labelText: "Add a user to the group" });
             return;
         }
-        if (members.map(u => u.Username).indexOf(username) > -1) {
+        if (members.map(u => u.username).indexOf(username) > -1) {
             this.setState({ labelText: "This user is already in the group" });
             return;
         }
-        
+
         fetchUser(username)
             .then(u => {
                 this.setState({ isFetching: true });
@@ -180,7 +184,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
         const username = name as string;
         updateUser(groupID, username, "delete")
             .then(() => {
-                const members = this.state.members.filter(u => u.Username !== username);
+                const members = this.state.members.filter(u => u.username !== username);
                 this.setState({ members });
             })
             .finally(() => this.setState({ isFetching: false }));
@@ -201,8 +205,8 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
 
     private computeGroupRole = (username: string, admin: boolean) => {
         const { group } = this.props;
-        if (group.Admins) {
-            if (group.Admins.indexOf(username) > -1) {
+        if (group.admins) {
+            if (group.admins.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={username}
@@ -215,8 +219,8 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                 );
             }
         }
-        if (group.Users) {
-            if (group.Users.indexOf(username) > -1) {
+        if (group.users) {
+            if (group.users.indexOf(username) > -1) {
                 return (
                     <Checkbox
                         name={username}

@@ -39,7 +39,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public render() {
     const {
       daemons,
-      daemonsFiltered,
       tagsFilter,
       error,
       isFetching
@@ -79,7 +78,16 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     let tags: string[] = [];
     for (const d of daemons) {
-      tags = _.union(tags, d.Tags);
+      tags = _.union(tags, d.tags);
+    }
+
+    let daemonsFiltered = daemons.filter(daemon =>
+      daemon.name.toLowerCase().includes(this.searchField.toLowerCase())
+    );
+    if (tagsFilter.length > 0) {
+      daemonsFiltered = daemonsFiltered.filter(
+        d => _.intersectionWith(d.tags, tagsFilter, _.isEqual).length !== 0
+      );
     }
 
     return (
@@ -133,22 +141,22 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Table.Body>
             {daemonsFiltered.slice(0, 20).map(daemon => (
               <Table.Row key={daemon._id}>
-                <Table.Cell>{daemon.Name}</Table.Cell>
+                <Table.Cell>{daemon.name}</Table.Cell>
                 {/*<Table.Cell><Icon color="green" name="check circle outline"/></Table.Cell>*/}
-                <Table.Cell>{daemon.Host}</Table.Cell>
+                <Table.Cell>{daemon.host}</Table.Cell>
                 <Table.Cell>
                   <Button.Group fluid={true}>
                     <Button
                       icon="chart area"
                       content="CAdvisor"
-                      disabled={!daemon.CAdvisor}
+                      disabled={!daemon.cadvisor}
                       as={Link}
                       to={path.daemonsCAdvisor.replace(":daemonID", daemon._id)}
                     />
                     <Button
                       icon="docker"
                       content="Containers"
-                      disabled={!daemon.Docker}
+                      disabled={!daemon.docker}
                       as={Link}
                       to={path.daemonsContainers.replace(
                         ":daemonID",
@@ -158,7 +166,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     <Button
                       icon="terminal"
                       content="SSH"
-                      disabled={!daemon.SSH}
+                      disabled={!daemon.ssh}
                       as={Link}
                       to={path.daemonsSSH.replace(":daemonID", daemon._id)}
                     />
@@ -188,11 +196,11 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const { tagsFilter } = this.state;
 
     let daemonsFiltered = this.state.daemons.filter(daemons =>
-      daemons.Name.toLowerCase().includes(this.searchField.toLowerCase())
+      daemons.name.toLowerCase().includes(this.searchField.toLowerCase())
     );
     if (tagsFilter.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(
-        d => _.intersectionWith(d.Tags, tagsFilter, _.isEqual).length !== 0
+        d => _.intersectionWith(d.tags, tagsFilter, _.isEqual).length !== 0
       );
     }
     this.setState({ daemonsFiltered });

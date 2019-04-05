@@ -1,4 +1,4 @@
-import { IGroup } from '../../Group/types/group'
+import { IGroup } from '../../Group/types/group';
 
 export type userTypes = "admin" | "user";
 
@@ -10,18 +10,20 @@ export interface ILoginState {
 }
 
 export interface IUserToken {
-  Username: string;
-  IsAdmin: boolean;
+  username: string;
+  isAdmin: boolean;
   exp: number;
 }
 
 export interface IUser {
-  Username: string;
-  Password: string;
-  FirstName: string;
-  LastName: string;
-  Email: string;
-  Role: userTypes;
+  username: string;
+  password?: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  role: userTypes;
+}
 
-  GroupsData: IGroup[];
+export interface IProfile extends IUser {
+  groups: IGroup[];
 }

@@ -30,7 +30,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   public componentWillMount() {
-    this.setState({ daemon: this.props.daemon ? this.props.daemon : { Docker: {}, SSH: {} } as IDaemon });
+    this.setState({ daemon: this.props.daemon ? this.props.daemon : { docker: {}, ssh: {} } as IDaemon });
   }
 
   public render() {
@@ -42,18 +42,18 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
         <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
-            name="Name"
+            name="name"
             type="text"
-            value={daemon.Name}
+            value={daemon.name}
             onChange={this.handleChange}
             required={true}
           />
           <Form.Group inline={true}>
             <Form.Input
               label="Host"
-              name="Host"
+              name="host"
               type="text"
-              value={daemon.Host}
+              value={daemon.host}
               onChange={this.handleChange}
               width={8}
               required={true}
@@ -61,18 +61,18 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
             <Form.Input
               label="Docker Port"
-              name="Docker.Port"
+              name="docker.port"
               type="number"
-              value={daemon.Docker.Port}
+              value={daemon.docker.port}
               onChange={this.handleChange}
               width={4}
             />
 
             <Form.Input
               label="SSH Port"
-              name="SSH.Port"
+              name="ssh.port"
               type="number"
-              value={daemon.SSH.Port}
+              value={daemon.ssh.port}
               onChange={this.handleChange}
               width={4}
             />
@@ -81,18 +81,18 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           <Form.Group inline={true}>
             <Form.Input
               label="SSH User"
-              name="SSH.User"
+              name="ssh.user"
               type="text"
-              value={daemon.SSH.User}
+              value={daemon.ssh.user}
               onChange={this.handleChange}
               width={6}
             />
 
             <Form.Input
               label="SSH Password"
-              name="SSH.Password"
+              name="ssh.password"
               type="password"
-              value={daemon.SSH.Password}
+              value={daemon.ssh.password}
               onChange={this.handleChange}
               width={6}
             />
@@ -100,17 +100,17 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
           <Form.Input
             label="CAdvisor"
-            name="CAdvisor"
+            name="cadvisor"
             type="url"
-            value={daemon.CAdvisor}
+            value={daemon.cadvisor}
             onChange={this.handleChange}
           />
 
           <Form.Input
             label="Tags"
-            name="Tags"
+            name="tags"
             type="text"
-            value={daemon.Tags ? daemon.Tags.join(",") : ""}
+            value={daemon.tags ? daemon.tags.join(",") : ""}
             onChange={this.handleChange}
           />
 
@@ -123,12 +123,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(0) !== -1}>
               <CodeMirror
-                value={daemon.Description}
+                value={daemon.description}
                 options={{
                   mode: "markdown",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["Description"]
+                  gutters: ["description"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -143,12 +143,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(1) !== -1}>
               <CodeMirror
-                value={daemon.Docker.Ca}
+                value={daemon.docker.ca}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["Docker.Ca"]
+                  gutters: ["docker.ca"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -163,12 +163,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(2) !== -1}>
               <CodeMirror
-                value={daemon.Docker.Cert}
+                value={daemon.docker.cert}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["Docker.Cert"]
+                  gutters: ["docker.cert"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -183,12 +183,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(3) !== -1}>
               <CodeMirror
-                value={daemon.Docker.Key}
+                value={daemon.docker.key}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["Docker.Key"]
+                  gutters: ["docker.key"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -198,9 +198,9 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           <br />
           <Form.Input
             label="Docker Volume"
-            name="Docker.Volume"
+            name="docker.volume"
             type="text"
-            value={daemon.Docker.Volume}
+            value={daemon.docker.volume}
             onChange={this.handleChange}
           />
           <br />
@@ -231,7 +231,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   ) => {
     if (type === "number") {
       value = parseInt(value, undefined)
-    } else if (name === "Tags") {
+    } else if (name === "tags") {
       value = value.split(",")
     }
     this.setState({ daemon: _.set(this.state.daemon, name, value) });

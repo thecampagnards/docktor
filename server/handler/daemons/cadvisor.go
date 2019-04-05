@@ -3,7 +3,7 @@ package daemons
 import (
 	"net/http"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -14,7 +14,8 @@ import (
 // getCAdvisorContainerInfo get cadvisor info of container
 func getCAdvisorContainerInfo(c echo.Context) error {
 
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -38,7 +39,8 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 // GetCAdvisorMachineInfo get cadvisor info of machine
 func GetCAdvisorMachineInfo(c echo.Context) error {
 
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),

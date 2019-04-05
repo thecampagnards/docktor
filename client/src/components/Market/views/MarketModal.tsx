@@ -34,7 +34,7 @@ interface IMarketModalProps {
 class MarketModal extends React.Component<
   IMarketModalProps,
   IMarketModalStates
-> {
+  > {
   public state = {
     selectedGroupID: "",
     selectedSubServiceID: "",
@@ -55,12 +55,12 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        {service.Link && (
+        {service.link && (
           <Button
             icon={true}
             labelPosition="left"
             as="a"
-            href={service.Link}
+            href={service.link}
             target="_blank"
           >
             <Icon name="info circle" />
@@ -80,7 +80,7 @@ class MarketModal extends React.Component<
           floated="right"
           icon={true}
           as={Link}
-          to={path.servicesEdit.replace(":serviceID", service._id)}
+          to={path.servicesEdit.replace(":serviceID", service._id!)}
         >
           <Icon name="edit" />
         </Button>
@@ -114,32 +114,32 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Modal.Header>Deploy your {service.Name}</Modal.Header>
+        <Modal.Header>Deploy your {service.name}</Modal.Header>
         <Modal.Content>
           <Grid>
             <Grid.Column width={4}>
-              {service.Image && <Image size="small" src={service.Image} />}
+              {service.image && <Image size="small" src={service.image} />}
               {error.message && (
                 <Message negative={true}>
                   <Message.Header>{error.message}</Message.Header>
                 </Message>
               )}
             </Grid.Column>
-            <Grid.Column width={service.Link ? 10 : 12}>
+            <Grid.Column width={service.link ? 10 : 12}>
               <Modal.Description>
                 <ReactMarkdown
-                  source={service.Description}
+                  source={service.description}
                   escapeHtml={false}
                 />
               </Modal.Description>
             </Grid.Column>
-            {service.Link && (
+            {service.link && (
               <Grid.Column width={2}>
                 <Button
                   icon={true}
                   floated="right"
                   as="a"
-                  href={service.Link}
+                  href={service.link}
                   target="_blank"
                 >
                   <Icon name="info circle" />
@@ -149,30 +149,36 @@ class MarketModal extends React.Component<
           </Grid>
         </Modal.Content>
         <Modal.Actions>
-          <Select
-            placeholder="Select your group"
-            options={groups.map(group => {
-              return { text: group.Name, value: group._id };
-            })}
-            onChange={this.handleChangeGroup}
-            defaultValue={selectedGroupID}
-            search={true}
-          />
-          <Select
-            placeholder="Select your sub service"
-            options={service.SubServices.map(ss => {
-              return { text: ss.Name, value: ss._id };
-            })}
-            onChange={this.handleChangeSubService}
-            defaultValue={selectedSubServiceID}
-            search={true}
-          />
-          <Button color="red" onClick={this.close}>
-            <Icon name="remove" /> Exit
+          {service.sub_services ?
+            <>
+              <Select
+                placeholder="Select your group"
+                options={groups.map(group => {
+                  return { text: group.name, value: group._id };
+                })}
+                onChange={this.handleChangeGroup}
+                defaultValue={selectedGroupID}
+                search={true}
+              />
+              <Select
+                placeholder="Select your sub service"
+                options={service.sub_services.map(ss => {
+                  return { text: ss.name, value: ss._id };
+                })}
+                onChange={this.handleChangeSubService}
+                defaultValue={selectedSubServiceID}
+                search={true}
+              />
+              <Button color="red" onClick={this.close}>
+                <Icon name="remove" /> Exit
           </Button>
-          <Button color="blue" onClick={this.continueFormStage2}>
-            Proceed <Icon name="chevron right" />
-          </Button>
+              <Button color="blue" onClick={this.continueFormStage2}>
+                Proceed <Icon name="chevron right" />
+              </Button>
+            </>
+            :
+            <p>No sub services found for this service</p>
+          }
         </Modal.Actions>
       </>
     );
@@ -181,7 +187,7 @@ class MarketModal extends React.Component<
   private renderModalStage2 = () => {
     const { service } = this.props;
     const { variables, error, isFetching, selectedSubServiceID } = this.state;
-    const ss = service.SubServices.find(
+    const ss = service.sub_services!.find(
       s => s._id === selectedSubServiceID
     ) as ISubService;
 
@@ -195,10 +201,10 @@ class MarketModal extends React.Component<
             </Message>
           )}
           <Form>
-            {ss.Variables && (
+            {ss.variables && (
               <>
                 <h3>Variables</h3>
-                {ss.Variables.map((variable: string) => (
+                {ss.variables.map((variable: string) => (
                   <Form.Field inline={true} key={variable}>
                     <label>{variable}</label>
                     <Input
@@ -232,6 +238,7 @@ class MarketModal extends React.Component<
   };
 
   private renderModalStage3 = () => {
+    const { selectedGroupID } = this.state
     return (
       <>
         <Modal.Header>Deployed</Modal.Header>
@@ -246,7 +253,7 @@ class MarketModal extends React.Component<
           <Button color="blue" onClick={this.close}>
             <Icon name="chevron left" /> Close
           </Button>
-          <Button color="blue" as={Link} to="TODO">
+          <Button color="blue" as={Link} to={path.groupsServices.replace(":groupID", selectedGroupID)}>
             <Icon name="checkmark" /> Go to your service
           </Button>
         </Modal.Actions>
@@ -290,12 +297,12 @@ class MarketModal extends React.Component<
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       const sg = (groups.find(
         g => g._id === selectedGroupID
-      ) as IGroup).Services.find(
+      ) as IGroup).services.find(
         s => s._id === selectedSubServiceID
       ) as IServiceGroup;
       this.setState({
         stage: 2,
-        variables: sg ? sg.Variables : {},
+        variables: sg ? sg.variables : {},
         error: Error()
       });
     } else {
@@ -311,9 +318,9 @@ class MarketModal extends React.Component<
       variables,
       opts
     } = this.state;
-    const v = (service.SubServices.find(
+    const v = (service.sub_services!.find(
       s => s._id === selectedSubServiceID
-    ) as ISubService).Variables;
+    ) as ISubService).variables;
 
     if (v) {
       for (const key of v) {

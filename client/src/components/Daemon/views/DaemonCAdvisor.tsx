@@ -93,7 +93,7 @@ class DaemonCAdvisor extends React.Component<
       <>
         <Grid>
           <Grid.Column width={10}>
-            <Button icon={true} labelPosition="right" as="a" title={daemon.CAdvisor} href={daemon.CAdvisor} target="_blank">
+            <Button icon={true} labelPosition="right" as="a" title={daemon.cadvisor} href={daemon.cadvisor} target="_blank">
               <Icon name="external alternate" /> Open cAdvisor webpage
             </Button>
           </Grid.Column>

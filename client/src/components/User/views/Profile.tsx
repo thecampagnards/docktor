@@ -2,19 +2,18 @@ import * as React from 'react';
 import { Loader, Message } from 'semantic-ui-react';
 
 import { GetProfile } from '../actions/user';
-import { IUser } from '../types/user';
-
+import { IProfile } from '../types/user';
 import ProfileCard from './ProfileCard';
 
 interface IProfileStates {
-  user: IUser;
+  profile: IProfile;
   isFetching: boolean;
   error: Error;
 }
 
 class Profile extends React.Component<{}, IProfileStates> {
   public state = {
-    user: {} as IUser,
+    profile: {} as IProfile,
     isFetching: true,
     error: Error()
   };
@@ -24,7 +23,7 @@ class Profile extends React.Component<{}, IProfileStates> {
   }
 
   public render() {
-    const { user, isFetching, error } = this.state;
+    const { profile, isFetching, error } = this.state;
 
     if (error.message) {
       return (
@@ -41,14 +40,14 @@ class Profile extends React.Component<{}, IProfileStates> {
 
     return (
       <>
-        <ProfileCard user={user} perm={user.Role === "admin"} refresh={this.refreshUser}/>
+        <ProfileCard user={profile} perm={profile.role === "admin"} refresh={this.refreshUser}/>
       </>
     );
   }
 
   private refreshUser = () => {
     GetProfile()
-      .then(user => this.setState({ user, isFetching: false }))
+      .then(profile => this.setState({ profile, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
   }
 }

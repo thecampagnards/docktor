@@ -9,6 +9,8 @@ import {
 
 import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
+import { fetchDaemons } from '../../Daemon/actions/daemon';
+import { IDaemon } from '../../Daemon/types/daemon';
 import { fetchGroups } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCard from './GroupCard';
@@ -19,33 +21,38 @@ interface IGroupsProps {
 }
 interface IGroupsStates {
   groups: IGroup[];
-  groupsFiltered: IGroup[];
+  daemons: IDaemon[];
   isFetching: boolean;
   error: Error;
+
+  searchFilter: string
+  searchDaemonID: string
 }
 
 class Groups extends React.Component<IGroupsProps, IGroupsStates> {
   public state = {
     groups: [] as IGroup[],
-    groupsFiltered: [] as IGroup[],
+    daemons: [] as IDaemon[],
     isFetching: false,
-    error: Error()
+    error: Error(),
+
+    searchFilter: "",
+    searchDaemonID: "",
   };
-  private searchDaemonID: string = "";
-  private searchFilter: string = "";
-  private toggleLoading: boolean = false;
+
   private displayAll: boolean = false;
 
   public componentWillMount() {
     fetchGroups(false)
-      .then(groups =>
-        this.setState({ groups, groupsFiltered: groups, isFetching: false })
-      )
+      .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
+
+      fetchDaemons()
+      .then(daemons => this.setState({ daemons }))
   }
 
   public render() {
-    const { groups, groupsFiltered, error, isFetching } = this.state;
+    const { daemons, groups, error, isFetching, searchDaemonID, searchFilter } = this.state;
     const { username, isAdmin } = this.props;
 
     if (error.message) {
@@ -69,6 +76,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       );
     }
 
+    const groupsFiltered = groups ? groups.filter(
+      group =>
+        group.name.toLowerCase().includes(searchFilter.toLowerCase()) &&
+        (searchDaemonID === "" || searchDaemonID === group.daemon_id)
+    ) : [];
+
     return (
       <>
         <Grid>
@@ -80,7 +93,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               size="tiny"
               placeholder="Search groups..."
               showNoResults={false}
-              onSearchChange={this.filterSearch}
+              name="filter"
+              onSearchChange={this.filter}
             />
           </Grid.Column>
           <Grid.Column width={5}>
@@ -89,14 +103,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               selection={true}
               clearable={true}
               label="Daemon"
-              name="DaemonID"
+              name="searchDaemonID"
               placeholder="Select daemon"
-              options={_.uniqBy(groups, "DaemonID").map(g => {
-                return g.DaemonData
-                  ? { text: g.DaemonData.Name, value: g.DaemonID }
-                  : { text: "", value: "" };
+              options={daemons.map(d => {
+                return { text: d.name, value: d._id }
               })}
-              onChange={this.filterByDaemon}
+              onChange={this.filter}
             />
           </Grid.Column>
           <Grid.Column width={3}>
@@ -105,7 +117,6 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               slider={true}
               label="Display all groups"
               onChange={this.handleToggle}
-              disabled={this.toggleLoading}
             />
           </Grid.Column>
           <Grid.Column width={3}>
@@ -127,7 +138,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               <GroupCard
                 group={group}
                 admin={isAdmin}
-                groupAdmin={isAdmin || group.Admins.includes(username)}
+                groupAdmin={isAdmin || group.admins.includes(username)}
                 displayButtons={!this.displayAll}
               />
             </Grid.Column>
@@ -141,39 +152,20 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     event: React.SyntheticEvent,
     { checked }: CheckboxProps
   ) => {
-    this.toggleLoading = true;
     this.displayAll = checked as boolean;
     fetchGroups(this.displayAll)
       .then(groups =>
-        this.setState({ groups, groupsFiltered: groups, isFetching: false })
+        this.setState({ groups, isFetching: false })
       )
       .catch(error => this.setState({ error, isFetching: false }));
-    this.toggleLoading = false;
   };
 
-  private filterGroups = () => {
-    const groupsFiltered = this.state.groups.filter(
-      group =>
-        group.Name.toLowerCase().includes(this.searchFilter.toLowerCase()) &&
-        (this.searchDaemonID === "" || this.searchDaemonID === group.DaemonID)
-    );
-    this.setState({ groupsFiltered });
-  };
-
-  private filterSearch = (
+  private filter = (
     event: React.SyntheticEvent,
-    { value }: SearchProps
+    { value, name }: SearchProps | DropdownProps
   ) => {
-    this.searchFilter = value as string;
-    this.filterGroups();
-  };
-
-  private filterByDaemon = (
-    event: React.SyntheticEvent,
-    { value }: DropdownProps
-  ) => {
-    this.searchDaemonID = value as string;
-    this.filterGroups();
+    this.state[name] = value as string
+    this.setState(this.state)
   };
 }
 

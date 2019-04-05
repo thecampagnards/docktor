@@ -56,7 +56,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
             required={true}
             fluid={true}
             label="Username"
-            name="Username"
+            name="username"
             placeholder="Username"
             onChange={this.handleChange}
           />
@@ -64,7 +64,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
             required={true}
             fluid={true}
             label="Password"
-            name="Password"
+            name="password"
             placeholder="Password"
             type="password"
             onChange={this.handleChange}

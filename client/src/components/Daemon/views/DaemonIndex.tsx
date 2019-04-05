@@ -83,7 +83,7 @@ class DaemonIndex extends React.Component<
       {
         menuItem: "Containers",
         pane: (
-          <Tab.Pane loading={isFetching} key={1} disabled={!daemon.Docker || !daemon.Docker.Port}>
+          <Tab.Pane loading={isFetching} key={1} disabled={!daemon.docker || !daemon.docker.port}>
            <DaemonContainers daemon={daemon} />
           </Tab.Pane>
         )
@@ -107,7 +107,7 @@ class DaemonIndex extends React.Component<
       {
         menuItem: "SSH",
         pane: (
-          <Tab.Pane loading={isFetching} key={4} disabled={!daemon.SSH || !daemon.SSH.Port}>
+          <Tab.Pane loading={isFetching} key={4} disabled={!daemon.ssh || !daemon.ssh.port}>
            <DaemonSSH daemon={daemon} />
           </Tab.Pane>
         )
@@ -116,8 +116,8 @@ class DaemonIndex extends React.Component<
 
     return (
       <>
-        <h1>{daemon ? "Daemon : " + daemon.Name : "Unknown daemon"}</h1>
-        <ReactMarkdown source={daemon.Description} escapeHtml={false} />
+        <h1>{daemon ? "Daemon : " + daemon.name : "Unknown daemon"}</h1>
+        <ReactMarkdown source={daemon.description} escapeHtml={false} />
         <Tab
           panes={panes}
           renderActiveOnly={false}
