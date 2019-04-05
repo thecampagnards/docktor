@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"crypto/tls"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -41,7 +42,12 @@ func (sub *SubService) GetRemoteFile() (err error) {
 		return nil
 	}
 
-	cli := &http.Client{Timeout: 10 * time.Second}
+	cli := &http.Client{
+		Timeout: 10 * time.Second,
+		Transport: &http.Transport{
+			TLSClientConfig: &tls.Config{InsecureSkipVerify: true},
+		},
+	}
 	r, err := cli.Get(sub.File)
 	if err != nil {
 		return
