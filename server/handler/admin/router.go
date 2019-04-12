@@ -11,20 +11,21 @@ import (
 // AddRoute add route on echo
 func AddRoute(e *echo.Group) {
 	admin := e.Group("/admin")
+	admin.Use(middleware.WithAdmin)
+
 	{
 		assets := admin.Group("/assets")
-		assets.GET("", getAssets, middleware.WithAdmin)
+		assets.GET("", getAssets)
 		assets.POST(fmt.Sprintf("/:%s", types.ASSET_NAME_PARAM), saveAsset)
 	}
 
 	{
 		config := admin.Group("/config")
-		config.GET("", getConfig, middleware.WithAdmin)
-		config.POST("", saveConfig, middleware.WithAdmin)
+		config.GET("", getConfig)
+		config.POST("", saveConfig)
+	}
 
-		{
-			message := config.Group("/message")
-			message.GET("", getMessage)
-		}
+	{
+		e.GET("/config/message", getMessage)
 	}
 }

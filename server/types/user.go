@@ -4,7 +4,6 @@ import (
 	"crypto/sha256"
 	"docktor/server/helper/ldap"
 	"fmt"
-	"math/rand"
 	"time"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -68,16 +67,8 @@ func (u User) CheckPassword(password string) bool {
 func (u *User) EncodePassword(password string) string {
 	h := sha256.New()
 	if u.Salt == "" {
-		u.Salt = randomString(12)
+		u.Salt = randString(12)
 	}
 	h.Write([]byte(u.Salt + password))
 	return fmt.Sprintf("%x", h.Sum(nil))
-}
-
-func randomString(len int) string {
-	bytes := make([]byte, len)
-	for i := 0; i < len; i++ {
-		bytes[i] = byte(65 + rand.Intn(25)) //A=65 and Z = 65+25
-	}
-	return string(bytes)
 }

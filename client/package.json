@@ -10,7 +10,7 @@
     "lodash": "^4.17.11",
     "redux": "^4.0.1",
     "react": "^16.8.6",
-    "react-redux": "^6.0.1",
+    "react-redux": "^7.0.1",
     "redux-thunk": "^2.3.0",
     "react-codemirror2": "^5.1.0",
     "react-dom": "^16.8.6",
@@ -39,20 +39,20 @@
     ]
   },
   "devDependencies": {
-    "@types/codemirror": "^0.0.72",
+    "@types/codemirror": "^0.0.74",
     "@types/jest": "^24.0.11",
     "@types/lodash": "^4.14.123",
-    "@types/node": "^11.13.0",
-    "@types/react": "^16.8.10",
-    "@types/react-dom": "^16.8.3",
-    "@types/react-router-dom": "^4.3.1",
+    "@types/node": "^11.13.4",
+    "@types/react": "^16.8.13",
+    "@types/react-dom": "^16.8.4",
+    "@types/react-router-dom": "^4.3.2",
     "@types/react-redux": "^7.0.6",
     "@types/redux-thunk": "^2.1.0",
     "@types/jwt-decode": "^2.2.1",
     "@types/redux-auth-wrapper": "^2.0.9",
     "lint-staged": "^8.1.5",
     "prettier": "^1.16.4",
-    "typescript": "^3.4.1"
+    "typescript": "^3.4.3"
   },
   "browserslist": [
     ">0.2%",

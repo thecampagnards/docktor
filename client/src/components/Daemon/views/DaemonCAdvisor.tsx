@@ -1,9 +1,9 @@
 import * as React from 'react';
-import { Icon, Loader, Message, Progress, Grid, Button } from 'semantic-ui-react';
+import { Button, Grid, Icon, Loader, Message, Progress } from 'semantic-ui-react';
 
 import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/daemon';
 import { IContainerInfo, IDaemon, IMachineInfo } from '../types/daemon';
-import { serviceButton } from './DaemonServiceButtons';
+import DaemonServiceButtons from './DaemonServiceButtons';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
@@ -69,7 +69,7 @@ class DaemonCAdvisor extends React.Component<
 
     const { daemon } = this.props;
 
-    const buttons = serviceButton(daemon, ["cadvisor"]);
+    const buttons = <DaemonServiceButtons daemon={daemon} services={["cadvisor"]} />
 
     if (error.message) {
       return (
@@ -94,7 +94,7 @@ class DaemonCAdvisor extends React.Component<
         <Grid>
           <Grid.Column width={10}>
             <Button icon={true} labelPosition="right" as="a" title={daemon.CAdvisor} href={daemon.CAdvisor} target="_blank">
-              <Icon name="external alternate" /> Open cAdvisor webpage 
+              <Icon name="external alternate" /> Open cAdvisor webpage
             </Button>
           </Grid.Column>
           <Grid.Column width={6}>

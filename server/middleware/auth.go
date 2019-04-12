@@ -91,6 +91,20 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
+// WithGroupAdmin
+func WithGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(types.UserRest)
+		group := c.Get("group").(types.Group)
+
+		if !group.IsAdmin(user.User) {
+			return echo.NewHTTPError(http.StatusForbidden, "Group admin permission required")
+		}
+
+		return next(c)
+	}
+}
+
 // AuthUser
 func AuthUser(c echo.Context) (types.UserRest, error) {
 

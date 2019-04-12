@@ -35,8 +35,8 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, in)
 }
 
-// getCAdvisorMachineInfo get cadvisor info of machine
-func getCAdvisorMachineInfo(c echo.Context) error {
+// GetCAdvisorMachineInfo get cadvisor info of machine
+func GetCAdvisorMachineInfo(c echo.Context) error {
 
 	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {

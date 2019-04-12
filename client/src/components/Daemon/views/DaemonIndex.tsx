@@ -1,7 +1,7 @@
 import * as React from 'react';
 import * as ReactMarkdown from 'react-markdown';
 import { RouteComponentProps } from 'react-router';
-import { Message, Tab, TabProps } from 'semantic-ui-react';
+import { Loader, Message, Tab, TabProps } from 'semantic-ui-react';
 
 import { path as constPath } from '../../../constants/path';
 import { fetchDaemon } from '../../Daemon/actions/daemon';
@@ -76,11 +76,7 @@ class DaemonIndex extends React.Component<
 
 
     if (isFetching) {
-      return (
-        <Message negative={true}>
-loading
-        </Message>
-      );
+      return <Loader active={true} />;
     }
 
     const panes = [

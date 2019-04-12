@@ -56,10 +56,24 @@ func save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	// user := c.Get("user").(types.UserRest)
-	// if !user.IsMyGroup(g) {
-	//	return echo.NewHTTPError(http.StatusForbidden, "Group permission required")
-	//}
+	user := c.Get("user").(types.UserRest)
+
+	if !user.IsAdmin() {
+		if !g.ID.Valid() {
+			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required")
+		}
+		group, err := dao.GetGroupByID(g.ID.Hex())
+		if err != nil {
+			log.WithFields(log.Fields{
+				"group": g,
+				"error": err,
+			}).Error("Error when finding group")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		if !group.IsAdmin(user.User) {
+			return echo.NewHTTPError(http.StatusForbidden, "Admin group permission required")
+		}
+	}
 
 	s, err := dao.CreateOrUpdateGroup(g, true)
 	if err != nil {

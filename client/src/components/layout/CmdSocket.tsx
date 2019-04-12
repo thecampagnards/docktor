@@ -6,13 +6,13 @@ import { fit } from 'xterm/lib/addons/fit/fit';
 
 import { GetToken } from '../User/actions/user';
 
-interface ISocketProps {
+interface ICmdSocketProps {
   apiURL: string
 }
 
 export default class CmdSocket extends React.Component<
-  ISocketProps
-> {
+  ICmdSocketProps
+  > {
   private container: HTMLElement
   private term: Terminal
   private ws: WebSocket
@@ -44,7 +44,7 @@ export default class CmdSocket extends React.Component<
 
       this.term.setOption("screenKeys", true)
 
-      this.term.on("data", (data : string) => {
+      this.term.on("data", (data: string) => {
         this.ws.send(data)
       })
 

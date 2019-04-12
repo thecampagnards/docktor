@@ -7,6 +7,7 @@ import (
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
+	log "github.com/sirupsen/logrus"
 )
 
 // getAll find all
@@ -17,7 +18,17 @@ func getAll(c echo.Context) error {
 	}
 	for i := 0; i < len(s); i++ {
 		for j := 0; j < len(s[i].SubServices); j++ {
-			s[i].SubServices[j].GetVariablesOfSubServices()
+			err = s[i].SubServices[j].GetVariablesOfSubServices()
+			if err != nil {
+				log.WithFields(log.Fields{
+					"subserviceId": s[i].SubServices[j].ID,
+					"err":          err,
+				}).Warn("Error when retrieving variables of subservice")
+			}
+			log.WithFields(log.Fields{
+				"subservice": s[i].SubServices[j].Name,
+				"variables":  s[i].SubServices[j].Variables,
+			}).Info("Retrieving variables of subservice")
 		}
 	}
 	return c.JSON(http.StatusOK, s)
