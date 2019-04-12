@@ -6,13 +6,12 @@ import {
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { fetchDaemons, checkDaemonStatus } from '../actions/daemon';
+import { fetchDaemons } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
   daemonsFiltered: IDaemon[];
-  daemonStatuses: boolean[];
   tagsFilter: string[];
   isFetching: boolean;
   error: Error;
@@ -22,7 +21,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public state = {
     daemons: [] as IDaemon[],
     daemonsFiltered: [] as IDaemon[],
-    daemonStatuses: [] as boolean[],
     tagsFilter: [] as string[],
     isFetching: false,
     error: Error()
@@ -42,7 +40,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const {
       daemons,
       daemonsFiltered,
-      daemonStatuses,
       tagsFilter,
       error,
       isFetching
@@ -83,10 +80,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     let tags: string[] = [];
     for (const d of daemons) {
       tags = _.union(tags, d.Tags);
-    }
-
-    for (const daemon of daemonsFiltered) {
-      this.setDaemonStatus(daemon._id, daemonStatuses);
     }
 
     return (
@@ -142,10 +135,11 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.Name}</Table.Cell>
                 <Table.Cell>
-                    {daemonStatuses[daemon._id] ?
-                      <Icon color="green" name="check circle outline" /> :
-                      <Icon color="red" name="warning sign" />
-                    }
+                  <Icon color="yellow" name="question circle" />
+                  { /*
+                    <Icon color="green" name="check circle outline" /> :
+                    <Icon color="red" name="warning sign" />
+                  */ }
                 </Table.Cell>
                 <Table.Cell>{daemon.Host}</Table.Cell>
                 <Table.Cell>
@@ -194,20 +188,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
         </Table>
       </>
     );
-  }
-
-  private setDaemonStatus = (daemonID: string, daemonStatuses: boolean[]) => {
-    if (!(daemonID in daemonStatuses)) {
-      checkDaemonStatus(daemonID)
-        .then(() => {
-          daemonStatuses[daemonID] = true
-          this.setState({ daemonStatuses })
-        })
-        .catch(() => {
-          daemonStatuses[daemonID] = false
-          this.setState({ daemonStatuses })
-        });
-    }
   }
 
   private filter = () => {

@@ -9,7 +9,6 @@ import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 import { path } from '../../constants/path';
 import { IStoreState } from '../../types/store';
 import { logoutRequestThunk } from '../User/actions/user';
-import { fetchMesage } from './actions/layout';
 import KonamiCode from './KonamiCode';
 import { IMessage } from './types/layout';
 
@@ -30,7 +29,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
   };
 
   public componentWillMount() {
-    fetchMesage().then((message: IMessage) => this.setState({ message }));
+    // fetchMesage().then((message: IMessage) => this.setState({ message }));
   }
 
   public render() {
