@@ -37,8 +37,14 @@ const (
 
 	// Config
 	CONFIG_DB_COLUMN = "config"
+
+	// Status
+	STATUS_OK   = "OK"
+	STATUS_DOWN = "DOWN"
+	STATUS_OLD  = "OLD"
+	STATUS_CERT = "CERT"
 )
 
 var (
-	ROLES = [...]string{ADMIN_ROLE, USER_ROLE}
+	ROLES = [2]string{ADMIN_ROLE, USER_ROLE}
 )

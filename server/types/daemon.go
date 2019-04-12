@@ -18,6 +18,7 @@ type Daemon struct {
 }
 
 type Docker struct {
+	Status string
 	Port   int
 	Volume string
 	Cert
@@ -38,7 +39,7 @@ type Cert struct {
 
 type Daemons []Daemon
 
-// GetCompleteHost
+// GetCompleteHost ...
 func (d Daemon) GetCompleteHost() string {
 	if d.Docker.Port != 0 {
 		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Docker.Port)

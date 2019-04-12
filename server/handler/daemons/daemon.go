@@ -1,7 +1,10 @@
 package daemons
 
 import (
+	"crypto/x509"
 	"net/http"
+	"strings"
+	"time"
 
 	"docktor/server/dao"
 	"docktor/server/types"
@@ -38,26 +41,53 @@ func getByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-func getDaemonStatus(c echo.Context) error {
-	s, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+// checkDaemonStatus updates the status of a daemon
+func checkDaemonStatus(daemonID string) error {
+	d, err := dao.GetDaemonByID(daemonID)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"daemonID": daemonID,
 			"error":    err,
 		}).Error("Error when retrieving daemon")
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return err
 	}
 
-	info, err := utils.GetDockerInfo(s)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"daemonID": c.Param(types.DAEMON_ID_PARAM),
-			"error":    err,
-		}).Error("Error when retrieving daemon info")
-		return c.JSON(http.StatusBadRequest, err.Error())
+	status := types.STATUS_OK
+
+	_, err = utils.GetDockerInfo(d)
+	if err == nil {
+		// check cert expiration date
+		ca, err := x509.ParseCertificate([]byte(d.Docker.Ca))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"daemon": d,
+				"error":  err,
+			}).Error("Error while parsing ca.crt")
+		}
+		if time.Until(ca.NotAfter) < time.Hour*168 {
+			status = types.STATUS_CERT
+		}
+	} else {
+		msg := err.Error()
+		if strings.Contains(msg, "client is newer than server") {
+			status = types.STATUS_OLD
+		} else {
+			status = types.STATUS_DOWN
+		}
 	}
 
-	return c.JSON(http.StatusOK, info)
+	if status != d.Docker.Status {
+		_, err = dao.CreateOrUpdateDaemon(d)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"daemon": d,
+				"error":  err,
+			}).Error("Error when updating daemon status")
+			return err
+		}
+	}
+
+	return nil
 }
 
 // save create/update a daemon

@@ -2,7 +2,6 @@ export interface IDaemon {
   _id: string;
   Name: string;
   Description: string;
-  Status: IStatus;
   CAdvisor: string;
   Host: string;
   Tags: string[];
@@ -10,13 +9,9 @@ export interface IDaemon {
   SSH: ISSH;
 }
 
-export interface IStatus {
-  Reachable: boolean;
-  ValidDockerVersion: boolean;
-  ValidCerts: boolean;
-}
 
 export interface IDocker {
+  Status: string;
   Port: number;
   Volume: string;
   Cert: string;
