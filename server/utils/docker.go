@@ -8,6 +8,7 @@ import (
 	"os"
 	"regexp"
 	"strings"
+	"time"
 
 	"docktor/server/types"
 
@@ -37,6 +38,7 @@ func getDockerCli(daemon types.Daemon) (cli DockerCli, err error) {
 	c := &http.Client{
 		Transport:     &http.Transport{},
 		CheckRedirect: client.CheckRedirect,
+		Timeout:       time.Second * 5,
 	}
 
 	if daemon.Docker.Cert != (types.Cert{}) {

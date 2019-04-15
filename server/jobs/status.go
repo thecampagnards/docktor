@@ -5,6 +5,7 @@ import (
 	"docktor/server/dao"
 	"docktor/server/types"
 	"docktor/server/utils"
+	"encoding/pem"
 	"strings"
 	"time"
 
@@ -13,6 +14,7 @@ import (
 
 // CheckDaemonsStatuses updates the status of each daemon in the db
 func CheckDaemonsStatuses() {
+	log.Info("Checking daemons status...")
 
 	ds, err := dao.GetDaemons()
 	if err != nil {
@@ -25,24 +27,30 @@ func CheckDaemonsStatuses() {
 	for _, d := range ds {
 		checkDaemonStatus(d)
 	}
+
+	log.Info("Daemons status check done.")
 }
 
 // checkDaemonStatus updates the status of a daemon
-func checkDaemonStatus(d types.Daemon) error {
+func checkDaemonStatus(d types.Daemon) {
+	log.Debugf("Checking daemon status - %s", d.Name)
 	status := types.STATUS_OK
 
 	_, err := utils.GetDockerInfo(d)
 	if err == nil {
-		// check cert expiration date
-		ca, err := x509.ParseCertificate([]byte(d.Docker.Ca))
-		if err != nil {
-			log.WithFields(log.Fields{
-				"daemon": d,
-				"error":  err,
-			}).Error("Error while parsing ca.crt")
-		}
-		if time.Until(ca.NotAfter) < time.Hour*168 {
-			status = types.STATUS_CERT
+		if d.Docker.Ca != "" {
+			// check cert expiration date
+			block, _ := pem.Decode([]byte(d.Docker.Ca))
+			ca, err := x509.ParseCertificate(block.Bytes)
+			if err != nil {
+				log.WithFields(log.Fields{
+					"daemon": d,
+					"error":  err,
+				}).Error("Error while parsing ca.crt")
+			}
+			if time.Until(ca.NotAfter) < time.Hour*168 {
+				status = types.STATUS_CERT
+			}
 		}
 	} else {
 		msg := err.Error()
@@ -54,15 +62,13 @@ func checkDaemonStatus(d types.Daemon) error {
 	}
 
 	if status != d.Docker.Status {
+		d.Docker.Status = status
 		_, err = dao.CreateOrUpdateDaemon(d)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemon": d,
 				"error":  err,
 			}).Error("Error when updating daemon status")
-			return err
 		}
 	}
-
-	return nil
 }
