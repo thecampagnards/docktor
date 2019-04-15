@@ -33,7 +33,6 @@ func CheckDaemonsStatuses() {
 
 // checkDaemonStatus updates the status of a daemon
 func checkDaemonStatus(d types.Daemon) {
-	log.Debugf("Checking daemon status - %s", d.Name)
 	status := types.STATUS_OK
 
 	_, err := utils.GetDockerInfo(d)
@@ -60,6 +59,8 @@ func checkDaemonStatus(d types.Daemon) {
 			status = types.STATUS_DOWN
 		}
 	}
+
+	log.Debugf("Daemon status - %s : %s", d.Name, status)
 
 	if status != d.Docker.Status {
 		d.Docker.Status = status

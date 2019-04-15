@@ -73,6 +73,7 @@ func getDockerCli(daemon types.Daemon) (cli DockerCli, err error) {
 		c = &http.Client{
 			Transport:     &http.Transport{TLSClientConfig: tlsc},
 			CheckRedirect: client.CheckRedirect,
+			Timeout:       time.Second * 5,
 		}
 	}
 
