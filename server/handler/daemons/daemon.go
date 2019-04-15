@@ -41,20 +41,11 @@ func getByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, s)
 }
 
-// checkDaemonStatus updates the status of a daemon
-func checkDaemonStatus(daemonID string) error {
-	d, err := dao.GetDaemonByID(daemonID)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"daemonID": daemonID,
-			"error":    err,
-		}).Error("Error when retrieving daemon")
-		return err
-	}
-
+// CheckDaemonStatus updates the status of a daemon
+func CheckDaemonStatus(d types.Daemon) error {
 	status := types.STATUS_OK
 
-	_, err = utils.GetDockerInfo(d)
+	_, err := utils.GetDockerInfo(d)
 	if err == nil {
 		// check cert expiration date
 		ca, err := x509.ParseCertificate([]byte(d.Docker.Ca))
