@@ -232,15 +232,16 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   private getDockerStatus = (status: dockerStatus) : SemanticShorthandItem<IconProps> => {
     switch (status) {
       case "OK":
-        return <Icon color="green" name="check circle" title="Daemon is working well" />
+        return <Icon color="green" name="check circle" title="Daemon is up and running" />
       case "CERT":
-        return <Icon color="yellow" name="check circle outline" title="Daemon certs will be soon outdated" />
-      case "":
-        return <Icon color="grey" name="question circle" title="No status" />
+        return <Icon color="yellow" name="check circle outline" title="Daemon certs are or will be outdated soon" />
       case "OLD":
-        return <Icon color="red" name="warning sign" title="Daemon is too old" />
+        return <Icon color="red" name="warning sign" title="Daemon's Docker version < 18" />
+      case "":
+        return <Icon color="grey" name="question circle" title="No status info" />
+      default:
+        return <Icon color="red" name="close" title="Daemon is down/unreachable" />
     }
-    return <Icon color="red" name="warning sign" title="Daemon is down or there is an error" />
   }
 
   private filterAddSearchField = (
