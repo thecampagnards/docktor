@@ -3,7 +3,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
     Button, ButtonProps, Grid, Icon, IconProps, Loader, Message, Search, SearchProps,
-    SemanticShorthandItem, Table
+    SemanticShorthandItem, Table, SemanticCOLORS
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -98,7 +98,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     // filter by status
     if (statusFilter.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(
-        d => statusFilter.indexOf(d.docker.status) !== -1
+        d => statusFilter.includes(d.docker.status)
       );
     }
 
@@ -125,19 +125,22 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             />
           </Grid.Column>
           <Grid.Column width={3}>
-            {["OK", "DOWN", "", "CERT", "OLD"].map(status => (
-              <Button
-              compact={true}
-              icon={true}
-              key={status}
-              toggle={true}
-              active={statusFilter.indexOf(status as dockerStatus) > -1}
-              onClick={this.filterAddStatus}
-              value={status}
-            >
-              {this.getDockerStatus(status as dockerStatus)}
-            </Button>
-            ))}
+            {["OK", "CERT", "DOWN", "OLD", ""].map(status => {
+              const varProps = {color: statusFilter.includes(status as dockerStatus)? "grey" : "none" as SemanticCOLORS};
+              return (
+                <Button
+                  compact={true}
+                  icon={true}
+                  key={status}
+                  toggle={true}
+                  onClick={this.filterAddStatus}
+                  value={status}
+                  {...varProps}
+                >
+                  {this.getDockerStatus(status as dockerStatus)}
+                </Button>
+              )
+            })}
           </Grid.Column>
           <Grid.Column width={5}>
             {tags.map(tag => (
@@ -238,7 +241,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       case "OLD":
         return <Icon color="red" name="warning sign" title="Daemon's Docker version < 18" />
       case "":
-        return <Icon color="grey" name="question circle" title="No status info" />
+        return <Icon color="black" name="question circle" title="No status info" />
       default:
         return <Icon color="red" name="close" title="Daemon is down/unreachable" />
     }
