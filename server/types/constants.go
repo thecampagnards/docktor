@@ -28,12 +28,9 @@ const (
 	JWT_QUERY_PARAM = "jwt_token"
 
 	// Service
-	SERVICE_ID_PARAM            = "serviceID"
-	SUBSERVICE_ID_PARAM         = "subserviceID"
-	SERVICES_DB_COLUMN          = "services"
-	FORM_DATA_IMAGES_FIELD_NAME = "images"
-	FORM_DATA_FILES_FIELD_NAME  = "files"
-	FORM_DATA_DATA_FIELD_NAME   = "data"
+	SERVICE_ID_PARAM    = "serviceID"
+	SUBSERVICE_ID_PARAM = "subserviceID"
+	SERVICES_DB_COLUMN  = "services"
 
 	// Config
 	CONFIG_DB_COLUMN = "config"

@@ -6,7 +6,7 @@ import (
 	"net/http"
 	"strings"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -17,8 +17,8 @@ import (
 
 // getContainers get containers from daemon
 func getContainers(c echo.Context) error {
-
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -48,7 +48,8 @@ func getContainers(c echo.Context) error {
 // UpdateContainersStatus change the status of caontiners param split by ','
 func UpdateContainersStatus(c echo.Context) error {
 
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -97,7 +98,8 @@ func GetContainerLog(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+		db := c.Get("DB").(*storage.Docktor)
+		daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -157,7 +159,8 @@ func GetContainerTerm(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+		db := c.Get("DB").(*storage.Docktor)
+		daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemonID": c.Param(types.DAEMON_ID_PARAM),

@@ -99,22 +99,22 @@ class Services extends React.Component<{}, IServicesStates> {
             {servicesFiltered.slice(0, 20).map(service => (
               <Table.Row key={service._id}>
                 <Table.Cell width={2}>
-                  {service.Image ? (
+                  {service.image ? (
                     <Image
                       size="small"
-                      src={service.Image}
+                      src={service.image}
                     />
                   ) : (
                     "No image"
                   )}
                 </Table.Cell>
-                <Table.Cell width={2}>{service.Name}</Table.Cell>
+                <Table.Cell width={2}>{service.name}</Table.Cell>
                 <Table.Cell width={8}>
-                  {service.SubServices.map((version: ISubService, key) => {
+                  {service.sub_services && service.sub_services.map((version: ISubService, key) => {
                     return (
-                      version.Active && (
+                      version.active && (
                         <Label key={`${service._id}-${key}`}>
-                          {version.Name}
+                          {version.name}
                         </Label>
                       )
                     );
@@ -150,7 +150,7 @@ class Services extends React.Component<{}, IServicesStates> {
   ) => {
     this.setState({
       servicesFiltered: this.state.services.filter(service =>
-        service.Name.toLowerCase().includes((value as string).toLowerCase())
+        service.name.toLowerCase().includes((value as string).toLowerCase())
       )
     });
   };

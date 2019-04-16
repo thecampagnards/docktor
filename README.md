@@ -11,11 +11,8 @@ Docktor is a platform for administrating and deploying SaaS services based on Do
 ## Todo
 
 - [ ] Add unit tests
-- [ ] User's permissions
 - [ ] Home page
-- [ ] Docker compose network ip
-- [ ] Clean DB types and api types
-- [ ] Favourites system
+- [ ] User impersonate
 - [ ] Use official compose parse https://github.com/docker/cli/tree/master/cli/compose
 
 ## Installation

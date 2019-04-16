@@ -30,9 +30,11 @@ func getAssets(c echo.Context) error {
 	assetDir := fmt.Sprintf("%s/assets/", dir)
 	filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
 
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Errorf("Error when getting %s", path)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Errorf("Error when getting %s", path)
+		}
 
 		if info.IsDir() {
 			return nil

@@ -3,55 +3,46 @@ package services
 import (
 	"net/http"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
-	log "github.com/sirupsen/logrus"
 )
 
 // getAll find all
 func getAll(c echo.Context) error {
-	s, err := dao.GetServices()
+	db := c.Get("DB").(*storage.Docktor)
+
+	s, err := db.Services().FindAll()
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	for i := 0; i < len(s); i++ {
-		for j := 0; j < len(s[i].SubServices); j++ {
-			err = s[i].SubServices[j].GetVariablesOfSubServices()
-			if err != nil {
-				log.WithFields(log.Fields{
-					"subserviceId": s[i].SubServices[j].ID,
-					"err":          err,
-				}).Warn("Error when retrieving variables of subservice")
-			}
-			log.WithFields(log.Fields{
-				"subservice": s[i].SubServices[j].Name,
-				"variables":  s[i].SubServices[j].Variables,
-			}).Info("Retrieving variables of subservice")
-		}
+		s[i].GetVariablesOfSubServices()
 	}
 	return c.JSON(http.StatusOK, s)
 }
 
 // getByID find one by id
 func getByID(c echo.Context) error {
-	s, err := dao.GetServiceByID(c.Param(types.SERVICE_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+
+	s, err := db.Services().FindByID(c.Param(types.SERVICE_ID_PARAM))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	for index := 0; index < len(s.SubServices); index++ {
-		s.SubServices[index].GetVariablesOfSubServices()
-	}
+	s.GetVariablesOfSubServices()
 
 	return c.JSON(http.StatusOK, s)
 }
 
 // getBySubServiceID find one by id
 func getBySubServiceID(c echo.Context) error {
-	s, err := dao.GetServiceBySubSeriveID(c.Param(types.SUBSERVICE_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+
+	s, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
 
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -68,16 +59,19 @@ func save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	s, err := dao.CreateOrUpdateService(u)
+	db := c.Get("DB").(*storage.Docktor)
+
+	u, err = db.Services().Save(u)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, u)
 }
 
 // deleteByID delete one by id
 func deleteByID(c echo.Context) error {
-	err := dao.DeleteService(c.Param("serviceID"))
+	db := c.Get("DB").(*storage.Docktor)
+	err := db.Services().Delete(c.Param(types.SERVICE_ID_PARAM))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}

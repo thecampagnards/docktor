@@ -3,8 +3,7 @@ package users
 import (
 	"net/http"
 
-	"docktor/server/dao"
-	"docktor/server/helper/ldap"
+	"docktor/server/storage"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -13,7 +12,8 @@ import (
 
 // getAll find all
 func getAll(c echo.Context) error {
-	s, err := dao.GetUsersRest()
+	db := c.Get("DB").(*storage.Docktor)
+	s, err := db.Users().FindAll()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -25,7 +25,8 @@ func getAll(c echo.Context) error {
 
 // getByUsername find one by name
 func getByUsername(c echo.Context) error {
-	s, err := dao.GetUserRestByUsername(c.Param(types.USERNAME_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	user, err := db.Users().FindByUsername(c.Param(types.USERNAME_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"username": c.Param(types.USERNAME_PARAM),
@@ -33,7 +34,12 @@ func getByUsername(c echo.Context) error {
 		}).Error("Error when retrieving user")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+
+	groups, err := db.Groups().FindByUser(user)
+	if err != nil {
+		log.WithError(err).WithField("username", user.Username).Error("When retreive groups for profile")
+	}
+	return c.JSON(http.StatusOK, types.Profile{User: user, Groups: groups})
 }
 
 // save a User server
@@ -48,7 +54,8 @@ func save(c echo.Context) error {
 		}).Error("Error when parsing user")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	s, err := dao.CreateOrUpdateUser(u)
+	db := c.Get("DB").(*storage.Docktor)
+	u, err = db.Users().Save(u)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"user":  u,
@@ -56,13 +63,14 @@ func save(c echo.Context) error {
 		}).Error("Error when saving/creating user")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, u)
 }
 
 // deleteByUsername delete one by username
 func deleteByUsername(c echo.Context) error {
 	// TODO also delete user in all groups
-	err := dao.DeleteUser(c.Param(types.USERNAME_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	err := db.Users().Delete(c.Param(types.USERNAME_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"username": c.Param(types.USERNAME_PARAM),
@@ -71,25 +79,4 @@ func deleteByUsername(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "ok")
-}
-
-// setGlobalRole sets the role of a user to 'admin' or 'user'
-func setGlobalRole(c echo.Context) error {
-
-	user := types.User{
-		Attributes: ldap.Attributes{
-			Username: c.Param("username"),
-		},
-		Role: c.Param("role"),
-	}
-
-	s, err := dao.CreateOrUpdateUser(user)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"username": c.Param(types.USERNAME_PARAM),
-			"error":    err,
-		}).Error("Error when updating user's role")
-		return c.JSON(http.StatusInternalServerError, err.Error())
-	}
-	return c.JSON(http.StatusOK, s)
 }

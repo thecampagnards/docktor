@@ -4,7 +4,7 @@ import (
 	"io"
 	"net/http"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -16,7 +16,8 @@ import (
 
 // execSSH execute ssh commands on daemon
 func execSSH(c echo.Context) error {
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -53,7 +54,8 @@ func getSSHTerm(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
-		daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+		db := c.Get("DB").(*storage.Docktor)
+		daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemonID": c.Param(types.DAEMON_ID_PARAM),

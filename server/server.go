@@ -1,8 +1,6 @@
 package main
 
 import (
-	"docktor/server/dao"
-	"docktor/server/db"
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
@@ -10,6 +8,7 @@ import (
 	"docktor/server/handler/users"
 	"docktor/server/helper/ldap"
 	customMiddleware "docktor/server/middleware"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"fmt"
 
@@ -17,6 +16,7 @@ import (
 	"github.com/labstack/echo/middleware"
 	"github.com/namsral/flag"
 	"github.com/sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 var (
@@ -31,7 +31,7 @@ var (
 )
 
 func parseFlags() {
-	flag.String(flag.DefaultConfigFlagname, "", "Path to config file")
+	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "debug", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
@@ -53,32 +53,48 @@ func parseFlags() {
 }
 
 func configure(e *echo.Echo) {
-	l, err := logrus.ParseLevel(logLevel)
+	l, err := log.ParseLevel(logLevel)
 	if err != nil {
-		logrus.Fatalf("Error when parsing log level: %s", err)
+		log.Fatalf("Error when parsing log level: %s", err)
 	}
-	logrus.SetLevel(l)
+	log.SetLevel(l)
 
-	db.Init(mongoURL)
+	storage.Connect(mongoURL)
+
+	dock, err := storage.Get()
+	if err != nil {
+		log.WithError(err).Fatal("Can't ensure that indexes have been created")
+		return
+	}
+	defer dock.Close()
+	for _, db := range dock.Collections() {
+		if dbWithIndex, ok := db.(storage.IsCollectionWithIndexes); ok {
+			log.Infof("Ensuring indexes creating for '%v' collection", db.GetCollectionName())
+			err := dbWithIndex.CreateIndexes()
+			if err != nil {
+				log.WithError(err).Error("Cannot create index")
+			}
+		}
+	}
 
 	user := types.User{}
 	user.Username = defaultAdminAccount
 	user.Role = types.ADMIN_ROLE
 	user.Password = user.EncodePassword(defaultAdminPassword)
 
-	user, err = dao.CreateOrUpdateUser(user)
+	_, err = dock.Users().Save(user)
 	if err != nil {
-		logrus.Fatalf("Error when creating the admin account: %s", err)
+		log.Fatalf("Error when creating the admin account: %s", err)
 	}
-	logrus.WithField("user", user).Info("Admin account successfully created")
+	log.WithField("user", user).Info("Admin account successfully created")
 
 	if production {
-		logrus.Info("Running in production mode")
+		log.Info("Running in production mode")
 		if len(jwtSecret) < 32 { // 32 bytes is a sane default to protect against bruteforce attacks
-			logrus.Fatal("JWT secret must be at least 32 characters long")
+			log.Fatal("JWT secret must be at least 32 characters long")
 		}
 	} else {
-		logrus.Warn("Running in development mode")
+		log.Warn("Running in development mode")
 	}
 }
 
@@ -92,6 +108,7 @@ func main() {
 	e.Use(customMiddleware.Hook())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())
+	e.Use(customMiddleware.DB)
 	e.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:  "client",
 		Index: "index.html",
@@ -107,6 +124,7 @@ func main() {
 		Claims:     &types.Claims{},
 		SigningKey: []byte(jwtSecret),
 		BeforeFunc: func(c echo.Context) {
+			// If no headers auth use wuery param
 			if c.Request().Header.Get(echo.HeaderAuthorization) == "" {
 				token := c.QueryParam(types.JWT_QUERY_PARAM)
 				c.Request().Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", token))
@@ -121,12 +139,12 @@ func main() {
 	services.AddRoute(api)
 	users.AddRoute(api)
 
-	e.GET("/*", GetIndex)
+	e.GET("/*", getIndex)
 
 	e.Logger.Fatal(e.Start(":8080"))
 }
 
-// GetIndex handler which render the index.html
-func GetIndex(c echo.Context) error {
+// getIndex handler which render the index.html
+func getIndex(c echo.Context) error {
 	return c.File("client/index.html")
 }

@@ -9,46 +9,46 @@ import (
 	jwt "github.com/dgrijalva/jwt-go"
 )
 
-// CustomClaims contains claims identifying the owner of a token
-type CustomClaims struct {
-	Username string
-	IsAdmin  bool
-}
-
 // Claims contains standard JWT claims and custom claims
 type Claims struct {
-	CustomClaims
+	Username string `json:"username"`
+	IsAdmin  bool   `json:"isAdmin"`
 	jwt.StandardClaims
 }
 
+// UserLight data
+type UserLight struct {
+	ldap.Attributes `bson:",inline"`
+	Role            string `json:"role" bson:"role"`
+}
+
+// User data
 type User struct {
-	ldap.Attributes
-	Salt     string `json:"-"`
-	Password string `json:",omitempty"`
-	Role     string
+	UserLight `bson:",inline"`
+	Salt      string `json:"-" bson:"salt,omitempty"`
+	Password  string `json:"password,omitempty" bson:"password,omitempty"`
 }
 
-type UserRest struct {
-	User       `bson:",inline"`
-	GroupsData *GroupsRest `json:",omitempty" bson:",omitempty"`
+// Profile data
+type Profile struct {
+	User
+	Groups Groups `json:"groups"`
 }
 
+// Users data
 type Users []User
-type UsersRest []UserRest
 
 // IsAdmin check is user is admin
-func (u User) IsAdmin() bool {
+func (u *User) IsAdmin() bool {
 	return u.Role == ADMIN_ROLE
 }
 
 // CreateToken create a jwt token for user
-func (u User) CreateToken(jwtSecret string) (string, error) {
+func (u *User) CreateToken(jwtSecret string) (string, error) {
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, &Claims{
-		CustomClaims{
-			u.Username,
-			u.IsAdmin(),
-		},
+		u.Username,
+		u.IsAdmin(),
 		jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(authValidity).Unix(),
 			IssuedAt:  time.Now().Unix(),
@@ -58,12 +58,12 @@ func (u User) CreateToken(jwtSecret string) (string, error) {
 	return token.SignedString([]byte(jwtSecret))
 }
 
-// CheckPassword
-func (u User) CheckPassword(password string) bool {
+// CheckPassword check if it's the right password
+func (u *User) CheckPassword(password string) bool {
 	return u.EncodePassword(password) == u.Password
 }
 
-// EncodePassword
+// EncodePassword encode the password if no slat create one
 func (u *User) EncodePassword(password string) string {
 	h := sha256.New()
 	if u.Salt == "" {

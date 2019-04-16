@@ -24,7 +24,6 @@ func AddRoute(e *echo.Group) {
 
 		user.GET("", getByUsername)
 		user.DELETE("", deleteByUsername)
-		user.PUT("/role/:role", setGlobalRole)
 	}
 }
 
