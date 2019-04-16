@@ -270,14 +270,6 @@
   version = "v1.7.0"
 
 [[projects]]
-  digest = "1:a0cefd27d12712af4b5018dc7046f245e1e3b5760e2e848c30b171b570708f9b"
-  name = "github.com/imdario/mergo"
-  packages = ["."]
-  pruneopts = "UT"
-  revision = "7c29201646fa3de8506f701213473dd407f19646"
-  version = "v0.3.7"
-
-[[projects]]
   digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
@@ -427,6 +419,14 @@
   revision = "af7bedc223fba51343f25a6fa7aba84355d0357a"
 
 [[projects]]
+  digest = "1:ed615c5430ecabbb0fb7629a182da65ecee6523900ac1ac932520860878ffcad"
+  name = "github.com/robfig/cron"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "b41be1df696709bb6395fe435af20370037c0b4c"
+  version = "v1.1"
+
+[[projects]]
   digest = "1:fd61cf4ae1953d55df708acb6b91492d538f49c305b364a014049914495db426"
   name = "github.com/sirupsen/logrus"
   packages = ["."]
@@ -570,23 +570,25 @@
   input-imports = [
     "github.com/dgrijalva/jwt-go",
     "github.com/docker/docker/api/types",
+    "github.com/docker/docker/api/types/network",
     "github.com/docker/docker/client",
     "github.com/docker/go-connections/tlsconfig",
     "github.com/docker/libcompose/config",
     "github.com/docker/libcompose/docker",
     "github.com/docker/libcompose/docker/client",
     "github.com/docker/libcompose/docker/ctx",
+    "github.com/docker/libcompose/labels",
     "github.com/docker/libcompose/project",
     "github.com/docker/libcompose/project/options",
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
     "github.com/google/cadvisor/client",
     "github.com/google/cadvisor/info/v1",
-    "github.com/imdario/mergo",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
     "github.com/labstack/gommon/log",
     "github.com/namsral/flag",
+    "github.com/robfig/cron",
     "github.com/sirupsen/logrus",
     "github.com/stretchr/testify/assert",
     "golang.org/x/crypto/ssh",

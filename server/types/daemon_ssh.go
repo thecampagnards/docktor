@@ -1,30 +1,28 @@
-package utils
+package types
 
 import (
 	"bytes"
 	"fmt"
 
-	"docktor/server/types"
-
 	"golang.org/x/crypto/ssh"
 )
 
 // GetSSHSession return ssh session
-func GetSSHSession(daemon types.Daemon) (*ssh.Client, *ssh.Session, error) {
+func (d *Daemon) GetSSHSession() (*ssh.Client, *ssh.Session, error) {
 
-	if daemon.SSH.Port == 0 {
-		daemon.SSH.Port = 22
+	if d.SSH.Port == 0 {
+		d.SSH.Port = 22
 	}
 
 	config := &ssh.ClientConfig{
-		User: daemon.SSH.User,
+		User: d.SSH.User,
 		Auth: []ssh.AuthMethod{
-			ssh.Password(daemon.SSH.Password),
+			ssh.Password(d.SSH.Password),
 		},
 		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
 
-	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%v", daemon.Host, daemon.SSH.Port), config)
+	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%v", d.Host, d.SSH.Port), config)
 	if err != nil {
 		return nil, nil, err
 	}
@@ -39,9 +37,9 @@ func GetSSHSession(daemon types.Daemon) (*ssh.Client, *ssh.Session, error) {
 }
 
 // ExecSSH exec commands on daemon return the results
-func ExecSSH(daemon types.Daemon, cmds ...string) (map[string]string, error) {
+func (d *Daemon) ExecSSH(cmds ...string) (map[string]string, error) {
 
-	client, session, err := GetSSHSession(daemon)
+	client, session, err := d.GetSSHSession()
 	if err != nil {
 		return nil, err
 	}

@@ -7,7 +7,6 @@ import (
 
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -109,14 +108,14 @@ func updateUser(c echo.Context) error {
 
 	switch c.Param("status") {
 	case "admin":
-		group.Users = utils.Remove(group.Users, username)
+		group.Users = types.Remove(group.Users, username)
 		group.Admins = append(group.Admins, username)
 	case "user":
-		group.Admins = utils.Remove(group.Admins, username)
+		group.Admins = types.Remove(group.Admins, username)
 		group.Users = append(group.Users, username)
 	case "delete":
-		group.Users = utils.Remove(group.Users, username)
-		group.Admins = utils.Remove(group.Admins, username)
+		group.Users = types.Remove(group.Users, username)
+		group.Admins = types.Remove(group.Admins, username)
 	default:
 		return errors.New("Invalid status parameter")
 	}

@@ -6,7 +6,6 @@ import (
 	"docktor/server/handler/daemons"
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 
 	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/docker/libcompose/labels"
@@ -28,7 +27,7 @@ func getContainers(c echo.Context) error {
 		}).Error("Error when retrieving group daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	cs, err := utils.GetContainersStartByName(daemon, group.Name)
+	cs, err := daemon.GetContainersStartByName(group.Name)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon": daemon,
@@ -73,7 +72,7 @@ func createContainer(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = utils.CreateContainer(daemon, con)
+	err = daemon.CreateContainer(con)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon":    daemon.Host,
@@ -99,7 +98,7 @@ func saveContainers(c echo.Context) error {
 		}).Error("Error when retrieving group daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	cs, err := utils.GetContainersStartByName(daemon, group.Name)
+	cs, err := daemon.GetContainersStartByName(group.Name)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon": daemon,
@@ -116,7 +115,7 @@ func saveContainers(c echo.Context) error {
 		}
 	}
 
-	csj, err := utils.InspectContainers(daemon, ids...)
+	csj, err := daemon.InspectContainers(ids...)
 	log.WithFields(log.Fields{
 		"ids":    ids,
 		"daemon": daemon,

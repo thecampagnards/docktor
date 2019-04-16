@@ -28,4 +28,9 @@ func AddRoute(e *echo.Group) {
 	{
 		e.GET("/config/message", getMessage)
 	}
+
+	{
+		cron := admin.Group("/cron")
+		cron.GET("/status", cronStatus)
+	}
 }

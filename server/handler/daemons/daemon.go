@@ -71,6 +71,16 @@ func save(c echo.Context) error {
 		}).Error("Error when creating/updating daemons")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// Update the docker status
+	u.SetDockerStatus()
+	u, err = db.Daemons().Save(u)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemon": u,
+			"error":  err,
+		}).Error("Error when creating/updating daemons")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 	return c.JSON(http.StatusOK, u)
 }
 

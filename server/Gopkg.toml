@@ -52,6 +52,10 @@
   version = "v1.4.1"
 
 [[constraint]]
+  name = "github.com/robfig/cron"
+  version="v1.1"
+
+[[constraint]]
   name = "github.com/stretchr/testify"
   version = "v1.3.0"
 

@@ -7,6 +7,7 @@ import (
 	"docktor/server/handler/services"
 	"docktor/server/handler/users"
 	"docktor/server/helper/ldap"
+	"docktor/server/jobs"
 	customMiddleware "docktor/server/middleware"
 	"docktor/server/storage"
 	"docktor/server/types"
@@ -28,6 +29,7 @@ var (
 	ldapSearchConfig     = ldap.SearchConfig{}
 	jwtSecret            string
 	mongoURL             string
+	cronSpec             string
 )
 
 func parseFlags() {
@@ -49,6 +51,7 @@ func parseFlags() {
 	flag.StringVar(&ldapSearchConfig.Attributes.Email, "ldap-attr-email", "", "The LDAP attribute corresponding to the email address of an account")
 	flag.StringVar(&jwtSecret, "jwt-secret", "secret", "The secret used to sign JWT tokens")
 	flag.StringVar(&mongoURL, "mongo-url", "localhost", "The mongo db url")
+	flag.StringVar(&cronSpec, "cron-refresh", "@every 30m", "Text param of cron functions to define refresh time")
 	flag.Parse()
 }
 
@@ -96,6 +99,8 @@ func configure(e *echo.Echo) {
 	} else {
 		log.Warn("Running in development mode")
 	}
+
+	jobs.RunBackgroundJobs(cronSpec)
 }
 
 func main() {
