@@ -8,7 +8,7 @@ import (
 func RunBackgroundJobs(spec string) {
 
 	// Check status at server startup
-	CheckDaemonsStatuses()
+	go CheckDaemonsStatuses()
 
 	c := cron.New()
 	c.AddFunc(spec, CheckDaemonsStatuses)
