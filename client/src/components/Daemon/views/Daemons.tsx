@@ -2,46 +2,53 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-  Button, ButtonProps, Grid, Loader, Icon, Message, Search, SearchProps, Table
+    Button, ButtonProps, Grid, Icon, IconProps, Loader, Message, Search, SearchProps,
+    SemanticShorthandItem, Table
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { fetchDaemons } from '../actions/daemon';
-import { IDaemon } from '../types/daemon';
+import { dockerStatus, IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
-  daemonsFiltered: IDaemon[];
-  tagsFilter: string[];
   isFetching: boolean;
   error: Error;
+
+  tagsFilter: string[];
+  statusFilter: dockerStatus[];
+  searchField: string;
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
   public state = {
     daemons: [] as IDaemon[],
-    daemonsFiltered: [] as IDaemon[],
-    tagsFilter: [] as string[],
     isFetching: false,
-    error: Error()
-  };
+    error: Error(),
 
-  private searchField = "";
+    tagsFilter: [] as string[],
+    statusFilter: ["OK", "DOWN", "", "CERT"] as dockerStatus[],
+    searchField: ""
+  };
 
   public componentWillMount() {
     fetchDaemons()
       .then(daemons => {
-        this.setState({ daemons, daemonsFiltered: daemons.slice(0, 20), isFetching: false });
+        this.setState({ daemons });
       })
-      .catch(error => this.setState({ error, isFetching: false }));
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   }
 
   public render() {
     const {
       daemons,
-      tagsFilter,
       error,
-      isFetching
+      isFetching,
+
+      tagsFilter,
+      statusFilter,
+      searchField
     } = this.state;
 
     if (!daemons) {
@@ -76,18 +83,31 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       );
     }
 
-    let tags: string[] = [];
-    for (const d of daemons) {
-      tags = _.union(tags, d.tags);
-    }
-
+    // Filter by search text
     let daemonsFiltered = daemons.filter(daemon =>
-      daemon.name.toLowerCase().includes(this.searchField.toLowerCase())
+      daemon.name.toLowerCase().includes(searchField.toLowerCase())
     );
+
+    // filter by tags
     if (tagsFilter.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(
         d => _.intersectionWith(d.tags, tagsFilter, _.isEqual).length !== 0
       );
+    }
+
+    // filter by status
+    if (statusFilter.length > 0) {
+      daemonsFiltered = daemonsFiltered.filter(
+        d => statusFilter.indexOf(d.docker.status) !== -1
+      );
+    }
+
+    // Keep only 20
+    daemonsFiltered = daemonsFiltered.slice(0, 20);
+
+    let tags: string[] = [];
+    for (const d of daemons) {
+      tags = _.union(tags, d.tags);
     }
 
     return (
@@ -96,7 +116,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Grid.Column width={2}>
             <h2>Daemons</h2>
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={3}>
             <Search
               size="tiny"
               placeholder="Search daemons..."
@@ -104,7 +124,22 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               onSearchChange={this.filterAddSearchField}
             />
           </Grid.Column>
-          <Grid.Column width={7}>
+          <Grid.Column width={3}>
+            {["OK", "DOWN", "", "CERT", "OLD"].map(status => (
+              <Button
+              compact={true}
+              icon={true}
+              key={status}
+              toggle={true}
+              active={statusFilter.indexOf(status as dockerStatus) > -1}
+              onClick={this.filterAddStatus}
+              value={status}
+            >
+              {this.getDockerStatus(status as dockerStatus)}
+            </Button>
+            ))}
+          </Grid.Column>
+          <Grid.Column width={5}>
             {tags.map(tag => (
               <Button
                 key={tag}
@@ -143,11 +178,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               <Table.Row key={daemon._id}>
                 <Table.Cell>{daemon.name}</Table.Cell>
                 <Table.Cell>
-                  <Icon color="yellow" name="question circle" />
-                  { /*
-                    <Icon color="green" name="check circle outline" /> :
-                    <Icon color="red" name="warning sign" />
-                  */ }
+                  {this.getDockerStatus(daemon.docker.status)}
                 </Table.Cell>
                 <Table.Cell>{daemon.host}</Table.Cell>
                 <Table.Cell>
@@ -198,27 +229,25 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
-  private filter = () => {
-    const { tagsFilter } = this.state;
-
-    let daemonsFiltered = this.state.daemons.filter(daemons =>
-      daemons.name.toLowerCase().includes(this.searchField.toLowerCase())
-    );
-    if (tagsFilter.length > 0) {
-      daemonsFiltered = daemonsFiltered.filter(
-        d => _.intersectionWith(d.tags, tagsFilter, _.isEqual).length !== 0
-      );
+  private getDockerStatus = (status: dockerStatus) : SemanticShorthandItem<IconProps> => {
+    switch (status) {
+      case "OK":
+        return <Icon color="green" name="check circle" title="Daemon is working well" />
+      case "CERT":
+        return <Icon color="yellow" name="check circle outline" title="Daemon certs will be soon outdated" />
+      case "":
+        return <Icon color="grey" name="question circle" title="No status" />
+      case "OLD":
+        return <Icon color="red" name="warning sign" title="Daemon is too old" />
     }
-    daemonsFiltered = daemonsFiltered.slice(0, 20);
-    this.setState({ daemonsFiltered });
-  };
+    return <Icon color="red" name="warning sign" title="Daemon is down or there is an error" />
+  }
 
   private filterAddSearchField = (
     event: React.SyntheticEvent,
     { value }: SearchProps
   ) => {
-    this.searchField = value as string;
-    this.filter();
+    this.setState({ searchField: value as string });
   };
 
   private filterAddTags = (
@@ -229,7 +258,16 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const index = tagsFilter.indexOf(value);
     index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1);
     this.setState({ tagsFilter });
-    this.filter();
+  };
+
+  private filterAddStatus = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+    { value }: ButtonProps
+  ) => {
+    const { statusFilter } = this.state;
+    const index = statusFilter.indexOf(value);
+    index === -1 ? statusFilter.push(value) : statusFilter.splice(index, 1);
+    this.setState({ statusFilter });
   };
 }
 

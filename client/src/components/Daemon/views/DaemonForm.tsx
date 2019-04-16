@@ -143,12 +143,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(1) !== -1}>
               <CodeMirror
-                value={daemon.docker.ca}
+                value={daemon.docker.certs.ca}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.ca"]
+                  gutters: ["docker.certs.ca"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -163,12 +163,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(2) !== -1}>
               <CodeMirror
-                value={daemon.docker.cert}
+                value={daemon.docker.certs.cert}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.cert"]
+                  gutters: ["docker.certs.cert"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -183,12 +183,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(3) !== -1}>
               <CodeMirror
-                value={daemon.docker.key}
+                value={daemon.docker.certs.key}
                 options={{
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.key"]
+                  gutters: ["docker.certs.key"]
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}

@@ -1,13 +1,7 @@
 package jobs
 
 import (
-	"crypto/x509"
-	"docktor/server/dao"
-	"docktor/server/types"
-	"docktor/server/utils"
-	"encoding/pem"
-	"strings"
-	"time"
+	"docktor/server/storage"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -16,7 +10,16 @@ import (
 func CheckDaemonsStatuses() {
 	log.Info("Checking daemons status...")
 
-	ds, err := dao.GetDaemons()
+	dock, err := storage.Get()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Error when connecting to the db")
+		return
+	}
+	defer dock.Close()
+
+	ds, err := dock.Daemons().FindAll()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -25,51 +28,10 @@ func CheckDaemonsStatuses() {
 	}
 
 	for _, d := range ds {
-		checkDaemonStatus(d)
+		d.SetDockerStatus()
+		log.Debugf("Daemon status - %s : %s", d.Name, d.Docker.Status)
+		dock.Daemons().Save(d)
 	}
 
 	log.Info("Daemons status check done.")
-}
-
-// checkDaemonStatus updates the status of a daemon
-func checkDaemonStatus(d types.Daemon) {
-	status := types.STATUS_OK
-
-	_, err := utils.GetDockerInfo(d)
-	if err == nil {
-		if d.Docker.Ca != "" {
-			// check cert expiration date
-			block, _ := pem.Decode([]byte(d.Docker.Ca))
-			ca, err := x509.ParseCertificate(block.Bytes)
-			if err != nil {
-				log.WithFields(log.Fields{
-					"daemon": d,
-					"error":  err,
-				}).Error("Error while parsing ca.crt")
-			}
-			if time.Until(ca.NotAfter) < time.Hour*168 {
-				status = types.STATUS_CERT
-			}
-		}
-	} else {
-		msg := err.Error()
-		if strings.Contains(msg, "client is newer than server") {
-			status = types.STATUS_OLD
-		} else {
-			status = types.STATUS_DOWN
-		}
-	}
-
-	log.Debugf("Daemon status - %s : %s", d.Name, status)
-
-	if status != d.Docker.Status {
-		d.Docker.Status = status
-		_, err = dao.CreateOrUpdateDaemon(d)
-		if err != nil {
-			log.WithFields(log.Fields{
-				"daemon": d,
-				"error":  err,
-			}).Error("Error when updating daemon status")
-		}
-	}
 }

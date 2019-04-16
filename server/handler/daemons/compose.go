@@ -10,7 +10,6 @@ import (
 
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -109,11 +108,11 @@ func updateDaemonComposeStatus(c echo.Context) error {
 func updateComposeStatus(project string, daemon types.Daemon, status string, services ...string) (err error) {
 	switch status {
 	case "start":
-		err = utils.ComposeUp(project, "", daemon, services)
+		err = daemon.ComposeUp(project, "", services)
 	case "stop":
-		err = utils.ComposeStop(project, daemon, services)
+		err = daemon.ComposeStop(project, services)
 	case "remove":
-		err = utils.ComposeRemove(project, daemon, services)
+		err = daemon.ComposeRemove(project, services)
 	default:
 		err = errors.New("Wrong status")
 	}

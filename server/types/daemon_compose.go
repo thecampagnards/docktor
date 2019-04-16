@@ -1,11 +1,9 @@
-package utils
+package types
 
 import (
 	"errors"
 	"fmt"
 	"os"
-
-	"docktor/server/types"
 
 	"github.com/docker/go-connections/tlsconfig"
 	"github.com/docker/libcompose/docker"
@@ -29,32 +27,32 @@ func (cli *ComposeCli) Close() {
 	os.Remove(cli.key)
 }
 
-func getComposeCli(daemon types.Daemon) (cli ComposeCli, err error) {
+func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 
 	c := client.Options{
-		Host: daemon.GetCompleteHost(),
+		Host: d.GetCompleteHost(),
 	}
 
-	if daemon.Docker.Certs != (types.Certs{}) {
+	if d.Docker.Certs != (Certs{}) {
 
-		cli.ca, err = WriteStringToFile(daemon.Docker.Ca)
+		cli.ca, err = WriteStringToFile(d.Docker.Ca)
 		if err != nil {
 			return
 		}
 
-		cli.cert, err = WriteStringToFile(daemon.Docker.Cert)
+		cli.cert, err = WriteStringToFile(d.Docker.Cert)
 		if err != nil {
 			return
 		}
 
-		cli.key, err = WriteStringToFile(daemon.Docker.Key)
+		cli.key, err = WriteStringToFile(d.Docker.Key)
 		if err != nil {
 			return
 		}
 
 		c = client.Options{
 			TLS:  true,
-			Host: daemon.GetCompleteHost(),
+			Host: d.GetCompleteHost(),
 			TLSOptions: tlsconfig.Options{
 				CAFile:             cli.ca,
 				CertFile:           cli.cert,
@@ -85,10 +83,10 @@ func getComposeProjectContext(projectName string, files interface{}) (con projec
 }
 
 // ComposeUp run service, files has to be []string or [][]byte
-func ComposeUp(projectName string, subnet string, daemon types.Daemon, files interface{}) (err error) {
+func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{}) (err error) {
 
 	if subnet != "" {
-		_, err = CreateNetwork(daemon, fmt.Sprintf("%s-net", projectName), subnet)
+		_, err = d.CreateNetwork(fmt.Sprintf("%s-net", projectName), subnet)
 		if err != nil {
 			return
 		}
@@ -99,7 +97,7 @@ func ComposeUp(projectName string, subnet string, daemon types.Daemon, files int
 		return
 	}
 
-	c, err := getComposeCli(daemon)
+	c, err := d.getComposeCli()
 	if err != nil {
 		return
 	}
@@ -119,14 +117,14 @@ func ComposeUp(projectName string, subnet string, daemon types.Daemon, files int
 }
 
 // ComposeStop stop service, files has to be []string or [][]byte
-func ComposeStop(projectName string, daemon types.Daemon, files interface{}) (err error) {
+func (d *Daemon) ComposeStop(projectName string, files interface{}) (err error) {
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
 		return
 	}
 
-	c, err := getComposeCli(daemon)
+	c, err := d.getComposeCli()
 	if err != nil {
 		return
 	}
@@ -146,14 +144,14 @@ func ComposeStop(projectName string, daemon types.Daemon, files interface{}) (er
 }
 
 // ComposeRemove remove service, files has to be []string or [][]byte
-func ComposeRemove(projectName string, daemon types.Daemon, files interface{}) (err error) {
+func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error) {
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
 		return
 	}
 
-	c, err := getComposeCli(daemon)
+	c, err := d.getComposeCli()
 	if err != nil {
 		return
 	}

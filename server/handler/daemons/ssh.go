@@ -6,7 +6,6 @@ import (
 
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -36,7 +35,7 @@ func execSSH(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	result, err := utils.ExecSSH(daemon, commands...)
+	result, err := daemon.ExecSSH(commands...)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -64,7 +63,7 @@ func getSSHTerm(c echo.Context) error {
 			return
 		}
 
-		client, session, err := utils.GetSSHSession(daemon)
+		client, session, err := daemon.GetSSHSession()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemon": daemon,

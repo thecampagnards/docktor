@@ -3,7 +3,6 @@ package groups
 import (
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 	"net/http"
 	"reflect"
 	"strconv"
@@ -189,7 +188,7 @@ func startServiceGroup(db *storage.Docktor, group types.Group, serviceGroup type
 		"service": string(service),
 	}).Info("Sub service converted")
 
-	err = utils.ComposeUp(group.Name, group.Subnet, daemon, [][]byte{service})
+	err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{service})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,

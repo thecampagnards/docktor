@@ -1,7 +1,11 @@
 package types
 
 import (
+	"crypto/x509"
+	"encoding/pem"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -58,4 +62,36 @@ func (d *Daemon) GetCompleteHost() string {
 		return fmt.Sprintf("tcp://%s:%v", d.Host, d.Docker.Port)
 	}
 	return fmt.Sprintf("unix:///%s", d.Host)
+}
+
+// SetDockerStatus updates the docker status of a daemon
+func (d *Daemon) SetDockerStatus() {
+
+	_, err := d.GetDockerInfo()
+	if err != nil {
+		if strings.Contains(err.Error(), "client is newer than server") {
+			d.Docker.Status = STATUS_OLD
+			return
+		}
+		d.Docker.Status = STATUS_DOWN
+		return
+	}
+
+	if (d.Docker.Certs != Certs{}) {
+		// check cert expiration date
+		block, _ := pem.Decode([]byte(d.Docker.Ca))
+		ca, err := x509.ParseCertificate(block.Bytes)
+		if err != nil {
+			d.Docker.Status = ""
+			return
+		}
+
+		if time.Until(ca.NotAfter) < time.Hour*168 {
+			d.Docker.Status = STATUS_CERT
+			return
+		}
+	}
+
+	d.Docker.Status = STATUS_OK
+	return
 }

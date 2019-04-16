@@ -9,11 +9,16 @@ export interface IDaemon {
   ssh: ISSH;
 }
 
+export type dockerStatus = "OK" | "DOWN" | "OLD" | "CERT" | "";
 
 export interface IDocker {
-  status: string;
+  status: dockerStatus;
   port: number;
   volume: string;
+  certs: ICerts;
+}
+
+export interface ICerts {
   cert: string;
   ca: string;
   key: string;

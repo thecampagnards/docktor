@@ -8,7 +8,6 @@ import (
 
 	"docktor/server/storage"
 	"docktor/server/types"
-	"docktor/server/utils"
 
 	"github.com/labstack/echo"
 	log "github.com/sirupsen/logrus"
@@ -31,7 +30,7 @@ func getContainers(c echo.Context) error {
 		"daemon": daemon,
 	}).Info("Daemon retrieved")
 
-	cs, err := utils.GetContainers(daemon)
+	cs, err := daemon.GetContainers()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon": daemon,
@@ -66,11 +65,11 @@ func UpdateContainersStatus(c echo.Context) error {
 
 	switch c.QueryParam("status") {
 	case "start":
-		err = utils.StartContainers(daemon, containers...)
+		err = daemon.StartContainers(containers...)
 	case "stop":
-		err = utils.StopContainers(daemon, containers...)
+		err = daemon.StopContainers(containers...)
 	case "remove":
-		err = utils.RemoveContainers(daemon, containers...)
+		err = daemon.RemoveContainers(containers...)
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon,
@@ -108,7 +107,7 @@ func GetContainerLog(c echo.Context) error {
 			return
 		}
 
-		reader, err := utils.GetContainerLogFollow(daemon, c.Param(types.CONTAINER_ID_PARAM))
+		reader, err := daemon.GetContainerLogFollow(c.Param(types.CONTAINER_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemon":      daemon,
@@ -173,7 +172,7 @@ func GetContainerTerm(c echo.Context) error {
 			"daemon": daemon,
 		}).Info("Daemon retrieved")
 
-		hij, err := utils.GetContainerTerm(daemon, c.Param(types.CONTAINER_ID_PARAM))
+		hij, err := daemon.GetContainerTerm(c.Param(types.CONTAINER_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"daemon":      daemon,
