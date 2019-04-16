@@ -8,7 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -31,9 +31,11 @@ func getComposeServices(c echo.Context) error {
 	assetDir := fmt.Sprintf("%s/assets/", dir)
 	filepath.Walk(assetDir, func(path string, info os.FileInfo, err error) error {
 
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Errorf("Error when getting %s", path)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Errorf("Error when getting %s", path)
+		}
 
 		if info.IsDir() {
 			return nil
@@ -62,7 +64,8 @@ func getComposeServices(c echo.Context) error {
 // updateDaemonComposeStatus this function run/stop/delete a daemon service (cadvisor, watchtower) via compose
 // this service is in asset folder
 func updateDaemonComposeStatus(c echo.Context) error {
-	daemon, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),

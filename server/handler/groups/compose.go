@@ -1,7 +1,7 @@
 package groups
 
 import (
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 	"net/http"
@@ -29,7 +29,8 @@ func createSubService(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
 
-	subService, err := dao.GetSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	subService, err := db.Services().FindSubServicByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
@@ -45,7 +46,7 @@ func createSubService(c echo.Context) error {
 
 	serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
 
-	err = startServiceGroup(group, serviceGroup)
+	err = startServiceGroup(db, group, serviceGroup)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -56,7 +57,7 @@ func createSubService(c echo.Context) error {
 
 	group.Services = append(group.Services, serviceGroup)
 
-	_, err = dao.CreateOrUpdateGroup(group, false)
+	group, err = db.Groups().Save(group)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName": group.Name,
@@ -89,7 +90,7 @@ func startSubService(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
 	}
 
-	err := startServiceGroup(group, serviceGroup)
+	err := startServiceGroup(c.Get("DB").(*storage.Docktor), group, serviceGroup)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -98,28 +99,28 @@ func startSubService(c echo.Context) error {
 		return err
 	}
 
-	return c.JSON(http.StatusOK, "ok")
+	return c.JSON(http.StatusOK, serviceGroup)
 }
 
 // startServiceGroup this function run a subservice via compose
-func startServiceGroup(group types.Group, serviceGroup types.ServiceGroup) (err error) {
+func startServiceGroup(db *storage.Docktor, group types.Group, serviceGroup types.ServiceGroup) (err error) {
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID":  group.DaemonID,
+			"daemonID":  group.Daemon,
 			"groupName": group.Name,
 			"error":     err,
 		}).Error("Error when retrieving daemon")
 		return
 	}
 
-	subService, err := dao.GetSubServiceByID(serviceGroup.SubServiceID.Hex())
+	subService, err := db.Services().FindSubServicByIDBson(serviceGroup.SubServiceID)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": serviceGroup.SubServiceID,
 			"groupName":    group.Name,
-			"daemonID":     group.DaemonID,
+			"daemonID":     group.Daemon,
 			"error":        err,
 		}).Error("Error when retrieving sub service")
 		return

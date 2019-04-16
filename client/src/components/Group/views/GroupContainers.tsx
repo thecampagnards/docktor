@@ -9,10 +9,10 @@ import { IGroup } from '../types/group';
 interface IGroupProps {
   group: IGroup;
   admin: boolean;
+  daemon: IDaemon;
 }
 
 interface IGroupStates {
-  daemon: IDaemon;
   containers: IContainer[];
   isFetching: boolean;
   error: Error;
@@ -23,7 +23,6 @@ interface IGroupStates {
 
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
-    daemon: {} as IDaemon,
     containers: [],
     isFetching: true,
     error: Error(),
@@ -40,7 +39,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     const fetch = () => {
       fetchContainers(group._id)
         .then((containers: IContainer[]) => {
-          for (const container of group.Containers) {
+          for (const container of group.containers) {
             if (!containers.find((c) => c.Names.indexOf(container.Name) !== -1)) {
               containers.push(container)
             }
@@ -59,7 +58,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { group, admin } = this.props;
+    const { daemon, group, admin } = this.props;
     const { containers, saveError, error, isFetching, isSaveFetching } = this.state;
 
     if (error.message) {
@@ -98,7 +97,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             floated="right"
           />
         )}
-        <ContainerTable containers={containers} group={group} admin={admin} />
+        <ContainerTable daemon={daemon} containers={containers} group={group} admin={admin} />
       </>
     );
   }

@@ -3,8 +3,8 @@ package groups
 import (
 	"net/http"
 
-	"docktor/server/dao"
 	"docktor/server/handler/daemons"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -18,11 +18,12 @@ import (
 func getContainers(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID": group.DaemonID,
+			"daemonID": group.Daemon,
 			"error":    err,
 		}).Error("Error when retrieving group daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -62,10 +63,11 @@ func createContainer(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Unknown container")
 	}
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID": group.DaemonID,
+			"daemonID": group.Daemon,
 			"error":    err,
 		}).Error("Error when retrieving group daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -88,10 +90,11 @@ func saveContainers(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemonID": group.DaemonID,
+			"daemonID": group.Daemon,
 			"error":    err,
 		}).Error("Error when retrieving group daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -120,22 +123,22 @@ func saveContainers(c echo.Context) error {
 		"error":  err,
 	}).Error("Error when retrieving group containers inspect")
 
-	g, err := dao.CreateOrUpdateGroup(types.Group{ID: group.ID, Containers: csj}, true)
+	_, err = db.Groups().Save(types.Group{GroupLight: types.GroupLight{ID: group.ID}, GroupDocker: types.GroupDocker{Containers: csj}})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"group": g,
-			"error": err,
+			"groupID": group.ID,
+			"error":   err,
 		}).Error("Error when updating/creating group")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	return c.JSON(http.StatusOK, g)
+	return c.JSON(http.StatusOK, "ok")
 }
 
 func updateContainersStatus(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	c.SetParamNames(types.DAEMON_ID_PARAM)
-	c.SetParamValues(group.DaemonID.Hex())
+	c.SetParamValues(group.Daemon.Hex())
 	// TODO check if group container
 	return daemons.UpdateContainersStatus(c)
 }
@@ -143,7 +146,7 @@ func updateContainersStatus(c echo.Context) error {
 func getContainerLog(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	c.SetParamNames(types.DAEMON_ID_PARAM, types.CONTAINER_ID_PARAM)
-	c.SetParamValues(group.DaemonID.Hex(), c.Param(types.CONTAINER_ID_PARAM))
+	c.SetParamValues(group.Daemon.Hex(), c.Param(types.CONTAINER_ID_PARAM))
 	// TODO check if group container
 	return daemons.GetContainerLog(c)
 }
@@ -151,7 +154,7 @@ func getContainerLog(c echo.Context) error {
 func getContainerTerm(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	c.SetParamNames(types.DAEMON_ID_PARAM, types.CONTAINER_ID_PARAM)
-	c.SetParamValues(group.DaemonID.Hex(), c.Param(types.CONTAINER_ID_PARAM))
+	c.SetParamValues(group.Daemon.Hex(), c.Param(types.CONTAINER_ID_PARAM))
 	// TODO check if group container
 	return daemons.GetContainerTerm(c)
 }

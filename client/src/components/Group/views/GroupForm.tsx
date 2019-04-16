@@ -42,19 +42,19 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
         <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
           <Form.Input
             label="Name"
-            name="Name"
+            name="name"
             type="text"
-            value={group.Name}
+            value={group.name}
             onChange={this.handleChange}
             required={true}
           />
           <CodeMirror
-            value={group.Description}
+            value={group.description}
             options={{
               mode: "markdown",
               theme: "material",
               lineNumbers: true,
-              gutters: ["Description"]
+              gutters: ["description"]
             }}
             autoCursor={false}
             onChange={this.handleChangeCodeEditor}
@@ -64,10 +64,10 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             selection={true}
             fluid={true}
             label="Daemon"
-            name="DaemonID"
-            defaultValue={group.DaemonID}
+            name="daemon_id"
+            defaultValue={group.daemon_id}
             options={daemons.map((d: IDaemon) => {
-              return { text: d.Name, value: d._id };
+              return { text: d.name, value: d._id };
             })}
             onChange={this.handleChange}
             required={true}
@@ -77,7 +77,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               label="Docker MinPort"
               name="MinPort"
               type="number"
-              value={group.MinPort}
+              value={group.min_port}
               onChange={this.handleChange}
               required={true}
             />
@@ -85,7 +85,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               label="Docker MaxPort"
               name="MaxPort"
               type="number"
-              value={group.MaxPort}
+              value={group.max_port}
               onChange={this.handleChange}
               required={true}
             />
@@ -95,7 +95,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             name="Subnet"
             type="string"
             pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
-            value={group.Subnet}
+            value={group.subnet}
             onChange={this.handleChange}
             required={true}
           />

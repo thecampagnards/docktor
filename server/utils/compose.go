@@ -35,14 +35,14 @@ func getComposeCli(daemon types.Daemon) (cli ComposeCli, err error) {
 		Host: daemon.GetCompleteHost(),
 	}
 
-	if daemon.Docker.Cert != (types.Cert{}) {
+	if daemon.Docker.Certs != (types.Certs{}) {
 
 		cli.ca, err = WriteStringToFile(daemon.Docker.Ca)
 		if err != nil {
 			return
 		}
 
-		cli.cert, err = WriteStringToFile(daemon.Docker.Cert.Cert)
+		cli.cert, err = WriteStringToFile(daemon.Docker.Cert)
 		if err != nil {
 			return
 		}

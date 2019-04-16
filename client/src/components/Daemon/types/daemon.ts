@@ -1,29 +1,29 @@
 export interface IDaemon {
   _id: string;
-  Name: string;
-  Description: string;
-  CAdvisor: string;
-  Host: string;
-  Tags: string[];
-  Docker: IDocker;
-  SSH: ISSH;
+  name: string;
+  description: string;
+  cadvisor: string;
+  host: string;
+  tags: string[];
+  docker: IDocker;
+  ssh: ISSH;
 }
 
 
 export interface IDocker {
-  Status: string;
-  Port: number;
-  Volume: string;
-  Cert: string;
-  Ca: string;
-  Key: string;
+  status: string;
+  port: number;
+  volume: string;
+  cert: string;
+  ca: string;
+  key: string;
 }
 
 export interface ISSH {
-  Port: number;
-  User: string;
-  Password: string;
-  Commands: string[];
+  port: number;
+  user: string;
+  password: string;
+  commands: string[];
 }
 
 export interface IContainer {

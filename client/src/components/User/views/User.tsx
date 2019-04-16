@@ -1,15 +1,14 @@
 import * as React from 'react';
-import { Icon, Loader, Message, Button, Grid } from 'semantic-ui-react';
-
-import { deleteUser, fetchUser, setGlobalRole } from '../actions/users';
-import { IUser } from '../types/user';
-
-import ProfileCard from './ProfileCard';
 import { RouteComponentProps } from 'react-router-dom';
-import { path } from '../../../constants/path'
+import { Button, Grid, Icon, Loader, Message } from 'semantic-ui-react';
+
+import { path } from '../../../constants/path';
+import { deleteUser, fetchUser, setGlobalRole } from '../actions/users';
+import { IProfile } from '../types/user';
+import ProfileCard from './ProfileCard';
 
 interface IUserStates {
-    user: IUser;
+    user: IProfile;
     isFetching: boolean;
     error: Error;
   }
@@ -20,19 +19,19 @@ interface IUserStates {
 
   class User extends React.Component<RouteComponentProps<IRouterProps>, IUserStates> {
     public state = {
-      user: {} as IUser,
+      user: {} as IProfile,
       isFetching: true,
       error: Error()
     };
     private userID = "";
-  
+
     public componentWillMount() {
       this.refreshUser();
     }
-  
+
     public render() {
       const { user, isFetching, error } = this.state;
-  
+
       if (error.message) {
         return (
           <Message negative={true}>
@@ -41,11 +40,11 @@ interface IUserStates {
           </Message>
         );
       }
-  
+
       if (isFetching) {
         return <Loader active={true} />;
       }
-  
+
       return (
         <>
           <ProfileCard user={user} perm={true} refresh={this.refreshUser} />
@@ -102,5 +101,5 @@ interface IUserStates {
         .catch(error => this.setState({ error }));
     }
   }
-  
+
   export default User;

@@ -20,14 +20,14 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
     return (
       <Card fluid={true}>
         <Card.Content>
-          <Card.Header>{group.Name.toUpperCase()}</Card.Header>
+          <Card.Header>{group.name.toUpperCase()}</Card.Header>
           <Card.Description>
             {"Admins : "}
-              {group.Admins && (group.Admins.length > 0 ? group.Admins.join(", ") : "None")}
+              {group.admins && (group.admins.length > 0 ? group.admins.join(", ") : "None")}
           </Card.Description>
         </Card.Content>
-        {group.Description && <Card.Content>
-          <ReactMarkdown source={group.Description} escapeHtml={false} />
+        {group.description && <Card.Content>
+          <ReactMarkdown source={group.description} escapeHtml={false} />
         </Card.Content>}
         {(displayButtons || admin) &&
         <Card.Content extra={true}>
@@ -42,7 +42,7 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
           </Button>
           }
           {admin &&
-          <Button icon={true} floated="right" as={Link} to={path.daemonsSSH.replace(":daemonID", group.DaemonID)}>
+          <Button icon={true} floated="right" as={Link} to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}>
             <Icon name="terminal" />
           </Button>
           }

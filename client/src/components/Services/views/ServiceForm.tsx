@@ -45,7 +45,7 @@ class ServiceForm extends React.Component<
         )
         .catch((error) => this.setState({ error, isFetching: false }))
     } else {
-      this.setState({ service: { SubServices: [] as ISubService[] } as IService, isFetching: false })
+      this.setState({ service: { sub_services: [] as ISubService[] } as IService, isFetching: false })
     }
   }
 
@@ -63,26 +63,26 @@ class ServiceForm extends React.Component<
 
     return (
       <>
-        <h2>{service.Name || "Create new service"}</h2>
+        <h2>{service.name || "Create new service"}</h2>
 
         <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
 
           <Form.Input
             label="Service name"
-            name="Name"
+            name="name"
             type="text"
-            value={service.Name}
+            value={service.name}
             onChange={this.handleChange}
             required={true}
           />
 
           <CodeMirror
-            value={service.Description}
+            value={service.description}
             options={{
               mode: "markdown",
               theme: "material",
               lineNumbers: true,
-              gutters: ["Description"]
+              gutters: ["description"]
             }}
             autoCursor={false}
             onChange={this.handleChangeCodeEditor}
@@ -91,13 +91,13 @@ class ServiceForm extends React.Component<
           <br />
 
           <Form.Group widths="equal">
-            {service.Image && (
-              <img src={service.Image} />
+            {service.image && (
+              <img src={service.image} />
             )}
 
             <Form.Input
               label="Image"
-              name="Image"
+              name="image"
               type="file"
               accept="image/*"
               onChange={this.handleChange}
@@ -106,17 +106,17 @@ class ServiceForm extends React.Component<
 
           <Form.Input
             label="Link to documentation"
-            name="Link"
+            name="link"
             type="url"
-            value={service.Link}
+            value={service.link}
             onChange={this.handleChange}
           />
 
           <Form.Input
             label="Tags"
-            name="Tags"
+            name="tags"
             type="text"
-            value={service.Tags ? service.Tags.join(",") : ""}
+            value={service.tags ? service.tags.join(",") : ""}
             onChange={this.handleChange}
           />
 
@@ -126,7 +126,7 @@ class ServiceForm extends React.Component<
             Add sub service
           </Button>
 
-          {service.SubServices.map((ss, key) => (
+          {service.sub_services && service.sub_services.map((ss, key) => (
             <span key={key}>
               <Button
                 icon={true}
@@ -140,16 +140,16 @@ class ServiceForm extends React.Component<
                 <Form.Checkbox
                   width={1}
                   label="Active"
-                  name={`SubServices.${key}.Active`}
-                  defaultChecked={ss.Active}
+                  name={`SubServices.${key}.active`}
+                  defaultChecked={ss.active}
                   onChange={this.handleChange}
                 />
                 <Form.Input
                   width={8}
                   label="Name"
-                  name={`SubServices.${key}.Name`}
+                  name={`SubServices.${key}.name`}
                   type="text"
-                  value={ss.Name}
+                  value={ss.name}
                   onChange={this.handleChange}
                   required={true}
                 />
@@ -160,7 +160,7 @@ class ServiceForm extends React.Component<
                   <Grid.Row verticalAlign="middle">
                     <Grid.Column>
                       <CodeMirror
-                        value={this.isURL(ss.File) ? "" : ss.File}
+                        value={this.isURL(ss.file) ? "" : ss.file}
                         options={{
                           mode: "yaml",
                           theme: "material",
@@ -177,9 +177,9 @@ class ServiceForm extends React.Component<
                         Remote file
                       </Header>
                       <Form.Input
-                        value={this.isURL(ss.File) ? ss.File : ""}
+                        value={this.isURL(ss.file) ? ss.file : ""}
                         type="url"
-                        name={`SubServices.${key}.File`}
+                        name={`SubServices.${key}.file`}
                         onChange={this.handleChange}
                       />
                     </Grid.Column>
@@ -204,9 +204,9 @@ class ServiceForm extends React.Component<
     )
   }
 
-  private isURL(str: string) : boolean {
+  private isURL(str: string | undefined): boolean {
     try {
-      const u = new URL(str)
+      const u = new URL(str!)
       return !!u.host
     } catch (_) {
       return false
@@ -217,7 +217,7 @@ class ServiceForm extends React.Component<
     event.preventDefault()
 
     const service = this.state.service
-    service.SubServices.splice(key, 1)
+    service.sub_services!.splice(key, 1)
     this.setState({ service })
   }
 
@@ -225,12 +225,12 @@ class ServiceForm extends React.Component<
     event.preventDefault()
 
     const service = this.state.service
-    const sub: ISubService = {
-      Name: "",
-      File: "",
-      Active: true
-    }
-    service.SubServices.unshift(sub)
+    const sub = {
+      name: "",
+      file: "",
+      active: true
+    } as ISubService
+    service.sub_services ? service.sub_services.unshift(sub) : (service.sub_services = [sub])
     this.setState({ service })
   }
 
@@ -257,7 +257,7 @@ class ServiceForm extends React.Component<
       reader.onerror = error =>
         this.setState({ error: Error("When uploading file : " + error) })
     } else {
-      if (name === "Tags") {
+      if (name === "tags") {
         value = value.split(",")
       }
       this.setState({ service: _.set(service, name, value) })

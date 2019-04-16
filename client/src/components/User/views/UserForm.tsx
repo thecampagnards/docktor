@@ -1,14 +1,12 @@
-
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { Dispatch } from 'redux';
-import {
-  Button, Form, InputOnChangeData, Message
-} from 'semantic-ui-react';
-import { IUser } from "../types/user";
+import { Button, Form, InputOnChangeData, Message } from 'semantic-ui-react';
+
 import { IStoreState } from '../../../types/store';
 import { registerRequestThunk } from '../actions/user';
+import { IUser } from '../types/user';
 
 interface IUserFormProps {
   registerRequest: (user: IUser) => void;
@@ -44,7 +42,7 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
             required={true}
             fluid={true}
             label="Username"
-            name="Username"
+            name="username"
             placeholder="Username"
             onChange={this.handleChange}
           />
@@ -53,7 +51,7 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
               required={true}
               width={8}
               label="First Name"
-              name="FirstName"
+              name="firstName"
               placeholder="First name"
               onChange={this.handleChange}
             />
@@ -61,7 +59,7 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
               required={true}
               width={8}
               label="Last Name"
-              name="LastName"
+              name="lastName"
               placeholder="Last name"
               onChange={this.handleChange}
             />
@@ -70,7 +68,7 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
             required={true}
             fluid={true}
             label="E-mail"
-            name="Email"
+            name="email"
             placeholder="E-mail address"
             type="email"
             onChange={this.handleChange}
@@ -79,7 +77,7 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
             required={true}
             fluid={true}
             label="Password"
-            name="Password"
+            name="password"
             placeholder="Password"
             type="password"
             onChange={this.handleChange}
@@ -120,12 +118,10 @@ class UserForm extends React.Component<IUserFormProps & RouteComponentProps, IUs
   private submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    if (this.state.pwd !== this.user.Password) {
+    if (this.state.pwd !== this.user.password) {
       this.setState({error: Error("Password confirmation does not match")})
       return;
     }
-
-    this.user.Role = "user";
 
     this.props.registerRequest(this.user);
   };

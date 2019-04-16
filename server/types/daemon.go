@@ -1,49 +1,61 @@
 package types
 
 import (
-	"strconv"
+	"fmt"
 
 	"github.com/globalsign/mgo/bson"
 )
 
+// DaemonLight data
+type DaemonLight struct {
+	ID   bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name string        `json:"name" bson:"name"`
+}
+
+// Daemon data
 type Daemon struct {
-	ID          bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name        string
-	Description string
-	Tags        []string
-	CAdvisor    string `json:",omitempty"`
-	Host        string
-	Docker      *Docker `json:",omitempty"`
-	SSH         *SSH    `json:",omitempty"`
+	DaemonLight `bson:",inline"`
+	Host        string   `json:"host" bson:"host" validate:"required"`
+	Tags        []string `json:"tags" bson:"tags"`
+	Description string   `json:"description" bson:"description"`
+	CAdvisor    string   `json:"cadvisor" bson:"cadvisor"`
+	Docker      Docker   `json:"docker" bson:"docker"`
+	SSH         SSH      `json:"ssh" bson:"ssh"`
 }
 
+// Docker data
 type Docker struct {
-	Status string
-	Port   int
-	Volume string
-	Cert
+	Status string `json:"status" bson:"status"`
+	Certs  `json:"certs" bson:"certs,inline"`
+	Port   int    `json:"port" bson:"port"`
+	Volume string `json:"volume" bson:"volume"`
 }
 
+// SSH data
 type SSH struct {
-	Port     int
-	User     string
-	Password string
-	Commands []string
+	Port     int      `json:"port" bson:"port"`
+	User     string   `json:"user" bson:"user"`
+	Password string   `json:"password" bson:"password"`
+	Commands []string `json:"commands" bson:"commands"`
 }
 
-type Cert struct {
-	Cert string
-	Ca   string
-	Key  string
+// Certs data
+type Certs struct {
+	Cert string `json:"cert" bson:"cert"`
+	Ca   string `json:"ca" bson:"ca"`
+	Key  string `json:"key" bson:"key"`
 }
 
+// Daemons data
 type Daemons []Daemon
 
-// GetCompleteHost ...
-func (d Daemon) GetCompleteHost() string {
+// DaemonsLight data
+type DaemonsLight []DaemonLight
+
+// GetCompleteHost get tfmt.Sprintf("he tcp url if the port is empty return the socket
+func (d *Daemon) GetCompleteHost() string {
 	if d.Docker.Port != 0 {
-		return "tcp://" + d.Host + ":" + strconv.Itoa(d.Docker.Port)
+		return fmt.Sprintf("tcp://%s:%v", d.Host, d.Docker.Port)
 	}
-	// Can be a socket
-	return "unix:///" + d.Host
+	return fmt.Sprintf("unix:///%s", d.Host)
 }

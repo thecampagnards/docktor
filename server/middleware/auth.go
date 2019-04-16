@@ -3,7 +3,7 @@ package middleware
 import (
 	"net/http"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 
 	jwt "github.com/dgrijalva/jwt-go"
@@ -49,7 +49,7 @@ func WithUser(next echo.HandlerFunc) echo.HandlerFunc {
 // WithAdmin
 func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(types.UserRest)
+		user := c.Get("user").(types.User)
 
 		if !user.IsAdmin() {
 			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required")
@@ -62,9 +62,11 @@ func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroup
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(types.UserRest)
+		user := c.Get("user").(types.User)
 
-		group, err := dao.GetGroupByID(c.Param(types.GROUP_ID_PARAM))
+		db := c.Get("DB").(*storage.Docktor)
+
+		group, err := db.Groups().FindByID(c.Param(types.GROUP_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
 				"groupID": c.Param(types.GROUP_ID_PARAM),
@@ -82,7 +84,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 			"user":  user,
 		}).Info("Check if user is your group")
 
-		if !group.IsMyGroup(user.User) {
+		if !group.IsMyGroup(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "This is not your group")
 		}
 
@@ -94,10 +96,10 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 // WithGroupAdmin
 func WithGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
-		user := c.Get("user").(types.UserRest)
+		user := c.Get("user").(types.User)
 		group := c.Get("group").(types.Group)
 
-		if !group.IsAdmin(user.User) {
+		if !group.IsAdmin(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "Group admin permission required")
 		}
 
@@ -106,7 +108,7 @@ func WithGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 }
 
 // AuthUser
-func AuthUser(c echo.Context) (types.UserRest, error) {
+func AuthUser(c echo.Context) (types.User, error) {
 
 	log.Info("Getting user from token")
 	user := c.Get("user").(*jwt.Token)
@@ -115,5 +117,6 @@ func AuthUser(c echo.Context) (types.UserRest, error) {
 	claims := user.Claims.(*types.Claims)
 
 	log.WithField("claims", claims).Info("Getting db user")
-	return dao.GetUserRestByUsername(claims.Username)
+	db := c.Get("DB").(*storage.Docktor)
+	return db.Users().FindByUsername(claims.Username)
 }

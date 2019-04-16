@@ -3,7 +3,7 @@ package daemons
 import (
 	"net/http"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -12,20 +12,35 @@ import (
 
 // getAll find all daemons
 func getAll(c echo.Context) error {
-	s, err := dao.GetDaemons()
+	user := c.Get("user").(types.User)
+	db := c.Get("DB").(*storage.Docktor)
+
+	if user.IsAdmin() {
+		daemons, err := db.Daemons().FindAll()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when retrieving daemons")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+		return c.JSON(http.StatusOK, daemons)
+
+	}
+	daemons, err := db.Daemons().FindAllLight()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
 		}).Error("Error when retrieving daemons")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	// TODO clean data when not admin
-	return c.JSON(http.StatusOK, s)
+
+	return c.JSON(http.StatusOK, daemons)
 }
 
 // getByID find one daemon by id
 func getByID(c echo.Context) error {
-	s, err := dao.GetDaemonByID(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -34,7 +49,7 @@ func getByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// TODO clean data when not admin
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, daemon)
 }
 
 // save create/update a daemon
@@ -47,7 +62,8 @@ func save(c echo.Context) error {
 		}).Error("Error when saving daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	s, err := dao.CreateOrUpdateDaemon(u)
+	db := c.Get("DB").(*storage.Docktor)
+	u, err = db.Daemons().Save(u)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon": u,
@@ -55,12 +71,13 @@ func save(c echo.Context) error {
 		}).Error("Error when creating/updating daemons")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, u)
 }
 
 // deleteByID delete one daemon by id
 func deleteByID(c echo.Context) error {
-	err := dao.DeleteDaemon(c.Param(types.DAEMON_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+	err := db.Daemons().Delete(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),

@@ -1,17 +1,17 @@
 export interface IService {
   _id: string
-  Name: string
-  Description: string
-  Link: string
-  Tags: string[]
-  Image: string
-  SubServices: ISubService[]
+  name: string
+  description: string
+  link: string
+  tags: string[]
+  image: string
+  sub_services?: ISubService[]
 }
 
 export interface ISubService {
   _id?: string
-  Name: string
-  File: string
-  Active: boolean
-  Variables?: any
+  name: string
+  file?: string
+  active: boolean
+  variables: any
 }

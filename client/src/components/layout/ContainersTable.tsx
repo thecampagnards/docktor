@@ -10,7 +10,7 @@ import ContainerLogSocket from './ContainerLogSocket';
 import ContainersButtons from './ContainersButtons';
 
 interface ITableProps {
-  daemon?: IDaemon;
+  daemon: IDaemon;
   admin: boolean;
   group?: IGroup;
   containers: IContainer[];
@@ -31,7 +31,7 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
     const { searchFilter } = this.state;
 
     // filter containers
-    const containersFiltered = containers.filter(
+    const containersFiltered = containers && containers.filter(
       c => c.Names.filter(n => n.toLowerCase().includes(searchFilter.toLowerCase())).length > 0
     );
 
@@ -89,10 +89,10 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                         <List.Item
                           key={port.PublicPort}
                           as="a"
-                          href={"http://" + (group ? group.DaemonData.Host : daemon!.Host) + ":" + port.PublicPort}
+                          href={"http://" + daemon.host + ":" + port.PublicPort}
                           target="_blank"
                         >
-                          {(group ? group.DaemonData.Host : daemon!.Host) + ":" + port.PublicPort}
+                          {daemon.host + ":" + port.PublicPort}
                         </List.Item>
                       ))}
                     </List>
@@ -104,13 +104,13 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                     <ContainersButtons container={container} daemon={daemon} group={group} />
                   </Table.Cell>
                   <Table.Cell width={5}>
+                    <Button
+                      icon="clipboard"
+                      content="Image"
+                      title={container.Image}
+                      onClick={copy.bind(this, container.Image)}
+                    />
                     {container.Status && <>
-                      <Button
-                        icon="clipboard"
-                        content="Image"
-                        title={container.Image}
-                        onClick={copy.bind(this, container.Image)}
-                      />
                       <Modal trigger={<Button icon="align left" content="Logs" />}>
                         <Modal.Content
                           style={{ background: "black", color: "white" }}
@@ -135,10 +135,11 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                       >
                         <Modal.Content style={{ background: "black" }}>
                           <CmdSocket
-                            apiURL={`/api${group ? `/groups/${group._id}` : `/daemons/${daemon!._id}` }/docker/containers/${container.Id}/term`}
+                            apiURL={`/api${group ? `/groups/${group._id}` : `/daemons/${daemon!._id}`}/docker/containers/${container.Id}/term`}
                           />
                         </Modal.Content>
                       </Modal>
+                      </>}
                       <Modal trigger={<Button icon="search" content="Inspect" />}>
                         <Modal.Content
                           style={{ background: "black", color: "white" }}
@@ -148,7 +149,6 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                           </pre>
                         </Modal.Content>
                       </Modal>
-                    </>}
                   </Table.Cell>
                 </Table.Row>
               ))}

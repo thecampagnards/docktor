@@ -18,11 +18,11 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
 
     return (
       <Card fluid={true}>
-        {service.Image && (
-          <Image src={service.Image} />
+        {service.image && (
+          <Image src={service.image} />
         )}
         <Card.Content>
-          <Card.Header>{service.Name}</Card.Header>
+          <Card.Header>{service.name}</Card.Header>
         </Card.Content>
         <Card.Content extra={true}>
           <MarketModal service={service} groups={groups} />

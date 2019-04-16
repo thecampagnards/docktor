@@ -41,14 +41,14 @@ func getDockerCli(daemon types.Daemon) (cli DockerCli, err error) {
 		Timeout:       time.Second * 5,
 	}
 
-	if daemon.Docker.Cert != (types.Cert{}) {
+	if daemon.Docker.Certs != (types.Certs{}) {
 
 		cli.ca, err = WriteStringToFile(daemon.Docker.Ca)
 		if err != nil {
 			return
 		}
 
-		cli.cert, err = WriteStringToFile(daemon.Docker.Cert.Cert)
+		cli.cert, err = WriteStringToFile(daemon.Docker.Cert)
 		if err != nil {
 			return
 		}
@@ -335,8 +335,7 @@ func GetContainerTerm(daemon types.Daemon, containerName string) (dockerTypes.Hi
 		return dockerTypes.HijackedResponse{}, err
 	}
 
-	execID := exec.ID
-	if execID == "" {
+	if exec.ID == "" {
 		return dockerTypes.HijackedResponse{}, errors.New("exec ID empty")
 	}
 

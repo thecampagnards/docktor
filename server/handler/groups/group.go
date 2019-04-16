@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"strconv"
 
-	"docktor/server/dao"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 
@@ -15,33 +15,31 @@ import (
 
 // getAllWithDaemons find all groups with daemons
 func getAllWithDaemons(c echo.Context) error {
-	user := c.Get("user").(types.UserRest)
+	user := c.Get("user").(types.User)
+	db := c.Get("DB").(*storage.Docktor)
 	if all, _ := strconv.ParseBool(c.QueryParam("all")); all {
-		groups, err := dao.GetGroupsRest()
+		groups, err := db.Groups().FindAllLight()
 		if err != nil {
 			log.WithFields(log.Fields{
 				"error": err,
-			}).Error("Error when retrieving groups with daemons")
+			}).Error("Error when retrieving groups")
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, groups)
 	}
-	return c.JSON(http.StatusOK, user.GroupsData)
+	groups, err := db.Groups().FindByUser(user)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Error when retrieving groups")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, groups)
 }
 
 // getByID find one by id
 func getByID(c echo.Context) error {
-
-	group := c.Get("group").(types.Group)
-	g, err := dao.GetGroupRestByID(group.ID.Hex())
-	if err != nil {
-		log.WithFields(log.Fields{
-			"group": group,
-			"error": err,
-		}).Error("Error when retrieving group")
-	}
-
-	return c.JSON(http.StatusOK, g)
+	return c.JSON(http.StatusOK, c.Get("group"))
 }
 
 // save a Group server
@@ -56,13 +54,15 @@ func save(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	user := c.Get("user").(types.UserRest)
+	user := c.Get("user").(types.User)
+	db := c.Get("DB").(*storage.Docktor)
 
 	if !user.IsAdmin() {
 		if !g.ID.Valid() {
 			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required")
 		}
-		group, err := dao.GetGroupByID(g.ID.Hex())
+
+		group, err := db.Groups().FindByIDBson(g.ID)
 		if err != nil {
 			log.WithFields(log.Fields{
 				"group": g,
@@ -70,12 +70,12 @@ func save(c echo.Context) error {
 			}).Error("Error when finding group")
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
-		if !group.IsAdmin(user.User) {
+		if !group.IsAdmin(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "Admin group permission required")
 		}
 	}
 
-	s, err := dao.CreateOrUpdateGroup(g, true)
+	g, err = db.Groups().Save(g)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": g,
@@ -83,12 +83,15 @@ func save(c echo.Context) error {
 		}).Error("Error when updating/creating group")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, g)
 }
 
 // deleteByID delete one by id
 func deleteByID(c echo.Context) error {
-	err := dao.DeleteGroup(c.Param(types.GROUP_ID_PARAM))
+	db := c.Get("DB").(*storage.Docktor)
+
+	group := c.Get("group").(types.Group)
+	err := db.Groups().Delete(group.ID.Hex())
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupID": c.Param(types.GROUP_ID_PARAM),
@@ -118,7 +121,8 @@ func updateUser(c echo.Context) error {
 		return errors.New("Invalid status parameter")
 	}
 
-	s, err := dao.CreateOrUpdateGroup(group, false)
+	db := c.Get("DB").(*storage.Docktor)
+	group, err := db.Groups().Save(group)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"group": group,
@@ -126,5 +130,5 @@ func updateUser(c echo.Context) error {
 		}).Error("Error when updating/creating group")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, s)
+	return c.JSON(http.StatusOK, group)
 }

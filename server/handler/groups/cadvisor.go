@@ -1,8 +1,8 @@
 package groups
 
 import (
-	"docktor/server/dao"
 	"docktor/server/handler/daemons"
+	"docktor/server/storage"
 	"docktor/server/types"
 	"docktor/server/utils"
 	"net/http"
@@ -17,7 +17,8 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
 
-	daemon, err := dao.GetDaemonByID(group.DaemonID.Hex())
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
@@ -51,6 +52,6 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 func getCAdvisorMachineInfo(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	c.SetParamNames(types.DAEMON_ID_PARAM)
-	c.SetParamValues(group.DaemonID.Hex())
+	c.SetParamValues(group.Daemon.Hex())
 	return daemons.GetCAdvisorMachineInfo(c)
 }

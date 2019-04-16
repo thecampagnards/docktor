@@ -34,8 +34,8 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
   };
 
   public componentWillMount() {
-    if (this.props.daemon.SSH.Commands) {
-      const commands = this.props.daemon.SSH.Commands.map(c => ({
+    if (this.props.daemon.ssh.commands) {
+      const commands = this.props.daemon.ssh.commands.map(c => ({
         command: c,
         data: "",
         error: Error(),

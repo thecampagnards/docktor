@@ -1,27 +1,23 @@
-import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { IService } from '../../Services/types/service';
-import { IUser } from '../../User/types/user';
+import { IContainer } from '../../Daemon/types/daemon';
 
 export interface IGroup {
   _id: string;
-  Name: string;
-  Description: string;
-  DaemonID: string;
-  Services: IServiceGroup[];
-  DaemonData: IDaemon;
-  Users: string[];
-  Admins: string[];
-  Containers: IContainer[];
-  MinPort: string;
-  MaxPort: string;
-  Subnet: string;
+  name: string;
+  description: string;
+  daemon_id?: string;
+  services: IServiceGroup[];
+  users: string[];
+  admins: string[];
 
-  UsersData: IUser[];
-  AdminsData: IUser[];
+  containers: IContainer[];
+  min_port: string;
+  max_port: string;
+  subnet: string;
 }
 
 export interface IServiceGroup {
   _id: string;
-  SubService: IService;
-  Variables: any;
+  variables?: any;
+  auto_update: boolean;
+  ports: number[];
 }

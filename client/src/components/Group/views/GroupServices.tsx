@@ -26,7 +26,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     const { group } = this.props;
-    group.Services.map(service => {
+    group.services.map(service => {
       fetchServiceBySubService(service._id)
         .then(s => {
           const services: IService[] = this.state.services;
@@ -50,7 +50,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
-    if (group.Services.length === 0) {
+    if (group.services.length === 0) {
       return (
         <Message info={true}>
           <Message.Header>There is no service in this group yet.</Message.Header>
