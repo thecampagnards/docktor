@@ -1,13 +1,9 @@
 package storage
 
 import (
-	"time"
-
 	"github.com/globalsign/mgo"
 	log "github.com/sirupsen/logrus"
 )
-
-const mongoTimeout = 10 * time.Second
 
 // Session stores mongo session
 var session *mgo.Session
@@ -57,11 +53,8 @@ type appContext struct {
 
 // Connect connects to mongodb
 func Connect(mongoURL string) {
-	log.WithField("mongoURL", mongoURL).WithField("timeout", mongoTimeout).Info("Connecting to Mongo cluster...")
-	s, err := mgo.DialWithInfo(&mgo.DialInfo{
-		Addrs:   []string{mongoURL},
-		Timeout: mongoTimeout,
-	})
+	log.WithField("mongoURL", mongoURL).Info("Connecting to Mongo cluster...")
+	s, err := mgo.Dial(mongoURL)
 
 	if err != nil {
 		log.WithError(err).Fatal("Can't connect to mongo")
