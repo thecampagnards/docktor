@@ -66,7 +66,7 @@ func getSSHTerm(c echo.Context) error {
 		client, session, err := daemon.GetSSHSession()
 		if err != nil {
 			log.WithFields(log.Fields{
-				"daemon": daemon,
+				"daemon": daemon.Name,
 				"error":  err,
 			}).Error("Error when retrieving ssh session")
 			return
@@ -79,7 +79,7 @@ func getSSHTerm(c echo.Context) error {
 
 		if err := session.RequestPty("xterm", 40, 80, modes); err != nil {
 			log.WithFields(log.Fields{
-				"daemon": daemon,
+				"daemon": daemon.Name,
 				"error":  err,
 			}).Error("Error request for pseudo terminal failed")
 			return
@@ -91,7 +91,7 @@ func getSSHTerm(c echo.Context) error {
 
 		if err := session.Shell(); err != nil {
 			log.WithFields(log.Fields{
-				"daemon": daemon,
+				"daemon": daemon.Name,
 				"error":  err,
 			}).Error("Error when opening shell session")
 			return
@@ -123,7 +123,7 @@ func getSSHTerm(c echo.Context) error {
 			}); ok {
 				if err := conn.CloseWrite(); err != nil {
 					log.WithFields(log.Fields{
-						"daemon": daemon,
+						"daemon": daemon.Name,
 						"error":  err,
 					}).Error("Error when closing shell session")
 				}
@@ -135,7 +135,7 @@ func getSSHTerm(c echo.Context) error {
 		var receiveStdout chan error
 		if err := <-receiveStdout; err != nil {
 			log.WithFields(log.Fields{
-				"daemon": daemon,
+				"daemon": daemon.Name,
 				"error":  err,
 			}).Error("Error in shell session")
 		}
