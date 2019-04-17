@@ -1,14 +1,23 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import * as _ from "lodash";
+import * as React from "react";
+import { Link } from "react-router-dom";
 import {
-    Button, ButtonProps, Grid, Icon, IconProps, Loader, Message, Search, SearchProps,
-    SemanticShorthandItem, Table
-} from 'semantic-ui-react';
+  Button,
+  ButtonProps,
+  Grid,
+  Icon,
+  IconProps,
+  Loader,
+  Message,
+  Search,
+  SearchProps,
+  SemanticShorthandItem,
+  Table
+} from "semantic-ui-react";
 
-import { path } from '../../../constants/path';
-import { fetchDaemons } from '../actions/daemon';
-import { dockerStatus, IDaemon } from '../types/daemon';
+import { path } from "../../../constants/path";
+import { fetchDaemons } from "../actions/daemon";
+import { dockerStatus, IDaemon } from "../types/daemon";
 
 interface IDaemonsStates {
   daemons: IDaemon[];
@@ -97,8 +106,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     // filter by status
     if (statusFilter.length > 0) {
-      daemonsFiltered = daemonsFiltered.filter(
-        d => statusFilter.includes(d.docker.status)
+      daemonsFiltered = daemonsFiltered.filter(d =>
+        statusFilter.includes(d.docker.status)
       );
     }
 
@@ -113,58 +122,67 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     return (
       <>
         <Grid>
-          <Grid.Column width={2}>
-            <h2>Daemons</h2>
-          </Grid.Column>
-          <Grid.Column width={3}>
-            <Search
-              size="tiny"
-              placeholder="Search daemons..."
-              showNoResults={false}
-              onSearchChange={this.filterAddSearchField}
-            />
-          </Grid.Column>
-          <Grid.Column width={3}>
-            {["OK", "CERT", "DOWN", "OLD", ""].map(status => {
-              return (
-                <Button
-                  compact={true}
-                  icon={true}
-                  key={status}
-                  toggle={true}
-                  onClick={this.filterAddStatus}
-                  value={status}
-                  color={statusFilter.includes(status as dockerStatus) ? "grey" : undefined}
-                >
-                  {this.getDockerStatus(status as dockerStatus)}
-                </Button>
-              )
-            })}
-          </Grid.Column>
-          <Grid.Column width={5}>
-            {tags.map(tag => (
+          <Grid.Row>
+            <Grid.Column width={2}>
+              <h2>Daemons</h2>
+            </Grid.Column>
+            <Grid.Column width={4}>
+              <Search
+                size="tiny"
+                placeholder="Search daemons..."
+                showNoResults={false}
+                onSearchChange={this.filterAddSearchField}
+              />
+            </Grid.Column>
+            <Grid.Column width={3}>
+              {["OK", "CERT", "DOWN", "OLD", ""].map(status => {
+                return (
+                  <Button
+                    compact={true}
+                    icon={true}
+                    key={status}
+                    toggle={true}
+                    onClick={this.filterAddStatus}
+                    value={status}
+                    color={
+                      statusFilter.includes(status as dockerStatus)
+                        ? "grey"
+                        : undefined
+                    }
+                  >
+                    {this.getDockerStatus(status as dockerStatus)}
+                  </Button>
+                );
+              })}
+            </Grid.Column>
+            <Grid.Column width={3} floated="right">
               <Button
-                key={tag}
-                compact={true}
-                toggle={true}
-                active={tagsFilter.indexOf(tag) > -1}
-                onClick={this.filterAddTags}
-                value={tag}
-              >
-                {tag}
-              </Button>
-            ))}
-          </Grid.Column>
-          <Grid.Column width={3}>
-            <Button
-              primary={true}
-              floated="right"
-              as={Link}
-              to={path.daemonsNew}
-            >
-              Add daemon
-            </Button>
-          </Grid.Column>
+                primary={true}
+                floated="right"
+                as={Link}
+                to={path.daemonsNew}
+                labelPosition="left"
+                icon="plus"
+                content="Add daemon"
+              />
+            </Grid.Column>
+          </Grid.Row>
+          <Grid.Row>
+            <Grid.Column>
+              {tags.map(tag => (
+                <Button
+                  key={tag}
+                  compact={true}
+                  toggle={true}
+                  active={tagsFilter.indexOf(tag) > -1}
+                  onClick={this.filterAddTags}
+                  value={tag}
+                >
+                  {tag}
+                </Button>
+              ))}
+            </Grid.Column>
+          </Grid.Row>
         </Grid>
         <Table celled={true}>
           <Table.Header>
@@ -231,20 +249,44 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
-  private getDockerStatus = (status: dockerStatus) : SemanticShorthandItem<IconProps> => {
+  private getDockerStatus = (
+    status: dockerStatus
+  ): SemanticShorthandItem<IconProps> => {
     switch (status) {
       case "OK":
-        return <Icon color="green" name="check circle" title="Daemon is up and running" />
+        return (
+          <Icon
+            color="green"
+            name="check circle"
+            title="Daemon is up and running"
+          />
+        );
       case "CERT":
-        return <Icon color="yellow" name="check circle outline" title="Daemon certs are or will be outdated soon" />
+        return (
+          <Icon
+            color="yellow"
+            name="check circle outline"
+            title="Daemon certs are or will be outdated soon"
+          />
+        );
       case "OLD":
-        return <Icon color="red" name="warning sign" title="Daemon's Docker version < 18" />
+        return (
+          <Icon
+            color="red"
+            name="warning sign"
+            title="Daemon's Docker version < 18"
+          />
+        );
       case "":
-        return <Icon color="black" name="question circle" title="No status info" />
+        return (
+          <Icon color="black" name="question circle" title="No status info" />
+        );
       default:
-        return <Icon color="red" name="close" title="Daemon is down/unreachable" />
+        return (
+          <Icon color="red" name="close" title="Daemon is down/unreachable" />
+        );
     }
-  }
+  };
 
   private filterAddSearchField = (
     event: React.SyntheticEvent,
