@@ -27,13 +27,13 @@ func getContainers(c echo.Context) error {
 	}
 
 	log.WithFields(log.Fields{
-		"daemon": daemon,
+		"daemon": daemon.Name,
 	}).Info("Daemon retrieved")
 
 	cs, err := daemon.GetContainers()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"error":  err,
 		}).Error("Error when retrieving daemon conatiners")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -72,7 +72,7 @@ func UpdateContainersStatus(c echo.Context) error {
 		err = daemon.RemoveContainers(containers...)
 	default:
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"status": c.QueryParam("status"),
 			"error":  "Wrong status",
 		}).Error("Error when retrieving daemon")
@@ -81,7 +81,7 @@ func UpdateContainersStatus(c echo.Context) error {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemon":     daemon,
+			"daemon":     daemon.Name,
 			"status":     c.QueryParam("status"),
 			"containers": containers,
 			"error":      err,
@@ -110,7 +110,7 @@ func GetContainerLog(c echo.Context) error {
 		reader, err := daemon.GetContainerLogFollow(c.Param(types.CONTAINER_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
-				"daemon":      daemon,
+				"daemon":      daemon.Name,
 				"containerID": c.Param(types.CONTAINER_ID_PARAM),
 				"error":       err,
 			}).Error("Error when retrieving logs socket")
@@ -127,7 +127,7 @@ func GetContainerLog(c echo.Context) error {
 			_, err := reader.Read(hdr)
 			if err != nil && err != io.EOF {
 				log.WithFields(log.Fields{
-					"daemon": daemon,
+					"daemon": daemon.Name,
 					"error":  err,
 				}).Error("Error when reading 8 first bytes")
 			}
@@ -137,7 +137,7 @@ func GetContainerLog(c echo.Context) error {
 			_, err = reader.Read(dat)
 			if err != nil {
 				log.WithFields(log.Fields{
-					"daemon": daemon,
+					"daemon": daemon.Name,
 					"error":  err,
 				}).Error("Error when reading")
 				break
@@ -169,13 +169,13 @@ func GetContainerTerm(c echo.Context) error {
 		}
 
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 		}).Info("Daemon retrieved")
 
 		hij, err := daemon.GetContainerTerm(c.Param(types.CONTAINER_ID_PARAM))
 		if err != nil {
 			log.WithFields(log.Fields{
-				"daemon":      daemon,
+				"daemon":      daemon.Name,
 				"containerID": c.Param(types.CONTAINER_ID_PARAM),
 				"error":       err,
 			}).Error("Error when retrieving container term socket")
@@ -207,7 +207,7 @@ func GetContainerTerm(c echo.Context) error {
 				log.Info("Close the connection")
 				if err := conn.CloseWrite(); err != nil {
 					log.WithFields(log.Fields{
-						"daemon": daemon,
+						"daemon": daemon.Name,
 						"error":  err,
 					}).Error("Error when closing container term socket")
 				}
@@ -221,7 +221,7 @@ func GetContainerTerm(c echo.Context) error {
 		var receiveStdout chan error
 		if err := <-receiveStdout; err != nil {
 			log.WithFields(log.Fields{
-				"daemon": daemon,
+				"daemon": daemon.Name,
 				"error":  err,
 			}).Error("Error in container term")
 		}

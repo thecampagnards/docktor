@@ -81,9 +81,10 @@ class Services extends React.Component<{}, IServicesStates> {
               floated="right"
               as={Link}
               to={path.servicesNew}
-            >
-              Add service
-            </Button>
+              labelPosition="left"
+              icon="plus"
+              content="Add service"
+            />
           </Grid.Column>
         </Grid>
         <Table celled={true}>
@@ -100,25 +101,23 @@ class Services extends React.Component<{}, IServicesStates> {
               <Table.Row key={service._id}>
                 <Table.Cell width={2}>
                   {service.image ? (
-                    <Image
-                      size="small"
-                      src={service.image}
-                    />
+                    <Image size="small" src={service.image} />
                   ) : (
                     "No image"
                   )}
                 </Table.Cell>
                 <Table.Cell width={2}>{service.name}</Table.Cell>
                 <Table.Cell width={8}>
-                  {service.sub_services && service.sub_services.map((version: ISubService, key) => {
-                    return (
-                      version.active && (
-                        <Label key={`${service._id}-${key}`}>
-                          {version.name}
-                        </Label>
-                      )
-                    );
-                  })}
+                  {service.sub_services &&
+                    service.sub_services.map((version: ISubService, key) => {
+                      return (
+                        version.active && (
+                          <Label key={`${service._id}-${key}`}>
+                            {version.name}
+                          </Label>
+                        )
+                      );
+                    })}
                 </Table.Cell>
                 <Table.Cell width={4}>
                   <Button.Group>

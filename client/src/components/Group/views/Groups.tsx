@@ -25,8 +25,8 @@ interface IGroupsStates {
   isFetching: boolean;
   error: Error;
 
-  searchFilter: string
-  searchDaemonID: string
+  searchFilter: string;
+  searchDaemonID: string;
 }
 
 class Groups extends React.Component<IGroupsProps, IGroupsStates> {
@@ -37,7 +37,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     error: Error(),
 
     searchFilter: "",
-    searchDaemonID: "",
+    searchDaemonID: ""
   };
 
   private displayAll: boolean = false;
@@ -47,12 +47,18 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
 
-      fetchDaemons()
-      .then(daemons => this.setState({ daemons }))
+    fetchDaemons().then(daemons => this.setState({ daemons }));
   }
 
   public render() {
-    const { daemons, groups, error, isFetching, searchDaemonID, searchFilter } = this.state;
+    const {
+      daemons,
+      groups,
+      error,
+      isFetching,
+      searchDaemonID,
+      searchFilter
+    } = this.state;
     const { username, isAdmin } = this.props;
 
     if (error.message) {
@@ -76,11 +82,13 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       );
     }
 
-    const groupsFiltered = groups ? groups.filter(
-      group =>
-        group.name.toLowerCase().includes(searchFilter.toLowerCase()) &&
-        (searchDaemonID === "" || searchDaemonID === group.daemon_id)
-    ) : [];
+    const groupsFiltered = groups
+      ? groups.filter(
+          group =>
+            group.name.toLowerCase().includes(searchFilter.toLowerCase()) &&
+            (searchDaemonID === "" || searchDaemonID === group.daemon_id)
+        )
+      : [];
 
     return (
       <>
@@ -106,7 +114,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               name="searchDaemonID"
               placeholder="Select daemon"
               options={daemons.map(d => {
-                return { text: d.name, value: d._id }
+                return { text: d.name, value: d._id };
               })}
               onChange={this.filter}
             />
@@ -120,16 +128,17 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             />
           </Grid.Column>
           <Grid.Column width={3}>
-            {isAdmin &&
-            <Button
-              primary={true}
-              floated="right"
-              as={Link}
-              to={path.groupsNew}
-            >
-              Create group
-            </Button>
-            }
+            {isAdmin && (
+              <Button
+                primary={true}
+                floated="right"
+                as={Link}
+                to={path.groupsNew}
+                icon="plus"
+                content="Create group"
+                labelPosition="left"
+              />
+            )}
           </Grid.Column>
         </Grid>
         <Grid>
@@ -154,9 +163,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
   ) => {
     this.displayAll = checked as boolean;
     fetchGroups(this.displayAll)
-      .then(groups =>
-        this.setState({ groups, isFetching: false })
-      )
+      .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
   };
 
@@ -164,8 +171,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     event: React.SyntheticEvent,
     { value, name }: SearchProps | DropdownProps
   ) => {
-    this.state[name] = value as string
-    this.setState(this.state)
+    this.state[name] = value as string;
+    this.setState(this.state);
   };
 }
 

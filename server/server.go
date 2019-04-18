@@ -121,8 +121,7 @@ func main() {
 
 	auth := e.Group("/api/auth")
 	auth.Use(customMiddleware.LDAP(ldapAuthConfig, ldapSearchConfig))
-	auth.Use(customMiddleware.JWT(jwtSecret))
-	users.AddAuthRoute(auth)
+	users.AddAuthRoute(auth, jwtSecret)
 
 	api := e.Group("/api")
 	api.Use(middleware.JWTWithConfig(middleware.JWTConfig{
