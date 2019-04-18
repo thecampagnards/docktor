@@ -541,12 +541,12 @@
   version = "v1.3"
 
 [[projects]]
-  digest = "1:2a792dde3ae5dc95000d4dee312523504ea875b097a2b119a2f55d1d1d32ed61"
+  digest = "1:e9a0fa7c2dfc90e0fae16be5825ad98074d8704f5fcebfdc289a8e8fb0f8e4b5"
   name = "gopkg.in/ldap.v3"
   packages = ["."]
   pruneopts = "UT"
-  revision = "729c20c2694d870bcd631f0dadaecd088bd7ccbc"
-  version = "v3.0.2"
+  revision = "9f0d712775a0973b7824a1585a86a4ea1d5263d9"
+  version = "v3.0.3"
 
 [[projects]]
   digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
