@@ -38,9 +38,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 
     return (
       <>
-        {message.header && (
-          <Message className="banner" {...message} />
-        )}
+        {message.header && <Message className="banner" {...message} />}
 
         <KonamiCode />
         <Menu size="tiny">
@@ -79,6 +77,10 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                     <Icon name="users" /> Users
                   </Menu.Item>
 
+                  <Menu.Item as={Link} to={path.commands} name="commands">
+                    <Icon name="terminal" /> Commands
+                  </Menu.Item>
+
                   <Menu.Item as={Link} to={path.admin} name="admin">
                     <Icon name="cogs" /> Admin
                   </Menu.Item>
@@ -87,9 +89,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
             </>
           )}
           <Menu.Menu position="right">
-            {isAuthenticated && (
-              <Menu.Item>{username}</Menu.Item>
-            )}
+            {isAuthenticated && <Menu.Item>{username}</Menu.Item>}
             <Menu.Item>
               <Button
                 animated="vertical"
@@ -104,7 +104,6 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
-              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"

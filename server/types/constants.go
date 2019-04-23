@@ -40,6 +40,9 @@ const (
 	STATUS_DOWN = "DOWN"
 	STATUS_OLD  = "OLD"
 	STATUS_CERT = "CERT"
+
+	// Commands
+	COMMAND_IMAGE_PARAM = "image"
 )
 
 var (

@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"fmt"
+	"net"
 
 	"golang.org/x/crypto/ssh"
 )
@@ -19,8 +20,36 @@ func (d *Daemon) GetSSHSession() (*ssh.Client, *ssh.Session, error) {
 		Auth: []ssh.AuthMethod{
 			ssh.Password(d.SSH.Password),
 		},
-		HostKeyCallback: ssh.InsecureIgnoreHostKey(),
+		HostKeyAlgorithms: []string{
+			ssh.KeyAlgoRSA,
+			ssh.KeyAlgoDSA,
+			ssh.KeyAlgoECDSA256,
+			ssh.KeyAlgoECDSA384,
+			ssh.KeyAlgoECDSA521,
+			ssh.KeyAlgoED25519,
+		},
+		HostKeyCallback: func(hostname string, remote net.Addr, key ssh.PublicKey) error {
+			fmt.Println(hostname)
+			fmt.Println(key)
+			return nil
+		},
+		BannerCallback: func(banner string) error {
+			fmt.Println(banner)
+			return nil
+
+		},
+		// HostKeyCallback: ssh.InsecureIgnoreHostKey(),
 	}
+
+	// Use IP for SSH due to resolv problems
+	ip, _ := net.LookupIP(d.Host)
+	if len(ip) > 0 {
+		d.Host = ip[0].String()
+	}
+
+	fmt.Println()
+	fmt.Printf("%s:%v", d.Host, d.SSH.Port)
+	fmt.Println()
 
 	client, err := ssh.Dial("tcp", fmt.Sprintf("%s:%v", d.Host, d.SSH.Port), config)
 	if err != nil {
