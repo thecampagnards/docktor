@@ -104,6 +104,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
+              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
