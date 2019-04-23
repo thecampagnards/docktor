@@ -6,7 +6,7 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import Admin from './components/Admin/views/Admin';
-import Commands from './components/Command/views/Commands';
+import Images from './components/Images/views/Images';
 import DaemonForm from './components/Daemon/views/DaemonForm';
 import DaemonIndex from './components/Daemon/views/DaemonIndex';
 import Daemons from './components/Daemon/views/Daemons';
@@ -49,8 +49,8 @@ ReactDOM.render(
           />
           <Route
             exact={true}
-            path={path.commands}
-            component={UserIsAdmin(Commands)}
+            path={path.images}
+            component={UserIsAdmin(Images)}
           />
           <Route
             exact={true}
