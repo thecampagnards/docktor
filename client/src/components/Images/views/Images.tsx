@@ -5,10 +5,10 @@ import {
     Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
 } from 'semantic-ui-react';
 
-import { fetchCommands, saveCommands } from '../actions/command';
-import { ICommand } from '../types/command';
+import { fetchCommands, saveCommands } from '../actions/images';
+import { ICommand } from '../types/images';
 
-interface ICommandsStates {
+interface IImagesStates {
   commands: ICommand[];
   isFetching: boolean;
   isSuccess: boolean;
@@ -17,7 +17,7 @@ interface ICommandsStates {
   commandKey: number;
 }
 
-class Commands extends React.Component<{}, ICommandsStates> {
+class Images extends React.Component<{}, IImagesStates> {
   public state = {
     commands: [] as ICommand[],
     isFetching: false,
@@ -211,4 +211,4 @@ class Commands extends React.Component<{}, ICommandsStates> {
   };
 }
 
-export default Commands;
+export default Images;

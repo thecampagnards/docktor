@@ -1,6 +1,6 @@
 import { checkStatus } from '../../../utils/promises';
 import { GetToken } from '../../User/actions/user';
-import { ICommand } from '../types/command';
+import { ICommand } from '../types/images';
 
 export const fetchCommands = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/commands`, {

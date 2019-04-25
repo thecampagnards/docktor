@@ -1,7 +1,7 @@
 export const path = {
   home: "/",
   admin: "/admin",
-  commands: "/commands",
+  images: "/images",
   market: "/market",
 
   groups: "/groups",

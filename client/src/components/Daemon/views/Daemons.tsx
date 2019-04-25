@@ -24,9 +24,11 @@ interface IDaemonsStates {
   isFetching: boolean;
   error: Error;
 
-  tagsFilter: string[];
-  statusFilter: dockerStatus[];
-  searchField: string;
+  filter: {
+    tags: string[];
+    status: dockerStatus[];
+    search: string;
+  }
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
@@ -35,12 +37,19 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     isFetching: false,
     error: Error(),
 
-    tagsFilter: [] as string[],
-    statusFilter: ["OK", "DOWN", "", "CERT"] as dockerStatus[],
-    searchField: ""
+    filter: {
+      tags: [] as string[],
+      status: [] as dockerStatus[],
+      search: ""
+    }
   };
 
   public componentWillMount() {
+    const localFilters = localStorage.getItem('daemonFilters');
+    if (localFilters) {
+      this.setState({ filter: JSON.parse(localFilters) });
+    }
+
     fetchDaemons()
       .then(daemons => {
         this.setState({ daemons });
@@ -49,15 +58,16 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       .finally(() => this.setState({ isFetching: false }));
   }
 
+  public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates){
+    localStorage.setItem('daemonFilters', JSON.stringify(nextState.filter));
+  }
+
   public render() {
     const {
       daemons,
       error,
       isFetching,
-
-      tagsFilter,
-      statusFilter,
-      searchField
+      filter
     } = this.state;
 
     if (!daemons) {
@@ -94,20 +104,20 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     // Filter by search text
     let daemonsFiltered = daemons.filter(daemon =>
-      daemon.name.toLowerCase().includes(searchField.toLowerCase())
+      daemon.name.toLowerCase().includes(filter.search.toLowerCase())
     );
 
     // filter by tags
-    if (tagsFilter.length > 0) {
+    if (filter.tags.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(
-        d => _.intersectionWith(d.tags, tagsFilter, _.isEqual).length !== 0
+        d => _.intersectionWith(d.tags, filter.tags, _.isEqual).length !== 0
       );
     }
 
     // filter by status
-    if (statusFilter.length > 0) {
+    if (filter.status.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(d =>
-        statusFilter.includes(d.docker.status)
+        filter.status.includes(d.docker.status)
       );
     }
 
@@ -145,7 +155,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     onClick={this.filterAddStatus}
                     value={status}
                     color={
-                      statusFilter.includes(status as dockerStatus)
+                      filter.status.includes(status as dockerStatus)
                         ? "grey"
                         : undefined
                     }
@@ -174,7 +184,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                   key={tag}
                   compact={true}
                   toggle={true}
-                  active={tagsFilter.indexOf(tag) > -1}
+                  active={filter.tags.indexOf(tag) > -1}
                   onClick={this.filterAddTags}
                   value={tag}
                 >
@@ -292,27 +302,29 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     event: React.SyntheticEvent,
     { value }: SearchProps
   ) => {
-    this.setState({ searchField: value as string });
+    const { filter } = this.state
+    filter.search = value as string
+    this.setState({ filter });
   };
 
   private filterAddTags = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     { value }: ButtonProps
   ) => {
-    const { tagsFilter } = this.state;
-    const index = tagsFilter.indexOf(value);
-    index === -1 ? tagsFilter.push(value) : tagsFilter.splice(index, 1);
-    this.setState({ tagsFilter });
+    const { filter } = this.state;
+    const index = filter.tags.indexOf(value);
+    index === -1 ? filter.tags.push(value) : filter.tags.splice(index, 1);
+    this.setState({ filter });
   };
 
   private filterAddStatus = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     { value }: ButtonProps
   ) => {
-    const { statusFilter } = this.state;
-    const index = statusFilter.indexOf(value);
-    index === -1 ? statusFilter.push(value) : statusFilter.splice(index, 1);
-    this.setState({ statusFilter });
+    const { filter } = this.state;
+    const index = filter.status.indexOf(value);
+    index === -1 ? filter.status.push(value) : filter.status.splice(index, 1);
+    this.setState({ filter });
   };
 }
 
