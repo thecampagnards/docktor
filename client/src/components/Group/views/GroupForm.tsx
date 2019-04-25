@@ -1,12 +1,12 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
-import { Button, Form, Message } from 'semantic-ui-react';
+import * as _ from "lodash";
+import * as React from "react";
+import { IInstance, UnControlled as CodeMirror } from "react-codemirror2";
+import { Button, Form, Message } from "semantic-ui-react";
 
-import { fetchDaemons } from '../../Daemon/actions/daemon';
-import { IDaemon } from '../../Daemon/types/daemon';
-import { saveGroup } from '../actions/group';
-import { IGroup } from '../types/group';
+import { fetchDaemons } from "../../Daemon/actions/daemon";
+import { IDaemon } from "../../Daemon/types/daemon";
+import { saveGroup } from "../actions/group";
+import { IGroup } from "../types/group";
 
 interface IGroupProps {
   group: IGroup;
@@ -30,7 +30,9 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     fetchDaemons().then((daemons: IDaemon[]) => this.setState({ daemons }));
-    this.setState({ group: this.props.group ? this.props.group : {} as IGroup });
+    this.setState({
+      group: this.props.group ? this.props.group : ({} as IGroup)
+    });
   }
 
   public render() {
@@ -39,7 +41,11 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     return (
       <>
         {!group._id && <h1>Create new group</h1>}
-        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
+        <Form
+          success={isSuccess}
+          error={!!error.message}
+          onSubmit={this.submit}
+        >
           <Form.Input
             label="Name"
             name="name"
@@ -72,10 +78,10 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             onChange={this.handleChange}
             required={true}
           />
-          <Form.Group widths='equal'>
+          <Form.Group widths="equal">
             <Form.Input
               label="Docker MinPort"
-              name="MinPort"
+              name="min_port"
               type="number"
               value={group.min_port}
               onChange={this.handleChange}
@@ -83,7 +89,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             />
             <Form.Input
               label="Docker MaxPort"
-              name="MaxPort"
+              name="max_port"
               type="number"
               value={group.max_port}
               onChange={this.handleChange}
@@ -92,7 +98,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           </Form.Group>
           <Form.Input
             label="Docker Subnet"
-            name="Subnet"
+            name="subnet"
             type="string"
             pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
             value={group.subnet}
@@ -119,7 +125,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   ) => {
     const group = this.state.group;
     if (type === "number") {
-      value = parseInt(value, undefined)
+      value = parseInt(value, undefined);
     }
     this.setState({ group: _.set(group, name, value) });
   };

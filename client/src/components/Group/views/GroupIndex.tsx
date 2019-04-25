@@ -108,7 +108,9 @@ class GroupIndex extends React.Component<
         menuItem: "Containers",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-            {group._id && <GroupContainers group={group} admin={admin} daemon={daemon}/>}
+            {group._id && (
+              <GroupContainers group={group} admin={admin} daemon={daemon} />
+            )}
           </Tab.Pane>
         )
       },
@@ -116,7 +118,13 @@ class GroupIndex extends React.Component<
         menuItem: "Members",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            {group._id && <GroupMembers group={group} admin={admin} refresh={this.refreshGroup} />}
+            {group._id && (
+              <GroupMembers
+                group={group}
+                admin={admin}
+                refresh={this.refreshGroup}
+              />
+            )}
           </Tab.Pane>
         )
       },
@@ -135,10 +143,10 @@ class GroupIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={5}>
-            {group._id && <GroupForm group={group}/>}
+            {group._id && <GroupForm group={group} />}
           </Tab.Pane>
         )
-      })
+      });
     }
 
     return (
@@ -193,12 +201,17 @@ class GroupIndex extends React.Component<
     const { groupID } = this.props.match.params;
     fetchGroup(groupID)
       .then((group: IGroup) => {
-        fetchDaemons()
-        .then((daemons: IDaemon[]) => this.setState({ daemons, daemon: daemons.find(d => d._id === this.state.group.daemon_id) as IDaemon }))
-        this.setState({ group, isFetching: false })
+        this.setState({ group });
+        fetchDaemons().then((daemons: IDaemon[]) =>
+          this.setState({
+            daemons,
+            daemon: daemons.find(d => d._id === group.daemon_id) as IDaemon
+          })
+        );
       })
-      .catch((error: Error) => this.setState({ error, isFetching: false }));
-  }
+      .catch((error: Error) => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  };
 }
 
 const mapStateToProps = (state: IStoreState) => {

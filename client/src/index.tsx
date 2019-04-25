@@ -6,7 +6,6 @@ import { Provider } from 'react-redux';
 import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
 
 import Admin from './components/Admin/views/Admin';
-import Commands from './components/Command/views/Commands';
 import DaemonForm from './components/Daemon/views/DaemonForm';
 import DaemonIndex from './components/Daemon/views/DaemonIndex';
 import Daemons from './components/Daemon/views/Daemons';
@@ -14,6 +13,7 @@ import GroupForm from './components/Group/views/GroupForm';
 import GroupIndex from './components/Group/views/GroupIndex';
 import Groups from './components/Group/views/Groups';
 import Home from './components/Home/views/Home';
+import Images from './components/Images/views/Images';
 import Layout from './components/layout/layout';
 import Market from './components/Market/views/Market';
 import Service from './components/Services/views/Service';
@@ -49,8 +49,8 @@ ReactDOM.render(
           />
           <Route
             exact={true}
-            path={path.commands}
-            component={UserIsAdmin(Commands)}
+            path={path.images}
+            component={UserIsAdmin(Images)}
           />
           <Route
             exact={true}

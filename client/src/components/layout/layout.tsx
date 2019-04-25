@@ -77,8 +77,8 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                     <Icon name="users" /> Users
                   </Menu.Item>
 
-                  <Menu.Item as={Link} to={path.commands} name="commands">
-                    <Icon name="terminal" /> Commands
+                  <Menu.Item as={Link} to={path.images} name="Images">
+                    <Icon name="docker" /> Images
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.admin} name="admin">

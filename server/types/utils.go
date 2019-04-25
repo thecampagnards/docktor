@@ -1,8 +1,11 @@
 package types
 
 import (
+	"bytes"
+	"html/template"
 	"io/ioutil"
 	"os"
+	"regexp"
 )
 
 // WriteStringToFile
@@ -37,4 +40,42 @@ func Remove(array []string, value string) []string {
 		}
 	}
 	return array
+}
+
+// FindTemplateVariables retrieve the variables of a go template
+func FindTemplateVariables(tpmlt string, defaultVariables map[string]interface{}) (variables []string, err error) {
+
+	if defaultVariables == nil {
+		defaultVariables = make(map[string]interface{})
+	}
+
+	// Convert it and enable missingkey to find the missing variables
+	tmpl, err := template.New("template").
+		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Option("missingkey=error").
+		Parse(tpmlt)
+	if err != nil {
+		return
+	}
+
+	r, _ := regexp.Compile(`map has no entry for key "(.*?)"`)
+
+	var b bytes.Buffer
+	for {
+		err = tmpl.Execute(&b, defaultVariables)
+		if err != nil {
+			if len(r.FindStringIndex(err.Error())) > 0 {
+				variable := r.FindStringSubmatch(err.Error())[1]
+				defaultVariables[variable] = "<no value>"
+				variables = append(variables, variable)
+				b.Reset()
+			} else {
+				return nil, err
+			}
+		} else {
+			break
+		}
+	}
+
+	return variables, nil
 }

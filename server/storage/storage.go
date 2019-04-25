@@ -22,7 +22,7 @@ type Client interface {
 	Groups() GroupsRepo
 	Services() ServicesRepo
 	Users() UsersRepo
-	Commands() CommandsRepo
+	Images() ImagesRepo
 	Close()
 }
 
@@ -46,7 +46,7 @@ type Docktor struct {
 	groups   GroupsRepo
 	services ServicesRepo
 	users    UsersRepo
-	commands CommandsRepo
+	images   ImagesRepo
 }
 
 type appContext struct {
@@ -81,7 +81,7 @@ func Get() (Client, error) {
 		groups:   NewGroupsRepo(context.db.C("groups")),
 		services: NewServicesRepo(context.db.C("services")),
 		users:    NewUsersRepo(context.db.C("users")),
-		commands: NewCommandsRepo(context.db.C("commands")),
+		images:   NewImagesRepo(context.db.C("images")),
 		session:  s,
 	}, nil
 }
@@ -116,9 +116,9 @@ func (dock *Docktor) Users() UsersRepo {
 	return dock.users
 }
 
-// Commands is the entrypoint for Commands API
-func (dock *Docktor) Commands() CommandsRepo {
-	return dock.commands
+// Images is the entrypoint for Images API
+func (dock *Docktor) Images() ImagesRepo {
+	return dock.images
 }
 
 // Collections returns all available collections in Docktor
@@ -129,6 +129,6 @@ func (dock *Docktor) Collections() []IsCollection {
 		dock.groups,
 		dock.services,
 		dock.users,
-		dock.commands,
+		dock.images,
 	}
 }
