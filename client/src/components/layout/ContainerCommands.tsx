@@ -1,12 +1,20 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { Button, Form, Header, InputOnChangeData, List, Loader, Message } from 'semantic-ui-react';
+import * as _ from "lodash";
+import * as React from "react";
+import {
+  Button,
+  Form,
+  Header,
+  InputOnChangeData,
+  List,
+  Loader,
+  Message
+} from "semantic-ui-react";
 
-import { execDockerCommand } from '../Daemon/actions/daemon';
-import { IDaemon } from '../Daemon/types/daemon';
-import { IGroup } from '../Group/types/group';
-import { fetchImage } from '../Images/actions/image';
-import { IImage } from '../Images/types/image';
+import { execDockerCommand } from "../Daemon/actions/daemon";
+import { IDaemon } from "../Daemon/types/daemon";
+import { IGroup } from "../Group/types/group";
+import { fetchImage } from "../Images/actions/image";
+import { IImage } from "../Images/types/image";
 
 interface IContainerCommandsProps {
   daemon?: IDaemon;

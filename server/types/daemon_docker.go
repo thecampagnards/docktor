@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"regexp"
@@ -288,6 +289,46 @@ func (d *Daemon) RemoveContainers(containersName ...string) (err error) {
 	}
 
 	return
+}
+
+// ExecContainer run commands on container
+func (d *Daemon) ExecContainer(containerName string, commands []string) ([]byte, error) {
+
+	cli, err := d.getDockerCli()
+	if err != nil {
+		return nil, err
+	}
+
+	defer cli.Close()
+
+	exec, err := cli.ContainerExecCreate(context.Background(), containerName, types.ExecConfig{
+		AttachStdin:  true,
+		AttachStdout: true,
+		AttachStderr: true,
+		Tty:          true,
+		Cmd:          []string{"/bin/sh"},
+	})
+
+	if err != nil {
+		return nil, err
+	}
+
+	if exec.ID == "" {
+		return nil, errors.New("exec ID empty")
+	}
+
+	res, err := cli.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{Detach: false, Tty: true})
+	if err != nil {
+		return nil, err
+	}
+	defer res.Close()
+
+	for _, command := range commands {
+		io.WriteString(res.Conn, command+"\n")
+	}
+	io.WriteString(res.Conn, "exit\n")
+
+	return ioutil.ReadAll(res.Reader)
 }
 
 // GetContainerLog
