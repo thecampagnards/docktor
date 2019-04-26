@@ -161,13 +161,42 @@ export const execCommand = (daemon: IDaemon, commands: string[]) => {
 };
 
 export const checkDaemonStatus = (daemonID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/status`, {
-    credentials: "same-origin",
-    method: "GET",
-    headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
-  })
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/status`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
+export const execDockerCommand = (
+  daemonID: string,
+  image: string,
+  command: string,
+  variable: any
+) => {
+  return fetch(
+    `${
+      process.env.PUBLIC_URL
+    }/api/daemons/${daemonID}/exec/${encodeURIComponent(
+      image
+    )}/${encodeURIComponent(command)}`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      headers: new Headers({
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${GetToken()}`
+      }),
+      body: JSON.stringify(variable)
+    }
+  )
     .then(checkStatus)
     .then((response: Response) => response.json());
 };

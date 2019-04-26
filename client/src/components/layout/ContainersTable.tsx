@@ -6,6 +6,7 @@ import { copy } from '../../utils/clipboard';
 import { IContainer, IDaemon, IPort } from '../Daemon/types/daemon';
 import { IGroup } from '../Group/types/group';
 import CmdSocket from './CmdSocket';
+import ContainerCommands from './ContainerCommands';
 import ContainerLogSocket from './ContainerLogSocket';
 import ContainersButtons from './ContainersButtons';
 

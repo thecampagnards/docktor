@@ -2,9 +2,9 @@ package main
 
 import (
 	"docktor/server/handler/admin"
-	"docktor/server/handler/commands"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
+	"docktor/server/handler/images"
 	"docktor/server/handler/services"
 	"docktor/server/handler/users"
 	"docktor/server/helper/ldap"
@@ -143,7 +143,7 @@ func main() {
 	groups.AddRoute(api)
 	services.AddRoute(api)
 	users.AddRoute(api)
-	commands.AddRoute(api)
+	images.AddRoute(api)
 
 	e.GET("/*", getIndex)
 

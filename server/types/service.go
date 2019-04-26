@@ -7,7 +7,6 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
-	"regexp"
 	"strings"
 	"time"
 
@@ -31,7 +30,7 @@ type SubService struct {
 	Name      string        `json:"name" bson:"name" validate:"required"`
 	Active    bool          `json:"active" bson:"active"`
 	File      string        `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables interface{}   `bson:"-"`
+	Variables interface{}   `json:"variables" bson:"-"`
 }
 
 // GetVariablesOfSubServices get all the variables of all subservices
@@ -109,42 +108,12 @@ func (sub *SubService) GetVariables() (err error) {
 		return
 	}
 
-	// Convert it and enable missingkey to find the missing variables
-	tmpl, err := template.New("template").
-		Funcs(template.FuncMap{"split": split, "randString": randString}).
-		Option("missingkey=error").
-		Parse(sub.File)
-	if err != nil {
-		return
-	}
-
-	data := map[string]interface{}{
+	sub.Variables, err = FindTemplateVariables(sub.File, map[string]interface{}{
 		"Group":  Group{},
 		"Daemon": Daemon{Host: "vm.loc.cn.ssg"},
-	}
+	})
 
-	r, _ := regexp.Compile(`map has no entry for key "(.*?)"`)
-
-	var variables []string
-	var b bytes.Buffer
-	for {
-		err = tmpl.Execute(&b, data)
-		if err != nil {
-			if len(r.FindStringIndex(err.Error())) > 0 {
-				variable := r.FindStringSubmatch(err.Error())[1]
-				data[variable] = "<no value>"
-				variables = append(variables, variable)
-				b.Reset()
-			} else {
-				return err
-			}
-		} else {
-			break
-		}
-	}
-
-	sub.Variables = variables
-	return nil
+	return err
 }
 
 // split used in go template

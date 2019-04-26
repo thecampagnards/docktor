@@ -28,7 +28,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     error: Error(),
 
     isSaveFetching: false,
-    saveError: Error(),
+    saveError: Error()
   };
 
   private refreshIntervalId: NodeJS.Timeout;
@@ -40,14 +40,14 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       fetchContainers(group._id)
         .then((containers: IContainer[]) => {
           for (const container of group.containers) {
-            if (!containers.find((c) => c.Names.indexOf(container.Name) !== -1)) {
-              containers.push(container)
+            if (!containers.find(c => c.Names.indexOf(container.Name) !== -1)) {
+              containers.push(container);
             }
           }
-          this.setState({ isFetching: false, containers, error: Error() })
+          this.setState({ isFetching: false, containers, error: Error() });
         })
         .catch((error: Error) => this.setState({ error, isFetching: false }));
-    }
+    };
 
     fetch();
     this.refreshIntervalId = setInterval(fetch, 1000 * 10);
@@ -59,7 +59,13 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { daemon, group, admin } = this.props;
-    const { containers, saveError, error, isFetching, isSaveFetching } = this.state;
+    const {
+      containers,
+      saveError,
+      error,
+      isFetching,
+      isSaveFetching
+    } = this.state;
 
     if (error.message) {
       return (
@@ -78,14 +84,14 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <>
-        {saveError.message &&
+        {saveError.message && (
           <Message negative={true}>
             <Message.Header>
               There was an issue to save Docker containers
-          </Message.Header>
+            </Message.Header>
             <p>{saveError.message}</p>
           </Message>
-        }
+        )}
         {containers && containers.length > 0 && (
           <Button
             color="teal"
@@ -97,18 +103,25 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             floated="right"
           />
         )}
-        <ContainerTable daemon={daemon} containers={containers} group={group} admin={admin} />
+        <ContainerTable
+          daemon={daemon}
+          containers={containers}
+          group={group}
+          admin={admin}
+        />
       </>
     );
   }
 
-  private handleSaveContainer = (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
-    event.preventDefault()
-    this.setState({ isSaveFetching: true })
+  private handleSaveContainer = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+    this.setState({ isSaveFetching: true });
     saveContainers(this.props.group._id)
       .catch(saveError => this.setState({ saveError }))
-      .finally(() => this.setState({ isSaveFetching: false }))
-  }
+      .finally(() => this.setState({ isSaveFetching: false }));
+  };
 }
 
 export default GroupContainers;
