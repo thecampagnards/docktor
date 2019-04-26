@@ -1,22 +1,12 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { IInstance, UnControlled as CodeMirror } from "react-codemirror2";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-  Button,
-  Form,
-  Grid,
-  Icon,
-  InputOnChangeData,
-  List,
-  Loader,
-  Message,
-  TextAreaProps,
-  Modal
-} from "semantic-ui-react";
+    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
+} from 'semantic-ui-react';
 
-import { fetchImages, saveImages } from "../actions/image";
-import { IImage } from "../types/image";
-import ContainerCommands from "src/components/layout/ContainerCommands";
+import { fetchImages, saveImages } from '../actions/image';
+import { IImage } from '../types/image';
 
 interface IImagesStates {
   images: IImage[];

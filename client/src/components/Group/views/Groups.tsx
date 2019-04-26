@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
@@ -40,10 +39,11 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     searchDaemonID: ""
   };
 
-  private displayAll: boolean = false;
+  private localDisplayAllGroups = localStorage.getItem('displayAllGroups');
+  private displayAll = this.localDisplayAllGroups ? JSON.parse(this.localDisplayAllGroups) : false;
 
   public componentWillMount() {
-    fetchGroups(false)
+    fetchGroups(this.displayAll)
       .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
 
@@ -123,6 +123,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             <Checkbox
               floated="right"
               slider={true}
+              defaultChecked={this.displayAll}
               label="Display all groups"
               onChange={this.handleToggle}
             />
@@ -162,6 +163,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     { checked }: CheckboxProps
   ) => {
     this.displayAll = checked as boolean;
+    localStorage.setItem('displayAllGroups', this.displayAll)
     fetchGroups(this.displayAll)
       .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));

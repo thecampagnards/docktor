@@ -73,12 +73,12 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                     <Icon name="cubes" /> Services
                   </Menu.Item>
 
-                  <Menu.Item as={Link} to={path.users} name="users">
-                    <Icon name="users" /> Users
+                  <Menu.Item as={Link} to={path.images} name="images">
+                    <Icon name="tags" /> Images
                   </Menu.Item>
 
-                  <Menu.Item as={Link} to={path.images} name="Images">
-                    <Icon name="docker" /> Images
+                  <Menu.Item as={Link} to={path.users} name="users">
+                    <Icon name="users" /> Users
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.admin} name="admin">
@@ -104,6 +104,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
+              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
