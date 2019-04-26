@@ -35,7 +35,7 @@ func getContainers(c echo.Context) error {
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
 			"error":  err,
-		}).Error("Error when retrieving daemon conatiners")
+		}).Error("Error when retrieving daemon containers")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -90,6 +90,40 @@ func UpdateContainersStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, c.QueryParam("status"))
+}
+
+// execContainer exec commands in container from daemon
+func execContainer(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.WithFields(log.Fields{
+		"daemon": daemon.Name,
+	}).Info("Daemon retrieved")
+
+	// TODO check if group container
+	container := c.Param(types.CONTAINER_ID_PARAM)
+	commands := []string{"echo 'toto'", "echo 'tutu'"}
+
+	logs, err := daemon.ExecContainer(container, commands)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"container": container,
+			"commands":  commands,
+			"daemon":    daemon.Name,
+			"error":     err,
+		}).Error("Error when executing commands on containers")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, string(logs))
 }
 
 // GetContainerLog is a ws which send container log
