@@ -94,7 +94,7 @@ class Users extends React.Component<{}, IUsersStates> {
               <Table.Row key={user.username}>
                 <Table.Cell width={1}>{user.username}</Table.Cell>
                 <Table.Cell width={2}>
-                  {user.firstName + " " + user.lastName}
+                  {user.firstname + " " + user.lastname}
                 </Table.Cell>
                 <Table.Cell width={1}>{user.role}</Table.Cell>
                 <Table.Cell width={11}>
@@ -134,8 +134,8 @@ class Users extends React.Component<{}, IUsersStates> {
     const usersFiltered = this.state.users.filter(
       user =>
         user.username.toLowerCase().includes(value) ||
-        user.firstName.toLowerCase().includes(value) ||
-        user.lastName.toLowerCase().includes(value)
+        user.firstname.toLowerCase().includes(value) ||
+        user.lastname.toLowerCase().includes(value)
     );
     this.setState({ usersFiltered });
   };

@@ -18,7 +18,7 @@ func AddRoute(e *echo.Group) {
 	images.POST("", save, middleware.WithAdmin)
 
 	{
-		image := images.Group(fmt.Sprintf("/:%s", types.COMMAND_IMAGE_PARAM))
+		image := images.Group(fmt.Sprintf("/:%s", types.IMAGE_ID_PARAM))
 		image.GET("", getByImage)
 		image.DELETE("", deleteByImage, middleware.WithAdmin)
 	}

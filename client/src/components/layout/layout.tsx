@@ -3,7 +3,8 @@ import './layout.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Dispatch } from 'redux';
+import { Action } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
@@ -104,7 +105,6 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
-              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
@@ -112,6 +112,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   as={Link}
                   to={path.login}
                   onClick={this.props.logoutRequest}
+                  style={{ marginLeft: 5 }}
                 />
               )}
             </Menu.Item>
@@ -137,13 +138,11 @@ const mapStateToProps = (state: IStoreState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-  return {
-    logoutRequest: () => {
-      dispatch(logoutRequestThunk());
-    }
-  };
-};
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, Action>) => ({
+  logoutRequest: () => {
+    dispatch(logoutRequestThunk());
+  }
+});
 
 export default connect(
   mapStateToProps,

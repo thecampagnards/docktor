@@ -180,7 +180,7 @@ export default class ContainerTable extends React.Component<
                             <ContainerCommands
                               daemon={daemon}
                               group={group}
-                              image={container.Image}
+                              container={container}
                             />
                           </Modal.Content>
                         </Modal>

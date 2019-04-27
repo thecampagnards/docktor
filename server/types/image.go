@@ -6,8 +6,9 @@ import (
 
 // Image data
 type Image struct {
-	Image    bson.RegEx `json:"image" bson:"image"`
-	Commands []Command  `json:"commands" bson:"commands"`
+	ID       bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Image    bson.RegEx    `json:"image" bson:"image"`
+	Commands []Command     `json:"commands" bson:"commands"`
 }
 
 // Command data

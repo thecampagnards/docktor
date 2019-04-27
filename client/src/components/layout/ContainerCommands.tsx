@@ -1,25 +1,17 @@
-import * as _ from "lodash";
-import * as React from "react";
-import {
-  Button,
-  Form,
-  Header,
-  InputOnChangeData,
-  List,
-  Loader,
-  Message
-} from "semantic-ui-react";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { Button, Form, Header, InputOnChangeData, List, Loader, Message } from 'semantic-ui-react';
 
-import { execDockerCommand } from "../Daemon/actions/daemon";
-import { IDaemon } from "../Daemon/types/daemon";
-import { IGroup } from "../Group/types/group";
-import { fetchImage } from "../Images/actions/image";
-import { IImage } from "../Images/types/image";
+import { execDockerCommand } from '../Daemon/actions/daemon';
+import { IContainer, IDaemon } from '../Daemon/types/daemon';
+import { IGroup } from '../Group/types/group';
+import { fetchImage } from '../Images/actions/image';
+import { IImage } from '../Images/types/image';
 
 interface IContainerCommandsProps {
   daemon?: IDaemon;
   group?: IGroup;
-  image: string;
+  container: IContainer;
 }
 
 interface IContainerCommandsStates {
@@ -41,7 +33,7 @@ export default class ContainerCommands extends React.Component<
   };
 
   public componentWillMount() {
-    fetchImage(this.props.image)
+    fetchImage(this.props.container.Image)
       .then(images => this.setState({ images }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
@@ -107,7 +99,7 @@ export default class ContainerCommands extends React.Component<
   }
 
   private Exec = (imageKey: number, commandkey: number) => {
-    const { daemon } = this.props;
+    const { daemon, container } = this.props;
     const { images } = this.state;
 
     const variables = images[imageKey].commands[commandkey].variables;
@@ -125,7 +117,8 @@ export default class ContainerCommands extends React.Component<
 
     execDockerCommand(
       daemon!._id,
-      images[imageKey].image.Pattern,
+      container.Names[0] || container.Name,
+      images[imageKey]._id,
       images[imageKey].commands[commandkey].title,
       images[imageKey].commands[commandkey].variables
     )
@@ -138,7 +131,6 @@ export default class ContainerCommands extends React.Component<
     event: React.ChangeEvent<HTMLInputElement>,
     { value, name }: InputOnChangeData
   ) => {
-    console.log(this.state.images);
     this.setState(_.set(this.state, name, value));
   };
 }

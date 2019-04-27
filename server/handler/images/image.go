@@ -29,10 +29,10 @@ func getAll(c echo.Context) error {
 // getByImage find one image by image
 func getByImage(c echo.Context) error {
 	db := c.Get("DB").(*storage.Docktor)
-	imageName, err := url.QueryUnescape(c.Param(types.COMMAND_IMAGE_PARAM))
+	imageName, err := url.QueryUnescape(c.Param(types.IMAGE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
-			"imageParam": c.Param(types.COMMAND_IMAGE_PARAM),
+			"imageParam": c.Param(types.IMAGE_ID_PARAM),
 			"error":      err,
 		}).Error("Error when retrieving image")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -86,10 +86,10 @@ func save(c echo.Context) error {
 // deleteByImage delete one image by id
 func deleteByImage(c echo.Context) error {
 	db := c.Get("DB").(*storage.Docktor)
-	err := db.Images().Delete(c.Param(types.COMMAND_IMAGE_PARAM))
+	err := db.Images().Delete(c.Param(types.IMAGE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
-			"imageImage": c.Param(types.COMMAND_IMAGE_PARAM),
+			"imageImage": c.Param(types.IMAGE_ID_PARAM),
 			"error":      err,
 		}).Error("Error when deleting image")
 		return c.JSON(http.StatusBadRequest, err.Error())

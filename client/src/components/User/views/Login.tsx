@@ -1,7 +1,8 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link, RouteComponentProps } from 'react-router-dom';
-import { Dispatch } from 'redux';
+import { Action } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import {
     Button, Checkbox, CheckboxProps, Form, Grid, InputOnChangeData, Message, Segment
 } from 'semantic-ui-react';
@@ -18,7 +19,6 @@ interface ILoginProps {
 }
 
 class Login extends React.Component<RouteComponentProps & ILoginProps> {
-
   private user = {} as IUser;
   private LDAP = true;
 
@@ -47,11 +47,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
           </Grid.Column>
         </Grid>
 
-        <Form
-          error={!!error}
-          onSubmit={this.submit}
-          loading={isFetching}
-        >
+        <Form error={!!error} onSubmit={this.submit} loading={isFetching}>
           <Form.Input
             required={true}
             fluid={true}
@@ -99,7 +95,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
     e.preventDefault();
 
     this.setState({ isFetching: true });
-    this.props.loginRequest(this.user, this.LDAP)
+    this.props.loginRequest(this.user, this.LDAP);
   };
 }
 
@@ -107,17 +103,19 @@ const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
     error: login.error || "",
-    isFetching: login.isFetching || false,
+    isFetching: login.isFetching || false
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, Action>) => {
   return {
     loginRequest: (user: IUser, ldap: boolean) => {
       dispatch(loginRequestThunk(user, ldap));
-    },
+    }
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(Login);
-
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Login);

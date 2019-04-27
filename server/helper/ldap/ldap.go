@@ -27,8 +27,8 @@ type SearchConfig struct {
 // Attributes defines the users attributes to retrieve from the LDAP
 type Attributes struct {
 	Username  string `json:"username" validate:"required"`
-	FirstName string `json:"firstName"`
-	LastName  string `json:"lastName"`
+	FirstName string `json:"firstname"`
+	LastName  string `json:"lastname"`
 	Email     string `json:"email"`
 }
 
