@@ -1,20 +1,12 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { IInstance, UnControlled as CodeMirror } from "react-codemirror2";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-  Button,
-  Form,
-  Grid,
-  Icon,
-  InputOnChangeData,
-  List,
-  Loader,
-  Message,
-  TextAreaProps
-} from "semantic-ui-react";
+    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
+} from 'semantic-ui-react';
 
-import { fetchImages, saveImages } from "../actions/image";
-import { IImage } from "../types/image";
+import { fetchImages, saveImages } from '../actions/image';
+import { IImage } from '../types/image';
 
 interface IImagesStates {
   images: IImage[];
@@ -163,11 +155,11 @@ class Images extends React.Component<{}, IImagesStates> {
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    this.setState(_.set(this.state, editor.options.gutters![0], value));
+    this.setState(_.set(this.state, editor.getOption("gutters")[0], value));
   };
 
   private addImage = (

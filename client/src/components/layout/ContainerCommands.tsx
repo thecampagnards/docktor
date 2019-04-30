@@ -123,7 +123,7 @@ export default class ContainerCommands extends React.Component<
       images[imageKey].commands[commandkey].variables
     )
       .then(log => this.setState({ log }))
-      .catch((error: Error) => this.setState({ error }))
+      .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 

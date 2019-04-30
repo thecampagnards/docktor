@@ -1,12 +1,12 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { IInstance, UnControlled as CodeMirror } from "react-codemirror2";
-import { Button, Form, Message } from "semantic-ui-react";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import { Button, Form, Message } from 'semantic-ui-react';
 
-import { fetchDaemons } from "../../Daemon/actions/daemon";
-import { IDaemon } from "../../Daemon/types/daemon";
-import { saveGroup } from "../actions/group";
-import { IGroup } from "../types/group";
+import { fetchDaemons } from '../../Daemon/actions/daemon';
+import { IDaemon } from '../../Daemon/types/daemon';
+import { saveGroup } from '../actions/group';
+import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
@@ -131,12 +131,12 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
     this.setState({
-      group: _.set(this.state.group, editor.options.gutters![0], value)
+      group: _.set(this.state.group, editor.getOption("gutters")[0], value)
     });
   };
 

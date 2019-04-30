@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Accordion, AccordionTitleProps, Button, Form, Icon, Message } from 'semantic-ui-react';
 
 import { saveDaemon } from '../actions/daemon';
@@ -16,7 +16,7 @@ interface IDaemonFormStates {
   isSuccess: boolean;
   error: Error;
 
-  activeAccordions: number[]
+  activeAccordions: number[];
 }
 
 class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
@@ -30,16 +30,30 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   public componentWillMount() {
-    this.setState({ daemon: this.props.daemon ? this.props.daemon : { docker: {}, ssh: {} } as IDaemon });
+    this.setState({
+      daemon: this.props.daemon
+        ? this.props.daemon
+        : ({ docker: {}, ssh: {} } as IDaemon)
+    });
   }
 
   public render() {
-    const { daemon, error, isFetching, isSuccess, activeAccordions } = this.state;
+    const {
+      daemon,
+      error,
+      isFetching,
+      isSuccess,
+      activeAccordions
+    } = this.state;
 
     return (
       <>
         {!daemon._id && <h1>Create new daemon</h1>}
-        <Form success={isSuccess} error={!!error.message} onSubmit={this.submit}>
+        <Form
+          success={isSuccess}
+          error={!!error.message}
+          onSubmit={this.submit}
+        >
           <Form.Input
             label="Name"
             name="name"
@@ -115,7 +129,11 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           />
 
           <Accordion exclusive={false} fluid={true}>
-            <Accordion.Title active={activeAccordions.indexOf(0) !== -1} index={0} onClick={this.handleAccordion}>
+            <Accordion.Title
+              active={activeAccordions.indexOf(0) !== -1}
+              index={0}
+              onClick={this.handleAccordion}
+            >
               <b>
                 <Icon name="dropdown" />
                 Description
@@ -135,7 +153,11 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               />
             </Accordion.Content>
 
-            <Accordion.Title active={activeAccordions.indexOf(1) !== -1} index={1} onClick={this.handleAccordion}>
+            <Accordion.Title
+              active={activeAccordions.indexOf(1) !== -1}
+              index={1}
+              onClick={this.handleAccordion}
+            >
               <b>
                 <Icon name="dropdown" />
                 Ca
@@ -155,7 +177,11 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               />
             </Accordion.Content>
 
-            <Accordion.Title active={activeAccordions.indexOf(2) !== -1} index={2} onClick={this.handleAccordion}>
+            <Accordion.Title
+              active={activeAccordions.indexOf(2) !== -1}
+              index={2}
+              onClick={this.handleAccordion}
+            >
               <b>
                 <Icon name="dropdown" />
                 Cert
@@ -175,7 +201,11 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               />
             </Accordion.Content>
 
-            <Accordion.Title active={activeAccordions.indexOf(3) !== -1} index={3} onClick={this.handleAccordion}>
+            <Accordion.Title
+              active={activeAccordions.indexOf(3) !== -1}
+              index={3}
+              onClick={this.handleAccordion}
+            >
               <b>
                 <Icon name="dropdown" />
                 Key
@@ -212,38 +242,43 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           <Message error={true} header="Error" content={error.message} />
           <Button type="submit" loading={isFetching}>
             Save
-        </Button>
+          </Button>
         </Form>
       </>
     );
   }
 
-  private handleAccordion = (e: React.MouseEvent<HTMLDivElement, MouseEvent>, { index }: AccordionTitleProps) => {
-    const { activeAccordions } = this.state
-    const i = activeAccordions.indexOf(index as number)
-    i === -1 ? activeAccordions.push(index as number) : activeAccordions.splice(i, 1)
-    this.setState({ activeAccordions })
-  }
+  private handleAccordion = (
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>,
+    { index }: AccordionTitleProps
+  ) => {
+    const { activeAccordions } = this.state;
+    const i = activeAccordions.indexOf(index as number);
+    i === -1
+      ? activeAccordions.push(index as number)
+      : activeAccordions.splice(i, 1);
+    this.setState({ activeAccordions });
+  };
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
     { name, value, type }: any
   ) => {
     if (type === "number") {
-      value = parseInt(value, undefined)
+      value = parseInt(value, undefined);
     } else if (name === "tags") {
-      value = value.split(",")
+      value = value.split(",");
     }
     this.setState({ daemon: _.set(this.state.daemon, name, value) });
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
     this.setState({
-      daemon: _.set(this.state.daemon, editor.options.gutters![0], value)
+      daemon: _.set(this.state.daemon, editor.getOption("gutters")[0], value)
     });
   };
 
@@ -253,7 +288,12 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     this.setState({ isFetching: true });
     saveDaemon(this.state.daemon)
       .then((daemon: IDaemon) =>
-        this.setState({ daemon, isSuccess: true, isFetching: false, error: Error() })
+        this.setState({
+          daemon,
+          isSuccess: true,
+          isFetching: false,
+          error: Error()
+        })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   };
