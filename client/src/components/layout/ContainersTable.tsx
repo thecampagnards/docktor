@@ -1,14 +1,23 @@
-import * as React from 'react';
-import { Button, Grid, Icon, List, Modal, Search, SearchProps, Table } from 'semantic-ui-react';
+import * as React from "react";
+import {
+  Button,
+  Grid,
+  Icon,
+  List,
+  Modal,
+  Search,
+  SearchProps,
+  Table
+} from "semantic-ui-react";
 
-import { status } from '../../constants/container';
-import { copy } from '../../utils/clipboard';
-import { IContainer, IDaemon, IPort } from '../Daemon/types/daemon';
-import { IGroup } from '../Group/types/group';
-import CmdSocket from './CmdSocket';
-import ContainerCommands from './ContainerCommands';
-import ContainerLogSocket from './ContainerLogSocket';
-import ContainersButtons from './ContainersButtons';
+import { status } from "../../constants/container";
+import { copy } from "../../utils/clipboard";
+import { IContainer, IDaemon, IPort } from "../Daemon/types/daemon";
+import { IGroup } from "../Group/types/group";
+import CmdSocket from "./CmdSocket";
+import ContainerCommands from "./ContainerCommands";
+import ContainerLogSocket from "./ContainerLogSocket";
+import ContainersButtons from "./ContainersButtons";
 
 interface ITableProps {
   daemon: IDaemon;

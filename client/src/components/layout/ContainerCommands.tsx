@@ -1,6 +1,8 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { Button, Form, Header, InputOnChangeData, List, Loader, Message } from 'semantic-ui-react';
+import {
+    Button, Dimmer, Form, Header, InputOnChangeData, List, Loader, Message
+} from 'semantic-ui-react';
 
 import { execDockerCommand } from '../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../Daemon/types/daemon';
@@ -19,6 +21,7 @@ interface IContainerCommandsStates {
   error: Error;
   isFetching: boolean;
   log: string;
+  variables: object;
 }
 
 export default class ContainerCommands extends React.Component<
@@ -29,13 +32,15 @@ export default class ContainerCommands extends React.Component<
     log: "",
     images: [] as IImage[],
     error: Error(),
-    isFetching: true
+    isFetching: true,
+
+    variables: {}
   };
 
   public componentWillMount() {
     fetchImage(this.props.container.Image)
       .then(images => this.setState({ images }))
-      .catch((error: Error) => this.setState({ error }))
+      .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
 
@@ -43,7 +48,11 @@ export default class ContainerCommands extends React.Component<
     const { error, images, isFetching, log } = this.state;
 
     if (isFetching) {
-      return <Loader active={true} />;
+      return (
+        <Dimmer active={true} inverted={true}>
+          <Loader active={true} />
+        </Dimmer>
+      );
     }
 
     return (
@@ -55,7 +64,7 @@ export default class ContainerCommands extends React.Component<
         )}
         {log && (
           <Message info={true}>
-            <Message.Header>{log}</Message.Header>
+            <Message.Header style={{ whiteSpace: "pre" }}>{log}</Message.Header>
           </Message>
         )}
         <List divided={true} verticalAlign="middle">
@@ -82,7 +91,7 @@ export default class ContainerCommands extends React.Component<
                             label={v}
                             required={true}
                             onChange={this.handleInput}
-                            name={`images.${imageKey}.commands.${commandkey}.variables.${v}`}
+                            name={`variables.${v}`}
                           />
                         ))}
                       </Form.Group>
@@ -100,14 +109,14 @@ export default class ContainerCommands extends React.Component<
 
   private Exec = (imageKey: number, commandkey: number) => {
     const { daemon, container } = this.props;
-    const { images } = this.state;
+    const { images, variables } = this.state;
 
-    const variables = images[imageKey].commands[commandkey].variables;
+    const imageVariables = images[imageKey].commands[commandkey].variables;
 
-    if (variables) {
-      for (const variable of variables) {
-        if (!variables[variable]) {
-          this.setState({ log: "", error: Error(`Please set ${variable}`) });
+    if (imageVariables) {
+      for (const v of imageVariables) {
+        if (!variables[v]) {
+          this.setState({ log: "", error: Error(`Please set ${v}`) });
           return;
         }
       }
@@ -120,10 +129,10 @@ export default class ContainerCommands extends React.Component<
       container.Names[0] || container.Name,
       images[imageKey]._id,
       images[imageKey].commands[commandkey].title,
-      images[imageKey].commands[commandkey].variables
+      variables
     )
-      .then(log => this.setState({ log }))
-      .catch(error => this.setState({ error }))
+      .then(log => this.setState({ log, error: Error() }))
+      .catch(error => this.setState({ error, log: "" }))
       .finally(() => this.setState({ isFetching: false }));
   };
 

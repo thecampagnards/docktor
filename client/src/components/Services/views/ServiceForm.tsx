@@ -1,8 +1,3 @@
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/material.css";
-import "codemirror/mode/yaml/yaml";
-import "codemirror/mode/markdown/markdown";
-
 import * as _ from "lodash";
 import * as React from "react";
 import { UnControlled as CodeMirror } from "react-codemirror2";

@@ -305,8 +305,9 @@ func (d *Daemon) ExecContainer(containerName string, commands []string) ([]byte,
 		AttachStdin:  true,
 		AttachStdout: true,
 		AttachStderr: true,
-		Tty:          true,
+		Tty:          false,
 		Cmd:          []string{"/bin/sh"},
+		Detach:       false,
 	})
 
 	if err != nil {

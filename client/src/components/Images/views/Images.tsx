@@ -1,12 +1,20 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
+import * as _ from "lodash";
+import * as React from "react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
 import {
-    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
-} from 'semantic-ui-react';
+  Button,
+  Form,
+  Grid,
+  Icon,
+  InputOnChangeData,
+  List,
+  Loader,
+  Message,
+  TextAreaProps
+} from "semantic-ui-react";
 
-import { fetchImages, saveImages } from '../actions/image';
-import { IImage } from '../types/image';
+import { fetchImages, saveImages } from "../actions/image";
+import { IImage } from "../types/image";
 
 interface IImagesStates {
   images: IImage[];
@@ -116,6 +124,7 @@ class Images extends React.Component<{}, IImagesStates> {
                           value={command.command}
                           options={{
                             mode: "shell",
+                            lint: true,
                             theme: "material",
                             lineNumbers: true,
                             gutters: [

@@ -1,6 +1,9 @@
 package types
 
 import (
+	"bytes"
+	"html/template"
+
 	"github.com/globalsign/mgo/bson"
 )
 
@@ -20,6 +23,23 @@ type Command struct {
 
 // Images data
 type Images []Image
+
+// SetVariables this methode replace all the variables in the command and return the string
+func (cmd *Command) SetVariables(variables interface{}) (string, error) {
+
+	// Convert it
+	tmpl, err := template.New("template").
+		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Parse(cmd.Command)
+	if err != nil {
+		return "", err
+	}
+	var b bytes.Buffer
+
+	err = tmpl.Execute(&b, variables)
+
+	return string(b.Bytes()), err
+}
 
 // GetVariables retrieve the variables of a template
 func (cmd *Command) GetVariables() (err error) {

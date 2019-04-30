@@ -4,6 +4,7 @@ import (
 	"encoding/binary"
 	"io"
 	"net/http"
+	"net/url"
 	"strings"
 
 	"docktor/server/storage"
@@ -95,6 +96,7 @@ func UpdateContainersStatus(c echo.Context) error {
 // execContainer exec commands in container from daemon
 func execContainer(c echo.Context) error {
 	db := c.Get("DB").(*storage.Docktor)
+	// Find the daemon
 	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -108,15 +110,90 @@ func execContainer(c echo.Context) error {
 		"daemon": daemon.Name,
 	}).Info("Daemon retrieved")
 
-	// TODO check if group container
-	container := c.Param(types.CONTAINER_ID_PARAM)
-	commands := []string{"echo 'toto'", "echo 'tutu'"}
+	// Find the image
+	image, err := db.Images().FindByID(c.Param(types.IMAGE_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"imageID": c.Param(types.IMAGE_ID_PARAM),
+			"error":   err,
+		}).Error("Error when retrieving image")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
 
-	logs, err := daemon.ExecContainer(container, commands)
+	log.WithFields(log.Fields{
+		"image": image.Image.Pattern,
+	}).Info("Image retrieved")
+
+	// Unescape the command title
+	title, err := url.QueryUnescape(c.Param(types.COMMAND_TITLE_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"commandTitle": c.Param(types.COMMAND_TITLE_PARAM),
+			"error":        err,
+		}).Error("Unable to decode command title")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.WithFields(log.Fields{
+		"title": title,
+	}).Info("Command unsecaped")
+
+	// Find the command in the commands image
+	var command types.Command
+	for _, c := range image.Commands {
+		if c.Title == title {
+			command = c
+			break
+		}
+	}
+
+	if command.Title == "" {
+		log.WithFields(log.Fields{
+			"commandTitle": title,
+			"error":        err,
+		}).Error("Cannot find the command")
+		return c.JSON(http.StatusBadRequest, "Cannot find the command")
+	}
+
+	log.WithFields(log.Fields{
+		"command": command.Title,
+	}).Info("Command found")
+
+	// Get the body variables ton replace in the go template
+	var variables interface{}
+	err = c.Bind(&variables)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"variables": c.Request().Body,
+			"error":     err,
+		}).Error("Error when parsing variables")
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	log.WithFields(log.Fields{
+		"variables": variables,
+	}).Info("Variables parsed")
+
+	// Apply the varaibles in the go template
+	cmd, err := command.SetVariables(variables)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"variables": variables,
+			"command":   command.Command,
+			"error":     err,
+		}).Error("Error when replacing variables")
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// Get the container name
+	container := c.Param(types.CONTAINER_ID_PARAM)
+
+	// Launch the cmd
+	logs, err := daemon.ExecContainer(container, []string{cmd})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"container": container,
-			"commands":  commands,
+			"commands":  cmd,
 			"daemon":    daemon.Name,
 			"error":     err,
 		}).Error("Error when executing commands on containers")

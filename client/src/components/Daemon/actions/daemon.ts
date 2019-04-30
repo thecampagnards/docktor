@@ -178,7 +178,7 @@ export const checkDaemonStatus = (daemonID: string) => {
 export const execDockerCommand = (
   daemonID: string,
   container: string,
-  image: string,
+  imageID: string,
   command: string,
   variable: any
 ) => {
@@ -187,7 +187,7 @@ export const execDockerCommand = (
       process.env.PUBLIC_URL
     }/api/daemons/${daemonID}/docker/containers/${container.slice(
       1
-    )}/exec/${encodeURIComponent(image)}/${encodeURIComponent(command)}`,
+    )}/exec/${imageID}/${encodeURIComponent(command)}`,
     {
       credentials: "same-origin",
       method: "POST",

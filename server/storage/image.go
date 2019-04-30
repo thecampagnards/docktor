@@ -17,6 +17,8 @@ type ImagesRepo interface {
 	Delete(name string) error
 	// Find get the image by name
 	Find(name string) (types.Images, error)
+	// FindByID get the image by id
+	FindByID(id string) (types.Image, error)
 	// FindAll get all images
 	FindAll() (types.Images, error)
 	// GetCollectionName returns the name of the collection
@@ -55,10 +57,16 @@ func (r *DefaultImagesRepo) FindAll() (t types.Images, err error) {
 	return t, err
 }
 
-// Find get one image by id
+// Find get images by regex
 func (r *DefaultImagesRepo) Find(image string) (t types.Images, err error) {
 	// err = r.coll.Find(bson.JavaScript{Code: fmt.Sprintf("return this.image.test('%s');", image)}).All(&t)
 	err = r.coll.Find(nil).All(&t)
+	return t, err
+}
+
+// FindByID get one image by id
+func (r *DefaultImagesRepo) FindByID(id string) (t types.Image, err error) {
+	err = r.coll.FindId(bson.ObjectIdHex(id)).One(&t)
 	return t, err
 }
 
