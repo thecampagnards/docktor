@@ -10,7 +10,7 @@
     "lodash": "^4.17.11",
     "redux": "^4.0.1",
     "react": "^16.8.6",
-    "react-redux": "^7.0.2",
+    "react-redux": "^7.0.3",
     "redux-thunk": "^2.3.0",
     "react-codemirror2": "^5.1.0",
     "react-dom": "^16.8.6",
