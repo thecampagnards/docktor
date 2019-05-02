@@ -1,47 +1,54 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import * as _ from "lodash";
+import * as React from "react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
 import {
-    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
-} from 'semantic-ui-react';
+  Button,
+  Form,
+  Grid,
+  Icon,
+  InputOnChangeData,
+  List,
+  Loader,
+  Message,
+  TextAreaProps
+} from "semantic-ui-react";
 
-import { fetchCommands, saveCommands } from '../actions/images';
-import { ICommand } from '../types/image';
+import { fetchImages, saveImages } from "../actions/image";
+import { IImage } from "../types/image";
 
 interface IImagesStates {
-  commands: ICommand[];
+  images: IImage[];
   isFetching: boolean;
   isSuccess: boolean;
   error: Error;
 
-  commandKey: number;
+  imageKey: number;
 }
 
 class Images extends React.Component<{}, IImagesStates> {
   public state = {
-    commands: [] as ICommand[],
-    isFetching: false,
+    images: [] as IImage[],
+    isFetching: true,
     isSuccess: false,
     error: Error(),
 
-    commandKey: 0
+    imageKey: 0
   };
 
   public componentWillMount() {
-    this.setState({ isFetching: true });
-    fetchCommands()
-      .then(commands => this.setState({ commands }))
+    fetchImages()
+      .then(images => this.setState({ images }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
 
   public render() {
-    const { error, isSuccess, isFetching, commands, commandKey } = this.state;
+    const { error, isSuccess, isFetching, images, imageKey } = this.state;
 
     if (isFetching) {
       return (
         <>
-          <h2>Commands</h2>
+          <h2>Images</h2>
           <Loader active={true} />
         </>
       );
@@ -49,7 +56,8 @@ class Images extends React.Component<{}, IImagesStates> {
 
     return (
       <>
-        <h1>Commands</h1>
+        <h1>Images</h1>
+
         <Form
           success={isSuccess}
           error={!!error.message}
@@ -58,73 +66,80 @@ class Images extends React.Component<{}, IImagesStates> {
           <Grid columns={2} divided={true}>
             <Grid.Row>
               <Grid.Column width={4}>
-                <Button
-                  type=""
-                  icon={true}
-                  onClick={this.addCommand}
-                  color="green"
-                >
+                <Button icon={true} onClick={this.addImage} color="green">
                   <Icon name="plus" />
-                  Add command
+                  Add image
                 </Button>
-                <Button
-                  type=""
-                  icon={true}
-                  onClick={this.removeCommand}
-                  color="red"
-                >
+                <Button icon={true} onClick={this.removeImage} color="red">
                   <Icon name="minus" />
-                  Remove selected
+                  Remove
                 </Button>
                 <List>
-                  {commands.map((c, key) => (
-                    <List.Item
-                      key={key}
-                      as={Button}
-                      onClick={this.changeCommand(key)}
-                      active={key === commandKey}
-                      basic={true}
-                      style={{ padding: 5, width: "100%" }}
-                    >
-                      <List.Icon name="terminal" />
-                      <List.Content>
-                        <List.Header>
-                          <Form.Input
-                            fluid={true}
-                            value={c.image}
-                            onChange={this.handleInput}
-                            name={`commands.${key}.image`}
-                          />
-                        </List.Header>
-                      </List.Content>
-                    </List.Item>
-                  ))}
+                  {images &&
+                    images.map((c, key) => (
+                      <List.Item
+                        key={key}
+                        as={Button}
+                        onClick={this.changeImage(key)}
+                        active={key === imageKey}
+                        basic={true}
+                        style={{ padding: 5, width: "100%" }}
+                      >
+                        <List.Icon name="terminal" />
+                        <List.Content>
+                          <List.Header>
+                            <Form.Input
+                              fluid={true}
+                              value={c.image.Pattern}
+                              onChange={this.handleInput}
+                              name={`images.${key}.image.Pattern`}
+                            />
+                          </List.Header>
+                        </List.Content>
+                      </List.Item>
+                    ))}
                 </List>
               </Grid.Column>
+
               <Grid.Column width={12}>
-                <Button
-                  type=""
-                  icon={true}
-                  onClick={this.addSubCommand}
-                  color="green"
-                >
-                  <Icon name="plus" />
-                  Add command for {commands[commandKey].image}
-                </Button>
-                {commands[commandKey].commands.map((command, key) => (
-                  <CodeMirror
-                    key={key}
-                    value={command}
-                    options={{
-                      mode: "shell",
-                      theme: "material",
-                      lineNumbers: true,
-                      gutters: [`commands.${commandKey}.command.${key}`]
-                    }}
-                    autoCursor={false}
-                    onChange={this.handleChangeCodeEditor}
-                  />
-                ))}
+                {images && images.length > imageKey ? (
+                  <>
+                    <Button
+                      icon={true}
+                      onClick={this.addSubImage}
+                      color="green"
+                    >
+                      <Icon name="plus" />
+                      Add image for {images[imageKey].image.Pattern}
+                    </Button>
+                    {images[imageKey].commands.map((command, key) => (
+                      <span key={key}>
+                        <Form.Input
+                          fluid={true}
+                          value={command.title}
+                          onChange={this.handleInput}
+                          name={`images.${imageKey}.commands.${key}.title`}
+                        />
+                        <CodeMirror
+                          value={command.command}
+                          options={{
+                            mode: "shell",
+                            lint: true,
+                            theme: "material",
+                            lineNumbers: true,
+                            gutters: [
+                              `images.${imageKey}.commands.${key}.command`
+                            ]
+                          }}
+                          autoCursor={false}
+                          onChange={this.handleChangeCodeEditor}
+                        />
+                      </span>
+                    ))}
+                  </>
+                ) : (
+                  "No images found"
+                )}
               </Grid.Column>
             </Grid.Row>
           </Grid>
@@ -149,62 +164,71 @@ class Images extends React.Component<{}, IImagesStates> {
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    this.setState(_.set(this.state, editor.options.gutters![0], value));
+    this.setState(_.set(this.state, editor.getOption("gutters")[0], value));
   };
 
-  private addCommand = (
+  private addImage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
 
-    let commands = this.state.commands;
-    const command = {
-      image: "",
-      commands: [""]
-    } as ICommand;
-    commands ? commands.unshift(command) : (commands = [command]);
-    this.setState({ commands });
+    let images = this.state.images;
+    const image = {
+      image: {
+        Pattern: RegExp("").toString()
+      },
+      commands: [
+        {
+          title: "Command",
+          command: ""
+        }
+      ]
+    } as IImage;
+    images ? images.unshift(image) : (images = [image]);
+    this.setState({ images });
   };
 
-  private removeCommand = (
+  private removeImage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
 
-    const { commands, commandKey } = this.state;
-    this.setState({ commands: commands.splice(commandKey, commandKey) });
+    const { images, imageKey } = this.state;
+    images.splice(imageKey, imageKey);
+    this.setState({ images });
   };
 
-  private addSubCommand = (
+  private addSubImage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
 
-    const { commands, commandKey } = this.state;
-    commands[commandKey].commands.push("");
-    this.setState({ commands });
+    const { images, imageKey } = this.state;
+    images[imageKey].commands.push({
+      title: "Command",
+      command: ""
+    });
+    this.setState({ images });
   };
 
-  private changeCommand = (commandKey: number) => (
+  private changeImage = (imageKey: number) => (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
     e.preventDefault();
-    this.setState({ commandKey });
+    this.setState({ imageKey });
   };
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    const { commands } = this.state;
-
-    console.log(commands);
+    const { images } = this.state;
 
     this.setState({ isFetching: true });
-    saveCommands(commands)
+    saveImages(images)
       .then(() => this.setState({ isSuccess: true, error: Error() }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
