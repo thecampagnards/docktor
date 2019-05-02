@@ -1,18 +1,21 @@
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/mode/yaml/yaml';
-import 'codemirror/mode/markdown/markdown';
-
-import * as _ from 'lodash';
-import * as React from 'react';
-import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
-import { RouteComponentProps } from 'react-router';
+import * as _ from "lodash";
+import * as React from "react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+import { RouteComponentProps } from "react-router";
 import {
-    Button, Divider, Form, Grid, Header, Icon, Loader, Message, Segment
-} from 'semantic-ui-react';
+  Button,
+  Divider,
+  Form,
+  Grid,
+  Header,
+  Icon,
+  Loader,
+  Message,
+  Segment
+} from "semantic-ui-react";
 
-import { fetchService, saveService } from '../actions/service';
-import { IService, ISubService } from '../types/service';
+import { fetchService, saveService } from "../actions/service";
+import { IService, ISubService } from "../types/service";
 
 interface IRouterProps {
   serviceID: string;
@@ -273,12 +276,12 @@ class ServiceForm extends React.Component<
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
     this.setState({
-      service: _.set(this.state.service, editor.options.gutters![0], value)
+      service: _.set(this.state.service, editor.getOption("gutters")[0], value)
     });
   };
 

@@ -1,13 +1,23 @@
-import * as React from 'react';
-import { Button, Grid, Icon, List, Modal, Search, SearchProps, Table } from 'semantic-ui-react';
+import * as React from "react";
+import {
+  Button,
+  Grid,
+  Icon,
+  List,
+  Modal,
+  Search,
+  SearchProps,
+  Table
+} from "semantic-ui-react";
 
-import { status } from '../../constants/container';
-import { copy } from '../../utils/clipboard';
-import { IContainer, IDaemon, IPort } from '../Daemon/types/daemon';
-import { IGroup } from '../Group/types/group';
-import CmdSocket from './CmdSocket';
-import ContainerLogSocket from './ContainerLogSocket';
-import ContainersButtons from './ContainersButtons';
+import { status } from "../../constants/container";
+import { copy } from "../../utils/clipboard";
+import { IContainer, IDaemon, IPort } from "../Daemon/types/daemon";
+import { IGroup } from "../Group/types/group";
+import CmdSocket from "./CmdSocket";
+import ContainerCommands from "./ContainerCommands";
+import ContainerLogSocket from "./ContainerLogSocket";
+import ContainersButtons from "./ContainersButtons";
 
 interface ITableProps {
   daemon: IDaemon;
@@ -20,20 +30,27 @@ interface ITableStates {
   searchFilter: string;
 }
 
-export default class ContainerTable extends React.Component<ITableProps, ITableStates> {
-
+export default class ContainerTable extends React.Component<
+  ITableProps,
+  ITableStates
+> {
   public state = {
     searchFilter: ""
-  }
+  };
 
   public render() {
     const { daemon, group, admin, containers } = this.props;
     const { searchFilter } = this.state;
 
     // filter containers
-    const containersFiltered = containers && containers.filter(
-      c => c.Names.filter(n => n.toLowerCase().includes(searchFilter.toLowerCase())).length > 0
-    );
+    const containersFiltered =
+      containers &&
+      containers.filter(
+        c =>
+          c.Names.filter(n =>
+            n.toLowerCase().includes(searchFilter.toLowerCase())
+          ).length > 0
+      );
 
     return (
       <>
@@ -52,10 +69,10 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
             <Grid.Column width={4}>
               <Button color="orange" icon={true} floated="right">
                 <Icon name="stop" /> STOP ALL
-            </Button>
+              </Button>
               <Button color="green" icon={true} floated="right">
                 <Icon name="play" /> START ALL
-            </Button>
+              </Button>
             </Grid.Column>
           </Grid>
         )}
@@ -83,25 +100,32 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                   </Table.Cell>
                   <Table.Cell width={3}>
                     <List>
-                      {container.Ports && container.Ports.filter(
-                        port => port.PublicPort && port.IP === "0.0.0.0"
-                      ).map((port: IPort) => (
-                        <List.Item
-                          key={port.PublicPort}
-                          as="a"
-                          href={"http://" + daemon.host + ":" + port.PublicPort}
-                          target="_blank"
-                        >
-                          {daemon.host + ":" + port.PublicPort}
-                        </List.Item>
-                      ))}
+                      {container.Ports &&
+                        container.Ports.filter(
+                          port => port.PublicPort && port.IP === "0.0.0.0"
+                        ).map((port: IPort) => (
+                          <List.Item
+                            key={port.PublicPort}
+                            as="a"
+                            href={
+                              "http://" + daemon.host + ":" + port.PublicPort
+                            }
+                            target="_blank"
+                          >
+                            {daemon.host + ":" + port.PublicPort}
+                          </List.Item>
+                        ))}
                     </List>
                   </Table.Cell>
                   <Table.Cell width={2}>
                     {container.Status || "Removed"}
                   </Table.Cell>
                   <Table.Cell width={3}>
-                    <ContainersButtons container={container} daemon={daemon} group={group} />
+                    <ContainersButtons
+                      container={container}
+                      daemon={daemon}
+                      group={group}
+                    />
                   </Table.Cell>
                   <Table.Cell width={5}>
                     <Button
@@ -110,45 +134,74 @@ export default class ContainerTable extends React.Component<ITableProps, ITableS
                       title={container.Image}
                       onClick={copy.bind(this, container.Image)}
                     />
-                    {container.Status && <>
-                      <Modal trigger={<Button icon="align left" content="Logs" />}>
-                        <Modal.Content
-                          style={{ background: "black", color: "white" }}
+                    {container.Status && (
+                      <>
+                        <Modal
+                          trigger={<Button icon="align left" content="Logs" />}
                         >
-                          <pre style={{ whiteSpace: "pre-line" }}>
-                            <ContainerLogSocket
-                              daemon={daemon}
-                              containerID={container.Id}
+                          <Modal.Content
+                            style={{ background: "black", color: "white" }}
+                          >
+                            <pre style={{ whiteSpace: "pre-line" }}>
+                              <ContainerLogSocket
+                                daemon={daemon}
+                                containerID={container.Id}
+                              />
+                            </pre>
+                          </Modal.Content>
+                        </Modal>
+                        <Modal
+                          trigger={
+                            <Button
+                              disabled={
+                                !admin ||
+                                !status.Started.includes(container.State)
+                              }
+                              icon="terminal"
+                              content="Exec"
                             />
-                          </pre>
-                        </Modal.Content>
-                      </Modal>
-                      <Modal
-                        trigger={
-                          <Button
-                            disabled={!admin || !status.Started.includes(container.State)}
-                            icon="terminal"
-                            content="Exec"
-                          />
-                        }
-                        size="large"
-                      >
-                        <Modal.Content style={{ background: "black" }}>
-                          <CmdSocket
-                            apiURL={`/api${group ? `/groups/${group._id}` : `/daemons/${daemon!._id}`}/docker/containers/${container.Id}/term`}
-                          />
-                        </Modal.Content>
-                      </Modal>
-                      </>}
-                      <Modal trigger={<Button icon="search" content="Inspect" />}>
-                        <Modal.Content
-                          style={{ background: "black", color: "white" }}
+                          }
+                          size="large"
                         >
-                          <pre>
-                            {JSON.stringify(container, null, 2)}
-                          </pre>
-                        </Modal.Content>
-                      </Modal>
+                          <Modal.Content style={{ background: "black" }}>
+                            <CmdSocket
+                              apiURL={`/api${
+                                group
+                                  ? `/groups/${group._id}`
+                                  : `/daemons/${daemon!._id}`
+                              }/docker/containers/${container.Id}/term`}
+                            />
+                          </Modal.Content>
+                        </Modal>
+                        <Modal
+                          trigger={
+                            <Button
+                              disabled={
+                                !status.Started.includes(container.State)
+                              }
+                              icon="terminal"
+                              content="Exec commands"
+                            />
+                          }
+                          size="large"
+                        >
+                          <Modal.Content>
+                            <ContainerCommands
+                              daemon={daemon}
+                              group={group}
+                              container={container}
+                            />
+                          </Modal.Content>
+                        </Modal>
+                      </>
+                    )}
+                    <Modal trigger={<Button icon="search" content="Inspect" />}>
+                      <Modal.Content
+                        style={{ background: "black", color: "white" }}
+                      >
+                        <pre>{JSON.stringify(container, null, 2)}</pre>
+                      </Modal.Content>
+                    </Modal>
                   </Table.Cell>
                 </Table.Row>
               ))}

@@ -41,8 +41,10 @@ const (
 	STATUS_OLD  = "OLD"
 	STATUS_CERT = "CERT"
 
-	// Commands
-	COMMAND_IMAGE_PARAM = "image"
+	// Images
+	IMAGE_PARAM         = "image"
+	IMAGE_ID_PARAM      = "imageID"
+	COMMAND_TITLE_PARAM = "commandTitle"
 )
 
 var (

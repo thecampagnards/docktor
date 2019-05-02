@@ -6,7 +6,7 @@ import {
 } from 'semantic-ui-react';
 
 import { fetchCommands, saveCommands } from '../actions/images';
-import { ICommand } from '../types/images';
+import { ICommand } from '../types/image';
 
 interface IImagesStates {
   commands: ICommand[];

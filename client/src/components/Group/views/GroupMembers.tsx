@@ -1,23 +1,14 @@
-import * as React from "react";
+import * as React from 'react';
 import {
-  Button,
-  ButtonProps,
-  Checkbox,
-  CheckboxProps,
-  Grid,
-  Icon,
-  Label,
-  Message,
-  Search,
-  SearchProps,
-  Table
-} from "semantic-ui-react";
+    Button, ButtonProps, Checkbox, CheckboxProps, Grid, Icon, Label, Message, Search, SearchProps,
+    Table
+} from 'semantic-ui-react';
 
-import { copy } from "../../../utils/clipboard";
-import { updateUser } from "../../Group/actions/group";
-import { fetchUser, fetchUsers } from "../../User/actions/users";
-import { IUser } from "../../User/types/user";
-import { IGroup } from "../types/group";
+import { copy } from '../../../utils/clipboard';
+import { updateUser } from '../../Group/actions/group';
+import { fetchUser, fetchUsers } from '../../User/actions/users';
+import { IUser } from '../../User/types/user';
+import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
@@ -58,7 +49,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
           members.push(u);
           this.setState({ members });
         })
-        .catch(() => console.warn(`User ${username} nor found`))
+        .catch(() => console.warn(`User ${username} not found`))
         .finally(() => this.setState({ isFetching: false }));
     });
   }
@@ -135,8 +126,8 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
             <Table.Body>
               {members.map(user => (
                 <Table.Row key={user.username}>
-                  <Table.Cell width={8}>{`${user.firstName} ${
-                    user.lastName
+                  <Table.Cell width={8}>{`${user.firstname} ${
+                    user.lastname
                   }  (${user.username})`}</Table.Cell>
                   <Table.Cell width={3}>
                     {this.computeGroupRole(user.username, admin)}

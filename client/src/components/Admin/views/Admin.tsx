@@ -1,6 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { IInstance, UnControlled as CodeMirror } from 'react-codemirror2';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Button, Form, Grid, List, Loader, Message } from 'semantic-ui-react';
 
 import { fetchAssets, saveAsset } from '../actions/admin';
@@ -115,12 +115,12 @@ class Admin extends React.Component<{}, IAdminStates> {
   };
 
   private handleChangeCodeEditor = (
-    editor: IInstance,
+    editor: CodeMirror.Editor,
     data: CodeMirror.EditorChange,
     value: string
   ) => {
     this.setState({
-      assets: _.set(this.state.assets, editor.options.gutters![0], value)
+      assets: _.set(this.state.assets, editor.getOption("gutters")[0], value)
     });
   };
 

@@ -3,7 +3,8 @@ import './layout.css';
 import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
-import { Dispatch } from 'redux';
+import { Action } from 'redux';
+import { ThunkDispatch } from 'redux-thunk';
 import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
@@ -11,7 +12,6 @@ import { IStoreState } from '../../types/store';
 import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 import { IMessage } from './types/layout';
-import { fetchMessage } from './actions/layout';
 
 interface ILayoutProps {
   isAdmin: boolean;
@@ -28,10 +28,6 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
   public state = {
     message: {} as IMessage
   };
-
-  public componentWillMount() {
-    fetchMessage().then((message: IMessage) => this.setState({ message }));
-  }
 
   public render() {
     const { username, isAuthenticated, isAdmin } = this.props;
@@ -75,7 +71,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.images} name="images">
-                    <Icon name="tags" /> Images
+                    <Icon name="docker" /> Images
                   </Menu.Item>
 
                   <Menu.Item as={Link} to={path.users} name="users">
@@ -113,6 +109,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   as={Link}
                   to={path.login}
                   onClick={this.props.logoutRequest}
+                  style={{ marginLeft: 5 }}
                 />
               )}
             </Menu.Item>
@@ -138,13 +135,11 @@ const mapStateToProps = (state: IStoreState) => {
   };
 };
 
-const mapDispatchToProps = (dispatch: Dispatch<any>) => {
-  return {
-    logoutRequest: () => {
-      dispatch(logoutRequestThunk());
-    }
-  };
-};
+const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, Action>) => ({
+  logoutRequest: () => {
+    dispatch(logoutRequestThunk());
+  }
+});
 
 export default connect(
   mapStateToProps,

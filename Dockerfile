@@ -1,4 +1,4 @@
-FROM node:11.14-alpine as builderFront
+FROM node:12-alpine as builderFront
 
 WORKDIR /npm/src/docktor
 COPY client .
