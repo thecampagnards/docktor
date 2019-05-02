@@ -1,10 +1,9 @@
-import * as _ from 'lodash';
+
 import * as React from 'react';
 import {
-    Button, Dimmer, Form, Header, InputOnChangeData, List, Loader, Message
+     Dimmer, Loader, Message, List, Icon, ListItemProps, Modal, Button, Header
 } from 'semantic-ui-react';
 
-import { execDockerCommand } from '../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../Daemon/types/daemon';
 import { IGroup } from '../Group/types/group';
 import { fetchImage } from '../Images/actions/image';
@@ -20,6 +19,7 @@ interface IContainerCommandsStates {
   images: IImage[];
   error: Error;
   isFetching: boolean;
+  modalView: boolean;
   log: string;
   variables: object;
 }
@@ -33,7 +33,7 @@ export default class ContainerCommands extends React.Component<
     images: [] as IImage[],
     error: Error(),
     isFetching: true,
-
+    modalView: false,
     variables: {}
   };
 
@@ -67,46 +67,47 @@ export default class ContainerCommands extends React.Component<
             <Message.Header style={{ whiteSpace: "pre" }}>{log}</Message.Header>
           </Message>
         )}
-        <List divided={true} verticalAlign="middle">
+        <List selection={true}>
           {images.map((image, imageKey) =>
             image.commands.map((c, commandkey) => (
-              <List.Item key={commandkey}>
-                <List.Content floated="right">
-                  <Button onClick={this.Exec.bind(this, imageKey, commandkey)}>
-                    Exec
-                  </Button>
-                </List.Content>
-                <List.Content>
-                  <Header as="h3">
-                    {c.title}
-                    <Header.Subheader>{c.command}</Header.Subheader>
-                  </Header>
-                  {c.variables && (
-                    <Form>
-                      <Form.Group widths="equal">
-                        {c.variables.map(v => (
-                          <Form.Input
-                            key={v}
-                            fluid={true}
-                            label={v}
-                            required={true}
-                            onChange={this.handleInput}
-                            name={`variables.${v}`}
-                          />
-                        ))}
-                      </Form.Group>
-                    </Form>
-                  )}
-                </List.Content>
-              </List.Item>
+                <List.Item key={commandkey} name={commandkey} onClick={this.showCommand} >
+                  <Icon name="chevron right" /> {c.title}
+                  <Modal
+        open={this.state.modalView}
+        onClose={this.hideCommand}
+        size='small'
+      >
+        <Header icon='chevron right' content="uygc" />
+        <Modal.Content>
+          {c.command}
+        </Modal.Content>
+        <Modal.Actions>
+          <Button color='green'>
+            <Icon name='play' /> Run
+          </Button>
+        </Modal.Actions>
+      </Modal>
+                </List.Item>
+                
             ))
           )}
         </List>
-        <br />
+
       </>
     );
   }
 
+  private showCommand = (
+    event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
+    { name }: ListItemProps
+  ) => {
+    this.setState({ modalView: true });
+  }
+
+  private hideCommand = () => {
+    this.setState({ modalView: false });
+  }
+/*
   private Exec = (imageKey: number, commandkey: number) => {
     const { daemon, container } = this.props;
     const { images, variables } = this.state;
@@ -117,7 +118,7 @@ export default class ContainerCommands extends React.Component<
     if (imageVariables) {
       for (const v of imageVariables) {
         if (!variables[v]) {
-          this.setState({ log: "", error: Error(`Please set ${v}`) });
+          this.setState({ log: "", error: Error(`Please set a value for ${v}`) });
           return;
         }
       }
@@ -142,5 +143,5 @@ export default class ContainerCommands extends React.Component<
     { value, name }: InputOnChangeData
   ) => {
     this.setState(_.set(this.state, name, value));
-  };
+  };*/
 }

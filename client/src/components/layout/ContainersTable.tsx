@@ -183,10 +183,10 @@ export default class ContainerTable extends React.Component<
                               content=" Commands"
                             />
                           }
-                          size="large"
+                          size="tiny"
                         >
                           <Modal.Header>
-                            {container.Names + " commands"}
+                            {container.Names + " available commands :"}
                           </Modal.Header>
                           <Modal.Content>
                             <ContainerCommands
