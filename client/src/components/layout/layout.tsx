@@ -14,24 +14,18 @@ import KonamiCode from './KonamiCode';
 import { IMessage } from './types/layout';
 
 interface ILayoutProps {
+  message: IMessage;
   isAdmin: boolean;
   isAuthenticated: boolean;
   username: string;
   logoutRequest?: () => void;
 }
 
-interface ILayoutStates {
-  message: IMessage;
-}
 
-class Layout extends React.Component<ILayoutProps, ILayoutStates> {
-  public state = {
-    message: {} as IMessage
-  };
+class Layout extends React.Component<ILayoutProps> {
 
   public render() {
-    const { username, isAuthenticated, isAdmin } = this.props;
-    const { message } = this.state;
+    const { message, username, isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
@@ -127,8 +121,9 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 }
 
 const mapStateToProps = (state: IStoreState) => {
-  const { login } = state;
+  const { login, config } = state;
   return {
+    message: config.config.message || {},
     username: login.username,
     isAdmin: !!login.isAdmin,
     isAuthenticated: login.username !== ""

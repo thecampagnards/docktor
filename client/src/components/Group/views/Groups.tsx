@@ -101,7 +101,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               size="tiny"
               placeholder="Search groups..."
               showNoResults={false}
-              name="filter"
+              name="searchFilter"
               onSearchChange={this.filter}
             />
           </Grid.Column>

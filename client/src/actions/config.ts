@@ -28,12 +28,12 @@ export type ConfigAction =
     | IConfigSuccess
     | IConfigFailure;
 
-export const fetchRequest = () => {
+export const fetchConfig = () => {
     return (dispatch: Dispatch<ConfigAction>) => {
         dispatch({
             type: ConfigRequest
         });
-        return fetch(`${process.env.PUBLIC_URL}/api/config`, {
+        return fetch(`${process.env.PUBLIC_URL}/api/admin/config`, {
             credentials: "same-origin",
             method: "GET",
             headers: new Headers({

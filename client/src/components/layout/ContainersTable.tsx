@@ -158,7 +158,7 @@ export default class ContainerTable extends React.Component<
                                 !status.Started.includes(container.State)
                               }
                               icon="terminal"
-                              content="Exec"
+                              content="Shell"
                             />
                           }
                           size="large"
@@ -179,12 +179,15 @@ export default class ContainerTable extends React.Component<
                               disabled={
                                 !status.Started.includes(container.State)
                               }
-                              icon="terminal"
-                              content="Exec commands"
+                              icon="chevron right"
+                              content=" Commands"
                             />
                           }
                           size="large"
                         >
+                          <Modal.Header>
+                            {container.Names + " commands"}
+                          </Modal.Header>
                           <Modal.Content>
                             <ContainerCommands
                               daemon={daemon}

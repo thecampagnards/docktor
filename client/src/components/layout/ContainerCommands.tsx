@@ -50,7 +50,7 @@ export default class ContainerCommands extends React.Component<
     if (isFetching) {
       return (
         <Dimmer active={true} inverted={true}>
-          <Loader active={true} />
+          <Loader active={true} content={log} />
         </Dimmer>
       );
     }
@@ -111,7 +111,8 @@ export default class ContainerCommands extends React.Component<
     const { daemon, container } = this.props;
     const { images, variables } = this.state;
 
-    const imageVariables = images[imageKey].commands[commandkey].variables;
+    const command = images[imageKey].commands[commandkey];
+    const imageVariables = command.variables;
 
     if (imageVariables) {
       for (const v of imageVariables) {
@@ -122,13 +123,13 @@ export default class ContainerCommands extends React.Component<
       }
     }
 
-    this.setState({ isFetching: true });
+    this.setState({ isFetching: true, log: `Running command ${command.title} ...` });
 
     execDockerCommand(
       daemon!._id,
       container.Names[0] || container.Name,
       images[imageKey]._id,
-      images[imageKey].commands[commandkey].title,
+      command.title,
       variables
     )
       .then(log => this.setState({ log, error: Error() }))
