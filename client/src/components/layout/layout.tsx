@@ -11,6 +11,7 @@ import { IStoreState } from '../../types/store';
 import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 import { IMessage } from './types/layout';
+import { fetchMessage } from './actions/layout';
 
 interface ILayoutProps {
   isAdmin: boolean;
@@ -29,7 +30,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
   };
 
   public componentWillMount() {
-    // fetchMesage().then((message: IMessage) => this.setState({ message }));
+    fetchMessage().then((message: IMessage) => this.setState({ message }));
   }
 
   public render() {
@@ -38,7 +39,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 
     return (
       <>
-        {message.header && <Message className="banner" {...message} />}
+        {(message.header || message.content) && <Message className="banner" {...message} />}
 
         <KonamiCode />
         <Menu size="tiny">
