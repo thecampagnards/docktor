@@ -184,7 +184,7 @@ func (d *Daemon) GetContainersStartByName(name string) (containers []types.Conta
 
 	for _, c := range cs {
 		for _, n := range c.Names {
-			if strings.HasPrefix(normalizeName(n), normalizeName(name)) {
+			if strings.HasPrefix(NormalizeName(n), NormalizeName(name)) {
 				containers = append(containers, c)
 				break
 			}
@@ -390,7 +390,8 @@ func (d *Daemon) GetContainerTerm(containerName string) (types.HijackedResponse,
 	return cli.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{Detach: false, Tty: true})
 }
 
-func normalizeName(name string) string {
+// NormalizeName escape everithing useless from the container name
+func NormalizeName(name string) string {
 	r := regexp.MustCompile("[^a-z0-9]+")
 	return r.ReplaceAllString(strings.ToLower(name), "")
 }

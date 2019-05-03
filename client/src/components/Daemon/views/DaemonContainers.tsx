@@ -3,7 +3,7 @@ import { Loader, Message } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
-import ContainerTable from '../../layout/ContainersTable';
+import ContainerTable from '../../layout/ContainersTables/ContainersTables';
 import { fetchComposeServices, fetchContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
@@ -76,7 +76,7 @@ class Daemon extends React.Component<
     return (
       <>
         <DaemonServiceButtons daemon={daemon} services={services} />
-        <ContainerTable daemon={daemon} containers={containers} admin={true}/>
+        <ContainerTable daemon={daemon} containers={containers} admin={true} />
       </>
     );
   }

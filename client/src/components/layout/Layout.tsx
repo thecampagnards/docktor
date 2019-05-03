@@ -1,4 +1,4 @@
-import './layout.css';
+import './Layout.css';
 
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -8,10 +8,10 @@ import { ThunkDispatch } from 'redux-thunk';
 import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
+import { IMessage } from '../../types/layout';
 import { IStoreState } from '../../types/store';
 import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
-import { IMessage } from './types/layout';
 
 interface ILayoutProps {
   isAdmin: boolean;

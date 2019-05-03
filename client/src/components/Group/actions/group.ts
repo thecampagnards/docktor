@@ -27,48 +27,23 @@ export const fetchGroup = (groupID: string) => {
 };
 
 export const fetchContainers = (groupID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`, {
-    credentials: "same-origin",
-    method: "GET",
-    headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
-  })
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
     .then(checkStatus)
     .then(response => response.json());
 };
 
 export const saveContainers = (groupID: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`, {
-    credentials: "same-origin",
-    method: "POST",
-    headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
-  })
-    .then(checkStatus)
-    .then(response => response.json());
-};
-
-export const createContainer = (groupID: string, containerId: string) => {
-  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/${containerId}/create`, {
-    credentials: "same-origin",
-    method: "POST",
-    headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
-  })
-    .then(checkStatus)
-    .then(response => response.json());
-};
-
-export const changeContainersStatus = (
-  groupID: string,
-  status: string,
-  containers: string[]
-) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/status?status=${status}&containers=${containers.join(",")}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -78,7 +53,24 @@ export const changeContainersStatus = (
     }
   )
     .then(checkStatus)
-    .then((response: Response) => response.json());
+    .then(response => response.json());
+};
+
+export const createContainer = (groupID: string, containerId: string) => {
+  return fetch(
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/docker/containers/${containerId}/create`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
 };
 
 export const saveGroup = (group: IGroup) => {
@@ -109,8 +101,9 @@ export const deployService = (
   }
   opt = opt.slice(0, -1);
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/create/${serviceID}${opt &&
-    "?" + opt}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/compose/create/${serviceID}${opt && "?" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -127,7 +120,9 @@ export const deployService = (
 
 export const startService = (groupID: string, serviceID: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/start/${serviceID}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/compose/start/${serviceID}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -139,21 +134,6 @@ export const startService = (groupID: string, serviceID: string) => {
   )
     .then(checkStatus)
     .then(response => response.json());
-};
-
-export const fetchCadvisorMachine = (groupID: string) => {
-  return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor/machine`,
-    {
-      credentials: "same-origin",
-      method: "GET",
-      headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
-    }
-  )
-    .then(checkStatus)
-    .then((response: Response) => response.json());
 };
 
 export const fetchCadvisorContainers = (groupID: string) => {
@@ -174,7 +154,7 @@ export const fetchCadvisorContainers = (groupID: string) => {
 export const updateUser = (groupID: string, userID: string, status: string) => {
   return fetch(
     `${
-    process.env.PUBLIC_URL
+      process.env.PUBLIC_URL
     }/api/groups/${groupID}/updateuser/${userID}/${status}`,
     {
       credentials: "same-origin",

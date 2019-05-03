@@ -4,48 +4,37 @@ import {
     Button, Dimmer, Form, Header, InputOnChangeData, List, Loader, Message
 } from 'semantic-ui-react';
 
-import { execDockerCommand } from '../Daemon/actions/daemon';
-import { IContainer, IDaemon } from '../Daemon/types/daemon';
-import { IGroup } from '../Group/types/group';
-import { fetchImage } from '../Images/actions/image';
-import { IImage } from '../Images/types/image';
+import { execDockerCommand } from '../../Daemon/actions/daemon';
+import { IContainer, IDaemon } from '../../Daemon/types/daemon';
+import { IImage } from '../../Images/types/image';
 
-interface IContainerCommandsProps {
-  daemon?: IDaemon;
-  group?: IGroup;
+interface ICommandsProps {
+  daemon: IDaemon;
+  images: IImage[];
   container: IContainer;
 }
 
-interface IContainerCommandsStates {
-  images: IImage[];
+interface ICommandsStates {
   error: Error;
   isFetching: boolean;
   log: string;
   variables: object;
 }
 
-export default class ContainerCommands extends React.Component<
-  IContainerCommandsProps,
-  IContainerCommandsStates
+export default class Commands extends React.Component<
+  ICommandsProps,
+  ICommandsStates
 > {
   public state = {
-    log: "",
-    images: [] as IImage[],
     error: Error(),
+    log: "",
     isFetching: true,
-
     variables: {}
   };
 
-  public componentWillMount() {
-    fetchImage(this.props.container.Image)
-      .then(images => this.setState({ images }))
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
-  }
-
   public render() {
-    const { error, images, isFetching, log } = this.state;
+    const { images } = this.props;
+    const { error, isFetching, log } = this.state;
 
     if (isFetching) {
       return (
@@ -108,8 +97,8 @@ export default class ContainerCommands extends React.Component<
   }
 
   private Exec = (imageKey: number, commandkey: number) => {
-    const { daemon, container } = this.props;
-    const { images, variables } = this.state;
+    const { images, daemon, container } = this.props;
+    const { variables } = this.state;
 
     const imageVariables = images[imageKey].commands[commandkey].variables;
 

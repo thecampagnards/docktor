@@ -1,8 +1,9 @@
 import * as React from 'react';
 import { Loader, Message, Progress } from 'semantic-ui-react';
 
+import { fetchCadvisorMachine } from '../../Daemon/actions/daemon';
 import { IContainerInfo, IMachineInfo } from '../../Daemon/types/daemon';
-import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/group';
+import { fetchCadvisorContainers } from '../actions/group';
 import { IGroup } from '../types/group';
 
 interface IGroupCAdvisorProps {

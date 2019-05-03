@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"net/http"
+	"strings"
 
 	"docktor/server/storage"
 	"docktor/server/types"
@@ -72,10 +73,6 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 				"groupID": c.Param(types.GROUP_ID_PARAM),
 				"error":   err,
 			}).Error("Error when retrieving group")
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-
-		if err != nil {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
 
@@ -101,6 +98,79 @@ func WithGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 
 		if !group.IsAdmin(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "Group admin permission required")
+		}
+
+		return next(c)
+	}
+}
+
+// WithDaemonGroupAdmin
+func WithDaemonGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(types.User)
+		groups := types.Groups{}
+
+		var group types.Group
+		for _, g := range groups {
+			if g.Daemon.Hex() == c.Param(types.DAEMON_ID_PARAM) {
+				group = g
+			}
+		}
+
+		if !group.ID.Valid() {
+			log.WithFields(log.Fields{
+				"Daemon":   c.Param(types.DAEMON_ID_PARAM),
+				"Username": user.Username,
+			}).Error("Error when retrieving group")
+			return echo.NewHTTPError(http.StatusForbidden, "No permission on this daemon")
+		}
+
+		c.Set("daemon", group.Daemon)
+		return next(c)
+	}
+}
+
+// WithDockerContainer
+func WithDockerContainer(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		user := c.Get("user").(types.User)
+		db := c.Get("DB").(*storage.Docktor)
+
+		groups := types.Groups{}
+
+		var group types.Group
+		for _, g := range groups {
+			if g.Daemon.Hex() == c.Param(types.DAEMON_ID_PARAM) {
+				group = g
+			}
+		}
+
+		if !group.ID.Valid() {
+			log.WithFields(log.Fields{
+				"Daemon":   c.Param(types.DAEMON_ID_PARAM),
+				"Username": user.Username,
+			}).Error("Error when retrieving group")
+			return echo.NewHTTPError(http.StatusForbidden, "No permission on this daemon")
+		}
+
+		daemon, err := db.Daemons().FindByID(group.Daemon.Hex())
+		if err != nil {
+			log.WithFields(log.Fields{
+				"groupID": c.Param(types.GROUP_ID_PARAM),
+				"error":   err,
+			}).Error("Error when retrieving daemon")
+			return echo.NewHTTPError(http.StatusForbidden, err.Error())
+		}
+
+		containers, err := daemon.InspectContainers(c.Param(types.CONTAINER_ID_PARAM))
+		if len(containers) > 1 {
+			// ...
+			return echo.NewHTTPError(http.StatusForbidden, "Container doesn't exist")
+
+		}
+
+		if !strings.HasPrefix(types.NormalizeName(containers[0].Name), types.NormalizeName(group.Name)) {
+			return echo.NewHTTPError(http.StatusForbidden, "This is not a container of your group")
 		}
 
 		return next(c)

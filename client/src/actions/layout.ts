@@ -1,5 +1,5 @@
-import { checkStatus } from '../../../utils/promises';
-import { GetToken } from '../../User/actions/user';
+import { GetToken } from '../components/User/actions/user';
+import { checkStatus } from '../utils/promises';
 
 export const fetchMesage = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/config/message`, {
