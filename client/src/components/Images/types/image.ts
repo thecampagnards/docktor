@@ -8,6 +8,7 @@ export interface IImage {
 }
 
 export interface ICommand {
+  _id: string;
   title: string;
   command: string;
   variables?: string[];

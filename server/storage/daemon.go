@@ -102,6 +102,7 @@ func (r *DefaultDaemonsRepo) Save(t types.Daemon) (types.Daemon, error) {
 		ReturnNew: true,
 		Upsert:    true,
 	}
+
 	_, err := r.coll.FindId(t.ID).Apply(change, &t)
 	return t, err
 }

@@ -179,7 +179,7 @@ export default class ContainerTable extends React.Component<
                               disabled={
                                 !status.Started.includes(container.State)
                               }
-                              icon="chevron right"
+                              icon="forward"
                               content=" Commands"
                             />
                           }

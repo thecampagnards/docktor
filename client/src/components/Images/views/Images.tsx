@@ -209,7 +209,8 @@ class Images extends React.Component<{}, IImagesStates> {
 
     const { images, imageKey } = this.state;
     images[imageKey].commands.push({
-      title: "Command",
+      _id: "",
+      title: "",
       command: ""
     });
     this.setState({ images });

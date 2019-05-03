@@ -1,13 +1,14 @@
-
+import * as _ from "lodash";
 import * as React from 'react';
 import {
-     Dimmer, Loader, Message, List, Icon, ListItemProps, Modal, Button, Header
+     Dimmer, Loader, Message, List, Icon, ListItemProps, Modal, Button, Header, InputOnChangeData, Form
 } from 'semantic-ui-react';
 
 import { IContainer, IDaemon } from '../Daemon/types/daemon';
 import { IGroup } from '../Group/types/group';
 import { fetchImage } from '../Images/actions/image';
-import { IImage } from '../Images/types/image';
+import { IImage, ICommand } from '../Images/types/image';
+import { execDockerCommand } from '../Daemon/actions/daemon';
 
 interface IContainerCommandsProps {
   daemon?: IDaemon;
@@ -20,6 +21,7 @@ interface IContainerCommandsStates {
   error: Error;
   isFetching: boolean;
   modalView: boolean;
+  command: ICommand;
   log: string;
   variables: object;
 }
@@ -34,6 +36,7 @@ export default class ContainerCommands extends React.Component<
     error: Error(),
     isFetching: true,
     modalView: false,
+    command: {} as ICommand,
     variables: {}
   };
 
@@ -45,7 +48,7 @@ export default class ContainerCommands extends React.Component<
   }
 
   public render() {
-    const { error, images, isFetching, log } = this.state;
+    const { error, images, isFetching, log, modalView, command } = this.state;
 
     if (isFetching) {
       return (
@@ -57,42 +60,59 @@ export default class ContainerCommands extends React.Component<
 
     return (
       <>
-        {error.message && (
-          <Message negative={true}>
-            <Message.Header>{error.message}</Message.Header>
-          </Message>
-        )}
-        {log && (
-          <Message info={true}>
-            <Message.Header style={{ whiteSpace: "pre" }}>{log}</Message.Header>
-          </Message>
-        )}
         <List selection={true}>
           {images.map((image, imageKey) =>
-            image.commands.map((c, commandkey) => (
-                <List.Item key={commandkey} name={commandkey} onClick={this.showCommand} >
+            image.commands.map((c, commandKey) => (
+                <List.Item key={`${imageKey}:${commandKey}`} name={c} onClick={this.showCommand} >
                   <Icon name="chevron right" /> {c.title}
-                  <Modal
-        open={this.state.modalView}
-        onClose={this.hideCommand}
-        size='small'
-      >
-        <Header icon='chevron right' content="uygc" />
-        <Modal.Content>
-          {c.command}
-        </Modal.Content>
-        <Modal.Actions>
-          <Button color='green'>
-            <Icon name='play' /> Run
-          </Button>
-        </Modal.Actions>
-      </Modal>
                 </List.Item>
-                
             ))
           )}
         </List>
-
+        <Modal open={modalView} onClose={this.hideCommand} size='small'>
+          <Header icon='chevron right' content={command.title} />
+          <Modal.Content>
+            {error.message && (
+              <Message negative={true}>
+                <Message.Header>{error.message}</Message.Header>
+              </Message>
+            )}
+            {log && (
+              <Message info={true}>
+                <Message.Header style={{ whiteSpace: "pre" }}>{log}</Message.Header>
+              </Message>
+            )}
+          </Modal.Content>
+          <Modal.Content style={{ whiteSpace: "pre" }}>
+            {command.command}
+          </Modal.Content>
+          <Modal.Content>
+          {command.variables && (
+            <Form>
+              <Form.Group widths="equal">
+                {command.variables.map(v => (
+                  <Form.Input
+                    key={v}
+                    fluid={true}
+                    label={v}
+                    required={true}
+                    onChange={this.handleInput}
+                    name={`variables.${v}`}
+                  />
+                ))}
+              </Form.Group>
+            </Form>
+          )}
+          </Modal.Content>
+          <Modal.Actions>
+            <Button icon={true} labelPosition="left" floated="left" onClick={this.hideCommand}>
+              <Icon name='chevron circle left' /> Back
+            </Button>
+            <Button icon={true} labelPosition="right" color='green' onClick={this.exec}>
+              <Icon name='play' /> Run
+            </Button>
+          </Modal.Actions>
+        </Modal>
       </>
     );
   }
@@ -101,24 +121,24 @@ export default class ContainerCommands extends React.Component<
     event: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
     { name }: ListItemProps
   ) => {
-    this.setState({ modalView: true });
+    const command = name as ICommand;
+    this.setState({ modalView: true, command });
   }
 
   private hideCommand = () => {
-    this.setState({ modalView: false });
+    this.setState({ modalView: false, command: {} as ICommand });
   }
-/*
-  private Exec = (imageKey: number, commandkey: number) => {
+
+  private exec = () => {
     const { daemon, container } = this.props;
-    const { images, variables } = this.state;
+    const { variables, command } = this.state;
 
-    const command = images[imageKey].commands[commandkey];
-    const imageVariables = command.variables;
+    const commandArgs = command.variables;
 
-    if (imageVariables) {
-      for (const v of imageVariables) {
-        if (!variables[v]) {
-          this.setState({ log: "", error: Error(`Please set a value for ${v}`) });
+    if (commandArgs) {
+      for (const a of commandArgs) {
+        if (!variables[a]) {
+          this.setState({ log: "", error: Error(`Please set a value for ${a}`) });
           return;
         }
       }
@@ -129,8 +149,7 @@ export default class ContainerCommands extends React.Component<
     execDockerCommand(
       daemon!._id,
       container.Names[0] || container.Name,
-      images[imageKey]._id,
-      command.title,
+      command._id,
       variables
     )
       .then(log => this.setState({ log, error: Error() }))
@@ -143,5 +162,5 @@ export default class ContainerCommands extends React.Component<
     { value, name }: InputOnChangeData
   ) => {
     this.setState(_.set(this.state, name, value));
-  };*/
+  };
 }
