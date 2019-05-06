@@ -72,7 +72,7 @@ export default class ContainerTable extends React.Component<
 
     return (
       <>
-        {containersFiltered.length > 0 && (
+        {containers.length > 0 && (
           <Grid>
             <Grid.Column width={4}>
               <Search

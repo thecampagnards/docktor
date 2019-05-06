@@ -1,6 +1,6 @@
 import * as _ from "lodash";
 import * as React from 'react';
-import { Loader, Message, Grid } from 'semantic-ui-react';
+import { Loader, Message, Grid, Label } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
@@ -77,10 +77,12 @@ class Daemon extends React.Component<
     return (
       <Grid>
         <Grid.Row>
-          <Grid.Column width={8}>
-            <h4>{"NETWORKS - " + _.uniq(containers.map(c => c.HostConfig.NetworkMode)).join(" / ")}</h4>
+          <Grid.Column width={10}>
+              NETWORKS : {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
+                <Label>{n}</Label>
+              ))}
           </Grid.Column>
-          <Grid.Column width={8}>
+          <Grid.Column width={6}>
             <DaemonServiceButtons daemon={daemon} services={services} />
           </Grid.Column>
         </Grid.Row>
