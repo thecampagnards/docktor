@@ -38,7 +38,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { group } = this.props;
+    const { group, admin } = this.props;
     const { services, error, isFetching } = this.state;
 
     if (error.message) {
@@ -66,7 +66,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     return (
       <Card.Group>
         {services.map((service: IService, index: number) => (
-          <MarketCard service={service} groups={[group]} key={index} />
+          <MarketCard service={service} groups={[group]} admin={admin} key={index} />
         ))}
       </Card.Group>
     );

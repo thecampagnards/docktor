@@ -158,6 +158,7 @@ export default class ContainerTable extends React.Component<
                   <ButtonsStatus container={container} daemon={daemon} />
                 </Table.Cell>
                 <Table.Cell width={5}>
+                  <Button.Group fluid={true}>
                   <Button
                     icon="clipboard"
                     content="Image"
@@ -235,6 +236,7 @@ export default class ContainerTable extends React.Component<
                       <pre>{JSON.stringify(container, null, 2)}</pre>
                     </Modal.Content>
                   </Modal>
+                  </Button.Group>
                 </Table.Cell>
               </Table.Row>
             ))}

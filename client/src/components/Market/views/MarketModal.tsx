@@ -152,7 +152,7 @@ class MarketModal extends React.Component<
           </Grid>
         </Modal.Content>
         <Modal.Actions>
-          {service.sub_services ?
+          {service.sub_services && groups ?
             <>
               <Select
                 placeholder="Select your group"
@@ -180,7 +180,7 @@ class MarketModal extends React.Component<
               </Button>
             </>
             :
-            <p>No sub services found for this service</p>
+            <p>You cannot deploy this service (you may not be in any group).</p>
           }
         </Modal.Actions>
       </>

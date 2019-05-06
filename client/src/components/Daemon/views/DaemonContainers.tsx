@@ -1,5 +1,6 @@
+import * as _ from "lodash";
 import * as React from 'react';
-import { Loader, Message } from 'semantic-ui-react';
+import { Loader, Message, Grid } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
@@ -24,7 +25,7 @@ class Daemon extends React.Component<
   IDaemonContainersStates
 > {
   public state = {
-    containers: [],
+    containers: [] as IContainer[],
     isFetching: true,
     error: Error(),
     services: defaultDaemonServices
@@ -74,10 +75,21 @@ class Daemon extends React.Component<
     }
 
     return (
-      <>
-        <DaemonServiceButtons daemon={daemon} services={services} />
-        <ContainerTable daemon={daemon} containers={containers} admin={true} />
-      </>
+      <Grid>
+        <Grid.Row>
+          <Grid.Column width={8}>
+            <h4>{"NETWORKS - " + _.uniq(containers.map(c => c.HostConfig.NetworkMode)).join(" / ")}</h4>
+          </Grid.Column>
+          <Grid.Column width={8}>
+            <DaemonServiceButtons daemon={daemon} services={services} />
+          </Grid.Column>
+        </Grid.Row>
+        <Grid.Row>
+          <Grid.Column>
+            <ContainerTable daemon={daemon} containers={containers} admin={true} />
+          </Grid.Column>
+        </Grid.Row>
+      </Grid>
     );
   }
 }
