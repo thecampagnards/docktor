@@ -2,7 +2,8 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
+    Button, Checkbox, CheckboxProps, Form, Grid, Icon, InputOnChangeData, List, Loader, Message,
+    TextAreaProps
 } from 'semantic-ui-react';
 
 import { fetchImages, saveImages } from '../actions/image';
@@ -91,6 +92,14 @@ class Images extends React.Component<{}, IImagesStates> {
                       name={`images.${imageKey}.image.Pattern`}
                     />
 
+                    <Checkbox
+                      label="Enable shell for this image"
+                      checked={images[imageKey].is_allow_shell}
+                      name={`images.${imageKey}.is_allow_shell`}
+                      onChange={this.handleInput}
+                    />
+                    <br />
+                    <br />
                     <Button
                       icon={true}
                       onClick={this.addSubImage}
@@ -143,8 +152,9 @@ class Images extends React.Component<{}, IImagesStates> {
   private handleInput = (
     event:
       | React.ChangeEvent<HTMLInputElement>
+      | React.FormEvent<HTMLInputElement>
       | React.FormEvent<HTMLTextAreaElement>,
-    { value, name }: TextAreaProps | InputOnChangeData
+    { value, name }: TextAreaProps | InputOnChangeData | CheckboxProps
   ) => {
     event.preventDefault();
     this.setState(_.set(this.state, name, value));
@@ -165,6 +175,7 @@ class Images extends React.Component<{}, IImagesStates> {
 
     let images = this.state.images;
     const image = {
+      is_allow_shell: true,
       image: {
         Pattern: RegExp("").toString()
       },
