@@ -128,12 +128,12 @@ export default class ContainerTable extends React.Component<
           <Table.Body>
             {containersFiltered.map(container => (
               <Table.Row key={container.Id}>
-                <Table.Cell width={3} singleLine={true}>
+                <Table.Cell singleLine={true}>
                   {container.Id.substring(0, 12)}
                   <br />
                   {container.Names || container.Name}
                 </Table.Cell>
-                <Table.Cell width={3}>
+                <Table.Cell>
                   <List>
                     {daemon.host &&
                       container.Ports &&
@@ -151,13 +151,13 @@ export default class ContainerTable extends React.Component<
                       ))}
                   </List>
                 </Table.Cell>
-                <Table.Cell width={2}>
+                <Table.Cell>
                   {container.Status || "Removed"}
                 </Table.Cell>
-                <Table.Cell width={3}>
+                <Table.Cell>
                   <ButtonsStatus container={container} daemon={daemon} />
                 </Table.Cell>
-                <Table.Cell width={5}>
+                <Table.Cell>
                   <Button.Group fluid={true}>
                   <Button
                     icon="clipboard"
