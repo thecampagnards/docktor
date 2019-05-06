@@ -81,9 +81,18 @@ class Services extends React.Component<{}, IServicesStates> {
               floated="right"
               as={Link}
               to={path.servicesNew}
-              labelPosition="left"
+              labelPosition="right"
               icon="plus"
               content="Add service"
+            />
+            <Button
+              floated="right"
+              as="a"
+              href="https://innersource.soprasteria.com/dep/cdk/library/docktor-services"
+              target="_blank"
+              labelPosition="left"
+              icon="code"
+              content="Sources"
             />
           </Grid.Column>
         </Grid>

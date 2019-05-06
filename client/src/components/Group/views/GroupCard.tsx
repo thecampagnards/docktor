@@ -31,20 +31,20 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
         </Card.Content>}
         {(displayButtons || admin) &&
         <Card.Content extra={true}>
-          <Button color="green" icon={true} labelPosition="left" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
+          <Button color="green" icon={true} labelPosition="left" title="Go to services" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
             <Icon name="cubes" />
             Services
           </Button>
-          <Button icon={true} as={Link} to={path.groupsMembers.replace(":groupID", group._id)}>
+          <Button icon={true} title="Group members" as={Link} to={path.groupsMembers.replace(":groupID", group._id)}>
             <Icon name="users" />
           </Button>
           {groupAdmin &&
-          <Button icon={true} as={Link} to={path.groupsEdit.replace(":groupID", group._id)}>
+          <Button icon={true} title="Edit group" as={Link} to={path.groupsEdit.replace(":groupID", group._id)}>
             <Icon name="edit" />
           </Button>
           }
           {admin &&
-          <Button icon={true} floated="right" as={Link} to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}>
+          <Button icon={true} floated="right" title="Connect to the VM" as={Link} to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}>
             <Icon name="terminal" />
           </Button>
           }

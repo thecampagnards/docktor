@@ -2,7 +2,7 @@ import './Profile.css';
 
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Card, Checkbox, CheckboxProps, Grid, Label, Table } from 'semantic-ui-react';
+import { Button, Card, Checkbox, CheckboxProps, Grid, Label, Table, List } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { updateUser } from '../../Group/actions/group';
@@ -22,7 +22,7 @@ interface IProfileCardStates {
 export default class ProfileCard extends React.Component<
   IProfileCardProps,
   IProfileCardStates
-> {
+  > {
   public state = {
     isFetching: false
   };
@@ -38,9 +38,7 @@ export default class ProfileCard extends React.Component<
               <Card.Header>{user.username.toUpperCase()}</Card.Header>
             </Grid.Column>
             <Grid.Column width={3}>
-              <Label compact="true" color="green">
-                {user.role}
-              </Label>
+              <Label compact="true" color="green">{user.role}</Label>
             </Grid.Column>
           </Grid>
           <Card.Meta>{user.firstname + " " + user.lastname}</Card.Meta>
@@ -75,8 +73,7 @@ export default class ProfileCard extends React.Component<
                         icon="trash"
                         color="red"
                         title="Exit this group"
-                        onClick={this.deleteFromGroup}
-                      />
+                        onClick={this.deleteFromGroup} />
                     </Table.Cell>
                   </Table.Row>
                 ))}
@@ -85,13 +82,14 @@ export default class ProfileCard extends React.Component<
           )}
           {!user.groups && (
             <>
-              <pre style={{ color: "red" }}>
-                This account is not assigned to any group.
-              </pre>
-              Contact an administrator of the group you want to join : <br />
-              Groups -> Toggle "Display all groups" > use the search filter to
-              find your group > admins of the group are listed below the group
-              title.
+              <pre style={{ color: 'red' }}>This account is not assigned to any group.</pre>
+              Follow this process to get granted access to a group : <br />
+              <List bulleted={true}>
+                <List.Item>Open the Groups view</List.Item>
+                <List.Item>Toggle "Display all groups"</List.Item>
+                <List.Item>Find your group using the search field</List.Item>
+                <List.Item>Contact the group admins listed below the group name</List.Item>
+              </List>
             </>
           )}
         </Card.Content>

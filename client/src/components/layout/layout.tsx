@@ -14,32 +14,22 @@ import KonamiCode from './KonamiCode';
 import { IMessage } from './types/layout';
 
 interface ILayoutProps {
+  message: IMessage;
   isAdmin: boolean;
   isAuthenticated: boolean;
   username: string;
   logoutRequest?: () => void;
 }
 
-interface ILayoutStates {
-  message: IMessage;
-}
 
-class Layout extends React.Component<ILayoutProps, ILayoutStates> {
-  public state = {
-    message: {} as IMessage
-  };
-
-  public componentWillMount() {
-    // fetchMesage().then((message: IMessage) => this.setState({ message }));
-  }
+class Layout extends React.Component<ILayoutProps> {
 
   public render() {
-    const { username, isAuthenticated, isAdmin } = this.props;
-    const { message } = this.state;
+    const { message, username, isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
-        {message.header && <Message className="banner" {...message} />}
+        {(message.header || message.content) && <Message className="banner" {...message} />}
 
         <KonamiCode />
         <Menu size="tiny">
@@ -105,6 +95,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
+              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
@@ -130,8 +121,9 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 }
 
 const mapStateToProps = (state: IStoreState) => {
-  const { login } = state;
+  const { login, config } = state;
   return {
+    message: config.config.message || {},
     username: login.username,
     isAdmin: !!login.isAdmin,
     isAuthenticated: login.username !== ""

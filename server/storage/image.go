@@ -19,6 +19,8 @@ type ImagesRepo interface {
 	Find(name string) (types.Images, error)
 	// FindByID get the image by id
 	FindByID(id string) (types.Image, error)
+	// FindCommandByID get the command by id
+	FindCommandByID(id string) (types.Command, error)
 	// FindAll get all images
 	FindAll() (types.Images, error)
 	// GetCollectionName returns the name of the collection
@@ -70,15 +72,35 @@ func (r *DefaultImagesRepo) FindByID(id string) (t types.Image, err error) {
 	return t, err
 }
 
+// FindCommandByID get one command by id
+func (r *DefaultImagesRepo) FindCommandByID(id string) (types.Command, error) {
+	var img types.Image
+	// Select(bson.M{"commands.$": 1})
+	err := r.coll.Find(bson.M{"commands._id": bson.ObjectIdHex(id)}).One(&img)
+	if !img.ID.Valid() {
+		return types.Command{}, err
+	}
+	return img.Commands[0], nil
+}
+
 // Save create or update image
 func (r *DefaultImagesRepo) Save(t types.Image) (types.Image, error) {
+	if !t.ID.Valid() {
+		t.ID = bson.NewObjectId()
+	}
+
+	for i, c := range t.Commands {
+		if !c.ID.Valid() {
+			t.Commands[i].ID = bson.NewObjectId()
+		}
+	}
 
 	change := mgo.Change{
 		Update:    bson.M{"$set": t},
 		ReturnNew: true,
 		Upsert:    true,
 	}
-	_, err := r.coll.Find(bson.M{"image": t.Image}).Apply(change, &t)
+	_, err := r.coll.FindId(t.ID).Apply(change, &t)
 	return t, err
 }
 

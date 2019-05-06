@@ -36,7 +36,7 @@ func AddRoute(e *echo.Group) {
 			docker.POST("/containers/status", UpdateContainersStatus)
 			docker.GET(fmt.Sprintf("/containers/:%s/log", types.CONTAINER_ID_PARAM), GetContainerLog)
 			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), GetContainerTerm)
-			docker.POST(fmt.Sprintf("/containers/:%s/exec/:%s/:%s", types.CONTAINER_ID_PARAM, types.IMAGE_ID_PARAM, types.COMMAND_TITLE_PARAM), execContainer)
+			docker.POST(fmt.Sprintf("/containers/:%s/exec/:%s", types.CONTAINER_ID_PARAM, types.COMMAND_ID_PARAM), execContainer)
 		}
 		{
 			// SSH requests
