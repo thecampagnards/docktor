@@ -8,13 +8,14 @@ import { IService } from '../../Services/types/service';
 import MarketModal from './MarketModal';
 
 interface IMarketCardProps {
-  service: IService
-  groups: IGroup[]
+  service: IService;
+  groups: IGroup[];
+  admin: boolean;
 }
 
 export default class MarketCard extends React.Component<IMarketCardProps> {
   public render() {
-    const { service, groups } = this.props
+    const { service, groups, admin } = this.props
 
     return (
       <Card fluid={true}>
@@ -25,7 +26,7 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
           <Card.Header>{service.name}</Card.Header>
         </Card.Content>
         <Card.Content extra={true}>
-          <MarketModal service={service} groups={groups} />
+          <MarketModal service={service} groups={groups} admin={admin} />
         </Card.Content>
       </Card>
     )

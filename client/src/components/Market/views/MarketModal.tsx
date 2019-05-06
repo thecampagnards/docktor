@@ -29,6 +29,7 @@ interface IMarketModalStates {
 interface IMarketModalProps {
   service: IService;
   groups: IGroup[];
+  admin: boolean;
 }
 
 class MarketModal extends React.Component<
@@ -51,7 +52,7 @@ class MarketModal extends React.Component<
 
   public render() {
     const { open, stage } = this.state;
-    const { service } = this.props;
+    const { service, admin } = this.props;
 
     return (
       <>
@@ -76,14 +77,16 @@ class MarketModal extends React.Component<
           <Icon name="play" />
           Deploy
         </Button>
-        <Button
-          floated="right"
-          icon={true}
-          as={Link}
-          to={path.servicesEdit.replace(":serviceID", service._id!)}
-        >
-          <Icon name="edit" />
-        </Button>
+        {admin && (
+          <Button
+            floated="right"
+            icon={true}
+            as={Link}
+            to={path.servicesEdit.replace(":serviceID", service._id!)}
+          >
+            <Icon name="edit" />
+          </Button>
+        )}
         <Modal
           closeIcon={true}
           open={open}
