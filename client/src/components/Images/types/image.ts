@@ -1,5 +1,6 @@
 export interface IImage {
   _id: string;
+  title: string;
   image: {
     Pattern: string;
     Options: string;
