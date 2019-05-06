@@ -17,9 +17,10 @@ type Image struct {
 
 // Command data
 type Command struct {
-	Title     string      `json:"title" bson:"title"`
-	Command   string      `json:"command" bson:"command"`
-	Variables interface{} `json:"variables" bson:"-"`
+	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Title     string        `json:"title" bson:"title"`
+	Command   string        `json:"command" bson:"command"`
+	Variables interface{}   `json:"variables" bson:"-"`
 }
 
 // Images data

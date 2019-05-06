@@ -29,7 +29,7 @@ func CheckDaemonsStatuses() {
 
 	for _, d := range ds {
 		d.SetDockerStatus()
-		log.Debugf("Daemon status - %s : %s", d.Name, d.Docker.Status)
+		// log.Debugf("Daemon status - %s : %s", d.Name, d.Docker.Status)
 		dock.Daemons().Save(d)
 	}
 

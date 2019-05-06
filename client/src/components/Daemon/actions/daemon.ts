@@ -178,16 +178,13 @@ export const checkDaemonStatus = (daemonID: string) => {
 export const execDockerCommand = (
   daemonID: string,
   container: string,
-  imageID: string,
-  command: string,
+  commandID: string,
   variable: any
 ) => {
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/daemons/${daemonID}/docker/containers/${container.slice(
-      1
-    )}/exec/${imageID}/${encodeURIComponent(command)}`,
+    }/api/daemons/${daemonID}/docker/containers/${encodeURIComponent(container)}/exec/${commandID}`,
     {
       credentials: "same-origin",
       method: "POST",

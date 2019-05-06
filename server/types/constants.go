@@ -12,7 +12,6 @@ const (
 	CONTAINER_ID_PARAM  = "containerID"
 	PROJECT_NAME        = "Docktor"
 	DOCKER_STOP_TIMEOUT = 10 * time.Second
-	DOCKER_LOG_SINCE    = "10m"
 	WATCHTOWER_LABEL    = "com.centurylinklabs.watchtower.enable=true"
 
 	// Group
@@ -42,9 +41,9 @@ const (
 	STATUS_CERT = "CERT"
 
 	// Images
-	IMAGE_PARAM         = "image"
-	IMAGE_ID_PARAM      = "imageID"
-	COMMAND_TITLE_PARAM = "commandTitle"
+	IMAGE_PARAM      = "image"
+	IMAGE_ID_PARAM   = "imageID"
+	COMMAND_ID_PARAM = "commandID"
 )
 
 var (

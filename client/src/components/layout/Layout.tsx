@@ -8,38 +8,28 @@ import { ThunkDispatch } from 'redux-thunk';
 import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
-import { IMessage } from '../../types/layout';
 import { IStoreState } from '../../types/store';
+import { IMessage } from '../../types/types';
 import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
 
 interface ILayoutProps {
+  message: IMessage;
   isAdmin: boolean;
   isAuthenticated: boolean;
   username: string;
   logoutRequest?: () => void;
 }
 
-interface ILayoutStates {
-  message: IMessage;
-}
-
-class Layout extends React.Component<ILayoutProps, ILayoutStates> {
-  public state = {
-    message: {} as IMessage
-  };
-
-  public componentWillMount() {
-    // fetchMesage().then((message: IMessage) => this.setState({ message }));
-  }
-
+class Layout extends React.Component<ILayoutProps> {
   public render() {
-    const { username, isAuthenticated, isAdmin } = this.props;
-    const { message } = this.state;
+    const { message, username, isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
-        {message.header && <Message className="banner" {...message} />}
+        {(message.header || message.content) && (
+          <Message className="banner" {...message} />
+        )}
 
         <KonamiCode />
         <Menu size="tiny">
@@ -130,8 +120,9 @@ class Layout extends React.Component<ILayoutProps, ILayoutStates> {
 }
 
 const mapStateToProps = (state: IStoreState) => {
-  const { login } = state;
+  const { login, config } = state;
   return {
+    message: config.config.message || {},
     username: login.username,
     isAdmin: !!login.isAdmin,
     isAuthenticated: login.username !== ""

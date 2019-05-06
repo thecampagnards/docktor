@@ -110,54 +110,19 @@ func execContainer(c echo.Context) error {
 		"daemon": daemon.Name,
 	}).Info("Daemon retrieved")
 
-	// Find the image
-	image, err := db.Images().FindByID(c.Param(types.IMAGE_ID_PARAM))
+	// Find the command
+	command, err := db.Images().FindCommandByID(c.Param(types.COMMAND_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
-			"imageID": c.Param(types.IMAGE_ID_PARAM),
-			"error":   err,
-		}).Error("Error when retrieving image")
+			"commandID": c.Param(types.COMMAND_ID_PARAM),
+			"error":     err,
+		}).Error("Error when retrieving command")
 		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	log.WithFields(log.Fields{
-		"image": image.Image.Pattern,
-	}).Info("Image retrieved")
-
-	// Unescape the command title
-	title, err := url.QueryUnescape(c.Param(types.COMMAND_TITLE_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"commandTitle": c.Param(types.COMMAND_TITLE_PARAM),
-			"error":        err,
-		}).Error("Unable to decode command title")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	log.WithFields(log.Fields{
-		"title": title,
-	}).Info("Command unsecaped")
-
-	// Find the command in the commands image
-	var command types.Command
-	for _, c := range image.Commands {
-		if c.Title == title {
-			command = c
-			break
-		}
-	}
-
-	if command.Title == "" {
-		log.WithFields(log.Fields{
-			"commandTitle": title,
-			"error":        err,
-		}).Error("Cannot find the command")
-		return c.JSON(http.StatusBadRequest, "Cannot find the command")
 	}
 
 	log.WithFields(log.Fields{
 		"command": command.Title,
-	}).Info("Command found")
+	}).Info("Command retrieved")
 
 	// Get the body variables ton replace in the go template
 	var variables interface{}
@@ -186,7 +151,14 @@ func execContainer(c echo.Context) error {
 	}
 
 	// Get the container name
-	container := c.Param(types.CONTAINER_ID_PARAM)
+	container, err := url.QueryUnescape(c.Param(types.CONTAINER_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"container": c.Param(types.CONTAINER_ID_PARAM),
+			"error":     err,
+		}).Error("Error when parsing container name")
+		return c.JSON(http.StatusBadRequest, err)
+	}
 
 	// Launch the cmd
 	logs, err := daemon.ExecContainer(container, []string{cmd})

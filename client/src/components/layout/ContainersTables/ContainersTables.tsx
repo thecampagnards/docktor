@@ -1,24 +1,30 @@
-import * as React from 'react';
+import * as React from "react";
 import {
-    Button, Grid, Icon, List, Modal, Popup, Search, SearchProps, Table
-} from 'semantic-ui-react';
+  Button,
+  Grid,
+  Icon,
+  List,
+  Modal,
+  Popup,
+  Search,
+  SearchProps,
+  Table
+} from "semantic-ui-react";
 
-import { status } from '../../../constants/container';
-import { copy } from '../../../utils/clipboard';
-import { changeContainersStatus } from '../../Daemon/actions/daemon';
-import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { IGroup } from '../../Group/types/group';
-import { fetchImages } from '../../Images/actions/image';
-import { IImage } from '../../Images/types/image';
-import ShellSocket from '../ShellSocket';
-import TextSocket from '../TextSocket';
-import ButtonsStatus from './ButtonsStatus';
-import Commands from './Commands';
+import { status } from "../../../constants/container";
+import { copy } from "../../../utils/clipboard";
+import { changeContainersStatus } from "../../Daemon/actions/daemon";
+import { IContainer, IDaemon } from "../../Daemon/types/daemon";
+import { fetchImages } from "../../Images/actions/image";
+import { IImage } from "../../Images/types/image";
+import ShellSocket from "../ShellSocket";
+import TextSocket from "../TextSocket";
+import ButtonsStatus from "./ButtonsStatus";
+import Commands from "./Commands";
 
 interface ITableProps {
   daemon: IDaemon;
   admin: boolean;
-  group?: IGroup;
   containers: IContainer[];
 }
 
@@ -168,7 +174,7 @@ export default class ContainerTable extends React.Component<
                         >
                           <pre style={{ whiteSpace: "pre-line" }}>
                             <TextSocket
-                              wsPath={`/daemons/${
+                              wsPath={`/api/daemons/${
                                 daemon._id
                               }/docker/containers/${container.Id}/log`}
                             />
@@ -181,7 +187,7 @@ export default class ContainerTable extends React.Component<
                             disabled={
                               !admin ||
                               !status.Started.includes(container.State) ||
-                              (!this.allowShell(container) && admin)
+                              !this.allowShell(container)
                             }
                             icon="terminal"
                             content="Exec"
@@ -201,15 +207,20 @@ export default class ContainerTable extends React.Component<
                         trigger={
                           <Button
                             disabled={!status.Started.includes(container.State)}
-                            icon="terminal"
-                            content="Exec commands"
+                            icon="forward"
+                            content=" Commands"
                           />
                         }
-                        size="large"
+                        size="tiny"
                       >
+                        <Modal.Header>
+                          {container.Names + " available commands :"}
+                        </Modal.Header>
                         <Modal.Content>
                           <Commands
-                            images={images}
+                            images={images.filter(i =>
+                              RegExp(i.image.Pattern).test(container.Image)
+                            )}
                             daemon={daemon}
                             container={container}
                           />
@@ -243,13 +254,19 @@ export default class ContainerTable extends React.Component<
   };
 
   private allowShell = (container: IContainer): boolean => {
+    const { admin } = this.props;
+    if (admin) {
+      return true;
+    }
+
     const { images } = this.state;
 
-    for (const name of container.Names) {
-      for (const image of images) {
-        if (RegExp(image.image.Pattern).test(name) && image.is_allow_shell) {
-          return true;
-        }
+    for (const image of images) {
+      if (
+        RegExp(image.image.Pattern).test(container.Image) &&
+        image.is_allow_shell
+      ) {
+        return true;
       }
     }
     return false;

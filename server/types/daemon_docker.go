@@ -332,19 +332,6 @@ func (d *Daemon) ExecContainer(containerName string, commands []string) ([]byte,
 	return ioutil.ReadAll(res.Reader)
 }
 
-// GetContainerLog
-func (d *Daemon) GetContainerLog(containerName string) (io.ReadCloser, error) {
-
-	cli, err := d.getDockerCli()
-	if err != nil {
-		return nil, err
-	}
-
-	defer cli.Close()
-
-	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{})
-}
-
 // GetContainerLogFollow
 func (d *Daemon) GetContainerLogFollow(containerName string) (io.ReadCloser, error) {
 
@@ -353,7 +340,9 @@ func (d *Daemon) GetContainerLogFollow(containerName string) (io.ReadCloser, err
 		return nil, err
 	}
 
-	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{Since: DOCKER_LOG_SINCE, ShowStdout: true, ShowStderr: true, Follow: true})
+	defer cli.Close()
+
+	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{Timestamps: false, Tail: "40", ShowStdout: true, ShowStderr: true, Follow: true})
 }
 
 // GetContainerTerm
