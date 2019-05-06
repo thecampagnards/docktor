@@ -53,10 +53,10 @@ export default class Commands extends React.Component<
     return (
       <>
         <List selection={true}>
-          {images.map((image, imageKey) =>
-            image.commands.map((c, commandKey) => (
+          {images.map((image) =>
+            image.commands.map((c) => (
               <List.Item
-                key={`${imageKey}:${commandKey}`}
+                key={c._id}
                 name={c}
                 onClick={this.showCommand}
               >

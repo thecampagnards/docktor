@@ -58,15 +58,7 @@ class Images extends React.Component<{}, IImagesStates> {
           <Grid columns={2} divided={true}>
             <Grid.Row>
               <Grid.Column width={4}>
-                <Button icon={true} onClick={this.addImage} color="green">
-                  <Icon name="plus" />
-                  Add image
-                </Button>
-                <Button icon={true} onClick={this.removeImage} color="red">
-                  <Icon name="minus" />
-                  Remove
-                </Button>
-                <List>
+                <List selection={true}>
                   {images &&
                     images.map((c, key) => (
                       <List.Item
@@ -75,27 +67,30 @@ class Images extends React.Component<{}, IImagesStates> {
                         onClick={this.changeImage(key)}
                         active={key === imageKey}
                         basic={true}
-                        style={{ padding: 5, width: "100%" }}
+                        fluid={true}
+                        style={{ margin: 3 }}
                       >
-                        <List.Icon name="terminal" />
-                        <List.Content>
-                          <List.Header>
-                            <Form.Input
-                              fluid={true}
-                              value={c.image.Pattern}
-                              onChange={this.handleInput}
-                              name={`images.${key}.image.Pattern`}
-                            />
-                          </List.Header>
-                        </List.Content>
+                        Image #{key}
+                        <Icon name="chevron right" floated="right" />
                       </List.Item>
                     ))}
                 </List>
+                <Button icon={true} labelPosition="left" onClick={this.addImage} primary={true}>
+                  <Icon name="plus" />
+                  Add image
+                </Button>
               </Grid.Column>
 
               <Grid.Column width={12}>
                 {images && images.length > imageKey ? (
                   <>
+                    <Form.Input
+                      label="Image pattern"
+                      value={images[imageKey].image.Pattern}
+                      onChange={this.handleInput}
+                      name={`images.${imageKey}.image.Pattern`}
+                    />
+
                     <Button
                       icon={true}
                       onClick={this.addSubImage}
@@ -183,7 +178,7 @@ class Images extends React.Component<{}, IImagesStates> {
     images ? images.unshift(image) : (images = [image]);
     this.setState({ images });
   };
-
+/*
   private removeImage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
@@ -193,7 +188,7 @@ class Images extends React.Component<{}, IImagesStates> {
     images.splice(imageKey, imageKey);
     this.setState({ images });
   };
-
+*/
   private addSubImage = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
