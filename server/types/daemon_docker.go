@@ -184,7 +184,7 @@ func (d *Daemon) GetContainersStartByName(name string) (containers []types.Conta
 
 	for _, c := range cs {
 		for _, n := range c.Names {
-			if strings.HasPrefix(normalizeName(n), normalizeName(name)) {
+			if strings.HasPrefix(NormalizeName(n), NormalizeName(name)) {
 				containers = append(containers, c)
 				break
 			}
@@ -332,19 +332,6 @@ func (d *Daemon) ExecContainer(containerName string, commands []string) ([]byte,
 	return ioutil.ReadAll(res.Reader)
 }
 
-// GetContainerLog
-func (d *Daemon) GetContainerLog(containerName string) (io.ReadCloser, error) {
-
-	cli, err := d.getDockerCli()
-	if err != nil {
-		return nil, err
-	}
-
-	defer cli.Close()
-
-	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{})
-}
-
 // GetContainerLogFollow
 func (d *Daemon) GetContainerLogFollow(containerName string) (io.ReadCloser, error) {
 
@@ -353,7 +340,9 @@ func (d *Daemon) GetContainerLogFollow(containerName string) (io.ReadCloser, err
 		return nil, err
 	}
 
-	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{Since: DOCKER_LOG_SINCE, ShowStdout: true, ShowStderr: true, Follow: true})
+	defer cli.Close()
+
+	return cli.ContainerLogs(context.Background(), containerName, types.ContainerLogsOptions{Timestamps: false, Tail: "40", ShowStdout: true, ShowStderr: true, Follow: true})
 }
 
 // GetContainerTerm
@@ -390,7 +379,8 @@ func (d *Daemon) GetContainerTerm(containerName string) (types.HijackedResponse,
 	return cli.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{Detach: false, Tty: true})
 }
 
-func normalizeName(name string) string {
+// NormalizeName escape everithing useless from the container name
+func NormalizeName(name string) string {
 	r := regexp.MustCompile("[^a-z0-9]+")
 	return r.ReplaceAllString(strings.ToLower(name), "")
 }

@@ -12,7 +12,6 @@ const (
 	CONTAINER_ID_PARAM  = "containerID"
 	PROJECT_NAME        = "Docktor"
 	DOCKER_STOP_TIMEOUT = 10 * time.Second
-	DOCKER_LOG_SINCE    = "10m"
 	WATCHTOWER_LABEL    = "com.centurylinklabs.watchtower.enable=true"
 
 	// Group

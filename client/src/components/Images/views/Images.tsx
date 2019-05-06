@@ -1,20 +1,12 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { UnControlled as CodeMirror } from "react-codemirror2";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-  Button,
-  Form,
-  Grid,
-  Icon,
-  InputOnChangeData,
-  List,
-  Loader,
-  Message,
-  TextAreaProps
-} from "semantic-ui-react";
+    Button, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps
+} from 'semantic-ui-react';
 
-import { fetchImages, saveImages } from "../actions/image";
-import { IImage } from "../types/image";
+import { fetchImages, saveImages } from '../actions/image';
+import { IImage } from '../types/image';
 
 interface IImagesStates {
   images: IImage[];
@@ -110,7 +102,7 @@ class Images extends React.Component<{}, IImagesStates> {
                       color="green"
                     >
                       <Icon name="plus" />
-                      Add image for {images[imageKey].image.Pattern}
+                      Add command for {images[imageKey].image.Pattern}
                     </Button>
                     {images[imageKey].commands.map((command, key) => (
                       <span key={key}>

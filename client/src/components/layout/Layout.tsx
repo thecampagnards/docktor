@@ -1,4 +1,4 @@
-import './layout.css';
+import './Layout.css';
 
 import * as React from 'react';
 import { connect } from 'react-redux';
@@ -9,9 +9,9 @@ import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
 import { IStoreState } from '../../types/store';
+import { IMessage } from '../../types/types';
 import { logoutRequestThunk } from '../User/actions/user';
 import KonamiCode from './KonamiCode';
-import { IMessage } from './types/layout';
 
 interface ILayoutProps {
   message: IMessage;
@@ -21,15 +21,15 @@ interface ILayoutProps {
   logoutRequest?: () => void;
 }
 
-
 class Layout extends React.Component<ILayoutProps> {
-
   public render() {
     const { message, username, isAuthenticated, isAdmin } = this.props;
 
     return (
       <>
-        {(message.header || message.content) && <Message className="banner" {...message} />}
+        {(message.header || message.content) && (
+          <Message className="banner" {...message} />
+        )}
 
         <KonamiCode />
         <Menu size="tiny">
@@ -95,7 +95,6 @@ class Layout extends React.Component<ILayoutProps> {
                   <Icon name="user" />
                 </Button.Content>
               </Button>
-              <pre>{" "}</pre>
               {isAuthenticated && (
                 <Button
                   color="red"
@@ -123,7 +122,7 @@ class Layout extends React.Component<ILayoutProps> {
 const mapStateToProps = (state: IStoreState) => {
   const { login, config } = state;
   return {
-    message: config.config.message || {},
+    message: config.config.message || {},
     username: login.username,
     isAdmin: !!login.isAdmin,
     isAuthenticated: login.username !== ""

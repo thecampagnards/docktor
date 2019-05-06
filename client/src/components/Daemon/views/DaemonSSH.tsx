@@ -2,7 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Button, Form, Icon, Message, Modal } from 'semantic-ui-react';
 
-import CmdSocket from '../../layout/CmdSocket';
+import ShellSocket from '../../layout/ShellSocket';
 import { execCommand, saveDaemon } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 
@@ -52,7 +52,7 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
     const { commands, error, isFetching, isSuccess } = this.state;
     return (
       <>
-        <CmdSocket apiURL={`/api/daemons/${daemon._id}/ssh/term`} />
+        <ShellSocket wsPath={`/api/daemons/${daemon._id}/ssh/term`} />
         <br />
         <Form success={isSuccess} error={!!error.message}>
           <Button icon={true} onClick={this.handleAdd}>

@@ -39,8 +39,10 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     searchDaemonID: ""
   };
 
-  private localDisplayAllGroups = localStorage.getItem('displayAllGroups');
-  private displayAll = this.localDisplayAllGroups ? JSON.parse(this.localDisplayAllGroups) : false;
+  private localDisplayAllGroups = localStorage.getItem("displayAllGroups");
+  private displayAll = this.localDisplayAllGroups
+    ? JSON.parse(this.localDisplayAllGroups)
+    : false;
 
   public componentWillMount() {
     fetchGroups(this.displayAll)
@@ -163,7 +165,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     { checked }: CheckboxProps
   ) => {
     this.displayAll = checked as boolean;
-    localStorage.setItem('displayAllGroups', this.displayAll)
+    localStorage.setItem("displayAllGroups", this.displayAll);
     fetchGroups(this.displayAll)
       .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));

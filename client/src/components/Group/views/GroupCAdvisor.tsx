@@ -1,9 +1,10 @@
-import * as React from 'react';
-import { Loader, Message, Progress } from 'semantic-ui-react';
+import * as React from "react";
+import { Loader, Message, Progress } from "semantic-ui-react";
 
-import { IContainerInfo, IMachineInfo } from '../../Daemon/types/daemon';
-import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/group';
-import { IGroup } from '../types/group';
+import { fetchCadvisorMachine } from "../../Daemon/actions/daemon";
+import { IContainerInfo, IMachineInfo } from "../../Daemon/types/daemon";
+import { fetchCadvisorContainers } from "../actions/group";
+import { IGroup } from "../types/group";
 
 interface IGroupCAdvisorProps {
   group: IGroup;
@@ -33,7 +34,7 @@ class GroupCAdvisor extends React.Component<
   public componentWillMount() {
     const { group } = this.props;
 
-    fetchCadvisorMachine(group._id)
+    fetchCadvisorMachine(group.daemon_id as string)
       .then((machineInfo: IMachineInfo) =>
         this.setState({ machineInfo, isFetching: false })
       )

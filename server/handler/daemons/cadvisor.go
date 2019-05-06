@@ -35,8 +35,8 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 	return c.JSON(http.StatusOK, in)
 }
 
-// GetCAdvisorMachineInfo get cadvisor info of machine
-func GetCAdvisorMachineInfo(c echo.Context) error {
+// getCAdvisorMachineInfo get cadvisor info of machine
+func getCAdvisorMachineInfo(c echo.Context) error {
 
 	db := c.Get("DB").(*storage.Docktor)
 	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))

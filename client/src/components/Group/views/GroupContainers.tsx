@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Button, Loader, Message } from 'semantic-ui-react';
 
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import ContainerTable from '../../layout/ContainersTable';
+import ContainerTable from '../../layout/ContainersTables/ContainersTables';
 import { fetchContainers, saveContainers } from '../actions/group';
 import { IGroup } from '../types/group';
 
@@ -58,7 +58,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { daemon, group, admin } = this.props;
+    const { daemon, admin } = this.props;
     const {
       containers,
       saveError,
@@ -103,12 +103,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             floated="right"
           />
         )}
-        <ContainerTable
-          daemon={daemon}
-          containers={containers}
-          group={group}
-          admin={admin}
-        />
+        <ContainerTable daemon={daemon} containers={containers} admin={admin} />
       </>
     );
   }

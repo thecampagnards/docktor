@@ -37,16 +37,12 @@ func AddRoute(e *echo.Group) {
 			docker := group.Group("/docker/containers")
 			docker.GET("", getContainers)
 			docker.POST("", saveContainers)
-			docker.POST("/status", updateContainersStatus)
 			docker.POST(fmt.Sprintf("/:%s/create", types.CONTAINER_ID_PARAM), createContainer)
-			docker.GET(fmt.Sprintf("/:%s/log", types.CONTAINER_ID_PARAM), getContainerLog)
-			docker.GET(fmt.Sprintf("/:%s/term", types.CONTAINER_ID_PARAM), getContainerTerm, middleware.WithGroupAdmin)
 		}
 
 		{
 			// CAdvisor requests
 			cadvisor := group.Group("/cadvisor")
-			cadvisor.GET("/machine", getCAdvisorMachineInfo)
 			cadvisor.GET("/container", getCAdvisorContainerInfo)
 		}
 	}

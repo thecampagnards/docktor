@@ -31,12 +31,11 @@ func AddRoute(e *echo.Group) {
 		{
 			// Docker requests
 			docker := daemon.Group("/docker")
-			docker.Use(middleware.WithAdmin)
-			docker.GET("/containers", getContainers)
-			docker.POST("/containers/status", UpdateContainersStatus)
-			docker.GET(fmt.Sprintf("/containers/:%s/log", types.CONTAINER_ID_PARAM), GetContainerLog)
-			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), GetContainerTerm)
-			docker.POST(fmt.Sprintf("/containers/:%s/exec/:%s", types.CONTAINER_ID_PARAM, types.COMMAND_ID_PARAM), execContainer)
+			docker.GET("/containers", getContainers, middleware.WithAdmin)
+			docker.POST("/containers/status", updateContainersStatus)
+			docker.GET(fmt.Sprintf("/containers/:%s/log", types.CONTAINER_ID_PARAM), getContainerLog, middleware.WithDaemonContainer)
+			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), getContainerTerm, middleware.WithDaemonContainer)
+			docker.POST(fmt.Sprintf("/containers/:%s/exec/:%s", types.CONTAINER_ID_PARAM, types.COMMAND_ID_PARAM), execContainer, middleware.WithDaemonContainer)
 		}
 		{
 			// SSH requests
@@ -48,9 +47,8 @@ func AddRoute(e *echo.Group) {
 		{
 			// CAdvisor requests
 			cadvisor := daemon.Group("/cadvisor")
-			cadvisor.Use(middleware.WithAdmin)
-			cadvisor.GET("/machine", GetCAdvisorMachineInfo)
-			cadvisor.GET("/container", getCAdvisorContainerInfo)
+			cadvisor.GET("/machine", getCAdvisorMachineInfo, middleware.WithDaemon)
+			cadvisor.GET("/container", getCAdvisorContainerInfo, middleware.WithAdmin)
 		}
 	}
 }

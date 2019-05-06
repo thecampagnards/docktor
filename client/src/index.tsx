@@ -19,7 +19,7 @@ import GroupIndex from './components/Group/views/GroupIndex';
 import Groups from './components/Group/views/Groups';
 import Home from './components/Home/views/Home';
 import Images from './components/Images/views/Images';
-import Layout from './components/layout/layout';
+import Layout from './components/layout/Layout';
 import Market from './components/Market/views/Market';
 import Service from './components/Services/views/Service';
 import ServiceForm from './components/Services/views/ServiceForm';

@@ -1,23 +1,21 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import * as React from 'react';
 import {
-     Dimmer, Loader, Message, List, Icon, ListItemProps, Modal, Button, Header, InputOnChangeData, Form
+    Button, Dimmer, Form, Header, Icon, InputOnChangeData, List, ListItemProps, Loader, Message,
+    Modal
 } from 'semantic-ui-react';
 
-import { IContainer, IDaemon } from '../Daemon/types/daemon';
-import { IGroup } from '../Group/types/group';
-import { fetchImage } from '../Images/actions/image';
-import { IImage, ICommand } from '../Images/types/image';
-import { execDockerCommand } from '../Daemon/actions/daemon';
+import { execDockerCommand } from '../../Daemon/actions/daemon';
+import { IContainer, IDaemon } from '../../Daemon/types/daemon';
+import { ICommand, IImage } from '../../Images/types/image';
 
-interface IContainerCommandsProps {
-  daemon?: IDaemon;
-  group?: IGroup;
+interface ICommandsProps {
+  daemon: IDaemon;
+  images: IImage[];
   container: IContainer;
 }
 
-interface IContainerCommandsStates {
-  images: IImage[];
+interface ICommandsStates {
   error: Error;
   isFetching: boolean;
   modalView: boolean;
@@ -26,29 +24,23 @@ interface IContainerCommandsStates {
   variables: object;
 }
 
-export default class ContainerCommands extends React.Component<
-  IContainerCommandsProps,
-  IContainerCommandsStates
+export default class Commands extends React.Component<
+  ICommandsProps,
+  ICommandsStates
 > {
   public state = {
-    log: "",
-    images: [] as IImage[],
     error: Error(),
-    isFetching: true,
+    log: "",
+    isFetching: false,
+
     modalView: false,
     command: {} as ICommand,
     variables: {}
   };
 
-  public componentWillMount() {
-    fetchImage(this.props.container.Image)
-      .then(images => this.setState({ images }))
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
-  }
-
   public render() {
-    const { error, images, isFetching, log, modalView, command } = this.state;
+    const { images } = this.props;
+    const { error, isFetching, log, modalView, command } = this.state;
 
     if (isFetching) {
       return (
@@ -63,14 +55,18 @@ export default class ContainerCommands extends React.Component<
         <List selection={true}>
           {images.map((image, imageKey) =>
             image.commands.map((c, commandKey) => (
-                <List.Item key={`${imageKey}:${commandKey}`} name={c} onClick={this.showCommand} >
-                  <Icon name="chevron right" /> {c.title}
-                </List.Item>
+              <List.Item
+                key={`${imageKey}:${commandKey}`}
+                name={c}
+                onClick={this.showCommand}
+              >
+                <Icon name="chevron right" /> {c.title}
+              </List.Item>
             ))
           )}
         </List>
-        <Modal open={modalView} onClose={this.hideCommand} size='small'>
-          <Header icon='chevron right' content={command.title} />
+        <Modal open={modalView} onClose={this.hideCommand} size="small">
+          <Header icon="chevron right" content={command.title} />
           <Modal.Content>
             {error.message && (
               <Message negative={true}>
@@ -79,7 +75,9 @@ export default class ContainerCommands extends React.Component<
             )}
             {log && (
               <Message info={true}>
-                <Message.Header style={{ whiteSpace: "pre" }}>{log}</Message.Header>
+                <Message.Header style={{ whiteSpace: "pre" }}>
+                  {log}
+                </Message.Header>
               </Message>
             )}
           </Modal.Content>
@@ -87,29 +85,39 @@ export default class ContainerCommands extends React.Component<
             {command.command}
           </Modal.Content>
           <Modal.Content>
-          {command.variables && (
-            <Form>
-              <Form.Group widths="equal">
-                {command.variables.map(v => (
-                  <Form.Input
-                    key={v}
-                    fluid={true}
-                    label={v}
-                    required={true}
-                    onChange={this.handleInput}
-                    name={`variables.${v}`}
-                  />
-                ))}
-              </Form.Group>
-            </Form>
-          )}
+            {command.variables && (
+              <Form>
+                <Form.Group widths="equal">
+                  {command.variables.map(v => (
+                    <Form.Input
+                      key={v}
+                      fluid={true}
+                      label={v}
+                      required={true}
+                      onChange={this.handleInput}
+                      name={`variables.${v}`}
+                    />
+                  ))}
+                </Form.Group>
+              </Form>
+            )}
           </Modal.Content>
           <Modal.Actions>
-            <Button icon={true} labelPosition="left" floated="left" onClick={this.hideCommand}>
-              <Icon name='chevron circle left' /> Back
+            <Button
+              icon={true}
+              labelPosition="left"
+              floated="left"
+              onClick={this.hideCommand}
+            >
+              <Icon name="chevron circle left" /> Back
             </Button>
-            <Button icon={true} labelPosition="right" color='green' onClick={this.exec}>
-              <Icon name='play' /> Run
+            <Button
+              icon={true}
+              labelPosition="right"
+              color="green"
+              onClick={this.exec}
+            >
+              <Icon name="play" /> Run
             </Button>
           </Modal.Actions>
         </Modal>
@@ -123,11 +131,11 @@ export default class ContainerCommands extends React.Component<
   ) => {
     const command = name as ICommand;
     this.setState({ modalView: true, command });
-  }
+  };
 
   private hideCommand = () => {
     this.setState({ modalView: false, command: {} as ICommand });
-  }
+  };
 
   private exec = () => {
     const { daemon, container } = this.props;
@@ -138,13 +146,19 @@ export default class ContainerCommands extends React.Component<
     if (commandArgs) {
       for (const a of commandArgs) {
         if (!variables[a]) {
-          this.setState({ log: "", error: Error(`Please set a value for ${a}`) });
+          this.setState({
+            log: "",
+            error: Error(`Please set a value for ${a}`)
+          });
           return;
         }
       }
     }
 
-    this.setState({ isFetching: true, log: `Running command ${command.title} ...` });
+    this.setState({
+      isFetching: true,
+      log: `Running command ${command.title} ...`
+    });
 
     execDockerCommand(
       daemon!._id,

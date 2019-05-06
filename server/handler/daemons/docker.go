@@ -45,8 +45,8 @@ func getContainers(c echo.Context) error {
 	return c.JSON(http.StatusOK, cs)
 }
 
-// UpdateContainersStatus change the status of caontiners param split by ','
-func UpdateContainersStatus(c echo.Context) error {
+// updateContainersStatus change the status of caontiners param split by ','
+func updateContainersStatus(c echo.Context) error {
 
 	db := c.Get("DB").(*storage.Docktor)
 	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
@@ -175,8 +175,8 @@ func execContainer(c echo.Context) error {
 	return c.JSON(http.StatusOK, string(logs))
 }
 
-// GetContainerLog is a ws which send container log
-func GetContainerLog(c echo.Context) error {
+// getContainerLog is a ws which send container log
+func getContainerLog(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 
@@ -235,9 +235,9 @@ func GetContainerLog(c echo.Context) error {
 	return nil
 }
 
-// GetContainerTerm is a ws which provide an ssh term inside the container
+// getContainerTerm is a ws which provide an ssh term inside the container
 // Based on https://github.com/bitbull-team/docker-exec-web-console
-func GetContainerTerm(c echo.Context) error {
+func getContainerTerm(c echo.Context) error {
 	websocket.Handler(func(ws *websocket.Conn) {
 		defer ws.Close()
 

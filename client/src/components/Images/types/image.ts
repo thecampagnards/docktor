@@ -5,6 +5,7 @@ export interface IImage {
     Options: string;
   };
   commands: ICommand[];
+  is_allow_shell: boolean;
 }
 
 export interface ICommand {
