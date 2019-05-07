@@ -23,6 +23,16 @@ func getAll(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	for _, image := range images {
+		err = image.GetCommandsVariables()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"image": image,
+				"error": err,
+			}).Error("Error when retrieving image variables")
+		}
+	}
+
 	return c.JSON(http.StatusOK, images)
 }
 
