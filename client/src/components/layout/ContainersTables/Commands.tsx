@@ -1,5 +1,6 @@
 import * as _ from 'lodash';
 import * as React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
     Button, Dimmer, Form, Header, Icon, InputOnChangeData, List, ListItemProps, Loader, Message,
     Modal
@@ -81,8 +82,18 @@ export default class Commands extends React.Component<
               </Message>
             )}
           </Modal.Content>
-          <Modal.Content style={{ whiteSpace: "pre" }}>
-            {command.command}
+          <Modal.Content>
+            <CodeMirror
+              options={{
+                mode: "shell",
+                lint: true,
+                theme: "material",
+                lineNumbers: true,
+                readOnly: true,
+                cursorBlinkRate: -1
+              }}
+              value={command.command}
+            />
           </Modal.Content>
           <Modal.Content>
             {command.variables && (
