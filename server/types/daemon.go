@@ -14,12 +14,12 @@ import (
 type DaemonLight struct {
 	ID   bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
 	Name string        `json:"name" bson:"name"`
+	Host string        `json:"host" bson:"host" validate:"required"`
 }
 
 // Daemon data
 type Daemon struct {
 	DaemonLight `bson:",inline"`
-	Host        string   `json:"host" bson:"host" validate:"required"`
 	Tags        []string `json:"tags" bson:"tags"`
 	Description string   `json:"description" bson:"description"`
 	CAdvisor    string   `json:"cadvisor" bson:"cadvisor"`
