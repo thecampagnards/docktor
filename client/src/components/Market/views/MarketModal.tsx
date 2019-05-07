@@ -29,6 +29,7 @@ interface IMarketModalStates {
 interface IMarketModalProps {
   service: IService;
   groups: IGroup[];
+  admin: boolean;
 }
 
 class MarketModal extends React.Component<
@@ -51,7 +52,7 @@ class MarketModal extends React.Component<
 
   public render() {
     const { open, stage } = this.state;
-    const { service } = this.props;
+    const { service, admin } = this.props;
 
     return (
       <>
@@ -76,14 +77,16 @@ class MarketModal extends React.Component<
           <Icon name="play" />
           Deploy
         </Button>
-        <Button
-          floated="right"
-          icon={true}
-          as={Link}
-          to={path.servicesEdit.replace(":serviceID", service._id!)}
-        >
-          <Icon name="edit" />
-        </Button>
+        {admin && (
+          <Button
+            floated="right"
+            icon={true}
+            as={Link}
+            to={path.servicesEdit.replace(":serviceID", service._id!)}
+          >
+            <Icon name="edit" />
+          </Button>
+        )}
         <Modal
           closeIcon={true}
           open={open}
@@ -149,7 +152,7 @@ class MarketModal extends React.Component<
           </Grid>
         </Modal.Content>
         <Modal.Actions>
-          {service.sub_services ?
+          {service.sub_services && groups ?
             <>
               <Select
                 placeholder="Select your group"
@@ -177,7 +180,7 @@ class MarketModal extends React.Component<
               </Button>
             </>
             :
-            <p>No sub services found for this service</p>
+            <p>You cannot deploy this service (you may not be in any group).</p>
           }
         </Modal.Actions>
       </>

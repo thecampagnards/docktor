@@ -1,12 +1,18 @@
 import * as _ from 'lodash';
 import * as React from 'react';
+import { connect } from 'react-redux';
 import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
 import { fetchGroups } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchServices } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
+import { IStoreState } from '../../../types/store';
 import MarketCard from './MarketCard';
+
+interface IMarketProps {
+  isAdmin: boolean;
+}
 
 interface IServicesStates {
   services: IService[];
@@ -17,7 +23,7 @@ interface IServicesStates {
   error: Error;
 }
 
-class Market extends React.Component<{}, IServicesStates> {
+class Market extends React.Component<IMarketProps, IServicesStates> {
   public state = {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
@@ -40,12 +46,13 @@ class Market extends React.Component<{}, IServicesStates> {
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchGroups(true)
+    fetchGroups(false)
       .then((groups: IGroup[]) => this.setState({ groups }))
       .catch((error: Error) => this.setState({ error }));
   }
 
   public render() {
+    const { isAdmin } = this.props;
     const {
       services,
       servicesFiltered,
@@ -112,7 +119,7 @@ class Market extends React.Component<{}, IServicesStates> {
         <Grid verticalAlign="middle">
           {servicesFiltered.map((service: IService) => (
             <Grid.Column key={service._id} width={4}>
-              <MarketCard groups={groups} service={service} />
+              <MarketCard groups={groups} service={service} admin={isAdmin} />
             </Grid.Column>
           ))}
         </Grid>
@@ -154,4 +161,11 @@ class Market extends React.Component<{}, IServicesStates> {
   };
 }
 
-export default Market;
+const mapStateToProps = (state: IStoreState) => {
+  const { login } = state;
+  return {
+    isAdmin: !!login.isAdmin,
+  };
+};
+
+export default connect(mapStateToProps)(Market);

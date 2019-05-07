@@ -26,22 +26,61 @@ export default class DaemonServiceButtons extends React.Component<IDaemonService
   public render() {
     const { services } = this.props
     const { result, error, isFetching } = this.state
-    return <h4>
-      {services.join(", ") + " : "}
-      <Button.Group>
-        <Popup flowing={true} on="click" inverted={true} trigger={<Button loading={isFetching} color="orange" onClick={this.handleOnClick.bind(this, "stop")}>
-          Stop
-      </Button>} content={error.message ? error.message : result} />
-        <Button.Or />
-        <Popup flowing={true} on="click" inverted={true} trigger={<Button loading={isFetching} color="red" onClick={this.handleOnClick.bind(this, "remove")}>
-          Remove
-      </Button>} content={error.message ? error.message : result} />
-        <Button.Or />
-        <Popup flowing={true} on="click" inverted={true} trigger={<Button loading={isFetching} color="green" onClick={this.handleOnClick.bind(this, "start")}>
-          Start
-      </Button>} content={error.message ? error.message : result} />
+    return (
+      <Button.Group floated="right">
+        <Button compact={true} disabled={true}>
+          {services.map(s => s.toUpperCase()).join(", ")}
+        </Button>
+        <Popup 
+          flowing={true} 
+          on="click" 
+          inverted={true} 
+          trigger={
+            <Button 
+              compact={true}
+              loading={isFetching} 
+              color="green" 
+              onClick={this.handleOnClick.bind(this, "start")}
+            >
+              START
+            </Button>
+          } 
+          content={error.message ? error.message : result} 
+        />
+        <Popup 
+          flowing={true} 
+          on="click" 
+          inverted={true} 
+          trigger={
+            <Button 
+              compact={true}
+              loading={isFetching} 
+              color="orange" 
+              onClick={this.handleOnClick.bind(this, "stop")}
+            >
+              STOP
+            </Button>
+          } 
+          content={error.message ? error.message : result} 
+        />
+        <Popup 
+          flowing={true} 
+          on="click" 
+          inverted={true} 
+          trigger={
+            <Button 
+              compact={true}
+              loading={isFetching} 
+              color="red" 
+              onClick={this.handleOnClick.bind(this, "remove")}
+            >
+              RM
+            </Button>
+          } 
+          content={error.message ? error.message : result} 
+        />
       </Button.Group>
-    </h4>
+    );
   }
 
   private handleOnClick = (status: string) => {

@@ -2,8 +2,7 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, Checkbox, CheckboxProps, Form, Grid, Icon, InputOnChangeData, List, Loader, Message,
-    TextAreaProps
+    Button, Checkbox, CheckboxProps, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps, Accordion, Divider
 } from 'semantic-ui-react';
 
 import { fetchImages, saveImages } from '../actions/image';
@@ -16,6 +15,7 @@ interface IImagesStates {
   error: Error;
 
   imageKey: number;
+  openCommands: boolean;
 }
 
 class Images extends React.Component<{}, IImagesStates> {
@@ -25,7 +25,8 @@ class Images extends React.Component<{}, IImagesStates> {
     isSuccess: false,
     error: Error(),
 
-    imageKey: 0
+    imageKey: 0,
+    openCommands: false
   };
 
   public componentWillMount() {
@@ -36,7 +37,7 @@ class Images extends React.Component<{}, IImagesStates> {
   }
 
   public render() {
-    const { error, isSuccess, isFetching, images, imageKey } = this.state;
+    const { error, isSuccess, isFetching, images, imageKey, openCommands } = this.state;
 
     if (isFetching) {
       return (
@@ -59,15 +60,7 @@ class Images extends React.Component<{}, IImagesStates> {
           <Grid columns={2} divided={true}>
             <Grid.Row>
               <Grid.Column width={4}>
-                <Button icon={true} onClick={this.addImage} color="green">
-                  <Icon name="plus" />
-                  Add image
-                </Button>
-                <Button icon={true} onClick={this.removeImage} color="red">
-                  <Icon name="minus" />
-                  Remove
-                </Button>
-                <List>
+                <List selection={true}>
                   {images &&
                     images.map((c, key) => (
                       <List.Item
@@ -76,67 +69,101 @@ class Images extends React.Component<{}, IImagesStates> {
                         onClick={this.changeImage(key)}
                         active={key === imageKey}
                         basic={true}
-                        style={{ padding: 5, width: "100%" }}
+                        fluid={true}
+                        style={{ margin: 3 }}
                       >
-                        <List.Icon name="terminal" />
-                        <List.Content>
-                          <List.Header>
-                            <Form.Input
-                              fluid={true}
-                              value={c.image.Pattern}
-                              onChange={this.handleInput}
-                              name={`images.${key}.image.Pattern`}
-                            />
-                          </List.Header>
-                        </List.Content>
+                        Image #{key}
+                        <Icon name="chevron right" floated="right" />
                       </List.Item>
                     ))}
                 </List>
+                <Button icon={true} labelPosition="left" onClick={this.addImage} primary={true}>
+                  <Icon name="plus" />
+                  Add image
+                </Button>
               </Grid.Column>
 
               <Grid.Column width={12}>
                 {images && images.length > imageKey ? (
                   <>
+                    <Form.Input
+                      label="Title"
+                      value={images[imageKey].title}
+                      onChange={this.handleInput}
+                      name={`images.${imageKey}.title`}
+                    />
+
+                    <Form.Input
+                      label="Image pattern"
+                      value={images[imageKey].image.Pattern}
+                      onChange={this.handleInput}
+                      name={`images.${imageKey}.image.Pattern`}
+                    />
+
                     <Checkbox
                       label="Enable shell for this image"
                       checked={images[imageKey].is_allow_shell}
                       name={`images.${imageKey}.is_allow_shell`}
                       onChange={this.handleInput}
                     />
+
                     <br />
                     <br />
-                    <Button
-                      icon={true}
-                      onClick={this.addSubImage}
-                      color="green"
-                    >
-                      <Icon name="plus" />
-                      Add command for {images[imageKey].image.Pattern}
-                    </Button>
-                    {images[imageKey].commands.map((command, key) => (
-                      <span key={key}>
-                        <Form.Input
-                          fluid={true}
-                          value={command.title}
-                          onChange={this.handleInput}
-                          name={`images.${imageKey}.commands.${key}.title`}
-                        />
-                        <CodeMirror
-                          value={command.command}
-                          options={{
-                            mode: "shell",
-                            lint: true,
-                            theme: "material",
-                            lineNumbers: true,
-                            gutters: [
-                              `images.${imageKey}.commands.${key}.command`
-                            ]
-                          }}
-                          autoCursor={false}
-                          onChange={this.handleChangeCodeEditor}
-                        />
-                      </span>
-                    ))}
+                    
+                    <Accordion styled={true} fluid={true}>
+                      <Accordion.Title active={openCommands} onClick={this.handleToggleCommands}>
+                        <Icon name="dropdown" />
+                        Commands
+                      </Accordion.Title>
+                      <Accordion.Content active={openCommands}>
+                        <Grid>
+                          {images[imageKey].commands.map((command, key) => (
+                            <>
+                            <Grid.Row>
+                              <Grid.Column width={12}>
+                                <Form.Input
+                                  fluid={true}
+                                  value={command.title}
+                                  onChange={this.handleInput}
+                                  name={`images.${imageKey}.commands.${key}.title`}
+                                />
+                              </Grid.Column>
+                              <Grid.Column width={4}>
+                                <Button color="red" icon="minus" labelPosition="left" content="Delete this command" fluid={true} />
+                              </Grid.Column>
+                            </Grid.Row>
+                            <Grid.Row>
+                              <Grid.Column width={16}>
+                                <CodeMirror
+                                  value={command.command}
+                                  options={{
+                                    mode: "shell",
+                                    lint: true,
+                                    theme: "material",
+                                    lineNumbers: true,
+                                    gutters: [
+                                      `images.${imageKey}.commands.${key}.command`
+                                    ]
+                                  }}
+                                  autoCursor={false}
+                                  onChange={this.handleChangeCodeEditor}
+                                />
+                              </Grid.Column>
+                            </Grid.Row>
+                            <Divider />
+                            </>
+                          ))}
+                          <Grid.Row>
+                            <Grid.Column>
+                              <Button icon="plus" labelPosition="left" content="Add command" onClick={this.addCommand} color="green" />
+                            </Grid.Column>
+                          </Grid.Row>
+                        </Grid>
+                      </Accordion.Content>
+                    </Accordion>
+                    <br />
+                    <Button icon="save" labelPosition="left" content="SAVE" color="teal" type="submit" loading={isFetching} />
+                    <Button icon="trash" labelPosition="right" content="Delete" color="red" onClick={this.removeImage} />
                   </>
                 ) : (
                   "No images found"
@@ -146,12 +173,14 @@ class Images extends React.Component<{}, IImagesStates> {
           </Grid>
           <br />
           <Message error={true} header="Error" content={error.message} />
-          <Button type="submit" loading={isFetching}>
-            Save
-          </Button>
         </Form>
       </>
     );
+  }
+
+  private handleToggleCommands = () => {
+    const toggle = this.state.openCommands;
+    this.setState({ openCommands: !toggle });
   }
 
   private handleInput = (
@@ -205,7 +234,7 @@ class Images extends React.Component<{}, IImagesStates> {
     this.setState({ images });
   };
 
-  private addSubImage = (
+  private addCommand = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
@@ -223,7 +252,7 @@ class Images extends React.Component<{}, IImagesStates> {
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
   ) => {
     e.preventDefault();
-    this.setState({ imageKey });
+    this.setState({ imageKey, openCommands: false });
   };
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {

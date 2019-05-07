@@ -65,7 +65,7 @@ interface IUserStates {
               </Grid.Row>
               <Grid.Row>
                 <Button color="green" icon={true} labelPosition='left' fluid={true}
-                    onClick={this.setGlobalPermissions}>
+                    onClick={this.setGlobalPermissions} disabled={user.role === "admin"}>
                   <Icon name="user plus" /> Set admin
                 </Button>
               </Grid.Row>
