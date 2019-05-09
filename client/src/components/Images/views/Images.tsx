@@ -70,11 +70,14 @@ class Images extends React.Component<{}, IImagesStates> {
                         active={key === imageKey}
                         basic={true}
                         fluid={true}
-                        
                         style={{ margin: 3 }}
                       >
-                        <List.Content floated="left">{img.title || "Unnamed image"}</List.Content>
-                        <List.Content floated="right"><Icon name="chevron right" floated="right" /></List.Content>
+                        <List.Content floated="left">
+                          {img.title || "Unnamed image"}
+                        </List.Content>
+                        <List.Content floated="right">
+                          <Icon name="chevron right" floated="right" />
+                        </List.Content>
                       </List.Item>
                     ))}
                 </List>
@@ -130,7 +133,8 @@ class Images extends React.Component<{}, IImagesStates> {
                                 />
                               </Grid.Column>
                               <Grid.Column width={4}>
-                                <Button color="red" icon="minus" labelPosition="left" content="Delete this command" fluid={true} />
+                                <Button color="red" icon="minus" labelPosition="left" content="Delete this command" fluid={true}
+                                  onClick={this.removeCommand(key)} />
                               </Grid.Column>
                             </Grid.Row>
                             <Grid.Row>
@@ -248,6 +252,16 @@ class Images extends React.Component<{}, IImagesStates> {
     });
     this.setState({ images });
   };
+
+  private removeCommand = (commandKey: number) => (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+  ) => {
+    event.preventDefault();
+
+    const { images, imageKey } = this.state;
+    delete images[imageKey].commands[commandKey]
+    this.setState({ images })
+  }
 
   private changeImage = (imageKey: number) => (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>
