@@ -119,7 +119,7 @@ class ServiceForm extends React.Component<
           />
 
           <Form.Input
-            label="Tags"
+            label="Tags (tag1,tag2,...)"
             name="tags"
             type="text"
             value={service.tags ? service.tags.join(",") : ""}
@@ -163,6 +163,7 @@ class ServiceForm extends React.Component<
                       </Grid.Row>
                       <Grid.Row>
                         <Grid.Column width={16}>
+                          Write docker-compose or remote file URL :
                           <CodeMirror
                             value={this.isURL(ss.file) ? "" : ss.file}
                             options={{
