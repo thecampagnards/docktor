@@ -10,6 +10,7 @@ import (
 // Image data
 type Image struct {
 	ID           bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Title        string        `json:"title" bson:"title"`
 	Image        bson.RegEx    `json:"image" bson:"image"`
 	Commands     []Command     `json:"commands" bson:"commands"`
 	IsAllowShell bool          `json:"is_allow_shell" bson:"is_allow_shell"`

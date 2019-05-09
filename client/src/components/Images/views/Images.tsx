@@ -62,7 +62,7 @@ class Images extends React.Component<{}, IImagesStates> {
               <Grid.Column width={4}>
                 <List selection={true}>
                   {images &&
-                    images.map((c, key) => (
+                    images.map((img, key) => (
                       <List.Item
                         key={key}
                         as={Button}
@@ -70,10 +70,11 @@ class Images extends React.Component<{}, IImagesStates> {
                         active={key === imageKey}
                         basic={true}
                         fluid={true}
+                        
                         style={{ margin: 3 }}
                       >
-                        Image #{key}
-                        <Icon name="chevron right" floated="right" />
+                        <List.Content floated="left">{img.title || "Unnamed image"}</List.Content>
+                        <List.Content floated="right"><Icon name="chevron right" floated="right" /></List.Content>
                       </List.Item>
                     ))}
                 </List>
