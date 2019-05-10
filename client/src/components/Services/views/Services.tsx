@@ -7,6 +7,7 @@ import {
 import { path } from '../../../constants/path';
 import { fetchServices } from '../actions/service';
 import { IService, ISubService } from '../types/service';
+import './Services.css'
 
 interface IServicesStates {
   services: IService[];
@@ -83,7 +84,7 @@ class Services extends React.Component<{}, IServicesStates> {
               to={path.servicesNew}
               labelPosition="right"
               icon="plus"
-              content="Add service"
+              content="New service"
             />
             <Button
               floated="right"
@@ -110,13 +111,13 @@ class Services extends React.Component<{}, IServicesStates> {
               <Table.Row key={service._id}>
                 <Table.Cell width={2}>
                   {service.image ? (
-                    <Image size="small" src={service.image} />
+                    <Image className="service-icon" src={service.image} />
                   ) : (
                     "No image"
                   )}
                 </Table.Cell>
                 <Table.Cell width={2}>{service.name}</Table.Cell>
-                <Table.Cell width={8}>
+                <Table.Cell width={10}>
                   {service.sub_services &&
                     service.sub_services.map((version: ISubService, key) => {
                       return (
@@ -128,19 +129,13 @@ class Services extends React.Component<{}, IServicesStates> {
                       );
                     })}
                 </Table.Cell>
-                <Table.Cell width={4}>
-                  <Button.Group>
+                <Table.Cell width={2}>
+                  <Button.Group fluid={true}>
                     <Button
                       icon="edit"
-                      content="Edit"
+                      content="Configure"
                       as={Link}
                       to={path.servicesEdit.replace(":serviceID", service._id)}
-                    />
-                    <Button
-                      icon="cog"
-                      content="More"
-                      as={Link}
-                      to={path.servicesMore.replace(":serviceID", service._id)}
                     />
                   </Button.Group>
                 </Table.Cell>

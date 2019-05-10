@@ -7,11 +7,10 @@ import {
   Divider,
   Form,
   Grid,
-  Header,
   Icon,
   Loader,
   Message,
-  Segment
+  Accordion
 } from "semantic-ui-react";
 
 import { fetchService, saveService } from "../actions/service";
@@ -25,6 +24,7 @@ interface IServiceFormStates {
   service: IService;
   isFetching: boolean;
   isSuccess: boolean;
+  openVersions: boolean;
   error: Error;
 }
 
@@ -36,6 +36,7 @@ class ServiceForm extends React.Component<
     service: {} as IService,
     isSuccess: false,
     isFetching: true,
+    openVersions: false,
     error: Error()
   };
 
@@ -54,7 +55,7 @@ class ServiceForm extends React.Component<
   }
 
   public render() {
-    const { service, error, isSuccess, isFetching } = this.state;
+    const { service, error, isSuccess, isFetching, openVersions } = this.state;
 
     if (isFetching) {
       return (
@@ -126,79 +127,66 @@ class ServiceForm extends React.Component<
           />
 
           <br />
-          <Button
-            type=""
-            icon={true}
-            onClick={this.addSubService}
-            color="green"
-          >
-            <Icon name="plus" />
-            Add sub service
-          </Button>
 
-          {service.sub_services &&
-            service.sub_services.map((ss, key) => (
-              <span key={key}>
-                <Button
-                  icon={true}
-                  onClick={this.removeSubService(key)}
-                  color="red"
-                >
-                  <Icon name="minus" />
-                  Remove sub service
-                </Button>
-                <Form.Group widths="equal">
-                  <Form.Checkbox
-                    width={1}
-                    label="Active"
-                    name={`sub_services.${key}.active`}
-                    defaultChecked={ss.active}
-                    onChange={this.handleChange}
-                  />
-                  <Form.Input
-                    width={8}
-                    label="Name"
-                    name={`sub_services.${key}.name`}
-                    type="text"
-                    value={ss.name}
-                    onChange={this.handleChange}
-                    required={true}
-                  />
-                </Form.Group>
-                <Segment placeholder={true}>
-                  <Grid columns={2} stackable={true}>
-                    <Divider vertical={true}>Or</Divider>
-                    <Grid.Row verticalAlign="middle">
-                      <Grid.Column>
-                        <CodeMirror
-                          value={this.isURL(ss.file) ? "" : ss.file}
-                          options={{
-                            mode: "yaml",
-                            theme: "material",
-                            lineNumbers: true,
-                            gutters: [`sub_services.${key}.File`]
-                          }}
-                          autoCursor={false}
-                          onChange={this.handleChangeCodeEditor}
-                        />
-                      </Grid.Column>
-                      <Grid.Column textAlign="center">
-                        <Header icon={true}>
-                          <Icon name="world" />
-                          Remote file
-                        </Header>
-                        <Form.Input
-                          value={this.isURL(ss.file) ? ss.file : ""}
-                          type="url"
-                          name={`sub_services.${key}.file`}
-                          onChange={this.handleChange}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                  </Grid>
-                </Segment>
-              </span>
-            ))}
+          <Accordion styled={true} fluid={true}>
+            <Accordion.Title active={openVersions} onClick={this.handleToggleVersions}>
+              <Icon name="dropdown" />
+              Versions
+            </Accordion.Title>
+            <Accordion.Content active={openVersions}>
+              <Grid>
+                {service.sub_services &&
+                  service.sub_services.map((ss, key) => (
+                    <>
+                      <Grid.Row>
+                        <Grid.Column width={10}>
+                          <Form.Input
+                            fluid={true}
+                            value={ss.name}
+                            onChange={this.handleChange}
+                            name={`sub_services.${key}.name`}
+                            required={true}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={2}>
+                          <Form.Checkbox
+                            width={1}
+                            label="Active"
+                            name={`sub_services.${key}.active`}
+                            defaultChecked={ss.active}
+                            onChange={this.handleChange}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={4}>
+                          <Button color="red" icon="minus" labelPosition="left" content="Delete version" fluid={true} onClick={this.removeSubService(key)} />
+                        </Grid.Column>
+                      </Grid.Row>
+                      <Grid.Row>
+                        <Grid.Column width={16}>
+                          <CodeMirror
+                            value={this.isURL(ss.file) ? "" : ss.file}
+                            options={{
+                              mode: "yaml",
+                              theme: "material",
+                              lineNumbers: true,
+                              gutters: [`sub_services.${key}.File`]
+                            }}
+                            autoCursor={false}
+                            onChange={this.handleChangeCodeEditor}
+                          />
+                        </Grid.Column>
+                      </Grid.Row>
+                      <Divider />
+                    </>
+                  ))}
+                <Grid.Row>
+                  <Grid.Column>
+                    <Button icon="plus" labelPosition="left" content="Add version" onClick={this.addSubService} color="green" />
+                  </Grid.Column>
+                </Grid.Row>
+              </Grid>
+            </Accordion.Content>
+          </Accordion>
           <br />
           <Message
             success={true}
@@ -207,8 +195,9 @@ class ServiceForm extends React.Component<
           />
           <Message error={true} header="Error" content={error.message} />
           <br />
-          <Button type="submit" loading={isFetching}>
-            Save
+          <Button icon={true} labelPosition="left" color="teal" type="submit" loading={isFetching}>
+            <Icon name="save" />
+            SAVE
           </Button>
         </Form>
       </>
@@ -222,6 +211,11 @@ class ServiceForm extends React.Component<
     } catch (_) {
       return false;
     }
+  }
+
+  private handleToggleVersions = () => {
+    const toggle = this.state.openVersions;
+    this.setState({ openVersions: !toggle });
   }
 
   private removeSubService = (key: number) => (
