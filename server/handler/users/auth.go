@@ -88,5 +88,5 @@ func profile(c echo.Context) error {
 		log.WithError(err).WithField("username", user.Username).Error("When retreive groups for profile")
 	}
 
-	return c.JSON(http.StatusOK, types.Profile{User: user, Groups: groups})
+	return c.JSON(http.StatusOK, types.Profile{UserLight: user.UserLight, Groups: groups})
 }

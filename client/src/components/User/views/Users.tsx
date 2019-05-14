@@ -106,7 +106,7 @@ class Users extends React.Component<{}, IUsersStates> {
                         to={path.groupsServices.replace(":groupID", group._id)}
                       >
                         {
-                          group.name /*+ (group.Admins.indexOf(user.Username) > -1 ? "*": "")*/
+                          group.name
                         }
                       </Button>
                     ))}

@@ -19,6 +19,8 @@ type UsersRepo interface {
 	FindByUsername(username string) (types.User, error)
 	// FindAll get all users
 	FindAll() (types.Users, error)
+	// FindAllWithGroups get all users with their groups
+	FindAllWithGroups() (types.Profiles, error)
 	// GetCollectionName returns the name of the collection
 	GetCollectionName() string
 	// CreateIndexes creates Index
@@ -53,6 +55,34 @@ func (r *DefaultUsersRepo) CreateIndexes() error {
 func (r *DefaultUsersRepo) FindAll() (t types.Users, err error) {
 	err = r.coll.Find(nil).All(&t)
 	return t, err
+}
+
+// FindAllWithGroups get all users
+func (r *DefaultUsersRepo) FindAllWithGroups() (t types.Profiles, err error) {
+	err = r.coll.Pipe([]bson.M{
+		bson.M{"$lookup": bson.M{
+			"from":         types.GROUPS_DB_COLUMN,
+			"localField":   "username",
+			"foreignField": "users",
+			"as":           "groupsuser",
+		}},
+		bson.M{"$lookup": bson.M{
+			"from":         types.GROUPS_DB_COLUMN,
+			"localField":   "username",
+			"foreignField": "admins",
+			"as":           "groupsadmin",
+		}},
+		bson.M{"$project": bson.M{
+			"username":  1,
+			"firstname": 1,
+			"lastname":  1,
+			"email":     1,
+			"role":      1,
+			"groups": bson.M{
+				"$concatArrays": []string{"$groupsadmin", "$groupsuser"},
+			}}},
+	}).All(&t)
+	return
 }
 
 // FindByUsername get one user by username

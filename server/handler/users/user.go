@@ -13,7 +13,7 @@ import (
 // getAll find all
 func getAll(c echo.Context) error {
 	db := c.Get("DB").(*storage.Docktor)
-	s, err := db.Users().FindAll()
+	s, err := db.Users().FindAllWithGroups()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"error": err,
@@ -39,7 +39,7 @@ func getByUsername(c echo.Context) error {
 	if err != nil {
 		log.WithError(err).WithField("username", user.Username).Error("When retreive groups for profile")
 	}
-	return c.JSON(http.StatusOK, types.Profile{User: user, Groups: groups})
+	return c.JSON(http.StatusOK, types.Profile{UserLight: user.UserLight, Groups: groups})
 }
 
 // save a User server
