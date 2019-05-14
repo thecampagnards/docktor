@@ -28,8 +28,8 @@ func AddRoute(e *echo.Group) {
 		{
 			// Compose requests
 			compose := group.Group("/compose")
-			compose.POST("/start/:subserviceID", startSubService)
-			compose.POST("/create/:subserviceID", createSubService)
+			compose.POST(fmt.Sprintf("/start/:%s", types.SUBSERVICE_ID_PARAM), startSubService)
+			compose.POST(fmt.Sprintf("/create/:%s", types.SUBSERVICE_ID_PARAM), createSubService)
 		}
 
 		{

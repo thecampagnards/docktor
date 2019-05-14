@@ -110,7 +110,7 @@ func (sub *SubService) GetVariables() (err error) {
 
 	sub.Variables, err = FindTemplateVariables(sub.File, map[string]interface{}{
 		"Group":  Group{},
-		"Daemon": Daemon{Host: "vm.loc.cn.ssg"},
+		"Daemon": Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 	})
 
 	return err
