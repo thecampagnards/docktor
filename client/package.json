@@ -21,7 +21,7 @@
     "redux-auth-wrapper": "^2.1.0",
     "semantic-ui-css": "^2.4.1",
     "semantic-ui-react": "^0.87.1",
-    "xterm": "3.12.2"
+    "xterm": "3.13.0"
   },
   "scripts": {
     "precommit": "lint-staged",
@@ -40,18 +40,18 @@
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.74",
-    "@types/jest": "^24.0.12",
-    "@types/lodash": "^4.14.123",
-    "@types/node": "^12.0.0",
-    "@types/react": "^16.8.16",
+    "@types/jest": "^24.0.13",
+    "@types/lodash": "^4.14.129",
+    "@types/node": "^12.0.2",
+    "@types/react": "^16.8.17",
     "@types/react-dom": "^16.8.4",
     "@types/react-router-dom": "^4.3.3",
-    "@types/react-redux": "^7.0.8",
+    "@types/react-redux": "^7.0.9",
     "@types/redux-thunk": "^2.1.0",
     "@types/jwt-decode": "^2.2.1",
     "@types/redux-auth-wrapper": "^2.0.9",
-    "lint-staged": "^8.1.6",
-    "prettier": "^1.17.0",
+    "lint-staged": "^8.1.7",
+    "prettier": "^1.17.1",
     "typescript": "^3.4.5"
   },
   "browserslist": [
