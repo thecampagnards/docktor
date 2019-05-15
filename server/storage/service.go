@@ -73,21 +73,21 @@ func (r *DefaultServicesRepo) FindByIDBson(id bson.ObjectId) (t types.Service, e
 
 // FindBySubServiceID get one service by subservice id
 func (r *DefaultServicesRepo) FindBySubServiceID(id string) (t types.Service, err error) {
-	err = r.coll.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).One(&t)
+	err = r.coll.Find(bson.M{"sub_services._id": bson.ObjectIdHex(id)}).One(&t)
 	return t, err
 }
 
 // FindSubServicByID get one sub service by subservice id without file
 func (r *DefaultServicesRepo) FindSubServicByID(id string) (types.SubService, error) {
 	t := types.Service{}
-	err := r.coll.Find(bson.M{"subservices._id": bson.ObjectIdHex(id)}).Select(bson.M{"subservices.$": 1}).One(&t)
+	err := r.coll.Find(bson.M{"sub_services._id": bson.ObjectIdHex(id)}).Select(bson.M{"sub_services.$": 1}).One(&t)
 	return t.SubServices[0], err
 }
 
 // FindSubServicByIDBson get one sub service by subservice id without file
 func (r *DefaultServicesRepo) FindSubServicByIDBson(id bson.ObjectId) (types.SubService, error) {
 	t := types.Service{}
-	err := r.coll.Find(bson.M{"subservices._id": id}).Select(bson.M{"subservices.$": 1}).One(&t)
+	err := r.coll.Find(bson.M{"sub_services._id": id}).Select(bson.M{"sub_services.$": 1}).One(&t)
 	return t.SubServices[0], err
 }
 

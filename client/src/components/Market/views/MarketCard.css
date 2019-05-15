@@ -2,4 +2,6 @@
 .market-icon {
     height: 10em;
     margin: auto;
+    margin-top: 3px;
+    margin-bottom: 3px;
 }

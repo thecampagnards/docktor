@@ -1,9 +1,9 @@
 package users
 
 import (
+	"docktor/server/middleware"
 	"fmt"
 
-	"docktor/server/middleware"
 	"docktor/server/types"
 
 	"github.com/labstack/echo"
@@ -20,10 +20,9 @@ func AddRoute(e *echo.Group) {
 
 	{
 		user := users.Group(fmt.Sprintf("/:%s", types.USERNAME_PARAM))
-		user.Use(middleware.WithAdmin)
 
 		user.GET("", getByUsername)
-		user.DELETE("", deleteByUsername)
+		user.DELETE("", deleteByUsername, middleware.WithAdmin)
 	}
 }
 

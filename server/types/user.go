@@ -31,12 +31,15 @@ type User struct {
 
 // Profile data
 type Profile struct {
-	User
-	Groups Groups `json:"groups"`
+	UserLight `bson:",inline"`
+	Groups    Groups `json:"groups"`
 }
 
 // Users data
 type Users []User
+
+// Profiles data
+type Profiles []Profile
 
 // IsAdmin check is user is admin
 func (u *User) IsAdmin() bool {

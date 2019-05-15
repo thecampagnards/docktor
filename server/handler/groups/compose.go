@@ -29,7 +29,7 @@ func createSubService(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 
 	db := c.Get("DB").(*storage.Docktor)
-	subService, err := db.Services().FindSubServicByID(c.Param(types.DAEMON_ID_PARAM))
+	subService, err := db.Services().FindSubServicByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),

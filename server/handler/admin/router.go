@@ -11,10 +11,10 @@ import (
 // AddRoute add route on echo
 func AddRoute(e *echo.Group) {
 	admin := e.Group("/admin")
-	admin.Use(middleware.WithAdmin)
 
 	{
 		assets := admin.Group("/assets")
+		assets.Use(middleware.WithAdmin)
 		assets.GET("", getAssets)
 		assets.POST(fmt.Sprintf("/:%s", types.ASSET_NAME_PARAM), saveAsset)
 	}
@@ -26,11 +26,8 @@ func AddRoute(e *echo.Group) {
 	}
 
 	{
-		e.GET("/config/message", getMessage)
-	}
-
-	{
 		cron := admin.Group("/cron")
+		cron.Use(middleware.WithAdmin)
 		cron.GET("/status", cronStatus)
 	}
 }

@@ -9,21 +9,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// getMessage get the message banner
-func getMessage(c echo.Context) error {
-	db := c.Get("DB").(*storage.Docktor)
-
-	m, err := db.Config().Find()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"error": err,
-		}).Error("Error when retrieving message")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, m.Message)
-}
-
 // getConfig get the config
 func getConfig(c echo.Context) error {
 	db := c.Get("DB").(*storage.Docktor)

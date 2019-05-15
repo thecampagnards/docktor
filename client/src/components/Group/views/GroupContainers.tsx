@@ -5,6 +5,8 @@ import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTables/ContainersTables';
 import { fetchContainers, saveContainers } from '../actions/group';
 import { IGroup } from '../types/group';
+import { Link } from 'react-router-dom';
+import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -58,7 +60,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { daemon, admin } = this.props;
+    const { group, daemon, admin } = this.props;
     const {
       containers,
       saveError,
@@ -104,6 +106,9 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
           />
         )}
         <ContainerTable daemon={daemon} containers={containers} admin={admin} />
+        {admin && (
+          <Button icon="terminal" labelPosition="right" content="Daemon" as={Link} to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)} />
+        )}
       </>
     );
   }

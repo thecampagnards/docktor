@@ -140,6 +140,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               <Search
                 size="tiny"
                 placeholder="Search daemons..."
+                value={filter.search}
                 showNoResults={false}
                 onSearchChange={this.filterAddSearchField}
               />

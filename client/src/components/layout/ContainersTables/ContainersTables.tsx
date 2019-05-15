@@ -3,12 +3,12 @@ import {
   Button,
   Grid,
   Icon,
-  List,
   Modal,
   Popup,
   Search,
   SearchProps,
-  Table
+  Table,
+  Label
 } from "semantic-ui-react";
 
 import { status } from "../../../constants/container";
@@ -134,22 +134,18 @@ export default class ContainerTable extends React.Component<
                   {container.Names || container.Name}
                 </Table.Cell>
                 <Table.Cell>
-                  <List>
                     {daemon.host &&
                       container.Ports &&
                       container.Ports.filter(
                         port => port.PublicPort && port.IP === "0.0.0.0"
-                      ).map(port => (
-                        <List.Item
-                          key={port.PublicPort}
+                      ).sort((a, b) => a.PrivatePort - b.PrivatePort).map(port => (
+                        <Label
+                        content={port.PrivatePort}
                           as="a"
                           href={"http://" + daemon.host + ":" + port.PublicPort}
                           target="_blank"
-                        >
-                          {`${daemon.host}:${port.PublicPort}`}
-                        </List.Item>
+                        />
                       ))}
-                  </List>
                 </Table.Cell>
                 <Table.Cell>
                   {container.Status || "Removed"}
