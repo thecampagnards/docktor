@@ -49,7 +49,7 @@
 
 [[constraint]]
   name = "github.com/sirupsen/logrus"
-  version = "v1.4.1"
+  version = "v1.4.2"
 
 [[constraint]]
   name = "github.com/robfig/cron"
