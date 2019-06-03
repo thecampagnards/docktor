@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { Grid, Dropdown, Message, Loader, Card, Progress } from 'semantic-ui-react';
+import { Grid, Dropdown, Message, Loader, Card, Progress, Icon, Modal, Button } from 'semantic-ui-react';
 import { IProfile } from 'src/components/User/types/user';
 import { IHomeData, IEnvironment } from '../types/home';
 import { fetchHome } from '../actions/home';
+import TextSocket from 'src/components/layout/TextSocket';
 
 interface IHomeState {
   user: IProfile;
@@ -69,6 +70,8 @@ class Home extends React.Component<{}, IHomeState> {
       )
     }
 
+    current.resources.stats = current.resources.stats.reverse().slice(0, 2);
+
     return (
       <>
         <Grid>
@@ -79,8 +82,6 @@ class Home extends React.Component<{}, IHomeState> {
             <Grid.Column width={14}>
               <Dropdown
                 selection={true}
-                clearable={true}
-                label="Environment"
                 name="envID"
                 placeholder="Select environment"
                 defaultValue={current.group.name}
@@ -94,9 +95,20 @@ class Home extends React.Component<{}, IHomeState> {
             {current.group._id && (
               <>
                 <Grid.Column width={8}>
-                  <Card fuild={true}>
+                  <Card fluid={true}>
                     <Card.Content>
+                      <Icon name="microchip" color="green" size="big" bordered={true} />
+                      <Icon name="server" color="orange" size="big" bordered={true} />
                       <Progress percent={70} className="reverse" />
+                      {current.containers.filter(c => c.State === "exited").map(c => (
+                          <Modal trigger={<Button color="red" content={c.Names[0]} labelPosition="left" icon="wheelchair" />}>
+                            <Modal.Content style={{ background: "black", color: "white" }}>
+                              <pre style={{ whiteSpace: "pre-line" }}>
+                                <TextSocket wsPath={`/api/daemons/${current.daemon._id}/docker/containers/${c.Id}/log`} />
+                              </pre>
+                            </Modal.Content>
+                          </Modal>
+                      ))}
                     </Card.Content>
                   </Card>
                 </Grid.Column>

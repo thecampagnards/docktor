@@ -111,9 +111,7 @@ class GroupCAdvisor extends React.Component<
         {containerInfo.name &&
           containerInfo.stats[0].filesystem &&
           containerInfo.stats[0].filesystem
-            .sort((a, b) =>
-              a.device > b.device ? -1 : b.device > a.device ? 1 : 0
-            )
+            .sort((a, b) => a.device.length - b.device.length)
             .map(fs => (
               <Progress
                 key={fs.device}
