@@ -4,6 +4,7 @@ import { IProfile } from 'src/components/User/types/user';
 import { IHomeData, IEnvironment } from '../types/home';
 import { fetchHome } from '../actions/home';
 import TextSocket from 'src/components/layout/TextSocket';
+import { path } from 'src/constants/path';
 
 interface IHomeState {
   user: IProfile;
@@ -71,6 +72,8 @@ class Home extends React.Component<{}, IHomeState> {
     }
 
     current.resources.stats = current.resources.stats.reverse().slice(0, 2);
+    const filesystem = current.resources.stats[0].filesystem.find(fs => fs.device.endsWith(current.group.name));
+    const fsUsage = filesystem ? Math.round(filesystem.usage / filesystem.available) : 0;
 
     return (
       <>
@@ -82,6 +85,7 @@ class Home extends React.Component<{}, IHomeState> {
             <Grid.Column width={14}>
               <Dropdown
                 selection={true}
+                multiple={true}
                 name="envID"
                 placeholder="Select environment"
                 defaultValue={current.group.name}
@@ -97,9 +101,12 @@ class Home extends React.Component<{}, IHomeState> {
                 <Grid.Column width={8}>
                   <Card fluid={true}>
                     <Card.Content>
-                      <Icon name="microchip" color="green" size="big" bordered={true} />
-                      <Icon name="server" color="orange" size="big" bordered={true} />
-                      <Progress percent={70} className="reverse" />
+                      <a href={path.groupCAdvisor.replace(":groupID", current.group._id)}>
+                        <Icon name="microchip" color="green" size="big" bordered={true} />
+                        <Icon name="server" color="orange" size="big" bordered={true} />
+                        <Icon name="hdd" style={{backgroundColor: this.computeColor(fsUsage)}} size="big" bordered={true} />
+                      </a>
+                      <Progress indicating={true} percent={fsUsage} className="reverse" title={fsUsage} />
                       {current.containers.filter(c => c.State === "exited").map(c => (
                           <Modal trigger={<Button color="red" content={c.Names[0]} labelPosition="left" icon="wheelchair" />}>
                             <Modal.Content style={{ background: "black", color: "white" }}>
@@ -118,6 +125,13 @@ class Home extends React.Component<{}, IHomeState> {
         </Grid>
       </>
     )
+  }
+
+  private computeColor = (percent: number) => {
+    switch (Math.round(percent/10)) {
+      default:
+        return "D95C5C";
+    }
   }
 }
 

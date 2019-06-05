@@ -12,7 +12,8 @@ import {
   Search,
   SearchProps,
   SemanticShorthandItem,
-  Table
+  Table,
+  Label
 } from "semantic-ui-react";
 
 import { path } from "../../../constants/path";
@@ -23,6 +24,7 @@ interface IDaemonsStates {
   daemons: IDaemon[];
   isFetching: boolean;
   error: Error;
+  index: number;
 
   filter: {
     tags: string[];
@@ -36,6 +38,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     daemons: [] as IDaemon[],
     isFetching: false,
     error: Error(),
+    index: 0,
 
     filter: {
       tags: [] as string[],
@@ -67,6 +70,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       daemons,
       error,
       isFetching,
+      index,
       filter
     } = this.state;
 
@@ -121,8 +125,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       );
     }
 
-    // Keep only 20
-    daemonsFiltered = daemonsFiltered.slice(0, 20);
+    // Pagination
+    const resultsTotal = daemonsFiltered.length;
+    const resultsDisplayTop = index*20;
+    const resultsDisplayBot = Math.min(resultsDisplayTop+20, resultsTotal);
+    const indexLimit = Math.trunc(resultsTotal/20);
+    daemonsFiltered = daemonsFiltered.slice(resultsDisplayTop, resultsDisplayBot);
 
     let tags: string[] = [];
     for (const d of daemons) {
@@ -256,6 +264,19 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             ))}
           </Table.Body>
         </Table>
+        <Grid>
+          <Grid.Column width={6}>
+            <Label>{`Results ${resultsDisplayTop+1} to ${resultsDisplayBot} of ${resultsTotal}`}</Label>
+          </Grid.Column>
+          <Grid.Column width={4}>
+            <Button.Group compact={true} fluid={true}>
+              <Button icon="chevron left" disabled={index === 0} onClick={this.prevPage} />
+              <Button disabled={true} content={`Page ${index+1}`} />
+              <Button icon="chevron right" disabled={index === indexLimit} onClick={this.nextPage} />
+            </Button.Group>
+          </Grid.Column>
+          <Grid.Column width={6} />
+        </Grid>
       </>
     );
   }
@@ -327,6 +348,18 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     index === -1 ? filter.status.push(value) : filter.status.splice(index, 1);
     this.setState({ filter });
   };
+
+  private prevPage = () => {
+    let { index } = this.state;
+    index--;
+    this.setState({ index });
+  }
+
+  private nextPage = () => {
+    let { index } = this.state;
+    index++;
+    this.setState({ index });
+  }
 }
 
 export default Daemons;
