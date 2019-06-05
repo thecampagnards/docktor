@@ -16,7 +16,7 @@
     "react-dom": "^16.8.6",
     "react-konami-code": "^1.4.0",
     "react-markdown": "^4.0.8",
-    "react-router-dom": "^5.0.0",
+    "react-router-dom": "^5.0.1",
     "react-scripts-ts": "^4.0.8",
     "redux-auth-wrapper": "^2.1.0",
     "semantic-ui-css": "^2.4.1",
