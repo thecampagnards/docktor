@@ -10,15 +10,9 @@ import (
 )
 
 type MachineUsage struct {
-	CPU MachineStats `json:"cpu"`
-	RAM MachineStats `json:"ram"`
-	FS  []FileSystem `json:"fs"`
-}
-
-type MachineStats struct {
-	Current uint64 `json:"current"`
-	Max     uint64 `json:"maw"`
-	Percent byte   `json:"percent"`
+	CPU byte
+	RAM byte
+	FS  []FileSystem
 }
 
 type FileSystem struct {
@@ -51,41 +45,26 @@ func (d *Daemon) CAdvisorContainerInfo() (*MachineUsage, error) {
 	}
 
 	usage := MachineUsage{
-		CPU: MachineStats{
-			Max:     0,
-			Current: 0,
-			Percent: 0,
-		},
-		RAM: MachineStats{
-			Max:     0,
-			Current: 0,
-			Percent: 0,
-		},
-		FS: []FileSystem{},
+		CPU: 0,
+		RAM: 0,
+		FS:  []FileSystem{},
 	}
 
 	// compute CPU usage
 	if len(stats) > 1 {
-		cpuFreqGhz := (machineInfo.CpuFrequency / 1000000) * uint64(machineInfo.NumCores)
 		deltaTime := stats[n-1].Timestamp.Sub(stats[n-2].Timestamp).Nanoseconds()
-		capacity := cpuFreqGhz * uint64(deltaTime)
 		inst := stats[n-2].CpuInst.Usage.Total
-		usage.CPU = MachineStats{
-			Max:     capacity,
-			Current: inst,
-			Percent: byte(math.Round(float64(inst) / float64(capacity))),
-		}
+		ratio := math.Round(float64(inst) / float64(deltaTime))
+		percent := byte(ratio / float64(machineInfo.NumCores) * 100)
+		usage.CPU = percent
 	}
 
 	// compute RAM usage
 	{
 		capacity := machineInfo.MemoryCapacity
 		inst := stats[n-1].Memory.Usage
-		usage.RAM = MachineStats{
-			Max:     capacity,
-			Current: inst,
-			Percent: byte(math.Round(float64(inst) / float64(capacity))),
-		}
+		percent := byte(math.Round(float64(inst) / float64(capacity)))
+		usage.RAM = percent
 	}
 
 	// compute filesystems
