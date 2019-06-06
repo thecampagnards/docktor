@@ -3,8 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Dropdown, DropdownProps, Grid, Loader, Message, Search,
-    SearchProps,
-    Label
+    SearchProps, Label, Divider
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -161,12 +160,13 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             </Grid.Column>
           ))}
         </Grid>
+        <Divider />
         <Grid>
           <Grid.Column width={7}>
             <Label>{`Total : ${resultsTotal}`}</Label>
           </Grid.Column>
           <Grid.Column width={2}>
-            <Button circular={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
+            <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
           </Grid.Column>
           <Grid.Column width={7} />
         </Grid>
