@@ -3,6 +3,7 @@ package storage
 import (
 	"docktor/server/types"
 
+	dockerTypes "github.com/docker/docker/api/types"
 	"github.com/globalsign/mgo"
 	"github.com/globalsign/mgo/bson"
 )
@@ -19,6 +20,10 @@ type GroupsRepo interface {
 	FindByID(id string) (types.Group, error)
 	// FindByIDBson get the group by its id
 	FindByIDBson(id bson.ObjectId) (types.Group, error)
+	// FindByDaemonIDBson get all groups of a daemon
+	FindByDaemonIDBson(id bson.ObjectId) (t types.Groups, err error)
+	// FindContainersByDaemonID get containers groups by daemon id
+	FindContainersByDaemonID(id string) (c []dockerTypes.ContainerJSON, err error)
 	// FindByUser get all groups of a user
 	FindByUser(u types.User) (types.Groups, error)
 	// FindAll get all groups
@@ -71,6 +76,22 @@ func (r *DefaultGroupsRepo) FindAllLight() (t types.GroupsLight, err error) {
 func (r *DefaultGroupsRepo) FindByUser(u types.User) (t types.Groups, err error) {
 	err = r.coll.Find(bson.M{"$or": []bson.M{bson.M{"admins": u.Username}, bson.M{"users": u.Username}}}).All(&t)
 	return t, err
+}
+
+// FindByDaemonIDBson get groups by daemon id
+func (r *DefaultGroupsRepo) FindByDaemonIDBson(id bson.ObjectId) (t types.Groups, err error) {
+	err = r.coll.Find(bson.M{"daemon_id": id}).All(&t)
+	return t, err
+}
+
+// FindContainersByDaemonID get containers groups by daemon id
+func (r *DefaultGroupsRepo) FindContainersByDaemonID(id string) (c []dockerTypes.ContainerJSON, err error) {
+	err = r.coll.Pipe([]bson.M{
+		{"$match": bson.M{"daemon_id": bson.ObjectIdHex(id)}},
+		{"$unwind": "$containers"},
+		{"$replaceRoot": bson.M{"newRoot": "$containers"}},
+	}).All(&c)
+	return c, err
 }
 
 // FindByID get one group by id

@@ -44,6 +44,9 @@ const (
 	IMAGE_PARAM      = "image"
 	IMAGE_ID_PARAM   = "imageID"
 	COMMAND_ID_PARAM = "commandID"
+
+	// Other
+	MIME_YAML = "application/x-yaml"
 )
 
 var (

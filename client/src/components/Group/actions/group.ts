@@ -56,23 +56,6 @@ export const saveContainers = (groupID: string) => {
     .then(response => response.json());
 };
 
-export const createContainer = (groupID: string, containerId: string) => {
-  return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/docker/containers/${containerId}/create`,
-    {
-      credentials: "same-origin",
-      method: "POST",
-      headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
-    }
-  )
-    .then(checkStatus)
-    .then(response => response.json());
-};
-
 export const saveGroup = (group: IGroup) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups`, {
     credentials: "same-origin",
@@ -136,9 +119,9 @@ export const startService = (groupID: string, serviceID: string) => {
     .then(response => response.json());
 };
 
-export const fetchCadvisor = (groupID: string) => {
+export const getService = (groupID: string, serviceID: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/file/${serviceID}`,
     {
       credentials: "same-origin",
       method: "GET",
@@ -147,6 +130,18 @@ export const fetchCadvisor = (groupID: string) => {
       })
     }
   )
+    .then(checkStatus)
+    .then(response => response.text());
+};
+
+export const fetchCadvisor = (groupID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor`, {
+    credentials: "same-origin",
+    method: "GET",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
     .then(checkStatus)
     .then((response: Response) => response.json());
 };

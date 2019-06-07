@@ -1,8 +1,13 @@
 package types
 
 import (
+	"reflect"
+
 	"github.com/docker/docker/api/types"
+	"github.com/docker/libcompose/config"
 	"github.com/globalsign/mgo/bson"
+	log "github.com/sirupsen/logrus"
+	yaml "gopkg.in/yaml.v2"
 )
 
 // GroupLight data
@@ -97,4 +102,113 @@ func findPort(port uint16, ports []uint16) bool {
 		}
 	}
 	return false
+}
+
+// FindContainersByNameOrID return the group containers by id or name
+func (g *GroupDocker) FindContainersByNameOrID(containers []string) (cont []types.ContainerJSON) {
+	for _, container := range containers {
+		for _, c := range g.Containers {
+			if c.ID == container || c.Name == container {
+				cont = append(cont, c)
+				break
+			}
+		}
+	}
+	return
+}
+
+// AppendOrUpdate append container if doesn't exist or update it by name
+func (g *GroupDocker) AppendOrUpdate(containers []types.ContainerJSON) {
+	for _, container := range containers {
+		exist := false
+		for key, c := range g.Containers {
+			if c.Name == container.Name {
+				exist = true
+				g.Containers[key] = container
+				break
+			}
+		}
+		if !exist {
+			g.Containers = append(g.Containers, container)
+		}
+	}
+}
+
+// FindSubServiceByID return the subservice by string id
+func (g *Group) FindSubServiceByID(subServiceID string) *ServiceGroup {
+	for _, s := range g.Services {
+		if s.SubServiceID.Hex() == subServiceID {
+			return &s
+		}
+	}
+	return nil
+}
+
+// GetComposeService this function retrun the subservice compose file
+func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceGroup ServiceGroup) (service []byte, err error) {
+
+	variables := map[string]interface{}{
+		"Group":  g,
+		"Daemon": daemon,
+	}
+
+	// Copy of variables
+	for k, v := range serviceGroup.Variables {
+		variables[k] = v
+	}
+
+	service, err = subService.ConvertSubService(variables)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"serviceGroup":   serviceGroup.Variables,
+			"subServiceName": subService.Name,
+			"groupName":      g.Name,
+			"daemonHost":     daemon.Host,
+			"variables":      serviceGroup.Variables,
+			"error":          err,
+		}).Error("Error when converting sub service")
+		return
+	}
+
+	var config config.Config
+	if err = yaml.Unmarshal(service, &config); err != nil {
+		log.WithFields(log.Fields{
+			"service": string(service),
+			"error":   err,
+		}).Error("Error when unmarshal service")
+		return
+	}
+
+	if serviceGroup.AutoUpdate {
+		// Use https://github.com/v2tec/watchtower
+		log.WithFields(log.Fields{
+			"config": config,
+		}).Infof("Add auto update for %s with watchtower", subService.Name)
+		for key := range config.Services {
+			if labels, ok := config.Services[key]["labels"]; ok {
+				v := reflect.ValueOf(labels)
+				config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
+			} else {
+				config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
+			}
+		}
+		log.WithFields(log.Fields{
+			"config": config,
+		}).Infof("Configuration updated for %s", subService.Name)
+	}
+
+	service, err = yaml.Marshal(config)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"config": config,
+			"error":  err,
+		}).Error("Error when marshal config")
+		return
+	}
+
+	log.WithFields(log.Fields{
+		"service": string(service),
+	}).Info("Sub service converted")
+
+	return
 }

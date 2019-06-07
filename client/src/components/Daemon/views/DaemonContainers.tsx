@@ -1,11 +1,11 @@
-import * as _ from "lodash";
+import * as _ from 'lodash';
 import * as React from 'react';
-import { Loader, Message, Grid, Label } from 'semantic-ui-react';
+import { Grid, Label, Loader, Message } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTables/ContainersTables';
-import { fetchComposeServices, fetchContainers } from '../actions/daemon';
+import { fetchComposeServices, fetchContainers, fetchSavedContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
 
@@ -32,6 +32,7 @@ class Daemon extends React.Component<
   };
 
   private refreshIntervalId: NodeJS.Timeout;
+  private savedContainers: IContainer[] = [] as IContainer[];
 
   public componentWillMount() {
     const { daemon } = this.props;
@@ -40,9 +41,25 @@ class Daemon extends React.Component<
       this.setState({ services })
     );
 
+    const saved = fetchSavedContainers(daemon._id)
+      .then(savedContainers => (this.savedContainers = savedContainers))
+      .catch(error => this.setState({ error }));
+
     const fetch = () => {
       fetchContainers(daemon._id)
-        .then(containers => this.setState({ containers, error: Error() }))
+        .then(async (containers: IContainer[]) => {
+          await saved;
+          for (const container of this.savedContainers) {
+            if (
+              !containers.find(
+                c => c.Names && c.Names.indexOf(container.Name) !== -1
+              )
+            ) {
+              containers.push(container);
+            }
+          }
+          this.setState({ containers, error: Error() });
+        })
         .catch(error => this.setState({ error }))
         .finally(() => this.setState({ isFetching: false }));
     };
@@ -78,9 +95,10 @@ class Daemon extends React.Component<
       <Grid>
         <Grid.Row>
           <Grid.Column width={10}>
-              NETWORKS : {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
-                <Label>{n}</Label>
-              ))}
+            NETWORKS :{" "}
+            {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
+              <Label>{n}</Label>
+            ))}
           </Grid.Column>
           <Grid.Column width={6}>
             <DaemonServiceButtons daemon={daemon} services={services} />
@@ -88,7 +106,11 @@ class Daemon extends React.Component<
         </Grid.Row>
         <Grid.Row>
           <Grid.Column>
-            <ContainerTable daemon={daemon} containers={containers} admin={true} />
+            <ContainerTable
+              daemon={daemon}
+              containers={containers}
+              admin={true}
+            />
           </Grid.Column>
         </Grid.Row>
       </Grid>
