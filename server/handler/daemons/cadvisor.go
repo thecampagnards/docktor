@@ -10,8 +10,8 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-// getCAdvisorContainerInfo get cadvisor info of container
-func getCAdvisorContainerInfo(c echo.Context) error {
+// getCAdvisorInfo get cadvisor info of container
+func getCAdvisorInfo(c echo.Context) error {
 
 	db := c.Get("DB").(*storage.Docktor)
 	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
@@ -23,37 +23,12 @@ func getCAdvisorContainerInfo(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	in, err := daemon.CAdvisorContainerInfo()
+	in, err := daemon.CAdvisorInfo()
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemonID": c.Param(types.DAEMON_ID_PARAM),
 			"error":    err,
-		}).Error("Error when retrieving cadvisor container info")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, in)
-}
-
-// getCAdvisorMachineInfo get cadvisor info of machine
-func getCAdvisorMachineInfo(c echo.Context) error {
-
-	db := c.Get("DB").(*storage.Docktor)
-	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
-	if err != nil {
-		log.WithFields(log.Fields{
-			"daemonID": c.Param(types.DAEMON_ID_PARAM),
-			"error":    err,
-		}).Error("Error when retrieving daemon")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	in, err := daemon.CAdvisorMachineInfo()
-	if err != nil {
-		log.WithFields(log.Fields{
-			"daemonID": c.Param(types.DAEMON_ID_PARAM),
-			"error":    err,
-		}).Error("Error when retrieving cadvisor machine info")
+		}).Error("Error when retrieving cadvisor infos")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 

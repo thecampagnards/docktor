@@ -2,7 +2,8 @@ package types
 
 import (
 	"errors"
-	"math"
+	"fmt"
+	"strings"
 
 	client "github.com/google/cadvisor/client"
 	v1 "github.com/google/cadvisor/info/v1"
@@ -10,9 +11,9 @@ import (
 )
 
 type MachineUsage struct {
-	CPU byte
-	RAM byte
-	FS  []FileSystem
+	CPU int          `json:"cpu"`
+	RAM int          `json:"ram"`
+	FS  []FileSystem `json:"fs"`
 }
 
 type FileSystem struct {
@@ -21,8 +22,8 @@ type FileSystem struct {
 	Usage    uint64 `json:"usage"`
 }
 
-// CAdvisorContainerInfo gets usage of resources over timestamps
-func (d *Daemon) CAdvisorContainerInfo() (*MachineUsage, error) {
+// CAdvisorInfo gets usage of resources
+func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
 	cli, err := client.NewClient(d.CAdvisor)
 	if err != nil {
 		return nil, err
@@ -52,19 +53,22 @@ func (d *Daemon) CAdvisorContainerInfo() (*MachineUsage, error) {
 
 	// compute CPU usage
 	if len(stats) > 1 {
-		deltaTime := stats[n-1].Timestamp.Sub(stats[n-2].Timestamp).Nanoseconds()
 		inst := stats[n-2].CpuInst.Usage.Total
-		ratio := math.Round(float64(inst) / float64(deltaTime))
-		percent := byte(ratio / float64(machineInfo.NumCores) * 100)
-		usage.CPU = percent
+		fmt.Printf("CPU inst : %v nanocores/s \n", inst)
+		ratio := float32(inst) / float32(machineInfo.NumCores) / 1000000000
+		fmt.Printf("CPU ratio : %v \n", ratio)
+		usage.CPU = int(ratio * 100)
 	}
 
 	// compute RAM usage
 	{
 		capacity := machineInfo.MemoryCapacity
 		inst := stats[n-1].Memory.Usage
-		percent := byte(math.Round(float64(inst) / float64(capacity)))
-		usage.RAM = percent
+		fmt.Printf("RAM capa : %v, RAM inst : %v \n", capacity, inst)
+		ratio := float32(inst) / float32(capacity)
+		fmt.Printf("RAM ratio : %v \n", ratio)
+		percent := ratio * 100
+		usage.RAM = int(percent)
 	}
 
 	// compute filesystems
@@ -92,11 +96,27 @@ func (d *Daemon) CAdvisorMachineInfo() (*v1.MachineInfo, error) {
 	return cli.MachineInfo()
 }
 
-func (d *Daemon) CAdvisorContainerInfoFilterFs(groupName string) (*v1.ContainerInfo, error) {
-	_, err := d.CAdvisorContainerInfo()
+// CAdvisorInfoFilterFs keeps only group filesystem
+func (d *Daemon) CAdvisorInfoFilterFs(groupName string) (*MachineUsage, error) {
+	u, err := d.CAdvisorInfo()
 	if err != nil {
 		return nil, err
 	}
 
-	return nil, nil
+	groupFS := make([]FileSystem, 1)
+
+	for _, fs := range u.FS {
+		if strings.HasSuffix(fs.Device, groupName) {
+			groupFS[0] = fs
+			break
+		}
+	}
+
+	if groupFS[0].Device == "" {
+		return nil, errors.New("Group filesystem not found")
+	}
+
+	u.FS = groupFS
+
+	return u, nil
 }

@@ -34,19 +34,13 @@ func getHomePage(c echo.Context) error {
 		}
 
 		env.Daemon = d.DaemonLight
-		/*
-			env.Machine, err = d.CAdvisorMachineInfo()
-			if err != nil {
-				log.WithError(err).WithField("daemon", d.Name).Error("Error while getting machine infos")
-				return c.JSON(http.StatusInternalServerError, err.Error())
-			}
 
-			env.Resources, err = d.CAdvisorContainerInfo()
-			if err != nil {
-				log.WithError(err).WithField("daemon", d.Name).Error("Error while getting container infos")
-				return c.JSON(http.StatusInternalServerError, err.Error())
-			}
-		*/
+		env.Resources, err = d.CAdvisorInfoFilterFs(group.Name)
+		if err != nil {
+			log.WithError(err).WithField("daemon", d.Name).Error("Error while getting machine infos")
+			return c.JSON(http.StatusInternalServerError, err.Error())
+		}
+
 		env.Containers, err = d.GetContainersStartByName(group.Name)
 		if err != nil {
 			log.WithError(err).WithField("daemon", d.Name).Error("Error while getting containers status")

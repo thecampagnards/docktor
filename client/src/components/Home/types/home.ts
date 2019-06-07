@@ -1,6 +1,6 @@
 import { IUser } from "src/components/User/types/user";
 import { IGroup } from 'src/components/Group/types/group';
-import { IDaemon, IMachineInfo, IContainer, IContainerInfo } from 'src/components/Daemon/types/daemon';
+import { IDaemon, IContainer } from 'src/components/Daemon/types/daemon';
 
 export interface IHomeData {
     user: IUser;
@@ -10,7 +10,18 @@ export interface IHomeData {
 export interface IEnvironment {
     group: IGroup;
     daemon: IDaemon;
-    machine: IMachineInfo;
-    resources: IContainerInfo;
+    resources: IResources;
     containers: IContainer[];
+}
+
+export interface IResources {
+    cpu: number;
+    ram: number;
+    fs: IFileSystem[];
+}
+
+export interface IFileSystem {
+    device: string;
+    capacity: number;
+    usage: number;
 }

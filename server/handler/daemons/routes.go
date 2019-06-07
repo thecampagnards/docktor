@@ -47,8 +47,8 @@ func AddRoute(e *echo.Group) {
 		{
 			// CAdvisor requests
 			cadvisor := daemon.Group("/cadvisor")
-			cadvisor.GET("/machine", getCAdvisorMachineInfo, middleware.WithDaemon)
-			cadvisor.GET("/container", getCAdvisorContainerInfo, middleware.WithAdmin)
+			cadvisor.Use(middleware.WithAdmin)
+			cadvisor.GET("", getCAdvisorInfo)
 		}
 	}
 }

@@ -71,9 +71,8 @@ class Home extends React.Component<{}, IHomeState> {
       )
     }
 
-    current.resources.stats = current.resources.stats.reverse().slice(0, 2);
-    const filesystem = current.resources.stats[0].filesystem.find(fs => fs.device.endsWith(current.group.name));
-    const fsUsage = filesystem ? Math.round(filesystem.usage / filesystem.available) : 0;
+    const filesystem = current.resources.fs[0];
+    const fsUsage = Math.round(100 * filesystem.usage / filesystem.capacity);
 
     return (
       <>
@@ -102,11 +101,16 @@ class Home extends React.Component<{}, IHomeState> {
                   <Card fluid={true}>
                     <Card.Content>
                       <a href={path.groupCAdvisor.replace(":groupID", current.group._id)}>
-                        <Icon name="microchip" color="green" size="big" bordered={true} />
-                        <Icon name="server" color="orange" size="big" bordered={true} />
-                        <Icon name="hdd" style={{backgroundColor: this.computeColor(fsUsage)}} size="big" bordered={true} />
+                        <Icon name="microchip" color="green" size="big" title={current.resources.cpu} bordered={true} floated="left" />
                       </a>
-                      <Progress indicating={true} percent={fsUsage} className="reverse" title={fsUsage} />
+                      <a href={path.groupCAdvisor.replace(":groupID", current.group._id)}>
+                        <Icon name="server" color="orange" size="big" title={current.resources.ram} bordered={true} floated="left" />
+                      </a>
+                      <a href={path.groupCAdvisor.replace(":groupID", current.group._id)}>
+                        <Icon name="hdd" style={{backgroundColor: this.computeColor(fsUsage)}} size="big" title={fsUsage} bordered={true} floated="left" />
+                        <Progress percent={fsUsage} className="reverse" title={fsUsage} />
+                      </a>
+                      
                       {current.containers.filter(c => c.State === "exited").map(c => (
                           <Modal trigger={<Button color="red" content={c.Names[0]} labelPosition="left" icon="wheelchair" />}>
                             <Modal.Content style={{ background: "black", color: "white" }}>
