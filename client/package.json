@@ -51,7 +51,7 @@
     "@types/jwt-decode": "^2.2.1",
     "@types/redux-auth-wrapper": "^2.0.9",
     "lint-staged": "^8.2.0",
-    "prettier": "^1.18.0",
+    "prettier": "^1.18.2",
     "typescript": "^3.5.1"
   },
   "browserslist": [
