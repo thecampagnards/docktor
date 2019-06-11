@@ -136,9 +136,9 @@ export const startService = (groupID: string, serviceID: string) => {
     .then(response => response.json());
 };
 
-export const fetchCadvisorContainers = (groupID: string) => {
+export const fetchCadvisor = (groupID: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor/container`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor`,
     {
       credentials: "same-origin",
       method: "GET",

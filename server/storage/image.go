@@ -75,8 +75,7 @@ func (r *DefaultImagesRepo) FindByID(id string) (t types.Image, err error) {
 // FindCommandByID get one command by id
 func (r *DefaultImagesRepo) FindCommandByID(id string) (types.Command, error) {
 	var img types.Image
-	// Select(bson.M{"commands.$": 1})
-	err := r.coll.Find(bson.M{"commands._id": bson.ObjectIdHex(id)}).One(&img)
+	err := r.coll.Find(bson.M{"commands._id": bson.ObjectIdHex(id)}).Select(bson.M{"commands.$": 1}).One(&img)
 	if !img.ID.Valid() {
 		return types.Command{}, err
 	}

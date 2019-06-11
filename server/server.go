@@ -4,6 +4,7 @@ import (
 	"docktor/server/handler/admin"
 	"docktor/server/handler/daemons"
 	"docktor/server/handler/groups"
+	"docktor/server/handler/home"
 	"docktor/server/handler/images"
 	"docktor/server/handler/services"
 	"docktor/server/handler/users"
@@ -139,6 +140,7 @@ func main() {
 	api.Use(customMiddleware.WithUser)
 
 	admin.AddRoute(api)
+	home.AddRoute(api)
 	daemons.AddRoute(api)
 	groups.AddRoute(api)
 	services.AddRoute(api)

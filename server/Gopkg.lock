@@ -251,11 +251,13 @@
   version = "v1.3.1"
 
 [[projects]]
-  digest = "1:53b3df42618947f09ba136ec3d1b53e7b6432549bcda37b36766ce8cf77a0fce"
+  digest = "1:fd106c21dd86c30b5bce978a21a4b77859d65604478b4112e3192fda7a620070"
   name = "github.com/google/cadvisor"
   packages = [
     "client",
+    "client/v2",
     "info/v1",
+    "info/v2",
   ]
   pruneopts = "UT"
   revision = "7e9ea00b05397d43b6539d22ea6ea51bf70fea83"
@@ -612,7 +614,9 @@
     "github.com/globalsign/mgo",
     "github.com/globalsign/mgo/bson",
     "github.com/google/cadvisor/client",
+    "github.com/google/cadvisor/client/v2",
     "github.com/google/cadvisor/info/v1",
+    "github.com/google/cadvisor/info/v2",
     "github.com/labstack/echo",
     "github.com/labstack/echo/middleware",
     "github.com/labstack/gommon/log",

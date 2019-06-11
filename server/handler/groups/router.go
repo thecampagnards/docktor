@@ -43,7 +43,7 @@ func AddRoute(e *echo.Group) {
 		{
 			// CAdvisor requests
 			cadvisor := group.Group("/cadvisor")
-			cadvisor.GET("/container", getCAdvisorContainerInfo)
+			cadvisor.GET("", getCAdvisorInfo)
 		}
 	}
 }

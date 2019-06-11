@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Dropdown, DropdownProps, Grid, Loader, Message, Search,
-    SearchProps
+    SearchProps, Label, Divider
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -23,7 +23,7 @@ interface IGroupsStates {
   daemons: IDaemon[];
   isFetching: boolean;
   error: Error;
-
+  expanded: boolean;
   searchFilter: string;
   searchDaemonID: string;
 }
@@ -34,7 +34,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     daemons: [] as IDaemon[],
     isFetching: false,
     error: Error(),
-
+    expanded: false,
     searchFilter: "",
     searchDaemonID: ""
   };
@@ -58,6 +58,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       groups,
       error,
       isFetching,
+      expanded,
       searchDaemonID,
       searchFilter
     } = this.state;
@@ -91,6 +92,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             (searchDaemonID === "" || searchDaemonID === group.daemon_id)
         )
       : [];
+
+    const resultsTotal = groupsFiltered.length;
+    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, 16);
 
     return (
       <>
@@ -145,7 +149,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
           </Grid.Column>
         </Grid>
         <Grid>
-          {groupsFiltered.slice(0, 16).map((group: IGroup) => (
+          {groupsDisplayed.map((group: IGroup) => (
             <Grid.Column key={group._id} width={4}>
               <GroupCard
                 group={group}
@@ -155,6 +159,18 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               />
             </Grid.Column>
           ))}
+        </Grid>
+        <Divider />
+        <Grid>
+          <Grid.Column width={7}>
+            <Label>{`Total : ${resultsTotal}`}</Label>
+          </Grid.Column>
+          <Grid.Column width={2}>
+            {resultsTotal > 16 && (
+              <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
+            )}
+          </Grid.Column>
+          <Grid.Column width={7} />
         </Grid>
       </>
     );
@@ -170,6 +186,11 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       .then(groups => this.setState({ groups, isFetching: false }))
       .catch(error => this.setState({ error, isFetching: false }));
   };
+
+  private handleExpand = () => {
+    const state = this.state.expanded;
+    this.setState({ expanded: !state })
+  }
 
   private filter = (
     event: React.SyntheticEvent,

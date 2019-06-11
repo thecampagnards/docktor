@@ -1,10 +1,9 @@
 import * as React from "react";
-import { Loader, Message, Progress } from "semantic-ui-react";
+import { Loader, Message, Progress, Segment } from "semantic-ui-react";
 
-import { fetchCadvisorMachine } from "../../Daemon/actions/daemon";
-import { IContainerInfo, IMachineInfo } from "../../Daemon/types/daemon";
-import { fetchCadvisorContainers } from "../actions/group";
+import { fetchCadvisor } from "../actions/group";
 import { IGroup } from "../types/group";
+import { IResources, IFileSystem } from 'src/components/Home/types/home';
 
 interface IGroupCAdvisorProps {
   group: IGroup;
@@ -12,8 +11,7 @@ interface IGroupCAdvisorProps {
 }
 
 interface IGroupCAdvisorStates {
-  containerInfo: IContainerInfo;
-  machineInfo: IMachineInfo;
+  resources: IResources;
   isFetching: boolean;
   error: Error;
 }
@@ -23,9 +21,8 @@ class GroupCAdvisor extends React.Component<
   IGroupCAdvisorStates
 > {
   public state = {
-    containerInfo: {} as IContainerInfo,
-    machineInfo: {} as IMachineInfo,
-    isFetching: false,
+    resources: {} as IResources,
+    isFetching: true,
     error: Error()
   };
 
@@ -34,21 +31,16 @@ class GroupCAdvisor extends React.Component<
   public componentWillMount() {
     const { group } = this.props;
 
-    fetchCadvisorMachine(group.daemon_id as string)
-      .then((machineInfo: IMachineInfo) =>
-        this.setState({ machineInfo, isFetching: false })
-      )
-      .catch((error: Error) => {
-        this.setState({ error, isFetching: false });
-      });
-
     const fetch = () => {
-      fetchCadvisorContainers(group._id)
-        .then((containerInfo: IContainerInfo) =>
-          this.setState({ containerInfo, error: Error() })
+      fetchCadvisor(group._id)
+        .then((resources: IResources) =>
+          this.setState({ resources, error: Error() })
         )
         .catch((error: Error) => {
           this.setState({ error });
+        })
+        .finally(() => {
+          this.setState({ isFetching: false });
         });
     };
 
@@ -61,14 +53,14 @@ class GroupCAdvisor extends React.Component<
   }
 
   public render() {
-    const { containerInfo, machineInfo, error, isFetching } = this.state;
+    const { resources, error, isFetching } = this.state;
 
     if (error.message) {
       return (
         <>
           <Message negative={true}>
             <Message.Header>
-              There was an issue with your CAdvisor
+              There was an issue with CAdvisor
             </Message.Header>
             <p>{error.message}</p>
           </Message>
@@ -80,101 +72,53 @@ class GroupCAdvisor extends React.Component<
       return <Loader active={true} />;
     }
 
+    const filesystem = {
+      device: "No group filesystem found.",
+      capacity: 0,
+      usage: 0,
+    } as IFileSystem;
+
+    if (resources.fs[0]) {
+      const fsUsageGo = Math.round(resources.fs[0].usage / 1000000000);
+      const fsCapGo = Math.round(resources.fs[0].capacity / 1000000000);
+      const deviceText = `FileSystem`;
+      filesystem.device = deviceText;
+      filesystem.capacity = fsCapGo;
+      filesystem.usage = fsUsageGo;
+    }
+
     return (
       <>
-        <Progress
-          value={
-            (containerInfo.name &&
-              machineInfo.machine_id &&
-              this.CPUUsage(machineInfo, containerInfo)) ||
-            0
-          }
-          total={100}
-          progress="percent"
-          indicating={true}
-          label="CPU"
-          className="reverse"
-        />
-        <Progress
-          value={
-            (containerInfo.name &&
-              machineInfo.machine_id &&
-              this.MemoryUsage(machineInfo, containerInfo)) ||
-            0
-          }
-          total={100}
-          progress="percent"
-          indicating={true}
-          label="RAM"
-          className="reverse"
-        />
-        {containerInfo.name &&
-          containerInfo.stats[0].filesystem &&
-          containerInfo.stats[0].filesystem
-            .sort((a, b) =>
-              a.device > b.device ? -1 : b.device > a.device ? 1 : 0
-            )
-            .map(fs => (
-              <Progress
-                key={fs.device}
-                value={(fs.usage / 1000000000).toFixed(3)}
-                total={(fs.capacity / 1000000000).toFixed(3)}
-                progress="ratio"
-                indicating={true}
-                label={"Disk - " + fs.device}
-                className="reverse"
-              />
-            ))}
+        <Segment>
+          <Progress
+            value={resources.cpu}
+            total={100}
+            progress="percent"
+            label="CPU"
+            className="reverse"
+          />
+        </Segment>
+        <Segment>
+          <Progress
+            value={resources.ram}
+            total={100}
+            progress="percent"
+            label="RAM"
+            className="reverse"
+          />
+        </Segment>
+        <Segment>
+          <Progress
+            value={filesystem.usage}
+            total={filesystem.capacity}
+            progress="percent"
+            label={filesystem.device}
+            title={`${filesystem.usage}/${filesystem.capacity}Go`}
+            className="reverse"
+          />
+        </Segment>
       </>
     );
-  }
-
-  // https://github.com/google/cadvisor/blob/master/pages/assets/js/containers.js
-  private CPUUsage = (
-    machineInfo: IMachineInfo,
-    containerInfo: IContainerInfo
-  ): number => {
-    if (containerInfo.spec.has_cpu && containerInfo.stats.length >= 2) {
-      const cur = containerInfo.stats[containerInfo.stats.length - 1];
-      const prev = containerInfo.stats[containerInfo.stats.length - 2];
-      const rawUsage = cur.cpu.usage.total - prev.cpu.usage.total;
-      const intervalNs = this.getInterval(cur.timestamp, prev.timestamp);
-
-      // Convert to millicores and take the percentage
-      const cpuUsage = Math.round(
-        (rawUsage / intervalNs / machineInfo.num_cores) * 100
-      );
-      return cpuUsage > 100 ? 100 : cpuUsage;
-    }
-    return 0;
-  };
-
-  private MemoryUsage = (
-    machineInfo: IMachineInfo,
-    containerInfo: IContainerInfo
-  ): number => {
-    if (containerInfo.spec.has_memory) {
-      const cur = containerInfo.stats[containerInfo.stats.length - 1];
-
-      // Saturate to the machine size.
-      let limit = containerInfo.spec.memory.limit;
-      if (limit > machineInfo.memory_capacity) {
-        limit = machineInfo.memory_capacity;
-      }
-
-      return Math.round((cur.memory.usage / limit) * 100);
-    }
-    return 0;
-  };
-
-  private getInterval(
-    current: string | number | Date,
-    previous: string | number | Date
-  ): number {
-    const cur = new Date(current);
-    const prev = new Date(previous);
-    // ms -> ns.
-    return (cur.getTime() - prev.getTime()) * 1000000;
   }
 }
 
