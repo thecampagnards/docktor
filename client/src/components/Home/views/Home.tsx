@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Grid, Dropdown, Message, Loader, Card, Icon, Modal, Button, Segment, List } from 'semantic-ui-react';
+import { Grid, Dropdown, Message, Loader, Card, Icon, Modal, Button, Segment, List, DropdownProps } from 'semantic-ui-react';
 import { IProfile } from 'src/components/User/types/user';
 import { IHomeData, IEnvironment } from '../types/home';
 import { fetchHome } from '../actions/home';
@@ -9,6 +9,7 @@ import { path } from 'src/constants/path';
 interface IHomeState {
   user: IProfile;
   environments: IEnvironment[];
+  envSelected: IEnvironment[];
   isFetching: boolean;
   error: Error;
 }
@@ -17,22 +18,26 @@ class Home extends React.Component<{}, IHomeState> {
   public state = {
     user: {} as IProfile,
     environments: [] as IEnvironment[],
+    envSelected: [] as IEnvironment[],
     isFetching: true,
     error: Error()
   }
 
   public componentWillMount() {
+    const hidden = JSON.parse(localStorage.getItem("home") || "[]") as string[];
+
     fetchHome()
       .then((data: IHomeData) => {
         const environments = data.environments;
-        this.setState({ environments });
+        const envSelected = environments.filter(e => !hidden.includes(e.group.name));
+        this.setState({ environments, envSelected });
       })
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
 
   public render() {
-    const { environments, isFetching, error } = this.state;
+    const { environments, envSelected, isFetching, error } = this.state;
 
     if (error.message) {
       return (
@@ -76,15 +81,17 @@ class Home extends React.Component<{}, IHomeState> {
                 selection={true}
                 multiple={true}
                 name="group"
-                placeholder="Select environment"
+                placeholder="Select environments"
                 options={environments.map(e => {
                   return { text: e.group.name, value: e.group.name };
                 })}
+                value={envSelected.map(e => e.group.name)}
+                onChange={this.handleSelect}
               />
             </Grid.Column>
           </Grid.Row>
           <Grid.Row>
-            {environments.map(env => {
+            {envSelected.map(env => {
               const filesystem = env.resources.fs[0];
               const fsUsage = Math.round(100 * filesystem.usage / filesystem.capacity);
               return (
@@ -148,6 +155,24 @@ class Home extends React.Component<{}, IHomeState> {
         </Grid>
       </>
     )
+  }
+
+  private handleSelect = (
+    event: React.SyntheticEvent<HTMLElement, Event>, 
+    data: DropdownProps 
+  ) => {
+    const { environments } = this.state;
+    const groups = data.value as string[];
+
+    let envSelected = environments.filter(e => groups.includes(e.group.name));
+    if (envSelected.length === 0) {
+      envSelected = environments;
+    }
+
+    const hidden = environments.filter(e => !envSelected.includes(e)).map(e => e.group.name);
+    localStorage.setItem("home", JSON.stringify(hidden));
+
+    this.setState({ envSelected });
   }
 
   private computeColor = (percent: number) => {

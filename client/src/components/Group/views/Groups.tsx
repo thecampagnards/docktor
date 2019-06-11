@@ -166,7 +166,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             <Label>{`Total : ${resultsTotal}`}</Label>
           </Grid.Column>
           <Grid.Column width={2}>
-            <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
+            {resultsTotal > 16 && (
+              <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
+            )}
           </Grid.Column>
           <Grid.Column width={7} />
         </Grid>
