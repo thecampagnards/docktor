@@ -124,11 +124,11 @@ class Home extends React.Component<{}, IHomeState> {
                     {env.containers.filter(c => c.State === "exited").map(c => (
                       <List.Item>
                         <List.Content>
-                        <Button compact={true} color="green" labelPosition="right" icon="fire extinguisher" content="Restart" floated="right" />
+                        <Button compact={true} basic={true} color="green" labelPosition="right" icon="fire extinguisher" content="Restart" floated="right" />
                         </List.Content>
                         <List.Content>
                         <Icon circular={true} color="red" name="fire" />
-                          <Modal trigger={<a>{c.Names[0]}</a>}>
+                          <Modal trigger={<a>{c.Names[0].replace("/","")}</a>}>
                             <Modal.Content style={{ background: "black", color: "white" }}>
                               <pre style={{ whiteSpace: "pre-line" }}>
                                 <TextSocket wsPath={`/api/daemons/${env.daemon._id}/docker/containers/${c.Id}/log`} />
@@ -171,7 +171,7 @@ class Home extends React.Component<{}, IHomeState> {
       case 9:
         return "#D95C5C";
       default:
-        return "";
+        return "#B5B5B5";
     }
   }
 }

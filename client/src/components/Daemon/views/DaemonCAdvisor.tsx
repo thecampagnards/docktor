@@ -1,17 +1,17 @@
 import * as React from 'react';
-import { Button, Grid, Icon, Loader, Message, Progress } from 'semantic-ui-react';
+import { Button, Grid, Icon, Loader, Message, Progress, Divider, Segment } from 'semantic-ui-react';
 
-import { fetchCadvisorContainers, fetchCadvisorMachine } from '../actions/daemon';
-import { IContainerInfo, IDaemon, IMachineInfo } from '../types/daemon';
+import { fetchCadvisor } from '../actions/daemon';
+import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
+import { IResources } from 'src/components/Home/types/home';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
 }
 
 interface IDaemonCAdvisorStates {
-  containerInfo: IContainerInfo;
-  machineInfo: IMachineInfo;
+  resources: IResources;
   isFetching: boolean;
   error: Error;
 }
@@ -22,9 +22,8 @@ class DaemonCAdvisor extends React.Component<
 > {
   public state = {
     daemon: {} as IDaemon,
-    containerInfo: {} as IContainerInfo,
-    machineInfo: {} as IMachineInfo,
-    isFetching: false,
+    resources: {} as IResources,
+    isFetching: true,
     error: Error()
   };
 
@@ -33,21 +32,16 @@ class DaemonCAdvisor extends React.Component<
   public componentWillMount() {
     const { daemon } = this.props;
 
-    fetchCadvisorMachine(daemon._id)
-      .then((machineInfo: IMachineInfo) =>
-        this.setState({ machineInfo, isFetching: false })
-      )
-      .catch((error: Error) => {
-        this.setState({ error, isFetching: false });
-      });
-
     const fetch = () => {
-      fetchCadvisorContainers(daemon._id)
-        .then((containerInfo: IContainerInfo) =>
-          this.setState({ containerInfo, error: Error() })
+      fetchCadvisor(daemon._id)
+        .then((resources: IResources) =>
+          this.setState({ resources, error: Error() })
         )
         .catch((error: Error) => {
           this.setState({ error });
+        })
+        .finally(() => {
+          this.setState({ isFetching: false });
         });
     };
 
@@ -61,8 +55,7 @@ class DaemonCAdvisor extends React.Component<
 
   public render() {
     const {
-      containerInfo,
-      machineInfo,
+      resources,
       error,
       isFetching
     } = this.state;
@@ -101,98 +94,51 @@ class DaemonCAdvisor extends React.Component<
             {buttons}
           </Grid.Column>
         </Grid>
-        <Progress
-          value={
-            (containerInfo.name &&
-              machineInfo.machine_id &&
-              this.CPUUsage(machineInfo, containerInfo)) ||
-            0
-          }
-          total={100}
-          progress="percent"
-          indicating={true}
-          label="CPU"
-          className="reverse"
-        />
-        <Progress
-          value={
-            (containerInfo.name &&
-              machineInfo.machine_id &&
-              this.MemoryUsage(machineInfo, containerInfo)) ||
-            0
-          }
-          total={100}
-          progress="percent"
-          indicating={true}
-          label="RAM"
-          className="reverse"
-        />
-        {containerInfo.name &&
-          containerInfo.stats[0].filesystem
-            .sort((a, b) =>
-              a.device > b.device ? -1 : b.device > a.device ? 1 : 0
-            )
-            .map(fs => (
+        <Divider/>
+        <h4>Resources</h4>
+        <Segment raised={true}>
+          <Progress
+            value={resources.cpu}
+            total={100}
+            progress="percent"
+            label="CPU"
+            className="reverse"
+          />
+          <Progress
+            value={resources.ram}
+            total={100}
+            progress="percent"
+            label="RAM"
+            className="reverse"
+          />
+        </Segment>
+        {resources.fs.length > 0 && (
+          <>
+            <Divider/>
+            <h4>Filesystems</h4>
+          </>
+        )}
+        {resources.fs
+            .sort((a,b) => a.device.localeCompare(b.device))
+            .map(s => {
+          const capGo = Math.round(s.capacity/1000000)/1000;
+          const usageGo = Math.round(s.usage/1000000)/1000;
+          const percent = Math.round(100*usageGo/capGo);
+          return (
+            <Segment key={s.device}>
               <Progress
-                key={fs.device}
-                value={(fs.usage / 1000000000).toFixed(3)}
-                total={(fs.capacity / 1000000000).toFixed(3)}
-                progress="ratio"
-                indicating={true}
-                label={"Disk - " + fs.device}
+                value={percent}
+                total={100}
+                progress="percent"
+                label={"Disk - " + s.device}
+                title={`${usageGo}/${capGo}Go`}
                 className="reverse"
               />
-            ))}
+            </Segment>
+          );
+        })}
       </>
     );
-  }
-
-  // https://github.com/google/cadvisor/blob/master/pages/assets/js/containers.js
-  private CPUUsage = (
-    machineInfo: IMachineInfo,
-    containerInfo: IContainerInfo
-  ): number => {
-    if (containerInfo.spec.has_cpu && containerInfo.stats.length >= 2) {
-      const cur = containerInfo.stats[containerInfo.stats.length - 1];
-      const prev = containerInfo.stats[containerInfo.stats.length - 2];
-      const rawUsage = cur.cpu.usage.total - prev.cpu.usage.total;
-      const intervalNs = this.getInterval(cur.timestamp, prev.timestamp);
-
-      // Convert to millicores and take the percentage
-      const cpuUsage = Math.round(
-        (rawUsage / intervalNs / machineInfo.num_cores) * 100
-      );
-      return cpuUsage > 100 ? 100 : cpuUsage;
-    }
-    return 0;
-  };
-
-  private MemoryUsage = (
-    machineInfo: IMachineInfo,
-    containerInfo: IContainerInfo
-  ): number => {
-    if (containerInfo.spec.has_memory) {
-      const cur = containerInfo.stats[containerInfo.stats.length - 1];
-
-      // Saturate to the machine size.
-      let limit = containerInfo.spec.memory.limit;
-      if (limit > machineInfo.memory_capacity) {
-        limit = machineInfo.memory_capacity;
-      }
-
-      return Math.round((cur.memory.usage / limit) * 100);
-    }
-    return 0;
-  };
-
-  private getInterval(
-    current: string | number | Date,
-    previous: string | number | Date
-  ): number {
-    const cur = new Date(current);
-    const prev = new Date(previous);
-    // ms -> ns.
-    return (cur.getTime() - prev.getTime()) * 1000000;
   }
 }
 

@@ -102,24 +102,9 @@ export const changeComposeStatus = (
     .then((response: Response) => response.json());
 };
 
-export const fetchCadvisorContainers = (daemonID: string) => {
+export const fetchCadvisor = (daemonID: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/container`,
-    {
-      credentials: "same-origin",
-      method: "GET",
-      headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
-    }
-  )
-    .then(checkStatus)
-    .then((response: Response) => response.json());
-};
-
-export const fetchCadvisorMachine = (daemonID: string) => {
-  return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor/machine`,
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor`,
     {
       credentials: "same-origin",
       method: "GET",
