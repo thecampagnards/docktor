@@ -16,36 +16,27 @@
   margin-bottom: 0.3em;
 }
 
+/* Progress bar color */
 .reverse.ui.progress[data-percent^="1"] .bar,
 .reverse.ui.progress[data-percent^="2"] .bar {
   background-color: #66DA81;
-
 }
-
-.reverse.ui.progress[data-percent^="3"] .bar {
+.reverse.ui.progress[data-percent^="3"] .bar,
+.reverse.ui.progress[data-percent^="4"] .bar {
   background-color: #B4D95C;
-
 }
-
-.reverse.ui.progress[data-percent^="4"] .bar,
-.reverse.ui.progress[data-percent^="5"] .bar {
-  background-color: #DDC928;
-}
-
+.reverse.ui.progress[data-percent^="5"] .bar,
 .reverse.ui.progress[data-percent^="6"] .bar {
-  background-color: #E6BB48;
+  background-color: #BACA27;
 }
-
 .reverse.ui.progress[data-percent^="7"] .bar,
 .reverse.ui.progress[data-percent^="8"] .bar {
   background-color: #EFBC72;
 }
-
 .reverse.ui.progress[data-percent^="9"] .bar,
-.reverse.ui.progress[data-percent^="100"] .bar {
+.reverse.ui.progress[data-percent="100"] .bar {
   background-color: #D95C5C;
 }
-
 .reverse.ui.progress[data-percent="1"] .bar,
 .reverse.ui.progress[data-percent="2"] .bar,
 .reverse.ui.progress[data-percent="3"] .bar,
@@ -57,6 +48,44 @@
 .reverse.ui.progress[data-percent="9"] .bar {
   background-color: #66DA81;
 }
+
+/* Icon color */
+.reverse.icon[data-percent^="1"],
+.reverse.icon[data-percent^="2"] {
+  color: #66DA81;
+}
+.reverse.icon[data-percent^="3"],
+.reverse.icon[data-percent^="4"] {
+  color: #B4D95C;
+}
+.reverse.icon[data-percent^="5"],
+.reverse.icon[data-percent^="6"] {
+  color: #BACA27;
+}
+.reverse.icon[data-percent^="7"],
+.reverse.icon[data-percent^="8"] {
+  color: #EFBC72;
+}
+.reverse.icon[data-percent^="9"],
+.reverse.icon[data-percent="100"] {
+  color: #D95C5C;
+}
+.reverse.icon[data-percent="1"],
+.reverse.icon[data-percent="2"],
+.reverse.icon[data-percent="3"],
+.reverse.icon[data-percent="4"],
+.reverse.icon[data-percent="5"],
+.reverse.icon[data-percent="6"],
+.reverse.icon[data-percent="7"],
+.reverse.icon[data-percent="8"],
+.reverse.icon[data-percent="9"] {
+  color: #66DA81;
+}
+.reverse.icon[data-percent="0"] {
+  color: #B5B5B5;
+}
+
+
 
 .xterm .xterm-viewport {
   overflow: hidden;

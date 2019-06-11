@@ -1,13 +1,11 @@
 import * as React from 'react';
 import { Grid, Dropdown, Message, Loader, Card, Icon, Modal, Button, Segment, List, DropdownProps } from 'semantic-ui-react';
-import { IProfile } from 'src/components/User/types/user';
-import { IHomeData, IEnvironment } from '../types/home';
+import { IEnvironment, IHomeData } from '../types/home';
 import { fetchHome } from '../actions/home';
-import TextSocket from 'src/components/layout/TextSocket';
-import { path } from 'src/constants/path';
+import TextSocket from '../../layout/TextSocket';
+import { path } from '../../../constants/path';
 
 interface IHomeState {
-  user: IProfile;
   environments: IEnvironment[];
   envSelected: IEnvironment[];
   isFetching: boolean;
@@ -16,7 +14,6 @@ interface IHomeState {
 
 class Home extends React.Component<{}, IHomeState> {
   public state = {
-    user: {} as IProfile,
     environments: [] as IEnvironment[],
     envSelected: [] as IEnvironment[],
     isFetching: true,
@@ -100,20 +97,23 @@ class Home extends React.Component<{}, IHomeState> {
                   <Card.Content>
                     <Segment as="a" href={path.groupCAdvisor.replace(":groupID", env.group._id)} floated="right">
                       <Icon 
+                        data-percent={env.resources.cpu}
                         name="microchip" 
-                        style={{ color: this.computeColor(env.resources.cpu) }} 
+                        className="reverse"
                         size="big" 
                         title={`CPU : ${env.resources.cpu}%`}
                       />
                       <Icon 
+                        data-percent={env.resources.ram}
                         name="server" 
-                        style={{ color: this.computeColor(env.resources.ram) }} 
+                        className="reverse"
                         size="big" 
                         title={`RAM : ${env.resources.ram}%`}
                       />
                       <Icon 
+                        data-percent={fsUsage}
                         name="hdd" 
-                        style={{ color: this.computeColor(fsUsage) }} 
+                        className="reverse"
                         size="big" 
                         title={`Disk : ${fsUsage}%`}
                       />
@@ -173,31 +173,6 @@ class Home extends React.Component<{}, IHomeState> {
     localStorage.setItem("home", JSON.stringify(hidden));
 
     this.setState({ envSelected });
-  }
-
-  private computeColor = (percent: number) => {
-    switch (Math.round(percent / 10)) {
-      case 1:
-        return "#66DA81";
-      case 2:
-        return "#66DA81";
-      case 3:
-        return "#B4D95C";
-      case 4:
-        return "#B4D95C";
-      case 5:
-        return "#DDC928";
-      case 6:
-        return "#DDC928";
-      case 7:
-        return "#EFBC72";
-      case 8:
-        return "#EFBC72";
-      case 9:
-        return "#D95C5C";
-      default:
-        return "#B5B5B5";
-    }
   }
 }
 

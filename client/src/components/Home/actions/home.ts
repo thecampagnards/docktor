@@ -1,5 +1,5 @@
-import { GetToken } from 'src/components/User/actions/user';
-import { checkStatus } from 'src/utils/promises';
+import { GetToken } from '../../User/actions/user';
+import { checkStatus } from '../../../utils/promises';
 
 export const fetchHome = () => {
     return fetch(`${process.env.PUBLIC_URL}/api/home`, {
