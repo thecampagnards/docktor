@@ -1,14 +1,20 @@
 version: '3'
 
-services: 
+services:
   docktor:
     image: thecampagnards/docktor
     networks:
       - docktor_net
-    ports: 
-      - 8080:8080 
+    ports:
+      - 8080:8080
     environment:
-      - MONGOHQ_URL=mongodb:27017
+      - MONGO_URL=mongodb:27017
+      - PRODUCTION=true
+      - LOG_LEVEL=debug
+      - DEFAULT_ADMIN_ACCOUNT=root
+      - DEFAULT_ADMIN_PASSWORD=mysecretpassword
+      - JWT_SECRET=NIi57BYu9kSZg3l47erj8hbzyiTQBwUnSuJ632OB
+      - CRON_REFRESH=@every 30m
   mongodb:
     image: mongo
     networks:

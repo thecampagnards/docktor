@@ -127,38 +127,43 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 
 	defer cli.Close()
 
-	// Pulling the image
-	_, err = cli.ImagePull(ctx, container.Config.Image, types.ImagePullOptions{})
+	// Check if container doesn't exist if not create it
+	_, err = d.InspectContainers(container.Name)
 	if err != nil {
-		return
-	}
 
-	// Creating the networks
-	for key, net := range container.NetworkSettings.Networks {
-		ip := strings.Split(".", net.IPAddress)
-		ip = ip[:len(ip)-1]
-		ip = append(ip, "0")
-		_, err = d.CreateNetwork(key, fmt.Sprintf("%s/%v", strings.Join(ip, "."), net.IPPrefixLen))
+		// Creating the networks
+		for key, net := range container.NetworkSettings.Networks {
+			ip := strings.Split(".", net.IPAddress)
+			ip = ip[:len(ip)-1]
+			ip = append(ip, "0")
+			_, err = d.CreateNetwork(key, fmt.Sprintf("%s/%v", strings.Join(ip, "."), net.IPPrefixLen))
+			if err != nil {
+				return
+			}
+		}
+
+		// Pulling the image
+		_, err = cli.ImagePull(ctx, container.Config.Image, types.ImagePullOptions{})
+		if err != nil {
+			return
+		}
+
+		// Creating the container
+		_, err = cli.ContainerCreate(
+			ctx,
+			container.Config,
+			container.HostConfig,
+			&network.NetworkingConfig{
+				EndpointsConfig: container.NetworkSettings.Networks,
+			},
+			container.Name,
+		)
 		if err != nil {
 			return
 		}
 	}
 
-	// Creating the container
-	resp, err := cli.ContainerCreate(
-		ctx,
-		container.Config,
-		container.HostConfig,
-		&network.NetworkingConfig{
-			EndpointsConfig: container.NetworkSettings.Networks,
-		},
-		container.Name,
-	)
-	if err != nil {
-		return
-	}
-
-	return cli.ContainerStart(ctx, resp.ID, types.ContainerStartOptions{})
+	return cli.ContainerStart(ctx, container.Name, types.ContainerStartOptions{})
 }
 
 // GetContainers
@@ -231,7 +236,8 @@ func (d *Daemon) InspectContainers(containersName ...string) ([]types.ContainerJ
 }
 
 // StartContainers
-func (d *Daemon) StartContainers(containersName ...string) (err error) {
+func (d *Daemon) StartContainers(containersName ...string) (errs map[string]string) {
+	errs = make(map[string]string)
 
 	cli, err := d.getDockerCli()
 	if err != nil {
@@ -243,7 +249,7 @@ func (d *Daemon) StartContainers(containersName ...string) (err error) {
 	for _, c := range containersName {
 		err = cli.ContainerStart(context.Background(), c, types.ContainerStartOptions{})
 		if err != nil {
-			return
+			errs[c] = err.Error()
 		}
 	}
 
@@ -251,7 +257,8 @@ func (d *Daemon) StartContainers(containersName ...string) (err error) {
 }
 
 // StopContainers
-func (d *Daemon) StopContainers(containersName ...string) (err error) {
+func (d *Daemon) StopContainers(containersName ...string) (errs map[string]string) {
+	errs = make(map[string]string)
 
 	cli, err := d.getDockerCli()
 	if err != nil {
@@ -264,7 +271,7 @@ func (d *Daemon) StopContainers(containersName ...string) (err error) {
 	for _, c := range containersName {
 		err = cli.ContainerStop(context.Background(), c, &timeout)
 		if err != nil {
-			return
+			errs[c] = err.Error()
 		}
 	}
 
@@ -272,7 +279,8 @@ func (d *Daemon) StopContainers(containersName ...string) (err error) {
 }
 
 // RemoveContainers
-func (d *Daemon) RemoveContainers(containersName ...string) (err error) {
+func (d *Daemon) RemoveContainers(containersName ...string) (errs map[string]string) {
+	errs = make(map[string]string)
 
 	cli, err := d.getDockerCli()
 	if err != nil {
@@ -284,7 +292,7 @@ func (d *Daemon) RemoveContainers(containersName ...string) (err error) {
 	for _, c := range containersName {
 		err = cli.ContainerRemove(context.Background(), c, types.ContainerRemoveOptions{Force: true})
 		if err != nil {
-			return
+			errs[c] = err.Error()
 		}
 	}
 

@@ -32,6 +32,7 @@ func AddRoute(e *echo.Group) {
 			// Docker requests
 			docker := daemon.Group("/docker")
 			docker.GET("/containers", getContainers, middleware.WithAdmin)
+			docker.GET("/containers/saved", getSavedContainers, middleware.WithAdmin)
 			docker.POST("/containers/status", updateContainersStatus)
 			docker.GET(fmt.Sprintf("/containers/:%s/log", types.CONTAINER_ID_PARAM), getContainerLog, middleware.WithDaemonContainer)
 			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), getContainerTerm, middleware.WithDaemonContainer)

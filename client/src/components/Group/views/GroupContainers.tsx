@@ -1,12 +1,12 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { Button, Loader, Message } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import ContainerTable from '../../layout/ContainersTables/ContainersTables';
 import { fetchContainers, saveContainers } from '../actions/group';
 import { IGroup } from '../types/group';
-import { Link } from 'react-router-dom';
-import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -42,7 +42,11 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       fetchContainers(group._id)
         .then((containers: IContainer[]) => {
           for (const container of group.containers) {
-            if (!containers.find(c => c.Names.indexOf(container.Name) !== -1)) {
+            if (
+              !containers.find(
+                c => c.Names && c.Names.indexOf(container.Name) !== -1
+              )
+            ) {
               containers.push(container);
             }
           }
@@ -107,7 +111,13 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
         )}
         <ContainerTable daemon={daemon} containers={containers} admin={admin} />
         {admin && (
-          <Button icon="terminal" labelPosition="right" content="Daemon" as={Link} to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)} />
+          <Button
+            icon="terminal"
+            labelPosition="right"
+            content="Daemon"
+            as={Link}
+            to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}
+          />
         )}
       </>
     );
