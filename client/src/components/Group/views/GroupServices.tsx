@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Card, Loader, Message } from 'semantic-ui-react';
 
-import MarketCard from '../../Market/views/MarketCard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
+import GroupService from './GroupService';
 
 interface IGroupProps {
   group: IGroup;
@@ -38,7 +38,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
-    const { group, admin } = this.props;
+    const { group } = this.props;
     const { services, error, isFetching } = this.state;
 
     if (error.message) {
@@ -66,7 +66,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     return (
       <Card.Group>
         {services.map((service: IService, index: number) => (
-          <MarketCard service={service} groups={[group]} admin={admin} key={index} />
+          <GroupService service={service} />
         ))}
       </Card.Group>
     );
