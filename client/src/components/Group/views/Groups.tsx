@@ -94,7 +94,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       : [];
 
     const resultsTotal = groupsFiltered.length;
-    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, 16);
+    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, 12);
 
     return (
       <>
@@ -166,7 +166,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             <Label>{`Total : ${resultsTotal}`}</Label>
           </Grid.Column>
           <Grid.Column width={2}>
-            {resultsTotal > 16 && (
+            {resultsTotal > 12 && (
               <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
             )}
           </Grid.Column>
