@@ -5,11 +5,11 @@ export interface IService {
   link: string
   tags: string[]
   image: string
-  sub_services?: ISubService[]
+  sub_services: ISubService[]
 }
 
 export interface ISubService {
-  _id?: string
+  _id: string
   name: string
   file?: string
   active: boolean

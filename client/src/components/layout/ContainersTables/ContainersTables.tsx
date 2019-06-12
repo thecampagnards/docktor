@@ -61,7 +61,7 @@ export default class ContainerTable extends React.Component<
       containers &&
       containers.filter(
         c =>
-          c.Names.filter(n =>
+          c.Names && c.Names.filter(n =>
             n.toLowerCase().includes(searchFilter.toLowerCase())
           ).length > 0
       );

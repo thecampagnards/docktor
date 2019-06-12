@@ -5,6 +5,8 @@ import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
+import { Link } from 'react-router-dom';
+import { path } from 'src/constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -20,7 +22,7 @@ interface IGroupStates {
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     services: [],
-    isFetching: true,
+    isFetching: false,
     error: Error()
   };
 
@@ -31,9 +33,9 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         .then(s => {
           const services: IService[] = this.state.services;
           services.push(s);
-          this.setState({ services, isFetching: false });
+          this.setState({ services });
         })
-        .catch(error => this.setState({ error, isFetching: false }));
+        .catch(error => this.setState({ error }));
     });
   }
 
@@ -50,15 +52,6 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
-    if (group.services.length === 0) {
-      return (
-        <Message info={true}>
-          <Message.Header>There is no service in this group yet.</Message.Header>
-          <Message.Content>Check the documentation...</Message.Content>
-        </Message>
-      );
-    }
-
     if (isFetching) {
       return <Loader active={true} />;
     }
@@ -69,7 +62,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         <Grid>
           <Grid.Column width={12} />
           <Grid.Column width={4}>
-            <Button primary={true} labelPosition="right" icon={true}>
+            <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
               <Icon name="plus" />ADD SERVICE
             </Button>
           </Grid.Column>

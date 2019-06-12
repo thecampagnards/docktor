@@ -2,7 +2,9 @@ export const path = {
   home: "/",
   admin: "/admin",
   images: "/images",
+
   market: "/market",
+  marketgroup: "/market?group=:groupID",
 
   groups: "/groups",
   groupsNew: "/groups/new",

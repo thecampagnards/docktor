@@ -15,7 +15,7 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
       <Card fluid={true}>
         <Card.Content>
           <Card.Header>{service.name}</Card.Header>
-          <Card.Meta>"Version</Card.Meta>
+          <Card.Meta>Version</Card.Meta>
           <Card.Description>
             Service stuffs
           </Card.Description>

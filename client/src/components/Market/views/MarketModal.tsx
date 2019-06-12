@@ -50,6 +50,16 @@ class MarketModal extends React.Component<
     open: false
   };
 
+  public componentWillMount() {
+    const { groups, service } = this.props;
+    if (groups.length === 1) {
+      this.setState({ selectedGroupID: groups[0]._id })
+    }
+    if (service.sub_services.length === 1) {
+      this.setState({ selectedSubServiceID: service.sub_services[0]._id })
+    }
+  }
+
   public render() {
     const { open, stage } = this.state;
     const { service, admin } = this.props;
@@ -155,7 +165,7 @@ class MarketModal extends React.Component<
           {service.sub_services && groups ?
             <>
               <Select
-                placeholder="Select your group"
+                placeholder="Select group"
                 options={groups.map(group => {
                   return { text: group.name, value: group._id };
                 })}
@@ -164,7 +174,7 @@ class MarketModal extends React.Component<
                 search={true}
               />
               <Select
-                placeholder="Select your sub service"
+                placeholder="Select service version"
                 options={service.sub_services.map(ss => {
                   return { text: ss.name, value: ss._id };
                 })}
