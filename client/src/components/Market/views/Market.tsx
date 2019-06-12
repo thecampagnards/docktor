@@ -12,6 +12,7 @@ import MarketCard from './MarketCard';
 
 interface IMarketProps {
   isAdmin: boolean;
+  group?: IGroup;
 }
 
 interface IServicesStates {
@@ -46,9 +47,14 @@ class Market extends React.Component<IMarketProps, IServicesStates> {
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchGroups(false)
-      .then((groups: IGroup[]) => this.setState({ groups }))
-      .catch((error: Error) => this.setState({ error }));
+    const { group } = this.props;
+    if (group) {
+      this.setState({ groups: [group] });
+    } else {
+      fetchGroups(false)
+        .then((groups: IGroup[]) => this.setState({ groups }))
+        .catch((error: Error) => this.setState({ error }));
+    }
   }
 
   public render() {

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, Loader, Message } from 'semantic-ui-react';
+import { Card, Loader, Message, Grid, Button, Icon } from 'semantic-ui-react';
 
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
@@ -64,11 +64,24 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-      <Card.Group>
-        {services.map((service: IService, index: number) => (
-          <GroupService service={service} />
-        ))}
-      </Card.Group>
+      <>
+
+        <Grid>
+          <Grid.Column width={12} />
+          <Grid.Column width={4}>
+            <Button primary={true} labelPosition="right" icon={true}>
+              <Icon name="plus" />ADD SERVICE
+            </Button>
+          </Grid.Column>
+        </Grid>
+
+        <Card.Group>
+          {services.map((service: IService, index: number) => (
+            <GroupService service={service} />
+          ))}
+        </Card.Group>
+        
+      </>
     );
   }
 }
