@@ -101,6 +101,7 @@ class Users extends React.Component<{}, IUsersStates> {
                   {user.groups &&
                     user.groups.map((group: IGroup) => (
                       <Button
+                        basic={true}
                         compact={true}
                         as={Link}
                         to={path.groupsServices.replace(":groupID", group._id)}

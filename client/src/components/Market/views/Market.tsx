@@ -115,6 +115,7 @@ class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, ISe
             {tags.map(tag => (
               <Button
                 key={tag}
+                basic={true}
                 toggle={true}
                 active={tagsFilter.indexOf(tag) > -1}
                 onClick={this.filterAddTags}

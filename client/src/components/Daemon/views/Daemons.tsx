@@ -193,6 +193,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               {tags.map(tag => (
                 <Button
                   key={tag}
+                  basic={true}
                   compact={true}
                   toggle={true}
                   active={filter.tags.indexOf(tag) > -1}
