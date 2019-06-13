@@ -1,26 +1,18 @@
-import * as React from "react";
+import * as React from 'react';
 import {
-  Button,
-  Grid,
-  Icon,
-  Modal,
-  Popup,
-  Search,
-  SearchProps,
-  Table,
-  Label
-} from "semantic-ui-react";
+    Button, Grid, Icon, Label, Modal, Popup, Search, SearchProps, Table
+} from 'semantic-ui-react';
 
-import { status } from "../../../constants/container";
-import { copy } from "../../../utils/clipboard";
-import { changeContainersStatus } from "../../Daemon/actions/daemon";
-import { IContainer, IDaemon } from "../../Daemon/types/daemon";
-import { fetchImages } from "../../Images/actions/image";
-import { IImage } from "../../Images/types/image";
-import ShellSocket from "../ShellSocket";
-import TextSocket from "../TextSocket";
-import ButtonsStatus from "./ButtonsStatus";
-import Commands from "./Commands";
+import { status } from '../../../constants/container';
+import { copy } from '../../../utils/clipboard';
+import { changeContainersStatus } from '../../Daemon/actions/daemon';
+import { IContainer, IDaemon } from '../../Daemon/types/daemon';
+import { fetchImages } from '../../Images/actions/image';
+import { IImage } from '../../Images/types/image';
+import ShellSocket from '../ShellSocket';
+import TextSocket from '../TextSocket';
+import ButtonsStatus from './ButtonsStatus';
+import Commands from './Commands';
 
 interface ITableProps {
   daemon: IDaemon;
@@ -61,7 +53,7 @@ export default class ContainerTable extends React.Component<
       containers &&
       containers.filter(
         c =>
-          c.Names && c.Names.filter(n =>
+          (c.Name ? [c.Name] : c.Names).filter(n =>
             n.toLowerCase().includes(searchFilter.toLowerCase())
           ).length > 0
       );
@@ -83,7 +75,7 @@ export default class ContainerTable extends React.Component<
                 value={searchFilter}
               />
             </Grid.Column>
-            <Grid.Column width={8} />
+            <Grid.Column width={6} />
             <Grid.Column width={4}>
               <Popup
                 content={error.message}
@@ -108,6 +100,16 @@ export default class ContainerTable extends React.Component<
                       onClick={this.handleAllOnClick.bind(this, "start")}
                     >
                       <Icon name="play" /> START ALL
+                    </Button>
+
+                    <Button
+                      color="blue"
+                      icon={true}
+                      floated="right"
+                      loading={isFetching}
+                      onClick={this.handleAllOnClick.bind(this, "create")}
+                    >
+                      <Icon name="cog" /> CREATE ALL
                     </Button>
                   </Button.Group>
                 }
@@ -134,104 +136,107 @@ export default class ContainerTable extends React.Component<
                   {container.Names || container.Name}
                 </Table.Cell>
                 <Table.Cell>
-                    {daemon.host &&
-                      container.Ports &&
-                      container.Ports.filter(
-                        port => port.PublicPort && port.IP === "0.0.0.0"
-                      ).sort((a, b) => a.PrivatePort - b.PrivatePort).map(port => (
+                  {daemon.host &&
+                    container.Ports &&
+                    container.Ports.filter(
+                      port => port.PublicPort && port.IP === "0.0.0.0"
+                    )
+                      .sort((a, b) => a.PrivatePort - b.PrivatePort)
+                      .map(port => (
                         <Label
-                        content={port.PrivatePort}
+                          content={port.PrivatePort}
                           as="a"
                           href={"http://" + daemon.host + ":" + port.PublicPort}
                           target="_blank"
                         />
                       ))}
                 </Table.Cell>
-                <Table.Cell>
-                  {container.Status || "Removed"}
-                </Table.Cell>
+                <Table.Cell>{container.Status || "Removed"}</Table.Cell>
                 <Table.Cell>
                   <ButtonsStatus container={container} daemon={daemon} />
                 </Table.Cell>
                 <Table.Cell>
                   <Button.Group fluid={true}>
-                  <Button
-                    icon="clipboard"
-                    content="Image"
-                    title={container.Image}
-                    onClick={copy.bind(this, container.Image)}
-                  />
-                  {container.Status && (
-                    <>
-                      <Modal
-                        trigger={<Button icon="align left" content="Logs" />}
-                      >
-                        <Modal.Content
-                          style={{ background: "black", color: "white" }}
+                    <Button
+                      icon="clipboard"
+                      content="Image"
+                      title={container.Image}
+                      onClick={copy.bind(this, container.Image)}
+                    />
+                    {container.Status && (
+                      <>
+                        <Modal
+                          trigger={<Button icon="align left" content="Logs" />}
                         >
-                          <pre style={{ whiteSpace: "pre-line" }}>
-                            <TextSocket
+                          <Modal.Content
+                            style={{ background: "black", color: "white" }}
+                          >
+                            <pre style={{ whiteSpace: "pre-line" }}>
+                              <TextSocket
+                                wsPath={`/api/daemons/${
+                                  daemon._id
+                                }/docker/containers/${container.Id}/log`}
+                              />
+                            </pre>
+                          </Modal.Content>
+                        </Modal>
+                        <Modal
+                          trigger={
+                            <Button
+                              disabled={
+                                !admin ||
+                                !status.Started.includes(container.State) ||
+                                !this.allowShell(container)
+                              }
+                              icon="terminal"
+                              content="Exec"
+                            />
+                          }
+                          size="large"
+                        >
+                          handleAllOnClick
+                          <Modal.Content style={{ background: "black" }}>
+                            <ShellSocket
                               wsPath={`/api/daemons/${
                                 daemon._id
-                              }/docker/containers/${container.Id}/log`}
+                              }/docker/containers/${container.Id}/term`}
                             />
-                          </pre>
-                        </Modal.Content>
-                      </Modal>
-                      <Modal
-                        trigger={
-                          <Button
-                            disabled={
-                              !admin ||
-                              !status.Started.includes(container.State) ||
-                              !this.allowShell(container)
-                            }
-                            icon="terminal"
-                            content="Exec"
-                          />
-                        }
-                        size="large"
+                          </Modal.Content>
+                        </Modal>
+                        <Modal
+                          trigger={
+                            <Button
+                              disabled={
+                                !status.Started.includes(container.State)
+                              }
+                              icon="forward"
+                              content=" Commands"
+                            />
+                          }
+                          size="tiny"
+                        >
+                          <Modal.Header>
+                            {container.Names + " available commands :"}
+                          </Modal.Header>
+                          <Modal.Content>
+                            <Commands
+                              images={images.filter(i =>
+                                RegExp(i.image.Pattern).test(container.Image)
+                              )}
+                              daemon={daemon}
+                              container={container}
+                            />
+                          </Modal.Content>
+                        </Modal>
+                      </>
+                    )}
+                    <Modal trigger={<Button icon="search" content="Inspect" />}>
+                      <Modal.Content
+                        style={{ background: "black", color: "white" }}
                       >
-                        <Modal.Content style={{ background: "black" }}>
-                          <ShellSocket
-                            wsPath={`/api/daemons/${
-                              daemon._id
-                            }/docker/containers/${container.Id}/term`}
-                          />
-                        </Modal.Content>
-                      </Modal>
-                      <Modal
-                        trigger={
-                          <Button
-                            disabled={!status.Started.includes(container.State)}
-                            icon="forward"
-                            content=" Commands"
-                          />
-                        }
-                        size="tiny"
-                      >
-                        <Modal.Header>
-                          {container.Names + " available commands :"}
-                        </Modal.Header>
-                        <Modal.Content>
-                          <Commands
-                            images={images.filter(i =>
-                              RegExp(i.image.Pattern).test(container.Image)
-                            )}
-                            daemon={daemon}
-                            container={container}
-                          />
-                        </Modal.Content>
-                      </Modal>
-                    </>
-                  )}
-                  <Modal trigger={<Button icon="search" content="Inspect" />}>
-                    <Modal.Content
-                      style={{ background: "black", color: "white" }}
-                    >
-                      <pre>{JSON.stringify(container, null, 2)}</pre>
-                    </Modal.Content>
-                  </Modal>
+                        <pre>{JSON.stringify(container, null, 2)}</pre>
+                      </Modal.Content>
+                    </Modal>
                   </Button.Group>
                 </Table.Cell>
               </Table.Row>

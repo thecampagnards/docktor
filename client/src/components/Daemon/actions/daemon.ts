@@ -41,6 +41,21 @@ export const fetchContainers = (daemonID: string) => {
     .then(response => response.json());
 };
 
+export const fetchSavedContainers = (daemonID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/containers/saved`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
 export const changeContainersStatus = (
   daemonID: string,
   status: string,

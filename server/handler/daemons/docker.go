@@ -45,6 +45,20 @@ func getContainers(c echo.Context) error {
 	return c.JSON(http.StatusOK, cs)
 }
 
+// getSavedContainers get saved containers from group of a daemon
+func getSavedContainers(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+	cs, err := db.Groups().FindContainersByDaemonID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving groups containers of daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, cs)
+}
+
 // updateContainersStatus change the status of caontiners param split by ','
 func updateContainersStatus(c echo.Context) error {
 
@@ -64,13 +78,43 @@ func updateContainersStatus(c echo.Context) error {
 
 	containers := strings.FieldsFunc(c.QueryParam("containers"), splitFn)
 
+	var errs map[string]string
+
 	switch c.QueryParam("status") {
 	case "start":
-		err = daemon.StartContainers(containers...)
+		errs = daemon.StartContainers(containers...)
 	case "stop":
-		err = daemon.StopContainers(containers...)
+		errs = daemon.StopContainers(containers...)
 	case "remove":
-		err = daemon.RemoveContainers(containers...)
+		errs = daemon.RemoveContainers(containers...)
+	case "create":
+
+		// Find groups of daemon
+		groups, err := db.Groups().FindByDaemonIDBson(daemon.ID)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"daemonID": daemon.ID,
+				"error":    err,
+			}).Error("Error when retrieving groups")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		errs = make(map[string]string)
+
+		for _, group := range groups {
+			for _, container := range group.FindContainersByNameOrID(containers) {
+				err = daemon.CreateContainer(container)
+				if err != nil {
+					errs[container.Name] = err.Error()
+					log.WithFields(log.Fields{
+						"daemon":    daemon.Name,
+						"status":    c.QueryParam("status"),
+						"err":       err,
+						"container": container,
+					}).Error("Error when create this container")
+				}
+			}
+		}
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
@@ -80,14 +124,14 @@ func updateContainersStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, "Wrong status")
 	}
 
-	if err != nil {
+	if len(errs) > 0 {
 		log.WithFields(log.Fields{
 			"daemon":     daemon.Name,
 			"status":     c.QueryParam("status"),
 			"containers": containers,
 			"error":      err,
 		}).Error("Error when changing containers status")
-		return c.JSON(http.StatusBadRequest, err.Error())
+		return c.JSON(http.StatusBadRequest, errs)
 	}
 
 	return c.JSON(http.StatusOK, c.QueryParam("status"))

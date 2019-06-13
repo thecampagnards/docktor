@@ -72,13 +72,13 @@ export default class ButtonsStatus extends React.Component<
     return (
       <Popup
         content={error.message}
-        disabled={!error}
+        disabled={!error.message}
         inverted={true}
         trigger={
           <Button
             loading={isFetching}
             icon={true}
-            color="green"
+            color="blue"
             disabled={status.Started.indexOf(container.State) > -1}
             onClick={this.handleOnClick.bind(this, "create")}
           >

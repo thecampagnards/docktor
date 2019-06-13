@@ -13,7 +13,8 @@ Docktor is a platform for administrating and deploying SaaS services based on Do
 - [ ] Add unit tests
 - [ ] Parallelize environments requests
 - [ ] User impersonate
-- [ ] Use official compose parse https://github.com/docker/cli/tree/master/cli/compose
+- [ ] Use official compose parse <https://github.com/docker/cli/tree/master/cli/compose>
+- [ ] Back check the ShellSocket permissions and commands permissions
 
 ## Installation
 
@@ -36,8 +37,12 @@ docker run -p 8080:8080 -v /data/docktor/assets:/docktor/assets thecampagnards/d
 
 You can define some env vars:
 
-- MONGOHQ_URL: mongodb url (default localhost)
+- MONGO_URL: mongodb url (default localhost)
 - JWT_SECRET: the jwt signed key (default secret)
+- PRODUCTION: boolean check if everything is correct for prod (default false)
+- LOG_LEVEL: the log level (default debug)
+- DEFAULT_ADMIN_ACCOUNT: the default admin username (default root)
+- DEFAULT_ADMIN_PASSWORD: the default admin password (default root)
 
 ## Developpement
 
@@ -47,13 +52,18 @@ Docktor is a Go/React(TS) app and use [libcompose](https://github.com/docker/lib
 
 #### Back
 
+Go version used 1.12.
+
 ```bash
+cd server
 go get -u github.com/golang/dep/cmd/dep
 dep ensure
 go run .
 ```
 
 #### Front
+
+Node version user 12.
 
 ```bash
 cd client
