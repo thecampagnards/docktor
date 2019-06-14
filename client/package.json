@@ -52,7 +52,7 @@
     "@types/redux-auth-wrapper": "^2.0.9",
     "lint-staged": "^8.2.0",
     "prettier": "^1.18.2",
-    "typescript": "^3.5.1"
+    "typescript": "^3.5.2"
   },
   "browserslist": [
     ">0.2%",
