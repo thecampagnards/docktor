@@ -50,7 +50,7 @@
     "@types/redux-thunk": "^2.1.0",
     "@types/jwt-decode": "^2.2.1",
     "@types/redux-auth-wrapper": "^2.0.9",
-    "lint-staged": "^8.2.0",
+    "lint-staged": "^8.2.1",
     "prettier": "^1.18.2",
     "typescript": "^3.5.2"
   },
