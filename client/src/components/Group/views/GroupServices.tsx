@@ -8,7 +8,7 @@ import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
 import { Link } from 'react-router-dom';
-import { path } from 'src/constants/path';
+import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
