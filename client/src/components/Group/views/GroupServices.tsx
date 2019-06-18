@@ -32,7 +32,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     const { group } = this.props;
-    group.services.map(service => {
+    group.services.forEach(service => {
       fetchServiceBySubService(service._id)
         .then(s => {
           const services: IService[] = this.state.services;
@@ -73,40 +73,40 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <Card.Group>
-        {services.map((service: IService, index: number) => (
-          <span key={index}>
+        {services.map((service: IService) => (
+          <span key={service._id}>
             <MarketCard service={service} groups={[group]} admin={admin} />
-            { admin &&
-            <Modal
-              trigger={
-                <Button
-                  onClick={this.handleOpen.bind(this, group.services[0]._id)}
-                >
-                  Get Compose File
-                </Button>
-              }
-              open={modalOpen}
-              onClose={this.handleClose}
-              basic={true}
-              size="fullscreen"
-              style={{ height: "80%" }}
-            >
-              <Modal.Content style={{ height: "100%" }}>
-                <CodeMirror
-                  className="height-100"
-                  value={content}
-                  options={{
-                    mode: "yaml",
-                    lint: true,
-                    theme: "material",
-                    lineNumbers: true,
-                    readOnly: true,
-                    cursorBlinkRate: -1
-                  }}
-                />
-              </Modal.Content>
-            </Modal>
-            }
+            {admin && (
+              <Modal
+                trigger={
+                  <Button
+                    onClick={this.handleOpen.bind(this, group.services[0]._id)}
+                  >
+                    Get Compose File
+                  </Button>
+                }
+                open={modalOpen}
+                onClose={this.handleClose}
+                basic={true}
+                size="fullscreen"
+                style={{ height: "80%" }}
+              >
+                <Modal.Content style={{ height: "100%" }}>
+                  <CodeMirror
+                    className="height-100"
+                    value={content}
+                    options={{
+                      mode: "yaml",
+                      lint: true,
+                      theme: "material",
+                      lineNumbers: true,
+                      readOnly: true,
+                      cursorBlinkRate: -1
+                    }}
+                  />
+                </Modal.Content>
+              </Modal>
+            )}
           </span>
         ))}
       </Card.Group>

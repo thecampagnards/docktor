@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Button, Form, Grid, List, Loader, Message } from 'semantic-ui-react';
@@ -6,7 +5,7 @@ import { Button, Form, Grid, List, Loader, Message } from 'semantic-ui-react';
 import { fetchAssets, saveAsset } from '../actions/admin';
 
 interface IAdminStates {
-  assets: string[] | null;
+  assets: Map<string, string>;
   isFetching: boolean;
   isSuccess: boolean;
   error: Error;
@@ -16,7 +15,7 @@ interface IAdminStates {
 
 class Admin extends React.Component<{}, IAdminStates> {
   public state = {
-    assets: [],
+    assets: new Map<string, string>(),
     isFetching: false,
     isSuccess: false,
     error: Error(),
@@ -27,7 +26,14 @@ class Admin extends React.Component<{}, IAdminStates> {
   public componentWillMount() {
     this.setState({ isFetching: true });
     fetchAssets()
-      .then(assets => this.setState({ assets, isFetching: false }))
+      .then(assets => {
+        assets = new Map(Object.entries(assets));
+        this.setState({
+          assets,
+          filename: assets.keys().next().value,
+          isFetching: false
+        });
+      })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
@@ -67,12 +73,16 @@ class Admin extends React.Component<{}, IAdminStates> {
             <Grid.Row>
               <Grid.Column width={4}>
                 <List>
-                  {Object.keys(assets).map(f => (
+                  {Array.from(assets.keys()).map(f => (
                     <List.Item
                       key={f}
                       as={Button}
                       onClick={this.changeFile(f)}
-                      active={f === filename}
+                      active={
+                        filename
+                          ? f === filename
+                          : f === assets.keys().next().value
+                      }
                       basic={true}
                       style={{ padding: 5, width: "100%" }}
                     >
@@ -86,7 +96,7 @@ class Admin extends React.Component<{}, IAdminStates> {
               </Grid.Column>
               <Grid.Column width={12}>
                 <CodeMirror
-                  value={filename ? assets[filename] : assets[0]}
+                  value={assets.get(filename) || assets.values().next().value}
                   options={{
                     theme: "material",
                     lineNumbers: true,
@@ -119,9 +129,9 @@ class Admin extends React.Component<{}, IAdminStates> {
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    this.setState({
-      assets: _.set(this.state.assets, editor.getOption("gutters")[0], value)
-    });
+    const { assets } = this.state;
+    assets.set(editor.getOption("gutters")[0], value);
+    this.setState({ assets });
   };
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -130,7 +140,7 @@ class Admin extends React.Component<{}, IAdminStates> {
     const { assets, filename } = this.state;
 
     this.setState({ isFetching: true });
-    saveAsset(filename, assets[filename])
+    saveAsset(filename, assets.get(filename))
       .then(() =>
         this.setState({ isSuccess: true, isFetching: false, error: Error() })
       )

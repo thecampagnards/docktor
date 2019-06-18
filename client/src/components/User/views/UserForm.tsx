@@ -113,7 +113,11 @@ class UserForm extends React.Component<
     e: React.ChangeEvent<HTMLInputElement>,
     { name, value }: InputOnChangeData
   ) => {
-    this.user[name] = value;
+    Object.defineProperty(this.user, name, {
+      value,
+      writable: true,
+      enumerable: true
+    });
   };
 
   private handlePasswordChange = (

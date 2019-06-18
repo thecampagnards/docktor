@@ -74,14 +74,10 @@ export const deployService = (
   groupID: string,
   serviceID: string,
   variables: any,
-  opts: object
+  opts: Map<string, string>
 ) => {
   let opt = "";
-  for (const o in opts) {
-    if (opts.hasOwnProperty(o)) {
-      opt += `${o}=${opts[o]}&`;
-    }
-  }
+  opts.forEach(o => opts.has(o) && (opt += `${o}=${opts.get(o)}&`));
   opt = opt.slice(0, -1);
   return fetch(
     `${
@@ -103,9 +99,7 @@ export const deployService = (
 
 export const startService = (groupID: string, serviceID: string) => {
   return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/start/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/start/${serviceID}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -148,9 +142,7 @@ export const fetchCadvisor = (groupID: string) => {
 
 export const updateUser = (groupID: string, userID: string, status: string) => {
   return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/updateuser/${userID}/${status}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/updateuser/${userID}/${status}`,
     {
       credentials: "same-origin",
       method: "POST",

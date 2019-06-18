@@ -3,11 +3,11 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
+import { IStoreState } from '../../../types/store';
 import { fetchGroups } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchServices } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
-import { IStoreState } from '../../../types/store';
 import MarketCard from './MarketCard';
 
 interface IMarketProps {
@@ -164,7 +164,7 @@ class Market extends React.Component<IMarketProps, IServicesStates> {
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
-    isAdmin: !!login.isAdmin,
+    isAdmin: login.isAdmin
   };
 };
 

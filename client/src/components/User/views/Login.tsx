@@ -65,7 +65,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
             type="password"
             onChange={this.handleChange}
           />
-          <a>Forgot password ?</a>
+          <a href="#password">Forgot password ?</a>
           <br />
           <br />
           <Message error={true} header="Error" content={error} />
@@ -78,7 +78,7 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
   }
 
   private handleLDAP = (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
     { checked }: CheckboxProps
   ) => {
     this.LDAP = !!checked;
@@ -88,7 +88,11 @@ class Login extends React.Component<RouteComponentProps & ILoginProps> {
     e: React.ChangeEvent<HTMLInputElement>,
     { name, value }: InputOnChangeData
   ) => {
-    this.user[name] = value;
+    Object.defineProperty(this.user, name, {
+      value,
+      writable: true,
+      enumerable: true
+    });
   };
 
   private submit = (e: React.FormEvent<HTMLFormElement>) => {

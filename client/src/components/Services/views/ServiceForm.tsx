@@ -1,20 +1,11 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { UnControlled as CodeMirror } from "react-codemirror2";
-import { RouteComponentProps } from "react-router";
-import {
-  Button,
-  Divider,
-  Form,
-  Grid,
-  Icon,
-  Loader,
-  Message,
-  Accordion
-} from "semantic-ui-react";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
+import { RouteComponentProps } from 'react-router';
+import { Accordion, Button, Divider, Form, Grid, Icon, Loader, Message } from 'semantic-ui-react';
 
-import { fetchService, saveService } from "../actions/service";
-import { IService, ISubService } from "../types/service";
+import { fetchService, saveService } from '../actions/service';
+import { IService, ISubService } from '../types/service';
 
 interface IRouterProps {
   serviceID: string;
@@ -99,7 +90,7 @@ class ServiceForm extends React.Component<
           <br />
 
           <Form.Group widths="equal">
-            {service.image && <img src={service.image} />}
+            {service.image && <img src={service.image} alt={service.name} />}
 
             <Form.Input
               label="Image"
@@ -129,7 +120,10 @@ class ServiceForm extends React.Component<
           <br />
 
           <Accordion styled={true} fluid={true}>
-            <Accordion.Title active={openVersions} onClick={this.handleToggleVersions}>
+            <Accordion.Title
+              active={openVersions}
+              onClick={this.handleToggleVersions}
+            >
               <Icon name="dropdown" />
               Versions
             </Accordion.Title>
@@ -158,7 +152,14 @@ class ServiceForm extends React.Component<
                           />
                         </Grid.Column>
                         <Grid.Column width={4}>
-                          <Button color="red" icon="minus" labelPosition="left" content="Delete version" fluid={true} onClick={this.removeSubService(key)} />
+                          <Button
+                            color="red"
+                            icon="minus"
+                            labelPosition="left"
+                            content="Delete version"
+                            fluid={true}
+                            onClick={this.removeSubService(key)}
+                          />
                         </Grid.Column>
                       </Grid.Row>
                       <Grid.Row>
@@ -182,7 +183,13 @@ class ServiceForm extends React.Component<
                   ))}
                 <Grid.Row>
                   <Grid.Column>
-                    <Button icon="plus" labelPosition="left" content="Add version" onClick={this.addSubService} color="green" />
+                    <Button
+                      icon="plus"
+                      labelPosition="left"
+                      content="Add version"
+                      onClick={this.addSubService}
+                      color="green"
+                    />
                   </Grid.Column>
                 </Grid.Row>
               </Grid>
@@ -196,7 +203,13 @@ class ServiceForm extends React.Component<
           />
           <Message error={true} header="Error" content={error.message} />
           <br />
-          <Button icon={true} labelPosition="left" color="teal" type="submit" loading={isFetching}>
+          <Button
+            icon={true}
+            labelPosition="left"
+            color="teal"
+            type="submit"
+            loading={isFetching}
+          >
             <Icon name="save" />
             SAVE
           </Button>
@@ -217,7 +230,7 @@ class ServiceForm extends React.Component<
   private handleToggleVersions = () => {
     const toggle = this.state.openVersions;
     this.setState({ openVersions: !toggle });
-  }
+  };
 
   private removeSubService = (key: number) => (
     event: React.MouseEvent<HTMLButtonElement>
@@ -245,13 +258,15 @@ class ServiceForm extends React.Component<
   };
 
   private handleChange = (
-    e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
     { name, value }: any
   ) => {
     const { service } = this.state;
 
-    if (e.target.files !== null) {
+    // @ts-ignore
+    if (e.target.files && e.target.files !== null) {
       const reader = new FileReader();
+      // @ts-ignore
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
         if (typeof reader.result === "string") {

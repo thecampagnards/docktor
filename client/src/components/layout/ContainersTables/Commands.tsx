@@ -22,7 +22,7 @@ interface ICommandsStates {
   modalView: boolean;
   command: ICommand;
   log: string;
-  variables: object;
+  variables: Map<string, any>;
 }
 
 export default class Commands extends React.Component<
@@ -36,7 +36,7 @@ export default class Commands extends React.Component<
 
     modalView: false,
     command: {} as ICommand,
-    variables: {}
+    variables: new Map<string, any>()
   };
 
   public render() {
@@ -54,13 +54,9 @@ export default class Commands extends React.Component<
     return (
       <>
         <List selection={true}>
-          {images.map((image) =>
-            image.commands.map((c) => (
-              <List.Item
-                key={c._id}
-                name={c}
-                onClick={this.showCommand}
-              >
+          {images.map(image =>
+            image.commands.map(c => (
+              <List.Item key={c._id} name={c} onClick={this.showCommand}>
                 <Icon name="chevron right" /> {c.title}
               </List.Item>
             ))
@@ -156,7 +152,7 @@ export default class Commands extends React.Component<
 
     if (commandArgs) {
       for (const a of commandArgs) {
-        if (!variables[a]) {
+        if (variables.has(a)) {
           this.setState({
             log: "",
             error: Error(`Please set a value for ${a}`)

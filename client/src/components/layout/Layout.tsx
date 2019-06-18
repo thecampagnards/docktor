@@ -123,8 +123,8 @@ const mapStateToProps = (state: IStoreState) => {
   const { login, config } = state;
   return {
     message: config.config.message || {},
-    username: login.username,
-    isAdmin: !!login.isAdmin,
+    username: login.username || "",
+    isAdmin: login.isAdmin,
     isAuthenticated: login.username !== ""
   };
 };
