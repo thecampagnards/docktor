@@ -42,7 +42,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
 
     const { group } = this.props;
     const usernames = group.users.concat(group.admins);
-    usernames.map(username => {
+    usernames.forEach(username => {
       fetchUser(username)
         .then(u => {
           const members: IUser[] = this.state.members;

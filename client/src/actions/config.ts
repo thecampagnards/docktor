@@ -1,7 +1,7 @@
 import { Dispatch } from 'react';
-import { IConfig } from 'src/types/config';
 
 import { GetToken } from '../components/User/actions/user';
+import { IConfig } from '../types/config';
 import { checkStatus } from '../utils/promises';
 
 type ConfigRequest = "CONFIG_REQUEST";

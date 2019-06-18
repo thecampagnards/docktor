@@ -6,28 +6,27 @@ matrix:
     - language: go
       go:
         - "1.12"
+      env:
+        - GO111MODULE=on
       addons:
         sonarcloud:
           organization: "thecampagnards-github"
       cache:
         directories:
           - "$HOME/.sonar/cache"
-          - "$GOPATH/pkg/dep"
+          - "$GOPATH/pkg/mod"
           - "client/node_modules"
-      go_import_path: docktor
       install:
         - nvm install stable
         - node -v
         - git fetch --unshallow --quiet
         - npm link typescript
-        - go get -u github.com/golang/dep/cmd/dep
       script:
         - cd client
         - npm install
         - npm run test
         - cd ..
         - cd server
-        - dep ensure -v
         - go test ./... -coverprofile="coverage.out"
         - cd ..
         - sonar-scanner

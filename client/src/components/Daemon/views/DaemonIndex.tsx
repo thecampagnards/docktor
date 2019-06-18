@@ -1,5 +1,5 @@
 import * as React from 'react';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { RouteComponentProps } from 'react-router';
 import { Loader, Message, Tab, TabProps } from 'semantic-ui-react';
 
@@ -25,7 +25,7 @@ interface IDaemonIndexStates {
 class DaemonIndex extends React.Component<
   RouteComponentProps<IRouterProps>,
   IDaemonIndexStates
-  > {
+> {
   public state = {
     activeTab: 0,
     isFetching: true,
@@ -74,7 +74,6 @@ class DaemonIndex extends React.Component<
       );
     }
 
-
     if (isFetching) {
       return <Loader active={true} />;
     }
@@ -83,8 +82,12 @@ class DaemonIndex extends React.Component<
       {
         menuItem: "Containers",
         pane: (
-          <Tab.Pane loading={isFetching} key={1} disabled={!daemon.docker || !daemon.docker.port}>
-           <DaemonContainers daemon={daemon} />
+          <Tab.Pane
+            loading={isFetching}
+            key={1}
+            disabled={!daemon.docker || !daemon.docker.port}
+          >
+            <DaemonContainers daemon={daemon} />
           </Tab.Pane>
         )
       },
@@ -92,7 +95,7 @@ class DaemonIndex extends React.Component<
         menuItem: "CAdvisor",
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
-           <DaemonCAdvisor daemon={daemon} />
+            <DaemonCAdvisor daemon={daemon} />
           </Tab.Pane>
         )
       },
@@ -100,15 +103,19 @@ class DaemonIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-           <DaemonForm daemon={daemon} />
+            <DaemonForm daemon={daemon} />
           </Tab.Pane>
         )
       },
       {
         menuItem: "SSH",
         pane: (
-          <Tab.Pane loading={isFetching} key={4} disabled={!daemon.ssh || !daemon.ssh.port}>
-           <DaemonSSH daemon={daemon} />
+          <Tab.Pane
+            loading={isFetching}
+            key={4}
+            disabled={!daemon.ssh || !daemon.ssh.port}
+          >
+            <DaemonSSH daemon={daemon} />
           </Tab.Pane>
         )
       }

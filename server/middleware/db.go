@@ -3,7 +3,7 @@ package middleware
 import (
 	"docktor/server/storage"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // DB is a middleware injecting the DB to the Echo context

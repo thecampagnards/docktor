@@ -1,4 +1,4 @@
-import * as JWT from 'jwt-decode';
+import JWT from 'jwt-decode';
 import { Dispatch } from 'redux';
 
 import { checkStatus } from '../../../utils/promises';
@@ -79,8 +79,8 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
         localStorage.setItem("token", token);
         dispatch({
           type: LoginSuccess,
-          username: (JWT(token) as IUserToken).username,
-          isAdmin: (JWT(token) as IUserToken).isAdmin
+          username: JWT<IUserToken>(token).username,
+          isAdmin: JWT<IUserToken>(token).isAdmin
         });
       })
       .catch((error: Error) => {

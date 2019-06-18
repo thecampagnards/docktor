@@ -120,7 +120,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   }
 
   private handleChange = (
-    e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    e: React.SyntheticEvent<HTMLElement, Event>,
     { name, value, type }: any
   ) => {
     const group = this.state.group;

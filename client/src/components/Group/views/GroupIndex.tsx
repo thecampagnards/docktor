@@ -1,13 +1,13 @@
 import * as React from 'react';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router';
 import { Message, Tab, TabProps } from 'semantic-ui-react';
-import { IDaemon } from 'src/components/Daemon/types/daemon';
 
 import { path as constPath } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 import { fetchDaemons } from '../../Daemon/actions/daemon';
+import { IDaemon } from '../../Daemon/types/daemon';
 import { fetchGroup } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupCAdvisor from './GroupCAdvisor';
@@ -217,9 +217,8 @@ class GroupIndex extends React.Component<
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
-    username: login.username,
-    isAdmin: !!login.isAdmin,
-    isAuthenticated: login.username !== ""
+    username: login.username || "",
+    isAdmin: login.isAdmin
   };
 };
 

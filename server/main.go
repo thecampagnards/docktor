@@ -15,10 +15,9 @@ import (
 	"docktor/server/types"
 	"fmt"
 
-	"github.com/labstack/echo"
-	"github.com/labstack/echo/middleware"
+	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/namsral/flag"
-	"github.com/sirupsen/logrus"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -35,7 +34,7 @@ var (
 )
 
 func parseFlags() {
-	flag.String(flag.DefaultConfigFlagname, "", "Path to config file")
+	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "debug", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
@@ -111,7 +110,7 @@ func main() {
 	e := echo.New()
 	configure(e)
 
-	e.Logger = customMiddleware.Logger{Logger: logrus.StandardLogger()}
+	e.Logger = customMiddleware.Logger{Logger: log.StandardLogger()}
 	e.Use(customMiddleware.Hook())
 	e.Use(middleware.Recover())
 	e.Use(middleware.Gzip())

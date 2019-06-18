@@ -7,7 +7,7 @@ import (
 	"docktor/server/storage"
 	"docktor/server/types"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/ssh"
 	"golang.org/x/net/websocket"

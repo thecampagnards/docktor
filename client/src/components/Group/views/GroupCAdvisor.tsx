@@ -1,9 +1,9 @@
-import * as React from "react";
-import { Loader, Message, Progress, Segment } from "semantic-ui-react";
+import * as React from 'react';
+import { Loader, Message, Progress, Segment } from 'semantic-ui-react';
 
-import { fetchCadvisor } from "../actions/group";
-import { IGroup } from "../types/group";
-import { IResources, IFileSystem } from 'src/components/Home/types/home';
+import { IFileSystem, IResources } from '../../Home/types/home';
+import { fetchCadvisor } from '../actions/group';
+import { IGroup } from '../types/group';
 
 interface IGroupCAdvisorProps {
   group: IGroup;
@@ -59,9 +59,7 @@ class GroupCAdvisor extends React.Component<
       return (
         <>
           <Message negative={true}>
-            <Message.Header>
-              There was an issue with CAdvisor
-            </Message.Header>
+            <Message.Header>There was an issue with CAdvisor</Message.Header>
             <p>{error.message}</p>
           </Message>
         </>
@@ -75,7 +73,7 @@ class GroupCAdvisor extends React.Component<
     const filesystem = {
       device: "No group filesystem found.",
       capacity: 0,
-      usage: 0,
+      usage: 0
     } as IFileSystem;
 
     if (resources.fs[0]) {
