@@ -183,7 +183,7 @@ func execContainer(c echo.Context) error {
 		"variables": variables,
 	}).Info("Variables parsed")
 
-	// Apply the varaibles in the go template
+	// Apply the variables in the go template
 	cmd, err := command.SetVariables(variables)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -309,7 +309,7 @@ func getContainerTerm(c echo.Context) error {
 			return
 		}
 
-		log.Info("hij reponse connected")
+		log.Info("hij response connected")
 
 		defer hij.Close()
 

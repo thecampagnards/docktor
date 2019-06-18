@@ -14,6 +14,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// ComposeCli
 type ComposeCli struct {
 	client.Factory
 	ca   string
@@ -21,6 +22,7 @@ type ComposeCli struct {
 	key  string
 }
 
+// Close
 func (cli *ComposeCli) Close() {
 	os.Remove(cli.ca)
 	os.Remove(cli.cert)

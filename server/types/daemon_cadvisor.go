@@ -10,12 +10,14 @@ import (
 	v2 "github.com/google/cadvisor/info/v2"
 )
 
+// MachineUsage
 type MachineUsage struct {
 	CPU int          `json:"cpu"`
 	RAM int          `json:"ram"`
 	FS  []FileSystem `json:"fs"`
 }
 
+// MachineUsage
 type FileSystem struct {
 	Device   string `json:"device"`
 	Capacity uint64 `json:"capacity"`

@@ -37,7 +37,7 @@ func getByUsername(c echo.Context) error {
 
 	groups, err := db.Groups().FindByUser(user)
 	if err != nil {
-		log.WithError(err).WithField("username", user.Username).Error("When retreive groups for profile")
+		log.WithError(err).WithField("username", user.Username).Error("When retrieve groups for profile")
 	}
 	return c.JSON(http.StatusOK, types.Profile{UserLight: user.UserLight, Groups: groups})
 }

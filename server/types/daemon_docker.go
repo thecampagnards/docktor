@@ -18,6 +18,7 @@ import (
 	"golang.org/x/net/context"
 )
 
+// DockerCli
 type DockerCli struct {
 	*client.Client
 	ca   string
@@ -25,6 +26,7 @@ type DockerCli struct {
 	key  string
 }
 
+// Close
 func (cli *DockerCli) Close() {
 	os.Remove(cli.ca)
 	os.Remove(cli.cert)
@@ -101,7 +103,7 @@ func (d *Daemon) CreateNetwork(networkName string, subnet string) (types.Network
 		gateway := strings.Join(ip, ".")
 		net.IPAM = &network.IPAM{
 			Config: []network.IPAMConfig{
-				network.IPAMConfig{
+				{
 					Subnet:  subnet,
 					Gateway: gateway,
 				},
