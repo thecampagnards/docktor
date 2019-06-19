@@ -60,19 +60,19 @@ func (r *DefaultUsersRepo) FindAll() (t types.Users, err error) {
 // FindAllWithGroups get all users
 func (r *DefaultUsersRepo) FindAllWithGroups() (t types.Profiles, err error) {
 	err = r.coll.Pipe([]bson.M{
-		bson.M{"$lookup": bson.M{
+		{"$lookup": bson.M{
 			"from":         types.GROUPS_DB_COLUMN,
 			"localField":   "username",
 			"foreignField": "users",
 			"as":           "groupsuser",
 		}},
-		bson.M{"$lookup": bson.M{
+		{"$lookup": bson.M{
 			"from":         types.GROUPS_DB_COLUMN,
 			"localField":   "username",
 			"foreignField": "admins",
 			"as":           "groupsadmin",
 		}},
-		bson.M{"$project": bson.M{
+		{"$project": bson.M{
 			"username":  1,
 			"firstname": 1,
 			"lastname":  1,

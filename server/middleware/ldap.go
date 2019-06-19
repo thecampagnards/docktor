@@ -3,7 +3,7 @@ package middleware
 import (
 	"docktor/server/helper/ldap"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // LDAP is a middleware injecting the LDAP configuration to the Echo context

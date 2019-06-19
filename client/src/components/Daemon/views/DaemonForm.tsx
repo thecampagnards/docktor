@@ -261,7 +261,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   };
 
   private handleChange = (
-    e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     { name, value, type }: any
   ) => {
     if (type === "number") {

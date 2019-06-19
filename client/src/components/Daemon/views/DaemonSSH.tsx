@@ -114,8 +114,10 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
     command.isFetching = false;
 
     execCommand(daemon, [command.command])
-      .then((d: string[]) => {
-        command.data = d[command.command];
+      .then((d: Map<string, string>) => {
+        command.data = d.has(command.command)
+          ? (d.get(command.command) as string)
+          : "";
         command.error = Error();
 
         commands[index] = command;
@@ -139,7 +141,7 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
   };
 
   private handleChange = (
-    e: React.ChangeEvent<HTMLInputElement & HTMLTextAreaElement>,
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>,
     { name, value }: any
   ) => {
     this.setState({ commands: _.set(this.state.commands, name, value) });

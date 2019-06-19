@@ -144,6 +144,7 @@ export default class ContainerTable extends React.Component<
                       .sort((a, b) => a.PrivatePort - b.PrivatePort)
                       .map(port => (
                         <Label
+                          key={port.PublicPort}
                           content={port.PrivatePort}
                           as="a"
                           href={"http://" + daemon.host + ":" + port.PublicPort}
@@ -173,9 +174,7 @@ export default class ContainerTable extends React.Component<
                           >
                             <pre style={{ whiteSpace: "pre-line" }}>
                               <TextSocket
-                                wsPath={`/api/daemons/${
-                                  daemon._id
-                                }/docker/containers/${container.Id}/log`}
+                                wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/log`}
                               />
                             </pre>
                           </Modal.Content>
@@ -197,9 +196,7 @@ export default class ContainerTable extends React.Component<
                           handleAllOnClick
                           <Modal.Content style={{ background: "black" }}>
                             <ShellSocket
-                              wsPath={`/api/daemons/${
-                                daemon._id
-                              }/docker/containers/${container.Id}/term`}
+                              wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/term`}
                             />
                           </Modal.Content>
                         </Modal>

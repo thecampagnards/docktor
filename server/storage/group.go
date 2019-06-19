@@ -74,7 +74,7 @@ func (r *DefaultGroupsRepo) FindAllLight() (t types.GroupsLight, err error) {
 
 // FindByUser get all groups of a user
 func (r *DefaultGroupsRepo) FindByUser(u types.User) (t types.Groups, err error) {
-	err = r.coll.Find(bson.M{"$or": []bson.M{bson.M{"admins": u.Username}, bson.M{"users": u.Username}}}).All(&t)
+	err = r.coll.Find(bson.M{"$or": []bson.M{{"admins": u.Username}, {"users": u.Username}}}).All(&t)
 	return t, err
 }
 

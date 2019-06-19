@@ -1,10 +1,10 @@
 import * as React from 'react';
-import { Button, Grid, Icon, Loader, Message, Progress, Divider, Segment } from 'semantic-ui-react';
+import { Button, Divider, Grid, Icon, Loader, Message, Progress, Segment } from 'semantic-ui-react';
 
+import { IResources } from '../../Home/types/home';
 import { fetchCadvisor } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
-import { IResources } from 'src/components/Home/types/home';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
@@ -54,15 +54,13 @@ class DaemonCAdvisor extends React.Component<
   }
 
   public render() {
-    const {
-      resources,
-      error,
-      isFetching
-    } = this.state;
+    const { resources, error, isFetching } = this.state;
 
     const { daemon } = this.props;
 
-    const buttons = <DaemonServiceButtons daemon={daemon} services={["cadvisor"]} />
+    const buttons = (
+      <DaemonServiceButtons daemon={daemon} services={["cadvisor"]} />
+    );
 
     if (error.message) {
       return (
@@ -86,15 +84,20 @@ class DaemonCAdvisor extends React.Component<
       <>
         <Grid>
           <Grid.Column width={10}>
-            <Button icon={true} labelPosition="right" as="a" title={daemon.cadvisor} href={daemon.cadvisor} target="_blank">
+            <Button
+              icon={true}
+              labelPosition="right"
+              as="a"
+              title={daemon.cadvisor}
+              href={daemon.cadvisor}
+              target="_blank"
+            >
               <Icon name="external alternate" /> Open cAdvisor webpage
             </Button>
           </Grid.Column>
-          <Grid.Column width={6}>
-            {buttons}
-          </Grid.Column>
+          <Grid.Column width={6}>{buttons}</Grid.Column>
         </Grid>
-        <Divider/>
+        <Divider />
         <h4>Resources</h4>
         <Segment raised={true}>
           <Progress
@@ -114,29 +117,29 @@ class DaemonCAdvisor extends React.Component<
         </Segment>
         {resources.fs.length > 0 && (
           <>
-            <Divider/>
+            <Divider />
             <h4>Filesystems</h4>
           </>
         )}
         {resources.fs
-            .sort((a,b) => a.device.localeCompare(b.device))
-            .map(s => {
-          const capGo = Math.round(s.capacity/1000000)/1000;
-          const usageGo = Math.round(s.usage/1000000)/1000;
-          const percent = Math.round(100*usageGo/capGo);
-          return (
-            <Segment key={s.device}>
-              <Progress
-                value={percent}
-                total={100}
-                progress="percent"
-                label={"Disk - " + s.device}
-                title={`${usageGo}/${capGo}Go`}
-                className="reverse"
-              />
-            </Segment>
-          );
-        })}
+          .sort((a, b) => a.device.localeCompare(b.device))
+          .map(s => {
+            const capGo = Math.round(s.capacity / 1000000) / 1000;
+            const usageGo = Math.round(s.usage / 1000000) / 1000;
+            const percent = Math.round((100 * usageGo) / capGo);
+            return (
+              <Segment key={s.device}>
+                <Progress
+                  value={percent}
+                  total={100}
+                  progress="percent"
+                  label={"Disk - " + s.device}
+                  title={`${usageGo}/${capGo}Go`}
+                  className="reverse"
+                />
+              </Segment>
+            );
+          })}
       </>
     );
   }

@@ -1,7 +1,7 @@
 import './MarketModal.css';
 
 import * as React from 'react';
-import * as ReactMarkdown from 'react-markdown';
+import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import {
     Button, DropdownProps, Form, Grid, Icon, Image, Input, InputOnChangeData, Message, Modal, Select
@@ -15,8 +15,8 @@ import { IService, ISubService } from '../../Services/types/service';
 interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
-  variables: any;
-  opts: object;
+  variables: Map<string, any>;
+  opts: Map<string, any>;
 
   serviceGroup: IServiceGroup;
   isFetching: boolean;
@@ -35,12 +35,12 @@ interface IMarketModalProps {
 class MarketModal extends React.Component<
   IMarketModalProps,
   IMarketModalStates
-  > {
+> {
   public state = {
     selectedGroupID: "",
     selectedSubServiceID: "",
-    variables: {},
-    opts: {},
+    variables: new Map<string, any>(),
+    opts: new Map<string, any>(),
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -162,7 +162,7 @@ class MarketModal extends React.Component<
           </Grid>
         </Modal.Content>
         <Modal.Actions>
-          {service.sub_services && groups ?
+          {service.sub_services && groups ? (
             <>
               <Select
                 placeholder="Select group"
@@ -184,14 +184,14 @@ class MarketModal extends React.Component<
               />
               <Button color="red" onClick={this.close}>
                 <Icon name="remove" /> Exit
-          </Button>
+              </Button>
               <Button color="blue" onClick={this.continueFormStage2}>
                 Proceed <Icon name="chevron right" />
               </Button>
             </>
-            :
+          ) : (
             <p>You cannot deploy this service (you may not be in any group).</p>
-          }
+          )}
         </Modal.Actions>
       </>
     );
@@ -199,7 +199,13 @@ class MarketModal extends React.Component<
 
   private renderModalStage2 = () => {
     const { service } = this.props;
-    const { variables, error, isFetching, selectedSubServiceID } = this.state;
+    const {
+      variables,
+      opts,
+      error,
+      isFetching,
+      selectedSubServiceID
+    } = this.state;
     const ss = service.sub_services!.find(
       s => s._id === selectedSubServiceID
     ) as ISubService;
@@ -223,7 +229,7 @@ class MarketModal extends React.Component<
                     <Input
                       name={variable}
                       onChange={this.handleChangeVariable}
-                      value={variables[variable]}
+                      value={variables.get(variable)}
                     />
                   </Form.Field>
                 ))}
@@ -234,6 +240,7 @@ class MarketModal extends React.Component<
               inline={true}
               label="Auto update"
               name="auto-update"
+              defaultChecked={opts.get("auto-update") as boolean}
               onChange={this.handleChangeOpts}
             />
           </Form>
@@ -251,7 +258,7 @@ class MarketModal extends React.Component<
   };
 
   private renderModalStage3 = () => {
-    const { selectedGroupID } = this.state
+    const { selectedGroupID } = this.state;
     return (
       <>
         <Modal.Header>Deployed</Modal.Header>
@@ -266,7 +273,11 @@ class MarketModal extends React.Component<
           <Button color="blue" onClick={this.close}>
             <Icon name="chevron left" /> Close
           </Button>
-          <Button color="blue" as={Link} to={path.groupsServices.replace(":groupID", selectedGroupID)}>
+          <Button
+            color="blue"
+            as={Link}
+            to={path.groupsServices.replace(":groupID", selectedGroupID)}
+          >
             <Icon name="checkmark" /> Go to your service
           </Button>
         </Modal.Actions>
@@ -290,13 +301,13 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    variables[name] = value;
+    variables.set(name, value);
     this.setState({ variables });
   };
 
   private handleChangeOpts = (event: any, { name, checked, value }: any) => {
     const { opts } = this.state;
-    opts[name!] = value || checked;
+    opts.set(name, value || checked);
     this.setState({ opts });
   };
 
@@ -315,7 +326,12 @@ class MarketModal extends React.Component<
       ) as IServiceGroup;
       this.setState({
         stage: 2,
-        variables: sg ? sg.variables : {},
+        variables: sg
+          ? new Map(Object.entries(sg.variables))
+          : new Map<string, string>(),
+        opts: sg
+          ? new Map([["auto-update", sg.auto_update]])
+          : new Map<string, string>(),
         error: Error()
       });
     } else {
@@ -337,7 +353,7 @@ class MarketModal extends React.Component<
 
     if (v) {
       for (const key of v) {
-        if (!variables.hasOwnProperty(key)) {
+        if (!variables.has(key)) {
           this.setState({ error: Error("Please set every variables") });
           return;
         }

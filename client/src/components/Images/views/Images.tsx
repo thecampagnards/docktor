@@ -2,7 +2,8 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, Checkbox, CheckboxProps, Form, Grid, Icon, InputOnChangeData, List, Loader, Message, TextAreaProps, Accordion, Divider
+    Accordion, Button, Checkbox, CheckboxProps, Divider, Form, Grid, Icon, InputOnChangeData, List,
+    Loader, Message, TextAreaProps
 } from 'semantic-ui-react';
 
 import { fetchImages, saveImages } from '../actions/image';
@@ -37,7 +38,14 @@ class Images extends React.Component<{}, IImagesStates> {
   }
 
   public render() {
-    const { error, isSuccess, isFetching, images, imageKey, openCommands } = this.state;
+    const {
+      error,
+      isSuccess,
+      isFetching,
+      images,
+      imageKey,
+      openCommands
+    } = this.state;
 
     if (isFetching) {
       return (
@@ -81,7 +89,12 @@ class Images extends React.Component<{}, IImagesStates> {
                       </List.Item>
                     ))}
                 </List>
-                <Button icon={true} labelPosition="left" onClick={this.addImage} primary={true}>
+                <Button
+                  icon={true}
+                  labelPosition="left"
+                  onClick={this.addImage}
+                  primary={true}
+                >
                   <Icon name="plus" />
                   Add image
                 </Button>
@@ -113,62 +126,90 @@ class Images extends React.Component<{}, IImagesStates> {
 
                     <br />
                     <br />
-                    
+
                     <Accordion styled={true} fluid={true}>
-                      <Accordion.Title active={openCommands} onClick={this.handleToggleCommands}>
+                      <Accordion.Title
+                        active={openCommands}
+                        onClick={this.handleToggleCommands}
+                      >
                         <Icon name="dropdown" />
                         Commands
                       </Accordion.Title>
                       <Accordion.Content active={openCommands}>
                         <Grid>
                           {images[imageKey].commands.map((command, key) => (
-                            <>
-                            <Grid.Row>
-                              <Grid.Column width={12}>
-                                <Form.Input
-                                  fluid={true}
-                                  value={command.title}
-                                  onChange={this.handleInput}
-                                  name={`images.${imageKey}.commands.${key}.title`}
-                                />
-                              </Grid.Column>
-                              <Grid.Column width={4}>
-                                <Button color="red" icon="minus" labelPosition="left" content="Delete this command" fluid={true}
-                                  onClick={this.removeCommand(key)} />
-                              </Grid.Column>
-                            </Grid.Row>
-                            <Grid.Row>
-                              <Grid.Column width={16}>
-                                <CodeMirror
-                                  value={command.command}
-                                  options={{
-                                    mode: "shell",
-                                    lint: true,
-                                    theme: "material",
-                                    lineNumbers: true,
-                                    gutters: [
-                                      `images.${imageKey}.commands.${key}.command`
-                                    ]
-                                  }}
-                                  autoCursor={false}
-                                  onChange={this.handleChangeCodeEditor}
-                                />
-                              </Grid.Column>
-                            </Grid.Row>
-                            <Divider />
-                            </>
+                            <React.Fragment key={key}>
+                              <Grid.Row>
+                                <Grid.Column width={12}>
+                                  <Form.Input
+                                    fluid={true}
+                                    value={command.title}
+                                    onChange={this.handleInput}
+                                    name={`images.${imageKey}.commands.${key}.title`}
+                                  />
+                                </Grid.Column>
+                                <Grid.Column width={4}>
+                                  <Button
+                                    color="red"
+                                    icon="minus"
+                                    labelPosition="left"
+                                    content="Delete this command"
+                                    fluid={true}
+                                    onClick={this.removeCommand(key)}
+                                  />
+                                </Grid.Column>
+                              </Grid.Row>
+                              <Grid.Row>
+                                <Grid.Column width={16}>
+                                  <CodeMirror
+                                    value={command.command}
+                                    options={{
+                                      mode: "shell",
+                                      lint: true,
+                                      theme: "material",
+                                      lineNumbers: true,
+                                      gutters: [
+                                        `images.${imageKey}.commands.${key}.command`
+                                      ]
+                                    }}
+                                    autoCursor={false}
+                                    onChange={this.handleChangeCodeEditor}
+                                  />
+                                </Grid.Column>
+                              </Grid.Row>
+                              <Divider />
+                            </React.Fragment>
                           ))}
                           <Grid.Row>
                             <Grid.Column>
-                              <Button icon="plus" labelPosition="left" content="Add command" onClick={this.addCommand} color="green" />
+                              <Button
+                                icon="plus"
+                                labelPosition="left"
+                                content="Add command"
+                                onClick={this.addCommand}
+                                color="green"
+                              />
                             </Grid.Column>
                           </Grid.Row>
                         </Grid>
                       </Accordion.Content>
                     </Accordion>
                     <br />
-                    <Button icon="save" labelPosition="left" content="SAVE" color="teal" type="submit" loading={isFetching} />
-                    <Button icon="trash" labelPosition="right" content="Delete" color="red" onClick={this.removeImage} />
+                    <Button
+                      icon="save"
+                      labelPosition="left"
+                      content="SAVE"
+                      color="teal"
+                      type="submit"
+                      loading={isFetching}
+                    />
+                    <Button
+                      icon="trash"
+                      labelPosition="right"
+                      content="Delete"
+                      color="red"
+                      onClick={this.removeImage}
+                    />
                   </>
                 ) : (
                   "No images found"
@@ -186,7 +227,7 @@ class Images extends React.Component<{}, IImagesStates> {
   private handleToggleCommands = () => {
     const toggle = this.state.openCommands;
     this.setState({ openCommands: !toggle });
-  }
+  };
 
   private handleInput = (
     event:
@@ -259,9 +300,9 @@ class Images extends React.Component<{}, IImagesStates> {
     event.preventDefault();
 
     const { images, imageKey } = this.state;
-    delete images[imageKey].commands[commandKey]
-    this.setState({ images })
-  }
+    delete images[imageKey].commands[commandKey];
+    this.setState({ images });
+  };
 
   private changeImage = (imageKey: number) => (
     e: React.MouseEvent<HTMLAnchorElement, MouseEvent>

@@ -1,15 +1,15 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
 import { fetchGroups, fetchGroup } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchServices } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
-import { IStoreState } from '../../../types/store';
 import MarketCard from './MarketCard';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { IStoreState } from '../../../types/store';
 
 interface IMarketProps {
   isAdmin: boolean;
@@ -174,7 +174,7 @@ class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, ISe
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
-    isAdmin: !!login.isAdmin,
+    isAdmin: login.isAdmin
   };
 };
 

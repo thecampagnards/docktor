@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Button, Card, Loader, Message, Modal, Grid, Icon } from 'semantic-ui-react';
 
@@ -7,7 +8,6 @@ import { IService } from '../../Services/types/service';
 import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
-import { Link } from 'react-router-dom';
 import { path } from '../../../constants/path';
 
 interface IGroupProps {
@@ -34,7 +34,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
   public componentWillMount() {
     const { group } = this.props;
-    group.services.map(service => {
+    group.services.forEach(service => {
       fetchServiceBySubService(service._id)
         .then(s => {
           const services: IService[] = this.state.services;

@@ -2,8 +2,8 @@ import * as React from 'react';
 import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
-    Button, Checkbox, CheckboxProps, Dropdown, DropdownProps, Grid, Loader, Message, Search,
-    SearchProps, Label, Divider
+    Button, Checkbox, CheckboxProps, Divider, Dropdown, DropdownProps, Grid, Label, Loader, Message,
+    Search, SearchProps
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -63,6 +63,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       searchFilter
     } = this.state;
     const { username, isAdmin } = this.props;
+    const defaultDisplayNb = 12;
 
     if (error.message) {
       return (
@@ -94,7 +95,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       : [];
 
     const resultsTotal = groupsFiltered.length;
-    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, 12);
+    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, defaultDisplayNb);
 
     return (
       <>
@@ -166,7 +167,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             <Label>{`Total : ${resultsTotal}`}</Label>
           </Grid.Column>
           <Grid.Column width={2}>
-            {resultsTotal > 12 && (
+            {resultsTotal > defaultDisplayNb && (
               <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
             )}
           </Grid.Column>
@@ -189,14 +190,18 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
 
   private handleExpand = () => {
     const state = this.state.expanded;
-    this.setState({ expanded: !state })
-  }
+    this.setState({ expanded: !state });
+  };
 
   private filter = (
     event: React.SyntheticEvent,
     { value, name }: SearchProps | DropdownProps
   ) => {
-    this.state[name] = value as string;
+    Object.defineProperty(this.state, name, {
+      value,
+      writable: true,
+      enumerable: true
+    });
     this.setState(this.state);
   };
 }
@@ -204,9 +209,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
-    username: login.username,
-    isAdmin: !!login.isAdmin,
-    isAuthenticated: login.username !== ""
+    username: login.username || "",
+    isAdmin: login.isAdmin
   };
 };
 

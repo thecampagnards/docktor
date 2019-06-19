@@ -6,7 +6,7 @@ import (
 	"docktor/server/storage"
 	"docktor/server/types"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // getAll find all
@@ -47,6 +47,8 @@ func getBySubServiceID(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	s.GetVariablesOfSubServices()
+
 	return c.JSON(http.StatusOK, s)
 }
 

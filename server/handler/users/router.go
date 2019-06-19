@@ -6,7 +6,7 @@ import (
 
 	"docktor/server/types"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // AddRoute add route on echo
