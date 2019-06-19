@@ -58,10 +58,6 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
-    if (isFetching) {
-      return <Loader active={true} />;
-    }
-
     return (
       <>
 
@@ -74,44 +70,13 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           </Grid.Column>
         </Grid>
 
-        <Card.Group>
+        <Grid>
           {services.map((service: IService, index: number) => (
-            <span key={index}>
+            <Grid.Column width={8} key={index}>
               <GroupService service={service} />
-              { admin &&
-              <Modal
-                trigger={
-                  <Button
-                    onClick={this.handleOpen.bind(this, group.services[0]._id)}
-                  >
-                    Get Compose File
-                  </Button>
-                }
-                open={modalOpen}
-                onClose={this.handleClose}
-                basic={true}
-                size="fullscreen"
-                style={{ height: "80%" }}
-              >
-                <Modal.Content style={{ height: "100%" }}>
-                  <CodeMirror
-                    className="height-100"
-                    value={content}
-                    options={{
-                      mode: "yaml",
-                      lint: true,
-                      theme: "material",
-                      lineNumbers: true,
-                      readOnly: true,
-                      cursorBlinkRate: -1
-                    }}
-                  />
-                </Modal.Content>
-              </Modal>
-              }
-            </span>
+            </Grid.Column>
           ))}
-        </Card.Group>
+        </Grid>
         
       </>
       

@@ -98,3 +98,11 @@
 .react-codemirror2.height-100 .CodeMirror {
   height: 100%;
 }
+
+.float-right {
+  float: right;
+}
+
+.float-left {
+  float: left;
+}
