@@ -1,14 +1,15 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { withRouter, RouteComponentProps } from 'react-router-dom';
 import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
-import { IStoreState } from '../../../types/store';
-import { fetchGroups } from '../../Group/actions/group';
+import { fetchGroups, fetchGroup } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchServices } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import MarketCard from './MarketCard';
+import { IStoreState } from '../../../types/store';
 
 interface IMarketProps {
   isAdmin: boolean;
@@ -23,7 +24,7 @@ interface IServicesStates {
   error: Error;
 }
 
-class Market extends React.Component<IMarketProps, IServicesStates> {
+class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, IServicesStates> {
   public state = {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
@@ -32,7 +33,7 @@ class Market extends React.Component<IMarketProps, IServicesStates> {
     isFetching: true,
     error: Error()
   };
-
+  
   private searchField = "";
 
   public componentWillMount() {
@@ -46,9 +47,17 @@ class Market extends React.Component<IMarketProps, IServicesStates> {
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    fetchGroups(false)
-      .then((groups: IGroup[]) => this.setState({ groups }))
-      .catch((error: Error) => this.setState({ error }));
+    const url = new URL("http://lol.xd" + this.props.location.pathname + this.props.location.search);
+    if (url.searchParams.has("group")) {
+      const groupID = url.searchParams.get("group") as string;
+      fetchGroup(groupID)
+        .then((group: IGroup) => this.setState({ groups: [group] }))
+        .catch((error: Error) => this.setState({ error }));
+    } else {
+      fetchGroups(false)
+        .then((groups: IGroup[]) => this.setState({ groups }))
+        .catch((error: Error) => this.setState({ error }));
+    }
   }
 
   public render() {
@@ -106,6 +115,7 @@ class Market extends React.Component<IMarketProps, IServicesStates> {
             {tags.map(tag => (
               <Button
                 key={tag}
+                basic={true}
                 toggle={true}
                 active={tagsFilter.indexOf(tag) > -1}
                 onClick={this.filterAddTags}
@@ -168,4 +178,4 @@ const mapStateToProps = (state: IStoreState) => {
   };
 };
 
-export default connect(mapStateToProps)(Market);
+export default withRouter(connect(mapStateToProps)(Market));

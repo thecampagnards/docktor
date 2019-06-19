@@ -63,6 +63,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       searchFilter
     } = this.state;
     const { username, isAdmin } = this.props;
+    const defaultDisplayNb = 12;
 
     if (error.message) {
       return (
@@ -94,9 +95,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       : [];
 
     const resultsTotal = groupsFiltered.length;
-    const groupsDisplayed = expanded
-      ? groupsFiltered
-      : groupsFiltered.slice(0, 16);
+    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, defaultDisplayNb);
 
     return (
       <>
@@ -168,14 +167,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
             <Label>{`Total : ${resultsTotal}`}</Label>
           </Grid.Column>
           <Grid.Column width={2}>
-            {resultsTotal > 16 && (
-              <Button
-                circular={true}
-                compact={true}
-                fluid={true}
-                content={expanded ? "Display less" : "Display more"}
-                onClick={this.handleExpand}
-              />
+            {resultsTotal > defaultDisplayNb && (
+              <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
             )}
           </Grid.Column>
           <Grid.Column width={7} />

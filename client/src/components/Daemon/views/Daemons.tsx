@@ -129,7 +129,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const resultsTotal = daemonsFiltered.length;
     const resultsDisplayTop = index*20;
     const resultsDisplayBot = Math.min(resultsDisplayTop+20, resultsTotal);
-    const indexLimit = Math.trunc(resultsTotal/20);
+    const indexLimit = Math.trunc((resultsTotal-1)/20);
+    const labelText = resultsTotal === 0 ?
+      "No result" : `Results ${resultsDisplayTop+1} to ${resultsDisplayBot} of ${resultsTotal}`;
     daemonsFiltered = daemonsFiltered.slice(resultsDisplayTop, resultsDisplayBot);
 
     let tags: string[] = [];
@@ -191,6 +193,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               {tags.map(tag => (
                 <Button
                   key={tag}
+                  basic={true}
                   compact={true}
                   toggle={true}
                   active={filter.tags.indexOf(tag) > -1}
@@ -266,7 +269,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
         </Table>
         <Grid>
           <Grid.Column width={6}>
-            <Label>{`Results ${resultsDisplayTop+1} to ${resultsDisplayBot} of ${resultsTotal}`}</Label>
+            <Label>{labelText}</Label>
           </Grid.Column>
           <Grid.Column width={4}>
             <Button.Group compact={true} fluid={true}>
@@ -304,7 +307,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       case "OLD":
         return (
           <Icon
-            color="red"
+            color="orange"
             name="warning sign"
             title="Daemon's Docker version < 18"
           />

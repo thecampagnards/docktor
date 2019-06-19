@@ -1,12 +1,14 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Button, Card, Loader, Message, Modal } from 'semantic-ui-react';
+import { Button, Card, Loader, Message, Modal, Grid, Icon } from 'semantic-ui-react';
 
-import MarketCard from '../../Market/views/MarketCard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
+import GroupService from './GroupService';
+import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -37,9 +39,9 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         .then(s => {
           const services: IService[] = this.state.services;
           services.push(s);
-          this.setState({ services, isFetching: false });
+          this.setState({ services });
         })
-        .catch(error => this.setState({ error, isFetching: false }));
+        .catch(error => this.setState({ error }));
     });
   }
 
@@ -56,27 +58,27 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
-    if (group.services.length === 0) {
-      return (
-        <Message info={true}>
-          <Message.Header>
-            There is no service in this group yet.
-          </Message.Header>
-          <Message.Content>Check the documentation...</Message.Content>
-        </Message>
-      );
-    }
-
     if (isFetching) {
       return <Loader active={true} />;
     }
 
     return (
-      <Card.Group>
-        {services.map((service: IService) => (
-          <span key={service._id}>
-            <MarketCard service={service} groups={[group]} admin={admin} />
-            {admin && (
+      <>
+
+        <Grid>
+          <Grid.Column width={12} />
+          <Grid.Column width={4}>
+            <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
+              <Icon name="plus" />ADD SERVICE
+            </Button>
+          </Grid.Column>
+        </Grid>
+
+        <Card.Group>
+          {services.map((service: IService, index: number) => (
+            <span key={index}>
+              <GroupService service={service} />
+              { admin &&
               <Modal
                 trigger={
                   <Button
@@ -106,10 +108,13 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
                   />
                 </Modal.Content>
               </Modal>
-            )}
-          </span>
-        ))}
-      </Card.Group>
+              }
+            </span>
+          ))}
+        </Card.Group>
+        
+      </>
+      
     );
   }
 
