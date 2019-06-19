@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card } from 'semantic-ui-react';
 
-import { IService } from 'src/components/Services/types/service';
+import { IService } from '../../Services/types/service';
 
 interface IGroupServiceProps {
   service: IService
