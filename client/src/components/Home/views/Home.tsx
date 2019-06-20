@@ -8,6 +8,7 @@ import { path } from '../../../constants/path';
 import TextSocket from '../../layout/TextSocket';
 import { fetchHome } from '../actions/home';
 import { IEnvironment, IHomeData } from '../types/home';
+import './Home.css';
 
 interface IHomeState {
   environments: IEnvironment[];
@@ -95,8 +96,8 @@ class Home extends React.Component<{}, IHomeState> {
               />
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
             {envSelected.map(env => {
+              const exitedContainers = env.containers.filter(c => c.State === "exited");
               const filesystem = env.resources.fs[0];
               const fsUsage = Math.round(
                 (100 * filesystem.usage) / filesystem.capacity
@@ -149,10 +150,14 @@ class Home extends React.Component<{}, IHomeState> {
                       </Card.Description>
                     </Card.Content>
                     <Card.Content>
+                      {exitedContainers.length === 0 ?
+                      <Card.Description>
+                        <Icon name="check" color="green" />
+                        All containers are up and running
+                      </Card.Description>
+                      :
                       <List>
-                        {env.containers
-                          .filter(c => c.State === "exited")
-                          .map(c => (
+                        {exitedContainers.map(c => (
                             <List.Item key={c.Id}>
                               <List.Content>
                                 <Button
@@ -169,10 +174,9 @@ class Home extends React.Component<{}, IHomeState> {
                                 <Icon circular={true} color="red" name="fire" />
                                 <Modal
                                   trigger={
-                                    <Button>
-                                      {c.Names[0].replace("/", "")}
-                                    </Button>
+                                    <Button basic={true} compact={true} circular={true} labelPosition="right" icon="align left" content={c.Names[0].replace("/", "")} />
                                   }
+                                  className="logs-modal"
                                 >
                                   <Modal.Content
                                     style={{
@@ -191,12 +195,12 @@ class Home extends React.Component<{}, IHomeState> {
                             </List.Item>
                           ))}
                       </List>
+                      }
                     </Card.Content>
                   </Card>
                 </Grid.Column>
               );
             })}
-          </Grid.Row>
         </Grid>
       </>
     );
