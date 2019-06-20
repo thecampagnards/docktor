@@ -1,15 +1,16 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown, Menu } from 'semantic-ui-react';
+import { Card, Label, Grid, Button, Icon, Dropdown } from 'semantic-ui-react';
 
 import { IService } from '../../Services/types/service';
 
 interface IGroupServiceProps {
-  service: IService
+  service: IService,
+  admin: boolean
 }
 
 export default class GroupService extends React.Component<IGroupServiceProps> {
   public render() {
-    const { service } = this.props;
+    const { service, admin } = this.props;
     const options = [
       { key: 1, text: "Edit service", value: 1 },
       { key: 2, text: "Delete service", value: 2 },
@@ -32,18 +33,18 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
-              <Grid.Column width={3}>
-                <Button.Group color="green">
-                  <Button>Open</Button>
+              <Grid.Column width={8}>
+                <Button.Group color="blue" floated="left">
+                  <Button labelPosition="left" icon="external alternate" content="Open" />
                   <Button icon="clipboard" title="Copy URL" />
                 </Button.Group>
+                <Button color="red" basic={true} circular={true} labelPosition="right" icon="stop" content="Stop" title="Stop service" floated="right" />
               </Grid.Column>
-              <Grid.Column width={9}>
-                <Button icon="list alternate outline" title="See docker-compose file" />
-                <Button icon="info" title="See documentation" />
-              </Grid.Column>
-              <Grid.Column width={4}>
-                <Dropdown floated="right" className="button icon" floating={true} icon="ellipsis vertical" options={options} trigger={<React.Fragment />} />
+              <Grid.Column width={8}>
+                {admin && 
+                  <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" options={options} trigger={<React.Fragment />} />
+                }
+                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.link} target="_blank" floated="right" />
               </Grid.Column>
             </Grid.Row>
           </Grid>

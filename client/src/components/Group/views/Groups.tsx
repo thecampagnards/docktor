@@ -147,31 +147,33 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
         </Grid>
         <Divider />
         {isFetching ? <Loader active={true} inline="centered" content="Loading groups..." /> :
-        <Grid>
-          {groupsDisplayed.map((group: IGroup) => (
-            <Grid.Column key={group._id} width={4}>
-              <GroupCard
-                group={group}
-                admin={isAdmin}
-                groupAdmin={isAdmin || group.admins.includes(username)}
-                displayButtons={!this.displayAll}
-              />
+        <>
+          <Grid>
+            {groupsDisplayed.map((group: IGroup) => (
+              <Grid.Column key={group._id} width={4}>
+                <GroupCard
+                  group={group}
+                  admin={isAdmin}
+                  groupAdmin={isAdmin || group.admins.includes(username)}
+                  displayButtons={!this.displayAll}
+                />
+              </Grid.Column>
+            ))}
+          </Grid>
+          <Divider />
+          <Grid>
+            <Grid.Column width={7}>
+              <Label>{`Total : ${resultsTotal}`}</Label>
             </Grid.Column>
-          ))}
-        </Grid>
+            <Grid.Column width={2}>
+              {resultsTotal > defaultDisplayNb && (
+                <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
+              )}
+            </Grid.Column>
+            <Grid.Column width={7} />
+          </Grid>
+        </>
         }
-        <Divider />
-        <Grid>
-          <Grid.Column width={7}>
-            <Label>{`Total : ${resultsTotal}`}</Label>
-          </Grid.Column>
-          <Grid.Column width={2}>
-            {resultsTotal > defaultDisplayNb && (
-              <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
-            )}
-          </Grid.Column>
-          <Grid.Column width={7} />
-        </Grid>
       </>
     );
   }

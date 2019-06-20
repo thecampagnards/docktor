@@ -1,7 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Button, Card, Loader, Message, Modal, Grid, Icon } from 'semantic-ui-react';
+import { Button, Message, Grid, Icon } from 'semantic-ui-react';
 
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
@@ -47,12 +46,12 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { group, admin } = this.props;
-    const { services, error, isFetching, modalOpen, content } = this.state;
+    const { services, error } = this.state;
 
     if (error.message) {
       return (
         <Message negative={true}>
-          <Message.Header>There was an issue</Message.Header>
+          <Message.Header>Error while fetching services</Message.Header>
           <p>{error.message}</p>
         </Message>
       );
@@ -73,7 +72,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         <Grid>
           {services.map((service: IService, index: number) => (
             <Grid.Column width={8} key={index}>
-              <GroupService service={service} />
+              <GroupService service={service} admin={admin} />
             </Grid.Column>
           ))}
         </Grid>
