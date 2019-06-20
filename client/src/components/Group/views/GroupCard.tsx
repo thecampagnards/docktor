@@ -35,6 +35,11 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
             <Icon name="cubes" />
             Services
           </Button>
+          {admin &&
+          <Button basic={true} icon={true} title="Containers" as={Link} to={path.groupsContainers.replace(":groupID", group._id)}>
+            <Icon name="docker" />
+          </Button>
+          }
           <Button basic={true} icon={true} title="Group members" as={Link} to={path.groupsMembers.replace(":groupID", group._id)}>
             <Icon name="users" />
           </Button>
