@@ -73,6 +73,10 @@ func (d *Daemon) SetDockerStatus() {
 			d.Docker.Status = STATUS_OLD
 			return
 		}
+		if strings.Contains(err.Error(), "tls: bad certificate") {
+			d.Docker.Status = STATUS_CERT
+			return
+		}
 		d.Docker.Status = STATUS_DOWN
 		return
 	}
