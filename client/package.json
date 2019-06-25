@@ -15,7 +15,7 @@
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.8.6",
     "react-konami-code": "^1.4.0",
-    "react-markdown": "^4.0.9",
+    "react-markdown": "^4.1.0",
     "react-router-dom": "^5.0.1",
     "redux-auth-wrapper": "^2.1.0",
     "semantic-ui-css": "^2.4.1",
