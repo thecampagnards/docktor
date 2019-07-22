@@ -49,13 +49,15 @@ class Daemon extends React.Component<
       fetchContainers(daemon._id)
         .then(async (containers: IContainer[]) => {
           await saved;
-          for (const container of this.savedContainers) {
-            if (
-              !containers.find(
-                c => c.Names && c.Names.indexOf(container.Name) !== -1
-              )
-            ) {
-              containers.push(container);
+          if (this.savedContainers){
+            for (const container of this.savedContainers) {
+              if (
+                !containers.find(
+                  c => c.Names && c.Names.indexOf(container.Name) !== -1
+                )
+              ) {
+                containers.push(container);
+              }
             }
           }
           this.setState({ containers, error: Error() });
