@@ -1,8 +1,6 @@
 package types
 
 import (
-	"reflect"
-
 	"github.com/docker/docker/api/types"
 	"github.com/docker/libcompose/config"
 	"github.com/globalsign/mgo/bson"
@@ -23,7 +21,7 @@ type GroupLight struct {
 // Group data
 type Group struct {
 	GroupLight  `bson:",inline"`
-	Services    []ServiceGroup `json:"services" bson:"services"`
+	Services    []GroupService `json:"services" bson:"services"`
 	GroupDocker `bson:",inline"`
 }
 
@@ -135,7 +133,7 @@ func (g *GroupDocker) AppendOrUpdate(containers []types.ContainerJSON) {
 }
 
 // FindSubServiceByID return the subservice by string id
-func (g *Group) FindSubServiceByID(subServiceID string) *ServiceGroup {
+func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 	for _, s := range g.Services {
 		if s.SubServiceID.Hex() == subServiceID {
 			return &s
@@ -145,7 +143,7 @@ func (g *Group) FindSubServiceByID(subServiceID string) *ServiceGroup {
 }
 
 // GetComposeService this function retrun the subservice compose file
-func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceGroup ServiceGroup) (service []byte, err error) {
+func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceGroup GroupService) (service []byte, err error) {
 
 	variables := map[string]interface{}{
 		"Group":  g,
@@ -153,8 +151,8 @@ func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceG
 	}
 
 	// Copy of variables
-	for k, v := range serviceGroup.Variables {
-		variables[k] = v
+	for _, v := range serviceGroup.Variables {
+		variables[v.Name] = v.Value
 	}
 
 	service, err = subService.ConvertSubService(variables)
@@ -178,25 +176,25 @@ func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceG
 		}).Error("Error when unmarshal service")
 		return
 	}
-
-	if serviceGroup.AutoUpdate {
-		// Use https://github.com/v2tec/watchtower
-		log.WithFields(log.Fields{
-			"config": config,
-		}).Infof("Add auto update for %s with watchtower", subService.Name)
-		for key := range config.Services {
-			if labels, ok := config.Services[key]["labels"]; ok {
-				v := reflect.ValueOf(labels)
-				config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
-			} else {
-				config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
+	/*
+		if serviceGroup.AutoUpdate {
+			// Use https://github.com/v2tec/watchtower
+			log.WithFields(log.Fields{
+				"config": config,
+			}).Infof("Add auto update for %s with watchtower", subService.Name)
+			for key := range config.Services {
+				if labels, ok := config.Services[key]["labels"]; ok {
+					v := reflect.ValueOf(labels)
+					config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
+				} else {
+					config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
+				}
 			}
+			log.WithFields(log.Fields{
+				"config": config,
+			}).Infof("Configuration updated for %s", subService.Name)
 		}
-		log.WithFields(log.Fields{
-			"config": config,
-		}).Infof("Configuration updated for %s", subService.Name)
-	}
-
+	*/
 	service, err = yaml.Marshal(config)
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -10,12 +10,12 @@ import {
 import { path } from '../../../constants/path';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubService } from '../../Services/types/service';
+import { IService, ISubService, IServiceVariable } from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
-  variables: Map<string, any>;
+  variables: IServiceVariable[];
   opts: Map<string, any>;
 
   serviceGroup: IServiceGroup;
@@ -39,7 +39,7 @@ class MarketModal extends React.Component<
   public state = {
     selectedGroupID: "",
     selectedSubServiceID: "",
-    variables: new Map<string, any>(),
+    variables: [] as IServiceVariable[],
     opts: new Map<string, any>(),
 
     serviceGroup: {} as IServiceGroup,
@@ -223,13 +223,13 @@ class MarketModal extends React.Component<
             {ss.variables && (
               <>
                 <h3>Variables</h3>
-                {ss.variables.map((variable: string) => (
-                  <Form.Field inline={true} key={variable}>
-                    <label>{variable}</label>
+                {ss.variables.map((variable: IServiceVariable) => (
+                  <Form.Field inline={true} key={variable.name}>
+                    <label>{variable.name}</label>
                     <Input
-                      name={variable}
+                      name={variable.name}
                       onChange={this.handleChangeVariable}
-                      value={variables.get(variable)}
+                      value={variable.value}
                     />
                   </Form.Field>
                 ))}
@@ -301,7 +301,11 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    variables.set(name, value);
+    for(var i = 0; i < variables.length; i++) {
+      variables[i] = {
+        name, value, description: "", secret: false
+      }
+    }
     this.setState({ variables });
   };
 
@@ -327,8 +331,8 @@ class MarketModal extends React.Component<
       this.setState({
         stage: 2,
         variables: sg
-          ? new Map(Object.entries(sg.variables))
-          : new Map<string, string>(),
+          ? sg.variables
+          : [],
         opts: sg
           ? new Map([["auto-update", sg.auto_update]])
           : new Map<string, string>(),
@@ -350,7 +354,7 @@ class MarketModal extends React.Component<
     const v = (service.sub_services!.find(
       s => s._id === selectedSubServiceID
     ) as ISubService).variables;
-
+/*
     if (v) {
       for (const key of v) {
         if (!variables.has(key)) {
@@ -359,7 +363,7 @@ class MarketModal extends React.Component<
         }
       }
     }
-
+*/
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
       deployService(selectedGroupID, selectedSubServiceID, variables, opts)

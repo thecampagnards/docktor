@@ -26,11 +26,26 @@ type Service struct {
 
 // SubService data
 type SubService struct {
-	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name      string        `json:"name" bson:"name" validate:"required"`
-	Active    bool          `json:"active" bson:"active"`
-	File      string        `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables interface{}   `json:"variables" bson:"-"`
+	ID     bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name   string        `json:"name" bson:"name" validate:"required"`
+	Active bool          `json:"active" bson:"active"`
+	File   string        `json:"file,omitempty"  bson:"file" validate:"required"`
+}
+
+// GroupService data
+type GroupService struct {
+	SubServiceID bson.ObjectId     `json:"subServiceID,omitempty" bson:"subServiceID,omitempty"`
+	File         string            `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables    []ServiceVariable `json:"variables" bson:"-"`
+	URL          string            `json:"url" bson:"url" validate:"required"`
+}
+
+// ServiceVariable data
+type ServiceVariable struct {
+	Name        string `json:"name" bson:"name" validate:"required"`
+	Description string `json:"description" bson:"description"`
+	Value       string `json:"value" bson:"value"`
+	Secret      bool   `json:"secret" bson:"secret"`
 }
 
 // GetVariablesOfSubServices get all the variables of all subservices
@@ -108,7 +123,7 @@ func (sub *SubService) GetVariables() (err error) {
 		return
 	}
 
-	sub.Variables, err = FindTemplateVariables(sub.File, map[string]interface{}{
+	variables, err := FindTemplateVariables(sub.File, map[string]interface{}{
 		"Group":  Group{},
 		"Daemon": Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 	})

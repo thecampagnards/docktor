@@ -4,7 +4,6 @@ import (
 	"docktor/server/storage"
 	"docktor/server/types"
 	"net/http"
-	"strconv"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -23,6 +22,14 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
+	serviceVars := []types.ServiceVariable{}
+	for v := range variables {
+		serviceVar := types.ServiceVariable{
+			Name: v,
+		}
+		serviceVars = append(serviceVars, serviceVar)
+	}
+
 	group := c.Get("group").(types.Group)
 
 	db := c.Get("DB").(*storage.Docktor)
@@ -35,12 +42,12 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	var serviceGroup = types.ServiceGroup{
+	var serviceGroup = types.GroupService{
 		SubServiceID: subService.ID,
-		Variables:    variables,
+		Variables:    serviceVars,
 	}
 
-	serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
+	// serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
