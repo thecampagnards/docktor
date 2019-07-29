@@ -79,11 +79,13 @@ func (g *Group) IsMyGroup(u *User) bool {
 
 // GetFreePort return the first available port
 func (g *Group) GetFreePort() uint16 {
-	var ports []uint16
-	for _, s := range g.Services {
-		ports = append(ports, s.Ports...)
-	}
 
+	var ports []uint16
+	/*
+		for _, s := range g.Services {
+			ports = append(ports, s.Ports...)
+		}
+	*/
 	for i := g.MinPort; i < g.MaxPort; i++ {
 		if !findPort(i, ports) {
 			return i

@@ -115,7 +115,7 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 }
 
 // GetVariables retrieve the variables of a template
-func (sub *SubService) GetVariables() (err error) {
+func (sub *SubService) GetVariables() (vars []string, err error) {
 
 	// Get remote file if needed
 	err = sub.GetRemoteFile()
@@ -128,7 +128,11 @@ func (sub *SubService) GetVariables() (err error) {
 		"Daemon": Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 	})
 
-	return err
+	if err != nil {
+		return []string{}, err
+	}
+
+	return variables, nil
 }
 
 // split used in go template
