@@ -34,7 +34,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public componentWillMount() {
     const { group } = this.props;
     group.services.forEach(service => {
-      fetchServiceBySubService(service._id)
+      fetchServiceBySubService(service.subServiceID)
         .then(s => {
           const services: IService[] = this.state.services;
           services.push(s);

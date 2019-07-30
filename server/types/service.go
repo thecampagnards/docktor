@@ -26,10 +26,11 @@ type Service struct {
 
 // SubService data
 type SubService struct {
-	ID     bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name   string        `json:"name" bson:"name" validate:"required"`
-	Active bool          `json:"active" bson:"active"`
-	File   string        `json:"file,omitempty"  bson:"file" validate:"required"`
+	ID        bson.ObjectId     `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name      string            `json:"name" bson:"name" validate:"required"`
+	Active    bool              `json:"active" bson:"active"`
+	File      string            `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables []ServiceVariable `json:"file,omitempty"`
 }
 
 // GroupService data
@@ -49,10 +50,16 @@ type ServiceVariable struct {
 }
 
 // GetVariablesOfSubServices get all the variables of all subservices
-func (s *Service) GetVariablesOfSubServices() {
-	for index := 0; index < len(s.SubServices); index++ {
-		s.SubServices[index].GetVariables()
+func (s *Service) GetVariablesOfSubServices() (subServices []SubService, err error) {
+	for _, ss := range s.SubServices {
+		vars, err := ss.GetVariables()
+		if err != nil {
+			return nil, err
+		}
+		ss.Variables = vars
+		subServices = append(subServices, ss)
 	}
+	return
 }
 
 // Services data
@@ -115,24 +122,34 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 }
 
 // GetVariables retrieve the variables of a template
-func (sub *SubService) GetVariables() (vars []string, err error) {
+func (ss *SubService) GetVariables() (vars []ServiceVariable, err error) {
 
 	// Get remote file if needed
-	err = sub.GetRemoteFile()
+	err = ss.GetRemoteFile()
 	if err != nil {
 		return
 	}
 
-	variables, err := FindTemplateVariables(sub.File, map[string]interface{}{
+	variables, err := FindTemplateVariables(ss.File, map[string]interface{}{
 		"Group":  Group{},
 		"Daemon": Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 	})
 
 	if err != nil {
-		return []string{}, err
+		return nil, err
 	}
 
-	return variables, nil
+	for v := range variables {
+		vars = append(vars, )
+	}
+
+	return
+}
+
+func (variable string) parseVar() (ServiceVariable) {
+	r, _ := regexp.Compile(`[a-zA-Z]+(\*)?(_)?`)
+	match := r.FindStringSubmatch(variable)
+
 }
 
 // split used in go template

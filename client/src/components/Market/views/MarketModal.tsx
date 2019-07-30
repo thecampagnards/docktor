@@ -10,7 +10,7 @@ import {
 import { path } from '../../../constants/path';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubService, IServiceVariable } from '../../Services/types/service';
+import { IService, ISubService, IServiceVariable, IGroupService } from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string;
@@ -182,9 +182,6 @@ class MarketModal extends React.Component<
                 defaultValue={selectedSubServiceID}
                 search={true}
               />
-              <Button color="red" onClick={this.close}>
-                <Icon name="remove" /> Exit
-              </Button>
               <Button color="blue" onClick={this.continueFormStage2}>
                 Proceed <Icon name="chevron right" />
               </Button>
@@ -326,16 +323,12 @@ class MarketModal extends React.Component<
       const sg = (groups.find(
         g => g._id === selectedGroupID
       ) as IGroup).services.find(
-        s => s._id === selectedSubServiceID
-      ) as IServiceGroup;
+        s => s.subServiceID === selectedSubServiceID
+      ) as IGroupService;
       this.setState({
         stage: 2,
-        variables: sg
-          ? sg.variables
-          : [],
-        opts: sg
-          ? new Map([["auto-update", sg.auto_update]])
-          : new Map<string, string>(),
+        variables: sg ? sg.variables : [],
+        opts: new Map<string, string>(),
         error: Error()
       });
     } else {

@@ -1,11 +1,12 @@
 import { IContainer } from '../../Daemon/types/daemon';
+import { IGroupService } from '../../Services/types/service';
 
 export interface IGroup {
   _id: string;
   name: string;
   description: string;
   daemon_id?: string;
-  services: IServiceGroup[];
+  services: IGroupService[];
   users: string[];
   admins: string[];
 

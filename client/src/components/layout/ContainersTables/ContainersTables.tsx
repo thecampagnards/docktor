@@ -75,7 +75,7 @@ export default class ContainerTable extends React.Component<
                 value={searchFilter}
               />
             </Grid.Column>
-            <Grid.Column width={6} />
+            <Grid.Column width={8} />
             <Grid.Column width={4}>
               <Popup
                 content={error.message}
@@ -100,16 +100,6 @@ export default class ContainerTable extends React.Component<
                       onClick={this.handleAllOnClick.bind(this, "start")}
                     >
                       <Icon name="play" /> START ALL
-                    </Button>
-
-                    <Button
-                      color="blue"
-                      icon={true}
-                      floated="right"
-                      loading={isFetching}
-                      onClick={this.handleAllOnClick.bind(this, "create")}
-                    >
-                      <Icon name="cog" /> CREATE ALL
                     </Button>
                   </Button.Group>
                 }
