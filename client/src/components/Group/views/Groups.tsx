@@ -120,7 +120,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               disabled={isFetching}
             />
           </Grid.Column>
-          <Grid.Column width={4}>
+          <Grid.Column width={6}>
             <Segment compact={true} color={this.displayAll && "blue"} floated="right">
               <Checkbox
                 toggle={true}
@@ -131,10 +131,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               />
             </Segment>
           </Grid.Column>
+          {/*
           <Grid.Column width={2}>
             {isAdmin && (
               <Button
-                primary={true}
+                basic={true}
+                color="blue"
                 floated="right"
                 as={Link}
                 to={path.groupsNew}
@@ -144,6 +146,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               />
             )}
           </Grid.Column>
+          */}
         </Grid>
         <Divider />
         {isFetching ? <Loader active={true} inline="centered" content="Loading groups..." /> :

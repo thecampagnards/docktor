@@ -178,7 +178,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Grid.Column>
             <Grid.Column width={3} floated="right">
               <Button
-                primary={true}
+                basic={true}
+                color="blue"
                 floated="right"
                 as={Link}
                 to={path.daemonsNew}

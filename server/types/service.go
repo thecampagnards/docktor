@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -46,6 +47,7 @@ type ServiceVariable struct {
 	Name        string `json:"name" bson:"name" validate:"required"`
 	Description string `json:"description" bson:"description"`
 	Value       string `json:"value" bson:"value"`
+	Mandatory   bool   `json:"mandatory" bson:"mandatory"`
 	Secret      bool   `json:"secret" bson:"secret"`
 }
 
@@ -139,17 +141,33 @@ func (ss *SubService) GetVariables() (vars []ServiceVariable, err error) {
 		return nil, err
 	}
 
-	for v := range variables {
-		vars = append(vars, )
+	for _, v := range variables {
+		vars = append(vars, parseVar(v))
 	}
 
 	return
 }
 
-func (variable string) parseVar() (ServiceVariable) {
-	r, _ := regexp.Compile(`[a-zA-Z]+(\*)?(_)?`)
+func parseVar(variable string) ServiceVariable {
+	r, _ := regexp.Compile(`([a-zA-Z]+)(\*)?(_)?`)
 	match := r.FindStringSubmatch(variable)
+	if len(match) < 1 {
+		return ServiceVariable{}
+	}
 
+	serviceVar := ServiceVariable{
+		Name:        match[1],
+		Description: "",
+		Value:       "",
+		Secret:      false,
+		Mandatory:   false,
+	}
+
+	if len(match) > 2 {
+		serviceVar.Mandatory = true
+	}
+
+	return serviceVar
 }
 
 // split used in go template
