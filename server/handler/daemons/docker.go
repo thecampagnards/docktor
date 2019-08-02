@@ -59,7 +59,7 @@ func getSavedContainers(c echo.Context) error {
 	return c.JSON(http.StatusOK, cs)
 }
 
-// updateContainersStatus change the status of caontiners param split by ','
+// updateContainersStatus change the status of containers param split by ','
 func updateContainersStatus(c echo.Context) error {
 
 	db := c.Get("DB").(*storage.Docktor)

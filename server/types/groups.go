@@ -33,12 +33,14 @@ type GroupDocker struct {
 	Containers []types.ContainerJSON `json:"containers" bson:"containers"`
 }
 
-// ServiceGroup data
-type ServiceGroup struct {
-	SubServiceID bson.ObjectId          `json:"_id,omitempty" bson:"_id,omitempty"`
-	Variables    map[string]interface{} `json:"variables,omitempty" bson:"variables"`
-	AutoUpdate   bool                   `json:"auto_update" bson:"auto_update"`
-	Ports        []uint16               `json:"ports" bson:"ports"`
+// GroupService data
+type GroupService struct {
+	SubServiceID bson.ObjectId     `json:"sub_service_id,omitempty" bson:"sub_service_id,omitempty"`
+	File         string            `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables    []ServiceVariable `json:"variables" bson:"-"`
+	URL          string            `json:"url" bson:"url" validate:"required"`
+	AutoUpdate   bool              `json:"auto_update" bson:"auto_update"`
+	Ports        []uint16          `json:"ports" bson:"ports"`
 }
 
 // Groups data
@@ -102,6 +104,16 @@ func findPort(port uint16, ports []uint16) bool {
 		}
 	}
 	return false
+}
+
+// FindServiceByID return the service by id
+func (g *Group) FindServiceByID(id string) *GroupService {
+	for _, service := range g.Services {
+		if service.SubServiceID.Hex() == id {
+			return &service
+		}
+	}
+	return nil
 }
 
 // FindContainersByNameOrID return the group containers by id or name

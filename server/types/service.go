@@ -34,14 +34,6 @@ type SubService struct {
 	Variables []ServiceVariable `json:"variables" bson:"-"`
 }
 
-// GroupService data
-type GroupService struct {
-	SubServiceID bson.ObjectId     `json:"subServiceID,omitempty" bson:"subServiceID,omitempty"`
-	File         string            `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables    []ServiceVariable `json:"variables" bson:"-"`
-	URL          string            `json:"url" bson:"url" validate:"required"`
-}
-
 // ServiceVariable data
 type ServiceVariable struct {
 	Name     string `json:"name" bson:"name" validate:"required"`
