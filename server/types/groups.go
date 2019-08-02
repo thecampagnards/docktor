@@ -145,7 +145,7 @@ func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 }
 
 // GetComposeService this function retrun the subservice compose file
-func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceGroup GroupService) (service []byte, err error) {
+func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceVariables []ServiceVariable) (service []byte, err error) {
 
 	variables := map[string]interface{}{
 		"Group":  g,
@@ -153,18 +153,17 @@ func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceG
 	}
 
 	// Copy of variables
-	for _, v := range serviceGroup.Variables {
+	for _, v := range serviceVariables {
 		variables[v.Name] = v.Value
 	}
 
 	service, err = subService.ConvertSubService(variables)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"serviceGroup":   serviceGroup.Variables,
 			"subServiceName": subService.Name,
 			"groupName":      g.Name,
 			"daemonHost":     daemon.Host,
-			"variables":      serviceGroup.Variables,
+			"variables":      serviceVariables,
 			"error":          err,
 		}).Error("Error when converting sub service")
 		return

@@ -36,7 +36,6 @@ func createServiceGroup(c echo.Context) error {
 
 	var serviceGroup = types.GroupService{
 		SubServiceID: subService.ID,
-		Variables:    variables,
 	}
 
 	// serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
@@ -51,7 +50,7 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	file, err := group.GetComposeService(daemon, subService, serviceGroup)
+	file, err := group.GetComposeService(daemon, subService, variables)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -68,6 +67,10 @@ func createServiceGroup(c echo.Context) error {
 		}).Error("Error when starting subservice")
 		return err
 	}
+
+	serviceGroup.Variables = variables
+	serviceGroup.File = string(file)
+	serviceGroup.URL = daemon.Host
 
 	group.Services = append(group.Services, serviceGroup)
 
@@ -119,7 +122,7 @@ func getServiceGroupFile(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	file, err := group.GetComposeService(daemon, subService, *serviceGroup)
+	file, err := group.GetComposeService(daemon, subService, serviceGroup.Variables)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -170,7 +173,7 @@ func startServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	file, err := group.GetComposeService(daemon, subService, *serviceGroup)
+	file, err := group.GetComposeService(daemon, subService, serviceGroup.Variables)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
