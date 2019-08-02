@@ -12,7 +12,7 @@ import (
 // createServiceGroup this function create and run a sub service via compose
 func createServiceGroup(c echo.Context) error {
 
-	var variables map[string]interface{}
+	var variables []types.ServiceVariable
 	err := c.Bind(&variables)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -20,14 +20,6 @@ func createServiceGroup(c echo.Context) error {
 			"error":     err,
 		}).Error("Error when parsing variables")
 		return c.JSON(http.StatusBadRequest, err)
-	}
-
-	serviceVars := []types.ServiceVariable{}
-	for v := range variables {
-		serviceVar := types.ServiceVariable{
-			Name: v,
-		}
-		serviceVars = append(serviceVars, serviceVar)
 	}
 
 	group := c.Get("group").(types.Group)
@@ -44,7 +36,7 @@ func createServiceGroup(c echo.Context) error {
 
 	var serviceGroup = types.GroupService{
 		SubServiceID: subService.ID,
-		Variables:    serviceVars,
+		Variables:    variables,
 	}
 
 	// serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
