@@ -28,4 +28,5 @@ export interface IServiceVariable {
   description: string
   value: string
   secret: boolean
+  optional: boolean
 }

@@ -221,17 +221,19 @@ class MarketModal extends React.Component<
               <>
                 <h3>Variables</h3>
                 {ss.variables.map((variable: IServiceVariable) => (
-                  <Form.Field inline={true} key={variable.name}>
-                    <label>{variable.name}</label>
+                  <Form.Field inline={true} key={variable.name} required={!!!variable.optional}>
+                    <label>{variable.name.toUpperCase().replace(/_/g, " ")}</label>
                     <Input
                       name={variable.name}
                       onChange={this.handleChangeVariable}
                       value={variable.value}
+                      type={variable.secret ? "password" : "text"}
                     />
                   </Form.Field>
                 ))}
               </>
             )}
+            {/*
             <h3>Other</h3>
             <Form.Checkbox
               inline={true}
@@ -240,6 +242,7 @@ class MarketModal extends React.Component<
               defaultChecked={opts.get("auto-update") as boolean}
               onChange={this.handleChangeOpts}
             />
+            */}
           </Form>
         </Modal.Content>
         <Modal.Actions>
@@ -298,11 +301,8 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    for(var i = 0; i < variables.length; i++) {
-      variables[i] = {
-        name, value, description: "", secret: false
-      }
-    }
+    const currentVar = variables.find(v => v.name === name);
+    currentVar && (currentVar.value = value);
     this.setState({ variables });
   };
 
@@ -318,16 +318,13 @@ class MarketModal extends React.Component<
 
   private continueFormStage2 = () => {
     const { selectedGroupID, selectedSubServiceID } = this.state;
-    const { groups } = this.props;
+    const { service } = this.props;
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
-      const sg = (groups.find(
-        g => g._id === selectedGroupID
-      ) as IGroup).services.find(
-        s => s.subServiceID === selectedSubServiceID
-      ) as IGroupService;
+      const variables = (service.sub_services.find(ss => ss._id === selectedSubServiceID) || {} as ISubService)
+        .variables;
       this.setState({
         stage: 2,
-        variables: sg ? sg.variables : [],
+        variables,
         opts: new Map<string, string>(),
         error: Error()
       });

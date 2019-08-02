@@ -31,7 +31,7 @@ type SubService struct {
 	Name      string            `json:"name" bson:"name" validate:"required"`
 	Active    bool              `json:"active" bson:"active"`
 	File      string            `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables []ServiceVariable `json:"file,omitempty"`
+	Variables []ServiceVariable `json:"variables" bson:"-"`
 }
 
 // GroupService data
@@ -44,22 +44,19 @@ type GroupService struct {
 
 // ServiceVariable data
 type ServiceVariable struct {
-	Name        string `json:"name" bson:"name" validate:"required"`
-	Description string `json:"description" bson:"description"`
-	Value       string `json:"value" bson:"value"`
-	Mandatory   bool   `json:"mandatory" bson:"mandatory"`
-	Secret      bool   `json:"secret" bson:"secret"`
+	Name     string `json:"name" bson:"name" validate:"required"`
+	Value    string `json:"value" bson:"value"`
+	Optional bool   `json:"optional" bson:"optional"`
+	Secret   bool   `json:"secret" bson:"secret"`
 }
 
 // GetVariablesOfSubServices get all the variables of all subservices
-func (s *Service) GetVariablesOfSubServices() (subServices []SubService, err error) {
-	for _, ss := range s.SubServices {
-		vars, err := ss.GetVariables()
+func (s *Service) GetVariablesOfSubServices() (err error) {
+	for i := 0; i < len(s.SubServices); i++ {
+		err = s.SubServices[i].GetVariables()
 		if err != nil {
-			return nil, err
+			return
 		}
-		ss.Variables = vars
-		subServices = append(subServices, ss)
 	}
 	return
 }
@@ -124,7 +121,7 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 }
 
 // GetVariables retrieve the variables of a template
-func (ss *SubService) GetVariables() (vars []ServiceVariable, err error) {
+func (ss *SubService) GetVariables() (err error) {
 
 	// Get remote file if needed
 	err = ss.GetRemoteFile()
@@ -138,33 +135,34 @@ func (ss *SubService) GetVariables() (vars []ServiceVariable, err error) {
 	})
 
 	if err != nil {
-		return nil, err
+		return
 	}
 
-	for _, v := range variables {
-		vars = append(vars, parseVar(v))
+	ss.Variables = make([]ServiceVariable, len(variables))
+	for i := 0; i < len(variables); i++ {
+		ss.Variables[i] = parseVar(variables[i])
 	}
 
 	return
 }
 
+// parseVar parses a variable to return a ServiceVariable
 func parseVar(variable string) ServiceVariable {
-	r, _ := regexp.Compile(`([a-zA-Z]+)(\*)?(_)?`)
+	r, _ := regexp.Compile(`(optional_)?(secret_)?([a-zA-Z_]+)`)
 	match := r.FindStringSubmatch(variable)
-	if len(match) < 1 {
-		return ServiceVariable{}
-	}
 
 	serviceVar := ServiceVariable{
-		Name:        match[1],
-		Description: "",
-		Value:       "",
-		Secret:      false,
-		Mandatory:   false,
+		Name:     match[3],
+		Value:    "",
+		Secret:   false,
+		Optional: false,
 	}
 
-	if len(match) > 2 {
-		serviceVar.Mandatory = true
+	if len(match[1]) != 0 {
+		serviceVar.Optional = true
+	}
+	if len(match[2]) != 0 {
+		serviceVar.Secret = true
 	}
 
 	return serviceVar
