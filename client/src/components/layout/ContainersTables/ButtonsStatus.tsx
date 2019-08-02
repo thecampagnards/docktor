@@ -36,16 +36,26 @@ export default class ButtonsStatus extends React.Component<
             disabled={!error.message}
             inverted={true}
             trigger={
-              <Button
-                fluid={true}
-                loading={isFetching}
-                icon={true}
-                labelPosition="left"
-                color="orange"
-                onClick={this.handleOnClick.bind(this, "stop")}
-              >
-                <Icon name="stop" /> STOP
-              </Button>
+              <Button.Group vertical={true} compact={true} fluid={true}>
+                <Button
+                  loading={isFetching}
+                  icon={true}
+                  labelPosition="left"
+                  color="orange"
+                  onClick={this.handleOnClick.bind(this, "stop")}
+                >
+                  <Icon name="stop" /> STOP
+                </Button>
+                <Button
+                  loading={isFetching}
+                  icon={true}
+                  labelPosition="left"
+                  color="red"
+                  onClick={this.handleOnClick.bind(this, "remove")}
+                >
+                  <Icon name="delete" /> DELETE
+                </Button>
+              </Button.Group>
             }
           />
         );
@@ -120,25 +130,6 @@ export default class ButtonsStatus extends React.Component<
           />
         );
     }
-
-    return (
-      <Popup
-        content={error.message}
-        disabled={!error.message}
-        inverted={true}
-        trigger={
-          <Button
-            loading={isFetching}
-            icon={true}
-            color="blue"
-            disabled={status.Started.indexOf(container.State) > -1}
-            onClick={this.handleOnClick.bind(this, "create")}
-          >
-            <Icon name="cog" /> CREATE
-          </Button>
-        }
-      />
-    );
   }
 
   private handleOnClick = (state: string) => {
