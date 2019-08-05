@@ -17,10 +17,11 @@ export interface ISubService {
 }
 
 export interface IGroupService {
-  subServiceID: string
-  template: string
+  sub_service_id: string
+  name: string
   variables: IServiceVariable[]
   file: string
+  url: string
 }
 
 export interface IServiceVariable {

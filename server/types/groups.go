@@ -36,6 +36,7 @@ type GroupDocker struct {
 // GroupService data
 type GroupService struct {
 	SubServiceID bson.ObjectId     `json:"sub_service_id,omitempty" bson:"sub_service_id,omitempty"`
+	Name         string            `json:"name" bson:"name" validate:"required"`
 	File         string            `json:"file,omitempty"  bson:"file" validate:"required"`
 	Variables    []ServiceVariable `json:"variables" bson:"-"`
 	URL          string            `json:"url" bson:"url" validate:"required"`

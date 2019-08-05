@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Message, Grid, Icon } from 'semantic-ui-react';
 
 import { fetchServiceBySubService } from '../../Services/actions/service';
-import { IService } from '../../Services/types/service';
+import { IService, IGroupService } from '../../Services/types/service';
 import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
@@ -15,7 +15,6 @@ interface IGroupProps {
 }
 
 interface IGroupStates {
-  services: IService[];
   isFetching: boolean;
   error: Error;
   modalOpen: boolean;
@@ -30,19 +29,6 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     modalOpen: false,
     content: ""
   };
-
-  public componentWillMount() {
-    const { group } = this.props;
-    group.services.forEach(service => {
-      fetchServiceBySubService(service.subServiceID)
-        .then(s => {
-          const services: IService[] = this.state.services;
-          services.push(s);
-          this.setState({ services });
-        })
-        .catch(error => this.setState({ error }));
-    });
-  }
 
   public render() {
     const { group, admin } = this.props;
@@ -70,7 +56,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         </Grid>
 
         <Grid>
-          {services.map((service: IService, index: number) => (
+          {group.services.map((service: IGroupService, index: number) => (
             <Grid.Column width={8} key={index}>
               <GroupService service={service} admin={admin} />
             </Grid.Column>

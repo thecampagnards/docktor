@@ -1,10 +1,10 @@
 import * as React from 'react';
 import { Card, Label, Grid, Button, Icon, Dropdown } from 'semantic-ui-react';
 
-import { IService } from '../../Services/types/service';
+import { IService, IGroupService } from '../../Services/types/service';
 
 interface IGroupServiceProps {
-  service: IService,
+  service: IGroupService,
   admin: boolean
 }
 
@@ -14,7 +14,7 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
     const options = [
       { key: 1, text: "Edit service", value: 1 },
       { key: 2, text: "Delete service", value: 2 },
-    ]
+    ];
 
     return (
       <Card fluid={true}>
@@ -44,7 +44,7 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
                 {admin && 
                   <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" options={options} trigger={<React.Fragment />} />
                 }
-                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.link} target="_blank" floated="right" />
+                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" />
               </Grid.Column>
             </Grid.Row>
           </Grid>

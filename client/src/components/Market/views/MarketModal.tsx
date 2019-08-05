@@ -15,6 +15,7 @@ import { IService, ISubService, IServiceVariable } from '../../Services/types/se
 interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
+  serviceName: string;
   variables: IServiceVariable[];
   opts: Map<string, any>;
 
@@ -39,6 +40,7 @@ class MarketModal extends React.Component<
   public state = {
     selectedGroupID: "",
     selectedSubServiceID: "",
+    serviceName: "",
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
 
@@ -199,7 +201,8 @@ class MarketModal extends React.Component<
     const {
       error,
       isFetching,
-      selectedSubServiceID
+      selectedSubServiceID,
+      serviceName
     } = this.state;
     const ss = service.sub_services!.find(
       s => s._id === selectedSubServiceID
@@ -215,6 +218,15 @@ class MarketModal extends React.Component<
             </Message>
           )}
           <Form id="modal-form" onSubmit={this.handleForm}>
+            <Form.Field>
+              <label>Service name</label>
+              <Form.Input
+                name="name"
+                required={true}
+                onChange={this.handleChangeName}
+                value={serviceName}
+              />
+            </Form.Field>
             {ss.variables && (
               <>
                 <h3>Variables</h3>
@@ -293,6 +305,13 @@ class MarketModal extends React.Component<
     this.setState({ selectedSubServiceID: String(data.value) });
   };
 
+  private handleChangeName = (
+    event: any,
+    { name, value }: InputOnChangeData
+  ) => {
+    this.setState({ serviceName: value });
+  }
+
   private handleChangeVariable = (
     event: any,
     { name, value }: InputOnChangeData
@@ -321,6 +340,7 @@ class MarketModal extends React.Component<
         .variables;
       this.setState({
         stage: 2,
+        serviceName: service.name,
         variables,
         error: Error()
       });
@@ -334,13 +354,14 @@ class MarketModal extends React.Component<
     const {
       selectedGroupID,
       selectedSubServiceID,
+      serviceName,
       variables,
       opts
     } = this.state;
     
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
-      deployService(selectedGroupID, selectedSubServiceID, variables, opts)
+      deployService(selectedGroupID, selectedSubServiceID, serviceName, variables, opts)
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false, error: Error() });
           this.continueFormStage(3);
