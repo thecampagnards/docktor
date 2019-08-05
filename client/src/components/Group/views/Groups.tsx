@@ -1,12 +1,10 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Divider, Dropdown, DropdownProps, Grid, Label, Loader, Message,
     Search, SearchProps, Segment
 } from 'semantic-ui-react';
 
-import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 import { fetchDaemons } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';

@@ -10,7 +10,7 @@ import {
 import { path } from '../../../constants/path';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubService, IServiceVariable, IGroupService } from '../../Services/types/service';
+import { IService, ISubService, IServiceVariable } from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string;
@@ -40,7 +40,7 @@ class MarketModal extends React.Component<
     selectedGroupID: "",
     selectedSubServiceID: "",
     variables: [] as IServiceVariable[],
-    opts: new Map<string, any>(),
+    opts: new Map<string, any>([["auto-update", true]]),
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -197,8 +197,6 @@ class MarketModal extends React.Component<
   private renderModalStage2 = () => {
     const { service } = this.props;
     const {
-      variables,
-      opts,
       error,
       isFetching,
       selectedSubServiceID
@@ -216,15 +214,16 @@ class MarketModal extends React.Component<
               <Message.Header>{error.message}</Message.Header>
             </Message>
           )}
-          <Form>
+          <Form id="modal-form" onSubmit={this.handleForm}>
             {ss.variables && (
               <>
                 <h3>Variables</h3>
                 {ss.variables.map((variable: IServiceVariable) => (
-                  <Form.Field inline={true} key={variable.name} required={!!!variable.optional}>
+                  <Form.Field inline={true} key={variable.name} required={!variable.optional}>
                     <label>{variable.name.toUpperCase().replace(/_/g, " ")}</label>
                     <Input
                       name={variable.name}
+                      required={!variable.optional}
                       onChange={this.handleChangeVariable}
                       value={variable.value}
                       type={variable.secret ? "password" : "text"}
@@ -233,23 +232,21 @@ class MarketModal extends React.Component<
                 ))}
               </>
             )}
-            {/*
             <h3>Other</h3>
             <Form.Checkbox
               inline={true}
               label="Auto update"
               name="auto-update"
-              defaultChecked={opts.get("auto-update") as boolean}
+              defaultChecked={true}
               onChange={this.handleChangeOpts}
             />
-            */}
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button color="red" onClick={this.continueFormStage.bind(this, 1)}>
+          <Button color="red" onClick={this.continueFormStage.bind(this, 1)} >
             <Icon name="chevron left" /> Previous
           </Button>
-          <Button color="green" onClick={this.handleForm} loading={isFetching}>
+          <Button form="modal-form" color="green" type="submit" loading={isFetching}>
             <Icon name="checkmark" /> Install
           </Button>
         </Modal.Actions>
@@ -325,7 +322,6 @@ class MarketModal extends React.Component<
       this.setState({
         stage: 2,
         variables,
-        opts: new Map<string, string>(),
         error: Error()
       });
     } else {
@@ -333,27 +329,15 @@ class MarketModal extends React.Component<
     }
   };
 
-  private handleForm = () => {
-    const { service } = this.props;
+  private handleForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const {
       selectedGroupID,
       selectedSubServiceID,
       variables,
       opts
     } = this.state;
-    const v = (service.sub_services!.find(
-      s => s._id === selectedSubServiceID
-    ) as ISubService).variables;
-/*
-    if (v) {
-      for (const key of v) {
-        if (!variables.has(key)) {
-          this.setState({ error: Error("Please set every variables") });
-          return;
-        }
-      }
-    }
-*/
+    
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
       deployService(selectedGroupID, selectedSubServiceID, variables, opts)
