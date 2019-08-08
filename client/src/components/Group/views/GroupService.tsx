@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Card, Label, Grid, Button, Icon, Dropdown } from 'semantic-ui-react';
 
-import { IService, IGroupService } from '../../Services/types/service';
+import { IGroupService } from '../../Services/types/service';
 
 interface IGroupServiceProps {
   service: IGroupService,

@@ -2,8 +2,7 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import { Button, Message, Grid, Icon } from 'semantic-ui-react';
 
-import { fetchServiceBySubService } from '../../Services/actions/service';
-import { IService, IGroupService } from '../../Services/types/service';
+import { IGroupService } from '../../Services/types/service';
 import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
@@ -32,7 +31,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { group, admin } = this.props;
-    const { services, error } = this.state;
+    const { error } = this.state;
 
     if (error.message) {
       return (
