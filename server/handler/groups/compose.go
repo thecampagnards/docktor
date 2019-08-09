@@ -141,3 +141,42 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, serviceGroup)
 }
+
+// getServiceGroupStatus get the status of group service
+func getServiceGroupStatus(c echo.Context) error {
+
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+
+	serviceGroup := group.FindServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	if serviceGroup == nil {
+		log.WithFields(log.Fields{
+			"groupName":    group.Name,
+			"subserviceID": types.SUBSERVICE_ID_PARAM,
+		}).Error("Error when retrieving group service")
+		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
+	}
+
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID":  group.Daemon,
+			"groupName": group.Name,
+			"error":     err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	info, err := daemon.ComposeStatus(group.Name, []string{serviceGroup.File})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"groupName":  group.Name,
+			"daemonHost": daemon.Host,
+			"service":    serviceGroup.File,
+			"error":      err,
+		}).Error("Error when compose info")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, info)
+}
