@@ -40,7 +40,7 @@ export default class ContainerTable extends React.Component<
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchImages().then(images => this.setState({ images }));
   }
 

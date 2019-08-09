@@ -34,7 +34,7 @@ class Daemon extends React.Component<
   private refreshIntervalId: NodeJS.Timeout;
   private savedContainers: IContainer[] = [] as IContainer[];
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { daemon } = this.props;
 
     fetchComposeServices(daemon._id).then(services =>
@@ -49,7 +49,7 @@ class Daemon extends React.Component<
       fetchContainers(daemon._id)
         .then(async (containers: IContainer[]) => {
           await saved;
-          if (this.savedContainers){
+          if (this.savedContainers) {
             for (const container of this.savedContainers) {
               if (
                 !containers.find(

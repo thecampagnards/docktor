@@ -47,7 +47,7 @@ class GroupIndex extends React.Component<
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { groupID } = this.props.match.params;
     const path = window.location.pathname;
 

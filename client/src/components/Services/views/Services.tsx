@@ -1,3 +1,5 @@
+import './Services.css';
+
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -7,7 +9,6 @@ import {
 import { path } from '../../../constants/path';
 import { fetchServices } from '../actions/service';
 import { IService, ISubService } from '../types/service';
-import './Services.css'
 
 interface IServicesStates {
   services: IService[];
@@ -24,16 +25,16 @@ class Services extends React.Component<{}, IServicesStates> {
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchServices()
       .then(services =>
         this.setState({
           services,
-          servicesFiltered: services,
-          isFetching: false
+          servicesFiltered: services
         })
       )
-      .catch(error => this.setState({ error, isFetching: false }));
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   }
 
   public render() {

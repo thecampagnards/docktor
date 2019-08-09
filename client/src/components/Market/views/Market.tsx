@@ -1,15 +1,15 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { withRouter, RouteComponentProps } from 'react-router-dom';
+import { RouteComponentProps, withRouter } from 'react-router-dom';
 import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
 
-import { fetchGroups, fetchGroup } from '../../Group/actions/group';
+import { IStoreState } from '../../../types/store';
+import { fetchGroup, fetchGroups } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchServices } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import MarketCard from './MarketCard';
-import { IStoreState } from '../../../types/store';
 
 interface IMarketProps {
   isAdmin: boolean;
@@ -24,7 +24,10 @@ interface IServicesStates {
   error: Error;
 }
 
-class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, IServicesStates> {
+class Market extends React.Component<
+  IMarketProps & RouteComponentProps<{}>,
+  IServicesStates
+> {
   public state = {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
@@ -33,10 +36,10 @@ class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, ISe
     isFetching: true,
     error: Error()
   };
-  
+
   private searchField = "";
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchServices()
       .then((services: IService[]) =>
         this.setState({
@@ -47,7 +50,11 @@ class Market extends React.Component<IMarketProps & RouteComponentProps<{}>, ISe
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
-    const url = new URL("http://lol.xd" + this.props.location.pathname + this.props.location.search);
+    const url = new URL(
+      "http://lol.xd" +
+        this.props.location.pathname +
+        this.props.location.search
+    );
     if (url.searchParams.has("group")) {
       const groupID = url.searchParams.get("group") as string;
       fetchGroup(groupID)

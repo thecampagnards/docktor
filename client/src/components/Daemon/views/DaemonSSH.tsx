@@ -27,25 +27,19 @@ interface ICommand {
 
 class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
   public state = {
-    commands: [] as ICommand[],
+    commands: this.props.daemon.ssh.commands
+      ? this.props.daemon.ssh.commands.map(c => ({
+          command: c,
+          data: "",
+          error: Error(),
+          isOpen: false,
+          isFetching: false
+        }))
+      : ([] as ICommand[]),
     error: Error(),
     isSuccess: false,
     isFetching: false
   };
-
-  public componentWillMount() {
-    if (this.props.daemon.ssh.commands) {
-      const commands = this.props.daemon.ssh.commands.map(c => ({
-        command: c,
-        data: "",
-        error: Error(),
-        isOpen: false,
-        isFetching: false
-      }));
-
-      this.setState({ commands });
-    }
-  }
 
   public render() {
     const { daemon } = this.props;

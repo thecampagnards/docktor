@@ -1,14 +1,14 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Button, Card, Loader, Message, Modal, Grid, Icon } from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Button, Card, Grid, Icon, Loader, Message, Modal } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IService } from '../../Services/types/service';
 import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
-import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -32,7 +32,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     content: ""
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { group } = this.props;
     group.services.forEach(service => {
       fetchServiceBySubService(service._id)
@@ -64,12 +64,19 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <>
-
         <Grid>
           <Grid.Column width={12} />
           <Grid.Column width={4}>
-            <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
-              <Icon name="plus" />ADD SERVICE
+            <Button
+              primary={true}
+              labelPosition="right"
+              icon={true}
+              as={Link}
+              to={path.marketgroup.replace(":groupID", group._id)}
+              floated="right"
+            >
+              <Icon name="plus" />
+              ADD SERVICE
             </Button>
           </Grid.Column>
         </Grid>
@@ -78,43 +85,44 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           {services.map((service: IService, index: number) => (
             <span key={index}>
               <GroupService service={service} />
-              { admin &&
-              <Modal
-                trigger={
-                  <Button
-                    onClick={this.handleOpen.bind(this, group.services[0]._id)}
-                  >
-                    Get Compose File
-                  </Button>
-                }
-                open={modalOpen}
-                onClose={this.handleClose}
-                basic={true}
-                size="fullscreen"
-                style={{ height: "80%" }}
-              >
-                <Modal.Content style={{ height: "100%" }}>
-                  <CodeMirror
-                    className="height-100"
-                    value={content}
-                    options={{
-                      mode: "yaml",
-                      lint: true,
-                      theme: "material",
-                      lineNumbers: true,
-                      readOnly: true,
-                      cursorBlinkRate: -1
-                    }}
-                  />
-                </Modal.Content>
-              </Modal>
-              }
+              {admin && (
+                <Modal
+                  trigger={
+                    <Button
+                      onClick={this.handleOpen.bind(
+                        this,
+                        group.services[0]._id
+                      )}
+                    >
+                      Get Compose File
+                    </Button>
+                  }
+                  open={modalOpen}
+                  onClose={this.handleClose}
+                  basic={true}
+                  size="fullscreen"
+                  style={{ height: "80%" }}
+                >
+                  <Modal.Content style={{ height: "100%" }}>
+                    <CodeMirror
+                      className="height-100"
+                      value={content}
+                      options={{
+                        mode: "yaml",
+                        lint: true,
+                        theme: "material",
+                        lineNumbers: true,
+                        readOnly: true,
+                        cursorBlinkRate: -1
+                      }}
+                    />
+                  </Modal.Content>
+                </Modal>
+              )}
             </span>
           ))}
         </Card.Group>
-        
       </>
-      
     );
   }
 

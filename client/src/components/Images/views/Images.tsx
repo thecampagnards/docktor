@@ -30,7 +30,7 @@ class Images extends React.Component<{}, IImagesStates> {
     openCommands: false
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchImages()
       .then(images => this.setState({ images }))
       .catch((error: Error) => this.setState({ error }))

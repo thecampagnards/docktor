@@ -21,21 +21,15 @@ interface IDaemonFormStates {
 
 class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   public state = {
-    daemon: {} as IDaemon,
+    daemon: this.props.daemon
+      ? this.props.daemon
+      : ({ docker: {}, ssh: {} } as IDaemon),
     isFetching: false,
     isSuccess: false,
     error: Error(),
 
     activeAccordions: [] as number[]
   };
-
-  public componentWillMount() {
-    this.setState({
-      daemon: this.props.daemon
-        ? this.props.daemon
-        : ({ docker: {}, ssh: {} } as IDaemon)
-    });
-  }
 
   public render() {
     const {

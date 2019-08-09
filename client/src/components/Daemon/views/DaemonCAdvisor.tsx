@@ -29,7 +29,7 @@ class DaemonCAdvisor extends React.Component<
 
   private refreshIntervalId: NodeJS.Timeout;
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { daemon } = this.props;
 
     const fetch = () => {

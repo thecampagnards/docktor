@@ -24,7 +24,7 @@ matrix:
       script:
         - cd client
         - npm install
-        - npm run test
+        - CI=true npm run test
         - cd ..
         - cd server
         - go test ./... -coverprofile="coverage.out"

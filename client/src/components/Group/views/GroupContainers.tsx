@@ -35,7 +35,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
   private refreshIntervalId: NodeJS.Timeout;
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { group } = this.props;
 
     const fetch = () => {
