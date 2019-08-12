@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { Button, Message, Grid, Icon } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
-import { getService } from '../actions/group';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
 import { path } from '../../../constants/path';
@@ -45,19 +44,27 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     return (
       <>
 
-        <Grid>
-          <Grid.Column width={12} />
-          <Grid.Column width={4}>
-            <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
-              <Icon name="plus" />ADD SERVICE
-            </Button>
-          </Grid.Column>
-        </Grid>
+        {admin ? 
+          <Grid>
+            <Grid.Column width={12}>
+              {group.services.length === 0 && (
+                <pre>No service in this group. Use the button on the right to deploy one.</pre>
+              )}
+            </Grid.Column>
+            <Grid.Column width={4}>
+              <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
+                <Icon name="plus" />ADD SERVICE
+              </Button>
+            </Grid.Column>
+          </Grid>
+          : 
+          <pre>No service in this group. Contact your group administrator to request one.</pre>
+        }
 
         <Grid>
           {group.services.map((service: IGroupService, index: number) => (
             <Grid.Column width={8} key={index}>
-              <GroupService service={service} admin={admin} />
+              <GroupService groupID={group._id} service={service} admin={admin} />
             </Grid.Column>
           ))}
         </Grid>
@@ -66,16 +73,6 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
       
     );
   }
-
-  private handleOpen = (subserviceID: string) => {
-    const { group } = this.props;
-    getService(group._id, subserviceID)
-      .then(content => this.setState({ content }))
-      .catch(content => this.setState({ content }))
-      .finally(() => this.setState({ modalOpen: true }));
-  };
-
-  private handleClose = () => this.setState({ modalOpen: false });
 }
 
 export default GroupServices;

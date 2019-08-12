@@ -2,15 +2,39 @@ import * as React from 'react';
 import { Card, Label, Grid, Button, Icon, Dropdown } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
+import { copy } from '../../../utils/clipboard';
+import { getServiceStatus } from '../actions/group';
 
 interface IGroupServiceProps {
+  groupID: string;
   service: IGroupService,
   admin: boolean
 }
 
-export default class GroupService extends React.Component<IGroupServiceProps> {
+interface IGroupServiceState {
+  status: boolean;
+  modalOpen: boolean;
+  content: string;
+  error: Error;
+  isFetching: boolean;
+}
+
+export default class GroupService extends React.Component<IGroupServiceProps, IGroupServiceState> {
+  public state = {
+    status: false,
+    modalOpen: false,
+    content: "",
+    error: Error(),
+    isFetching: true
+  }
+
+  public componentDidMount() {
+    this.refreshStatus();
+  }
+
   public render() {
     const { service, admin } = this.props;
+    const { status, modalOpen, content, error, isFetching } = this.state;
     const options = [
       { key: 1, text: "Edit service", value: 1 },
       { key: 2, text: "Delete service", value: 2 },
@@ -25,20 +49,20 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
                 <h3>{service.name}</h3>
               </Grid.Column>
               <Grid.Column width={4}>
-                <Label compact={true} basic={true}>7.6 community</Label>
+                <Label compact={true} basic={true}>{service.sub_service_id}</Label>
               </Grid.Column>
               <Grid.Column width={6} />
               <Grid.Column width={2}>
-                <Icon className="float-right" color="green" circular={true} name="circle" title="Service is running" />
+                <Icon className="float-right" color={this.statusColor(status)} circular={true} name="circle" title="Service is running" />
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
               <Grid.Column width={8}>
                 <Button.Group color="blue" floated="left">
-                  <Button labelPosition="left" icon="external alternate" content="Open" />
-                  <Button icon="clipboard" title="Copy URL" />
+                  <Button labelPosition="left" icon="external alternate" content="Open" as="a" href={service.url} />
+                  <Button icon="clipboard" title="Copy URL" onClick={copy.bind(this, service.url)} />
                 </Button.Group>
-                <Button color="red" basic={true} circular={true} labelPosition="right" icon="stop" content="Stop" title="Stop service" floated="right" />
+                <Button color={this.statusColor(status)} basic={true} circular={true} labelPosition="right" icon={this.statusIcon(status)} content="Stop" title="Stop service" floated="right" />
               </Grid.Column>
               <Grid.Column width={8}>
                 {admin && 
@@ -52,4 +76,28 @@ export default class GroupService extends React.Component<IGroupServiceProps> {
       </Card>
     )
   }
+
+  private refreshStatus = () => {
+    const { groupID, service } = this.props;
+    this.setState({ isFetching: true });
+    getServiceStatus(groupID, service.sub_service_id)
+      .then(info => this.setState({ status: true }))
+      .catch((error: Error) => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  }
+
+  private statusColor = (status: boolean) => {
+    return (status ? "green" : "red");
+  }
+
+  private statusIcon = (status: boolean) => {
+    return (status ? "stop" : "play");
+  }
+
+  private handleOpen = () => {
+    const { service } = this.props;
+    this.setState({ modalOpen: true, content: service.file });
+  };
+
+  private handleClose = () => this.setState({ modalOpen: false });
 }
