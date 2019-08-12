@@ -145,7 +145,7 @@ class Home extends React.Component<{}, IHomeState> {
                             env.group._id
                           )}
                         >
-                          Go to containers
+                          <Icon name="docker" /> Go to containers
                         </Link>
                       </Card.Description>
                     </Card.Content>

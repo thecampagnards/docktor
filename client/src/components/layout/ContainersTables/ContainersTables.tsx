@@ -183,7 +183,6 @@ export default class ContainerTable extends React.Component<
                           }
                           size="large"
                         >
-                          handleAllOnClick
                           <Modal.Content style={{ background: "black" }}>
                             <ShellSocket
                               wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/term`}

@@ -141,7 +141,7 @@ export default class Commands extends React.Component<
   };
 
   private hideCommand = () => {
-    this.setState({ modalView: false, command: {} as ICommand });
+    this.setState({ modalView: false, command: {} as ICommand, log: "" });
   };
 
   private exec = () => {
