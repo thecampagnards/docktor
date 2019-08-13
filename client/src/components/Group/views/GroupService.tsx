@@ -1,9 +1,10 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown } from 'semantic-ui-react';
+import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
-import { getServiceStatus } from '../actions/group';
+import { getServiceStatus, updateServiceStatus } from '../actions/group';
+import { IServiceStatus, IContainerStatus } from '../types/group';
 
 interface IGroupServiceProps {
   groupID: string;
@@ -12,7 +13,7 @@ interface IGroupServiceProps {
 }
 
 interface IGroupServiceState {
-  status: boolean;
+  status: IServiceStatus;
   modalOpen: boolean;
   content: string;
   error: Error;
@@ -21,7 +22,7 @@ interface IGroupServiceState {
 
 export default class GroupService extends React.Component<IGroupServiceProps, IGroupServiceState> {
   public state = {
-    status: false,
+    status: {} as IServiceStatus,
     modalOpen: false,
     content: "",
     error: Error(),
@@ -53,7 +54,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
               </Grid.Column>
               <Grid.Column width={6} />
               <Grid.Column width={2}>
-                <Icon className="float-right" color={this.statusColor(status)} circular={true} name="circle" title="Service is running" />
+                {status && status.containers_status.map(cs => this.statusIndicator(cs))}
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
@@ -62,7 +63,32 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                   <Button labelPosition="left" icon="external alternate" content="Open" as="a" href={service.url} />
                   <Button icon="clipboard" title="Copy URL" onClick={copy.bind(this, service.url)} />
                 </Button.Group>
-                <Button color={this.statusColor(status)} basic={true} circular={true} labelPosition="right" icon={this.statusIcon(status)} content="Stop" title="Stop service" floated="right" />
+                <Button.Group circular={true} floated="right" disabled={true}>
+                  <Button
+                    basic={true}
+                    color="green"
+                    icon="play"
+                    title="Start" 
+                    name="start" 
+                    onClick={this.updateServiceStatus} 
+                  />
+                  <Button
+                    basic={true}
+                    color="orange"
+                    icon="stop"
+                    title="Stop" 
+                    name="stop"
+                    onClick={this.updateServiceStatus} 
+                  />
+                  <Button
+                    basic={true}
+                    color="red"
+                    icon="delete"
+                    title="Delete" 
+                    name="remove"
+                    onClick={this.updateServiceStatus} 
+                  />
+                </Button.Group>
               </Grid.Column>
               <Grid.Column width={8}>
                 {admin && 
@@ -81,17 +107,32 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
     getServiceStatus(groupID, service.sub_service_id)
-      .then(info => this.setState({ status: true }))
+      .then((status: IServiceStatus) => this.setState({ status }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
 
-  private statusColor = (status: boolean) => {
-    return (status ? "green" : "red");
+  private updateServiceStatus = (
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>, 
+    { name }: ButtonProps
+  ) => {
+    const { groupID, service } = this.props;
+    this.setState({ isFetching: true });
+    updateServiceStatus(groupID, service.sub_service_id, name)
+      .then(response => console.log("Service " + service.name + " : Status updated to " + name))
+      .catch((error: Error) => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   }
 
-  private statusIcon = (status: boolean) => {
-    return (status ? "stop" : "play");
+  private statusIndicator = (cs: IContainerStatus) => {
+    switch (true) {
+      case cs.state.startsWith("Up"):
+        return <Icon className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.name} is running`} />;
+      case cs.state.startsWith("Exited"):
+        return <Icon className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.name} is not running`} />;
+      default:
+        return <Icon className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.name} : ${cs.state}`} />;
+    }
   }
 
   private handleOpen = () => {

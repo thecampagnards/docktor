@@ -98,14 +98,13 @@ export const deployService = (
     .then((response: Response) => response.json());
 };
 
-export const startService = (groupID: string, serviceID: string) => {
+export const updateServiceStatus = (groupID: string, serviceID: string, status: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/start/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}?status=${status}`,
     {
       credentials: "same-origin",
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${GetToken()}`
       }
     }

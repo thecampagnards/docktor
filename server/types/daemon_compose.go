@@ -173,6 +173,7 @@ func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error
 }
 
 // ComposeStatus get status of service, files has to be []string or [][]byte
+// Not working -> useless info
 func (d *Daemon) ComposeStatus(projectName string, files interface{}) (info project.InfoSet, err error) {
 
 	con, err := getComposeProjectContext(projectName, files)

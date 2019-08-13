@@ -115,11 +115,11 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	switch c.QueryParam("status") {
 	case "start":
-		err = daemon.ComposeUp(group.Name, group.Subnet, []string{serviceGroup.File})
+		err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{[]byte(serviceGroup.File)})
 	case "stop":
-		err = daemon.ComposeStop(group.Name, []string{serviceGroup.File})
+		err = daemon.ComposeStop(group.Name, [][]byte{[]byte(serviceGroup.File)})
 	case "remove":
-		err = daemon.ComposeRemove(group.Name, []string{serviceGroup.File})
+		err = daemon.ComposeRemove(group.Name, [][]byte{[]byte(serviceGroup.File)})
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
@@ -167,7 +167,7 @@ func getServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	info, err := daemon.ComposeStatus(group.Name, []string{serviceGroup.File})
+	info, err := daemon.ComposeStatus(group.Name, [][]byte{[]byte(serviceGroup.File)})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,

@@ -22,3 +22,12 @@ export interface IServiceGroup {
   auto_update: boolean;
   ports: number[];
 }
+
+export interface IServiceStatus {
+  containers_status: IContainerStatus[];
+}
+
+export interface IContainerStatus {
+  name: string;
+  state: string;
+}
