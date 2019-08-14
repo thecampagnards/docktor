@@ -28,6 +28,7 @@ export interface IServiceStatus {
 }
 
 export interface IContainerStatus {
-  name: string;
-  state: string;
+  Name: string;
+  Ports: string;
+  State: string;
 }

@@ -1,7 +1,6 @@
 package types
 
 import (
-	"errors"
 	"fmt"
 	"os"
 
@@ -69,23 +68,15 @@ func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 	return
 }
 
-func getComposeProjectContext(projectName string, files interface{}) (con project.Context, err error) {
+func getComposeProjectContext(projectName string, files [][]byte) (con project.Context, err error) {
 	con.ProjectName = projectName
-
-	switch files.(type) {
-	case []string:
-		con.ComposeFiles = files.([]string)
-	case [][]byte:
-		con.ComposeBytes = files.([][]byte)
-	default:
-		err = errors.New("Invalide type for file")
-	}
+	con.ComposeBytes = files
 
 	return
 }
 
-// ComposeUp run service, files has to be []string or [][]byte
-func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{}) (err error) {
+// ComposeUp run service, files has to be [][]byte
+func (d *Daemon) ComposeUp(projectName string, subnet string, files [][]byte) (err error) {
 
 	if subnet != "" {
 		_, err = d.CreateNetwork(fmt.Sprintf("%s-net", projectName), subnet)
@@ -118,8 +109,8 @@ func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{})
 	return project.Up(context.Background(), options.Up{})
 }
 
-// ComposeStop stop service, files has to be []string or [][]byte
-func (d *Daemon) ComposeStop(projectName string, files interface{}) (err error) {
+// ComposeStop stop service, files has to be [][]byte
+func (d *Daemon) ComposeStop(projectName string, files [][]byte) (err error) {
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
@@ -145,8 +136,8 @@ func (d *Daemon) ComposeStop(projectName string, files interface{}) (err error) 
 	return project.Stop(context.Background(), 10)
 }
 
-// ComposeRemove remove service, files has to be []string or [][]byte
-func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error) {
+// ComposeRemove remove service, files has to be [][]byte
+func (d *Daemon) ComposeRemove(projectName string, files [][]byte) (err error) {
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {
@@ -172,9 +163,8 @@ func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error
 	return project.Delete(context.Background(), options.Delete{RemoveVolume: true, RemoveRunning: true})
 }
 
-// ComposeStatus get status of service, files has to be []string or [][]byte
-// Not working -> useless info
-func (d *Daemon) ComposeStatus(projectName string, files interface{}) (info project.InfoSet, err error) {
+// ComposeStatus get status of service, files has to be [][]byte
+func (d *Daemon) ComposeStatus(projectName string, files [][]byte) (info project.InfoSet, err error) {
 
 	con, err := getComposeProjectContext(projectName, files)
 	if err != nil {

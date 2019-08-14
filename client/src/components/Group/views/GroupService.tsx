@@ -13,7 +13,7 @@ interface IGroupServiceProps {
 }
 
 interface IGroupServiceState {
-  status: IServiceStatus;
+  status: IContainerStatus[];
   modalOpen: boolean;
   content: string;
   error: Error;
@@ -22,7 +22,7 @@ interface IGroupServiceState {
 
 export default class GroupService extends React.Component<IGroupServiceProps, IGroupServiceState> {
   public state = {
-    status: {} as IServiceStatus,
+    status: [] as IContainerStatus[],
     modalOpen: false,
     content: "",
     error: Error(),
@@ -54,7 +54,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
               </Grid.Column>
               <Grid.Column width={6} />
               <Grid.Column width={2}>
-                {status && status.containers_status.map(cs => this.statusIndicator(cs))}
+                {status.map(cs => this.statusIndicator(cs))}
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
@@ -63,38 +63,13 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                   <Button labelPosition="left" icon="external alternate" content="Open" as="a" href={service.url} />
                   <Button icon="clipboard" title="Copy URL" onClick={copy.bind(this, service.url)} />
                 </Button.Group>
-                <Button.Group circular={true} floated="right" disabled={true}>
-                  <Button
-                    basic={true}
-                    color="green"
-                    icon="play"
-                    title="Start" 
-                    name="start" 
-                    onClick={this.updateServiceStatus} 
-                  />
-                  <Button
-                    basic={true}
-                    color="orange"
-                    icon="stop"
-                    title="Stop" 
-                    name="stop"
-                    onClick={this.updateServiceStatus} 
-                  />
-                  <Button
-                    basic={true}
-                    color="red"
-                    icon="delete"
-                    title="Delete" 
-                    name="remove"
-                    onClick={this.updateServiceStatus} 
-                  />
-                </Button.Group>
+                {this.buttonStatus()}
               </Grid.Column>
               <Grid.Column width={8}>
                 {admin && 
                   <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" options={options} trigger={<React.Fragment />} />
                 }
-                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" />
+                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" disabled={true} />
               </Grid.Column>
             </Grid.Row>
           </Grid>
@@ -107,7 +82,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
     getServiceStatus(groupID, service.sub_service_id)
-      .then((status: IServiceStatus) => this.setState({ status }))
+      .then((status: IContainerStatus[]) => this.setState({ status }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
@@ -126,12 +101,48 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
 
   private statusIndicator = (cs: IContainerStatus) => {
     switch (true) {
-      case cs.state.startsWith("Up"):
-        return <Icon className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.name} is running`} />;
-      case cs.state.startsWith("Exited"):
-        return <Icon className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.name} is not running`} />;
+      case cs.State.startsWith("Up"):
+        return <Icon className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.Name} is running`} />;
+      case cs.State.startsWith("Exited"):
+        return <Icon className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.Name} is not running`} />;
       default:
-        return <Icon className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.name} : ${cs.state}`} />;
+        return <Icon className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.Name} : ${cs.State}`} />;
+    }
+  }
+
+  private buttonStatus = () => {
+    const { status } = this.state;
+
+    const buttonStart = <Button floated="right" basic={true} circular={true} color="green" icon="play" labelPosition="right" content="Start" name="start" onClick={this.updateServiceStatus} />;
+    const buttonStop = <Button floated="right" basic={true} circular={true} color="orange" icon="stop" labelPosition="right" content="Stop" name="stop" onClick={this.updateServiceStatus} />;
+    const buttonDelete = <Button floated="right" basic={true} circular={true} color="red" icon="delete" title="Remove containers" name="remove" onClick={this.updateServiceStatus} />;
+
+    switch (true) {
+      case status.length === 0:
+        return <Button
+          floated="right"
+          basic={true}
+          circular={true}
+          color="blue"
+          icon="sliders"
+          content="Create" 
+          name="start"
+          onClick={this.updateServiceStatus} 
+        />;
+      case status.length === status.filter(s => s.State.startsWith("Up")).length:
+        return (
+          <>
+            {buttonDelete}
+            {buttonStop}
+          </>
+        );
+      default:
+        return (
+          <>
+            {buttonDelete}
+            {buttonStart}
+          </>
+        );
     }
   }
 
@@ -141,4 +152,5 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
   };
 
   private handleClose = () => this.setState({ modalOpen: false });
+
 }

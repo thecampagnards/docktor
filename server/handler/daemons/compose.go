@@ -82,16 +82,13 @@ func updateDaemonComposeStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	splitFn := func(c rune) bool {
-		return c == ','
+	var services [][]byte
+
+	for _, s := range strings.Split(c.QueryParam("services"), ",") {
+		services = append(services, []byte(fmt.Sprintf("%s/assets/%s-compose.yml", dir, s)))
 	}
 
-	services := strings.FieldsFunc(c.QueryParam("services"), splitFn)
-	for i := 0; i < len(services); i++ {
-		services[i] = fmt.Sprintf("%s/assets/%s-compose.yml", dir, services[i])
-	}
-
-	err = updateComposeStatus(types.PROJECT_NAME, daemon, c.QueryParam("status"), services...)
+	err = updateComposeStatus(types.PROJECT_NAME, daemon, c.QueryParam("status"), services)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon":   daemon,
@@ -105,7 +102,7 @@ func updateDaemonComposeStatus(c echo.Context) error {
 	return c.JSON(http.StatusOK, c.QueryParam("status"))
 }
 
-func updateComposeStatus(project string, daemon types.Daemon, status string, services ...string) (err error) {
+func updateComposeStatus(project string, daemon types.Daemon, status string, services [][]byte) (err error) {
 	switch status {
 	case "start":
 		err = daemon.ComposeUp(project, "", services)
