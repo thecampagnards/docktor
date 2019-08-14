@@ -35,7 +35,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchUsers().then(users =>
       this.setState({ allUsers: users.map((u: IUser) => u.username) })
     );
@@ -126,9 +126,9 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
             <Table.Body>
               {members.map(user => (
                 <Table.Row key={user.username}>
-                  <Table.Cell width={8}>{`${user.firstname} ${
-                    user.lastname
-                  }  (${user.username})`}</Table.Cell>
+                  <Table.Cell
+                    width={8}
+                  >{`${user.firstname} ${user.lastname}  (${user.username})`}</Table.Cell>
                   <Table.Cell width={3}>
                     {this.computeGroupRole(user.username, admin)}
                   </Table.Cell>

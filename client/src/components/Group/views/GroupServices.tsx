@@ -70,7 +70,6 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         </Grid>
         
       </>
-      
     );
   }
 }

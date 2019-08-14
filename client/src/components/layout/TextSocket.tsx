@@ -23,7 +23,7 @@ export default class TextSocket extends React.Component<
 
   private ws: WebSocket;
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { wsPath } = this.props;
 
     const loc = window.location;

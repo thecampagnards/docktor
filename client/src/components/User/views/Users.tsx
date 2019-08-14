@@ -23,12 +23,11 @@ class Users extends React.Component<{}, IUsersStates> {
   };
   private searchFilter: string = "";
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchUsers()
-      .then(users =>
-        this.setState({ users, usersFiltered: users, isFetching: false })
-      )
-      .catch(error => this.setState({ error, isFetching: false }));
+      .then(users => this.setState({ users, usersFiltered: users }))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   }
 
   public render() {
@@ -106,9 +105,7 @@ class Users extends React.Component<{}, IUsersStates> {
                         as={Link}
                         to={path.groupsServices.replace(":groupID", group._id)}
                       >
-                        {
-                          group.name
-                        }
+                        {group.name}
                       </Button>
                     ))}
                 </Table.Cell>

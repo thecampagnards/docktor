@@ -38,11 +38,11 @@ class MarketModal extends React.Component<
   IMarketModalStates
 > {
   public state = {
-    selectedGroupID: "",
-    selectedSubServiceID: "",
-    serviceName: "",
+    selectedGroupID: this.props.groups.length === 1 ? this.props.groups[0]._id : "",
+    selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
+    serviceName: this.props.service.name,
     variables: [] as IServiceVariable[],
-    opts: new Map<string, any>([["auto-update", true]]),
+    opts: new Map<string, any>(),
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -51,16 +51,6 @@ class MarketModal extends React.Component<
     error: Error(),
     open: false
   };
-
-  public componentWillMount() {
-    const { groups, service } = this.props;
-    if (groups.length === 1) {
-      this.setState({ selectedGroupID: groups[0]._id })
-    }
-    if (service.sub_services.length === 1) {
-      this.setState({ selectedSubServiceID: service.sub_services[0]._id })
-    }
-  }
 
   public render() {
     const { open, stage } = this.state;

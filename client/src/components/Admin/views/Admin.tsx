@@ -16,15 +16,14 @@ interface IAdminStates {
 class Admin extends React.Component<{}, IAdminStates> {
   public state = {
     assets: new Map<string, string>(),
-    isFetching: false,
+    isFetching: true,
     isSuccess: false,
     error: Error(),
 
     filename: ""
   };
 
-  public componentWillMount() {
-    this.setState({ isFetching: true });
+  public componentDidMount() {
     fetchAssets()
       .then(assets => {
         assets = new Map(Object.entries(assets));

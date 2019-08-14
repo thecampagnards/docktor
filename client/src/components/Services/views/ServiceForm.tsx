@@ -31,12 +31,13 @@ class ServiceForm extends React.Component<
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { serviceID } = this.props.match.params;
     if (serviceID) {
       fetchService(serviceID)
-        .then(service => this.setState({ service, isFetching: false }))
-        .catch(error => this.setState({ error, isFetching: false }));
+        .then(service => this.setState({ service }))
+        .catch(error => this.setState({ error }))
+        .finally(() => this.setState({ isFetching: false }));
     } else {
       this.setState({
         service: { sub_services: [] as ISubService[] } as IService,

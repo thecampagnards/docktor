@@ -18,7 +18,7 @@ class Profile extends React.Component<{}, IProfileStates> {
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     this.refreshUser();
   }
 
@@ -40,16 +40,21 @@ class Profile extends React.Component<{}, IProfileStates> {
 
     return (
       <>
-        <ProfileCard user={profile} perm={profile.role === "admin"} refresh={this.refreshUser}/>
+        <ProfileCard
+          user={profile}
+          perm={profile.role === "admin"}
+          refresh={this.refreshUser}
+        />
       </>
     );
   }
 
   private refreshUser = () => {
     GetProfile()
-      .then(profile => this.setState({ profile, isFetching: false }))
-      .catch(error => this.setState({ error, isFetching: false }));
-  }
+      .then(profile => this.setState({ profile }))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  };
 }
 
 export default Profile;

@@ -42,7 +42,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     ? JSON.parse(this.localDisplayAllGroups)
     : false;
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchGroups(this.displayAll)
       .then(groups => this.setState({ groups }))
       .catch(error => this.setState({ error }))

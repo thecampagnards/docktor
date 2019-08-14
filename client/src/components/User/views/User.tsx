@@ -8,98 +8,118 @@ import { IProfile } from '../types/user';
 import ProfileCard from './ProfileCard';
 
 interface IUserStates {
-    user: IProfile;
-    isFetching: boolean;
-    error: Error;
+  user: IProfile;
+  isFetching: boolean;
+  error: Error;
+}
+
+interface IRouterProps {
+  userID: string;
+}
+
+class User extends React.Component<
+  RouteComponentProps<IRouterProps>,
+  IUserStates
+> {
+  public state = {
+    user: {} as IProfile,
+    isFetching: true,
+    error: Error()
+  };
+  private userID = "";
+
+  public componentDidMount() {
+    this.refreshUser();
   }
 
-  interface IRouterProps {
-      userID: string;
-  }
+  public render() {
+    const { user, isFetching, error } = this.state;
 
-  class User extends React.Component<RouteComponentProps<IRouterProps>, IUserStates> {
-    public state = {
-      user: {} as IProfile,
-      isFetching: true,
-      error: Error()
-    };
-    private userID = "";
-
-    public componentWillMount() {
-      this.refreshUser();
-    }
-
-    public render() {
-      const { user, isFetching, error } = this.state;
-
-      if (error.message) {
-        return (
-          <Message negative={true}>
-            <Message.Header>Failed to load profile with error :</Message.Header>
-            <p>{error.message}</p>
-          </Message>
-        );
-      }
-
-      if (isFetching) {
-        return <Loader active={true} />;
-      }
-
+    if (error.message) {
       return (
-        <>
-          <ProfileCard user={user} perm={true} refresh={this.refreshUser} />
-          <Grid>
-            <Grid.Column width={7} />
-            <Grid.Column textAlign="center" width={2}>
-              <Grid.Row>
-                <Button color="orange" icon={true} labelPosition='left' fluid={true}
-                    onClick={this.logAsUser}>
-                  <Icon name="user secret" /> Impersonate
-                </Button>
-              </Grid.Row>
-              <Grid.Row>
-                <Button color="red" icon={true} labelPosition='left' fluid={true}
-                    onClick={this.deleteUser}>
-                  <Icon name="user close" /> Remove user
-                </Button>
-              </Grid.Row>
-              <Grid.Row>
-                <Button color="green" icon={true} labelPosition='left' fluid={true}
-                    onClick={this.setGlobalPermissions} disabled={user.role === "admin"}>
-                  <Icon name="user plus" /> Set admin
-                </Button>
-              </Grid.Row>
-            </Grid.Column>
-            <Grid.Column width={7} />
-          </Grid>
-        </>
+        <Message negative={true}>
+          <Message.Header>Failed to load profile with error :</Message.Header>
+          <p>{error.message}</p>
+        </Message>
       );
     }
 
-    private refreshUser = () => {
-      const { userID } = this.props.match.params;
-      this.userID = userID;
-      fetchUser(userID)
-        .then(user => this.setState({ user, isFetching: false }))
-        .catch(error => this.setState({ error, isFetching: false }));
+    if (isFetching) {
+      return <Loader active={true} />;
     }
 
-    private deleteUser = () => {
-      deleteUser(this.userID)
-        .then(() => this.props.history.push(path.users))
-        .catch(error => this.setState({ error }));
-    }
-
-    private logAsUser = () => {
-      console.log("Impersonate " + this.userID);
-      // TODO
-    }
-
-    private setGlobalPermissions = () => {
-      setGlobalRole(this.userID, "admin")
-        .then(user => this.setState({ user }))
-        .catch(error => this.setState({ error }));
-    }
+    return (
+      <>
+        <ProfileCard user={user} perm={true} refresh={this.refreshUser} />
+        <Grid>
+          <Grid.Column width={7} />
+          <Grid.Column textAlign="center" width={2}>
+            <Grid.Row>
+              <Button
+                color="orange"
+                icon={true}
+                labelPosition="left"
+                fluid={true}
+                onClick={this.logAsUser}
+              >
+                <Icon name="user secret" /> Impersonate
+              </Button>
+            </Grid.Row>
+            <Grid.Row>
+              <Button
+                color="red"
+                icon={true}
+                labelPosition="left"
+                fluid={true}
+                onClick={this.deleteUser}
+              >
+                <Icon name="user close" /> Remove user
+              </Button>
+            </Grid.Row>
+            <Grid.Row>
+              <Button
+                color="green"
+                icon={true}
+                labelPosition="left"
+                fluid={true}
+                onClick={this.setGlobalPermissions}
+                disabled={user.role === "admin"}
+              >
+                <Icon name="user plus" /> Set admin
+              </Button>
+            </Grid.Row>
+          </Grid.Column>
+          <Grid.Column width={7} />
+        </Grid>
+      </>
+    );
   }
 
-  export default User;
+  private refreshUser = () => {
+    const { userID } = this.props.match.params;
+    this.userID = userID;
+    fetchUser(userID)
+      .then(user => this.setState({ user }))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  };
+
+  private deleteUser = () => {
+    deleteUser(this.userID)
+      .then(() => this.props.history.push(path.users))
+      .catch(error => this.setState({ error }));
+  };
+
+  private logAsUser = () => {
+    console.log("Impersonate " + this.userID);
+    // TODO
+  };
+
+  private setGlobalPermissions = () => {
+    setGlobalRole(this.userID, "admin")
+      .then(user => this.setState({ user }))
+      .catch(error => this.setState({ error }));
+  };
+}
+
+export default User;

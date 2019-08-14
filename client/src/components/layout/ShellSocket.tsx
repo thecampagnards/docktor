@@ -15,7 +15,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
   private term: Terminal;
   private ws: WebSocket;
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { wsPath } = this.props;
 
     const shellRed = "\x1B[1331m";

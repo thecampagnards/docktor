@@ -1,24 +1,14 @@
-import * as _ from "lodash";
-import * as React from "react";
-import { Link } from "react-router-dom";
+import * as _ from 'lodash';
+import * as React from 'react';
+import { Link } from 'react-router-dom';
 import {
-  Button,
-  ButtonProps,
-  Grid,
-  Icon,
-  IconProps,
-  Loader,
-  Message,
-  Search,
-  SearchProps,
-  SemanticShorthandItem,
-  Table,
-  Label
-} from "semantic-ui-react";
+    Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Search, SearchProps,
+    SemanticShorthandItem, Table
+} from 'semantic-ui-react';
 
-import { path } from "../../../constants/path";
-import { fetchDaemons } from "../actions/daemon";
-import { dockerStatus, IDaemon } from "../types/daemon";
+import { path } from '../../../constants/path';
+import { fetchDaemons } from '../actions/daemon';
+import { dockerStatus, IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
@@ -30,7 +20,7 @@ interface IDaemonsStates {
     tags: string[];
     status: dockerStatus[];
     search: string;
-  }
+  };
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
@@ -47,8 +37,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
   };
 
-  public componentWillMount() {
-    const localFilters = localStorage.getItem('daemonFilters');
+  public componentDidMount() {
+    const localFilters = localStorage.getItem("daemonFilters");
     if (localFilters) {
       this.setState({ filter: JSON.parse(localFilters) });
     }
@@ -61,18 +51,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       .finally(() => this.setState({ isFetching: false }));
   }
 
-  public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates){
-    localStorage.setItem('daemonFilters', JSON.stringify(nextState.filter));
+  public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates) {
+    localStorage.setItem("daemonFilters", JSON.stringify(nextState.filter));
   }
 
   public render() {
-    const {
-      daemons,
-      error,
-      isFetching,
-      index,
-      filter
-    } = this.state;
+    const { daemons, error, isFetching, index, filter } = this.state;
 
     if (!daemons) {
       return (
@@ -127,12 +111,18 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     // Pagination
     const resultsTotal = daemonsFiltered.length;
-    const resultsDisplayTop = index*20;
-    const resultsDisplayBot = Math.min(resultsDisplayTop+20, resultsTotal);
-    const indexLimit = Math.trunc((resultsTotal-1)/20);
-    const labelText = resultsTotal === 0 ?
-      "No result" : `Results ${resultsDisplayTop+1} to ${resultsDisplayBot} of ${resultsTotal}`;
-    daemonsFiltered = daemonsFiltered.slice(resultsDisplayTop, resultsDisplayBot);
+    const resultsDisplayTop = index * 20;
+    const resultsDisplayBot = Math.min(resultsDisplayTop + 20, resultsTotal);
+    const indexLimit = Math.trunc((resultsTotal - 1) / 20);
+    const labelText =
+      resultsTotal === 0
+        ? "No result"
+        : `Results ${resultsDisplayTop +
+            1} to ${resultsDisplayBot} of ${resultsTotal}`;
+    daemonsFiltered = daemonsFiltered.slice(
+      resultsDisplayTop,
+      resultsDisplayBot
+    );
 
     let tags: string[] = [];
     for (const d of daemons) {
@@ -274,9 +264,17 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           </Grid.Column>
           <Grid.Column width={4}>
             <Button.Group compact={true} fluid={true}>
-              <Button icon="chevron left" disabled={index === 0} onClick={this.prevPage} />
-              <Button disabled={true} content={`Page ${index+1}`} />
-              <Button icon="chevron right" disabled={index === indexLimit} onClick={this.nextPage} />
+              <Button
+                icon="chevron left"
+                disabled={index === 0}
+                onClick={this.prevPage}
+              />
+              <Button disabled={true} content={`Page ${index + 1}`} />
+              <Button
+                icon="chevron right"
+                disabled={index === indexLimit}
+                onClick={this.nextPage}
+              />
             </Button.Group>
           </Grid.Column>
           <Grid.Column width={6} />
@@ -328,8 +326,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     event: React.SyntheticEvent,
     { value }: SearchProps
   ) => {
-    const { filter } = this.state
-    filter.search = value as string
+    const { filter } = this.state;
+    filter.search = value as string;
     this.setState({ filter });
   };
 
@@ -357,13 +355,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     let { index } = this.state;
     index--;
     this.setState({ index });
-  }
+  };
 
   private nextPage = () => {
     let { index } = this.state;
     index++;
     this.setState({ index });
-  }
+  };
 }
 
 export default Daemons;

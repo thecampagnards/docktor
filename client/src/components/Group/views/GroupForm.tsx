@@ -21,18 +21,15 @@ interface IGroupStates {
 
 class Group extends React.Component<IGroupProps, IGroupStates> {
   public state = {
-    group: {} as IGroup,
+    group: this.props.group ? this.props.group : ({} as IGroup),
     daemons: [],
     isFetching: false,
     isSuccess: false,
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     fetchDaemons().then((daemons: IDaemon[]) => this.setState({ daemons }));
-    this.setState({
-      group: this.props.group ? this.props.group : ({} as IGroup)
-    });
   }
 
   public render() {

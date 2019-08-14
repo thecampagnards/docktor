@@ -25,7 +25,7 @@ class Home extends React.Component<{}, IHomeState> {
     error: Error()
   };
 
-  public componentWillMount() {
+  public componentDidMount() {
     const hidden = JSON.parse(localStorage.getItem("home") || "[]") as string[];
 
     fetchHome()

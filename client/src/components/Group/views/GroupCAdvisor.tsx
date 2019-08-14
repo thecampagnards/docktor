@@ -28,7 +28,7 @@ class GroupCAdvisor extends React.Component<
 
   private refreshIntervalId: NodeJS.Timeout;
 
-  public componentWillMount() {
+  public componentDidMount() {
     const { group } = this.props;
 
     const fetch = () => {
