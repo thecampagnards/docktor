@@ -1,10 +1,12 @@
 package groups
 
 import (
-	"docktor/server/storage"
-	"docktor/server/types"
+	"fmt"
 	"net/http"
 	"strconv"
+
+	"docktor/server/storage"
+	"docktor/server/types"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -61,7 +63,7 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{file})
+	err = daemon.ComposeUp(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), group.Subnet, [][]byte{file})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
