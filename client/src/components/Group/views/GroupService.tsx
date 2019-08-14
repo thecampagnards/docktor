@@ -4,7 +4,7 @@ import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps } from 'semantic
 import { IGroupService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
 import { getServiceStatus, updateServiceStatus } from '../actions/group';
-import { IServiceStatus, IContainerStatus } from '../types/group';
+import { IContainerStatus } from '../types/group';
 
 interface IGroupServiceProps {
   groupID: string;
@@ -35,7 +35,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
 
   public render() {
     const { service, admin } = this.props;
-    const { status, modalOpen, content, error, isFetching } = this.state;
+    const { status } = this.state;
     const options = [
       { key: 1, text: "Edit service", value: 1 },
       { key: 2, text: "Delete service", value: 2 },
@@ -125,6 +125,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
           circular={true}
           color="blue"
           icon="sliders"
+          labelPosition="right"
           content="Create" 
           name="start"
           onClick={this.updateServiceStatus} 

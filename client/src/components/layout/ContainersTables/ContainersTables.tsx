@@ -51,16 +51,9 @@ export default class ContainerTable extends React.Component<
     // filter containers
     let containersFiltered =
       containers &&
-      containers.filter(
-        c =>
-          (c.Name ? [c.Name] : c.Names).filter(n =>
-            n.toLowerCase().includes(searchFilter.toLowerCase())
-          ).length > 0
-      );
-
-    containersFiltered = containersFiltered.sort((a, b) =>
-      a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0
-    );
+      containers
+        .filter(c => (c.Name ? [c.Name] : c.Names).filter(n => n.toLowerCase().includes(searchFilter.toLowerCase())).length > 0)
+        .sort((a, b) => a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0);
 
     return (
       <>
