@@ -37,13 +37,6 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	var serviceGroup = types.GroupService{
-		SubServiceID: subService.ID,
-	}
-
-	serviceGroup.Name = c.QueryParam("service-name")
-	serviceGroup.AutoUpdate, _ = strconv.ParseBool(c.QueryParam("auto-update"))
-
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -54,7 +47,9 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	file, err := group.GetComposeService(daemon, subService, variables)
+	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
+
+	serviceGroup, err := subService.ConvertToGroupService(daemon, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -63,7 +58,9 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	err = daemon.ComposeUp(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), group.Subnet, [][]byte{file})
+	serviceGroup.Name = c.QueryParam("service-name")
+
+	err = daemon.ComposeUp(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -71,10 +68,6 @@ func createServiceGroup(c echo.Context) error {
 		}).Error("Error when starting subservice")
 		return err
 	}
-
-	serviceGroup.Variables = variables
-	serviceGroup.File = string(file)
-	serviceGroup.URL = daemon.Host
 
 	group.Services = append(group.Services, serviceGroup)
 
@@ -117,11 +110,11 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	switch c.QueryParam("status") {
 	case "start":
-		err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{[]byte(serviceGroup.File)})
+		err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{serviceGroup.File})
 	case "stop":
-		err = daemon.ComposeStop(group.Name, [][]byte{[]byte(serviceGroup.File)})
+		err = daemon.ComposeStop(group.Name, [][]byte{serviceGroup.File})
 	case "remove":
-		err = daemon.ComposeRemove(group.Name, [][]byte{[]byte(serviceGroup.File)})
+		err = daemon.ComposeRemove(group.Name, [][]byte{serviceGroup.File})
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
@@ -169,7 +162,7 @@ func getServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	info, err := daemon.ComposeStatus(group.Name, [][]byte{[]byte(serviceGroup.File)})
+	info, err := daemon.ComposeStatus(group.Name, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,

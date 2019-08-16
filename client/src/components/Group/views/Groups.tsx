@@ -1,10 +1,12 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
+import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Divider, Dropdown, DropdownProps, Grid, Label, Loader, Message,
     Search, SearchProps, Segment
 } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 import { fetchDaemons } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
@@ -85,7 +87,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       : [];
 
     const resultsTotal = groupsFiltered.length;
-    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, defaultDisplayNb);
+    const groupsDisplayed = expanded
+      ? groupsFiltered
+      : groupsFiltered.slice(0, defaultDisplayNb);
 
     return (
       <>
@@ -118,8 +122,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               disabled={isFetching}
             />
           </Grid.Column>
-          <Grid.Column width={6}>
-            <Segment compact={true} color={this.displayAll && "blue"} floated="right">
+          <Grid.Column width={isAdmin ? 4: 6}>
+            <Segment
+              compact={true}
+              color={this.displayAll && "blue"}
+              floated="right"
+            >
               <Checkbox
                 toggle={true}
                 defaultChecked={this.displayAll}
@@ -129,9 +137,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               />
             </Segment>
           </Grid.Column>
-          {/*
-          <Grid.Column width={2}>
-            {isAdmin && (
+          {isAdmin && (
+            <Grid.Column width={2}>
               <Button
                 basic={true}
                 color="blue"
@@ -142,39 +149,46 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
                 content="Create group"
                 labelPosition="left"
               />
-            )}
-          </Grid.Column>
-          */}
+            </Grid.Column>
+          )}
         </Grid>
         <Divider />
-        {isFetching ? <Loader active={true} inline="centered" content="Loading groups..." /> :
-        <>
-          <Grid>
-            {groupsDisplayed.map((group: IGroup) => (
-              <Grid.Column key={group._id} width={4}>
-                <GroupCard
-                  group={group}
-                  admin={isAdmin}
-                  groupAdmin={isAdmin || group.admins.includes(username)}
-                  displayButtons={!this.displayAll}
-                />
+        {isFetching ? (
+          <Loader active={true} inline="centered" content="Loading groups..." />
+        ) : (
+          <>
+            <Grid>
+              {groupsDisplayed.map((group: IGroup) => (
+                <Grid.Column key={group._id} width={4}>
+                  <GroupCard
+                    group={group}
+                    admin={isAdmin}
+                    groupAdmin={isAdmin || group.admins.includes(username)}
+                    displayButtons={!this.displayAll}
+                  />
+                </Grid.Column>
+              ))}
+            </Grid>
+            <Divider />
+            <Grid>
+              <Grid.Column width={7}>
+                <Label>{`Total : ${resultsTotal}`}</Label>
               </Grid.Column>
-            ))}
-          </Grid>
-          <Divider />
-          <Grid>
-            <Grid.Column width={7}>
-              <Label>{`Total : ${resultsTotal}`}</Label>
-            </Grid.Column>
-            <Grid.Column width={2}>
-              {resultsTotal > defaultDisplayNb && (
-                <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
-              )}
-            </Grid.Column>
-            <Grid.Column width={7} />
-          </Grid>
-        </>
-        }
+              <Grid.Column width={2}>
+                {resultsTotal > defaultDisplayNb && (
+                  <Button
+                    circular={true}
+                    compact={true}
+                    fluid={true}
+                    content={expanded ? "Display less" : "Display more"}
+                    onClick={this.handleExpand}
+                  />
+                )}
+              </Grid.Column>
+              <Grid.Column width={7} />
+            </Grid>
+          </>
+        )}
       </>
     );
   }

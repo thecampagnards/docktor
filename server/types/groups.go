@@ -1,10 +1,12 @@
 package types
 
 import (
+	"fmt"
+	"reflect"
+
 	"github.com/docker/docker/api/types"
 	"github.com/docker/libcompose/config"
 	"github.com/globalsign/mgo/bson"
-	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -37,7 +39,7 @@ type GroupDocker struct {
 type GroupService struct {
 	SubServiceID bson.ObjectId     `json:"sub_service_id,omitempty" bson:"sub_service_id,omitempty"`
 	Name         string            `json:"name" bson:"name" validate:"required"`
-	File         string            `json:"file,omitempty"  bson:"file" validate:"required"`
+	File         []byte            `json:"file,omitempty"  bson:"file" validate:"required"`
 	Variables    []ServiceVariable `json:"variables" bson:"-"`
 	URL          string            `json:"url" bson:"url" validate:"required"`
 	AutoUpdate   bool              `json:"auto_update" bson:"auto_update"`
@@ -157,70 +159,50 @@ func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 	return nil
 }
 
-// GetComposeService this function retrun the subservice compose file
-func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceVariables []ServiceVariable) (service []byte, err error) {
+// ConvertToGroupService this function convert a sub service to a service group
+func (ss *SubService) ConvertToGroupService(daemon Daemon, group Group, autoUpdate bool) (groupService GroupService, err error) {
+
+	groupService.Variables = ss.Variables
+	groupService.SubServiceID = ss.ID
+	groupService.URL = daemon.Host
 
 	variables := map[string]interface{}{
-		"Group":  g,
+		"Group":  group,
 		"Daemon": daemon,
 	}
 
 	// Copy of variables
-	for _, v := range serviceVariables {
+	for _, v := range ss.Variables {
 		variables[v.Name] = v.Value
 	}
 
-	service, err = subService.ConvertSubService(variables)
+	service, err := ss.ConvertSubService(variables)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"subServiceName": subService.Name,
-			"groupName":      g.Name,
-			"daemonHost":     daemon.Host,
-			"variables":      serviceVariables,
-			"error":          err,
-		}).Error("Error when converting sub service")
-		return
+		return groupService, fmt.Errorf("Error when converting sub service: %s", err)
 	}
 
 	var config config.Config
 	if err = yaml.Unmarshal(service, &config); err != nil {
-		log.WithFields(log.Fields{
-			"service": string(service),
-			"error":   err,
-		}).Error("Error when unmarshal service")
-		return
+		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
-	/*
-		if serviceGroup.AutoUpdate {
-			// Use https://github.com/v2tec/watchtower
-			log.WithFields(log.Fields{
-				"config": config,
-			}).Infof("Add auto update for %s with watchtower", subService.Name)
-			for key := range config.Services {
-				if labels, ok := config.Services[key]["labels"]; ok {
-					v := reflect.ValueOf(labels)
-					config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
-				} else {
-					config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
-				}
+
+	if autoUpdate {
+		// Use https://github.com/v2tec/watchtower
+		for key := range config.Services {
+			if labels, ok := config.Services[key]["labels"]; ok {
+				v := reflect.ValueOf(labels)
+				config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
+			} else {
+				config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
 			}
-			log.WithFields(log.Fields{
-				"config": config,
-			}).Infof("Configuration updated for %s", subService.Name)
 		}
-	*/
-	service, err = yaml.Marshal(config)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"config": config,
-			"error":  err,
-		}).Error("Error when marshal config")
-		return
+		groupService.AutoUpdate = autoUpdate
 	}
 
-	log.WithFields(log.Fields{
-		"service": string(service),
-	}).Info("Sub service converted")
+	groupService.File, err = yaml.Marshal(config)
+	if err != nil {
+		return groupService, fmt.Errorf("Error when marshal config: %s", err)
+	}
 
-	return
+	return groupService, nil
 }

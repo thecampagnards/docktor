@@ -69,6 +69,7 @@ func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 	return
 }
 
+// if files is a []string this has to be the compose file path array
 func getComposeProjectContext(projectName string, files interface{}) (con project.Context, err error) {
 	con.ProjectName = projectName
 

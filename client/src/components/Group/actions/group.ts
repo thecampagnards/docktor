@@ -83,7 +83,7 @@ export const deployService = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/create/${serviceID}${"?service-name=" + serviceName}${opt && "&" + opt}`,
+    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt && "&" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
