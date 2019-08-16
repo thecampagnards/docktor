@@ -1,5 +1,6 @@
 import {
-    AuthAction, LoginFailure, LoginRequest, LoginSuccess, LogoutSuccess, RegisterRequest, RegisterSuccess, RegisterFailure
+    AuthAction, LoginFailure, LoginSuccess, LogoutSuccess, RegisterFailure, RegisterRequest,
+    RegisterSuccess
 } from '../actions/user';
 import { ILoginState } from '../types/user';
 
@@ -13,11 +14,6 @@ export default (
   action: AuthAction
 ) => {
   switch (action.type) {
-    case LoginRequest:
-      return {
-        ...state,
-        isFetching: true
-      };
     case LoginSuccess:
       return {
         ...state,
@@ -26,6 +22,7 @@ export default (
         username: action.username,
         isAdmin: action.isAdmin
       };
+    case RegisterFailure:
     case LoginFailure:
       return {
         ...state,
@@ -41,24 +38,18 @@ export default (
         isAdmin: false
       };
     case RegisterRequest:
-    return {
-      ...state,
-      isFetching: true
-    };
-  case RegisterSuccess:
-    return {
-      ...state,
-      error: "",
-      isFetching: false,
-      username: action.username,
-      isAdmin: false
-    };
-  case RegisterFailure:
-    return {
-      ...state,
-      error: action.message,
-      isFetching: false
-    };
+      return {
+        ...state,
+        isFetching: true
+      };
+    case RegisterSuccess:
+      return {
+        ...state,
+        error: "",
+        isFetching: false,
+        username: action.username,
+        isAdmin: false
+      };
     default:
       return state;
   }

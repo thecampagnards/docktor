@@ -305,7 +305,7 @@ class Images extends React.Component<{}, IImagesStates> {
     event.preventDefault();
 
     const { images, imageKey } = this.state;
-    delete images[imageKey].commands[commandKey];
+    images[imageKey].commands = images[imageKey].commands.splice(commandKey, 1);
     this.setState({ images });
   };
 

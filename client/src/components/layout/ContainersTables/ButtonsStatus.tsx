@@ -89,26 +89,7 @@ export default class ButtonsStatus extends React.Component<
             }
           />
         );
-      case status.Removed.includes(container.State):
-        return (
-          <Popup
-            content={error.message}
-            disabled={!error.message}
-            inverted={true}
-            trigger={
-              <Button
-                fluid={true}
-                loading={isFetching}
-                icon={true}
-                labelPosition="left"
-                color="blue"
-                onClick={this.handleOnClick.bind(this, "create")}
-              >
-                <Icon name="sliders" /> CREATE
-              </Button>
-            }
-          />
-        );
+      // include status.Removed.includes(container.State)
       default:
         return (
           <Popup

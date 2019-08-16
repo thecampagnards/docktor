@@ -168,7 +168,7 @@ export default class Commands extends React.Component<
     });
 
     execDockerCommand(
-      daemon!._id,
+      daemon._id,
       container.Names[0] || container.Name,
       command._id,
       variables

@@ -56,7 +56,7 @@ func parseFlags() {
 	flag.Parse()
 }
 
-func configure(e *echo.Echo) {
+func configure() {
 	l, err := log.ParseLevel(logLevel)
 	if err != nil {
 		log.Fatalf("Error when parsing log level: %s", err)
@@ -106,10 +106,9 @@ func configure(e *echo.Echo) {
 
 func main() {
 	parseFlags()
+	configure()
 
 	e := echo.New()
-	configure(e)
-
 	e.Logger = customMiddleware.Logger{Logger: log.StandardLogger()}
 	e.Use(customMiddleware.Hook())
 	e.Use(middleware.Recover())

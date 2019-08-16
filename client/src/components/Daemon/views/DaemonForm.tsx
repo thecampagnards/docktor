@@ -259,7 +259,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     { name, value, type }: any
   ) => {
     if (type === "number") {
-      value = parseInt(value, undefined);
+      value = parseInt(value);
     } else if (name === "tags") {
       value = value.split(",");
     }

@@ -84,7 +84,7 @@ class MarketModal extends React.Component<
             floated="right"
             icon={true}
             as={Link}
-            to={path.servicesEdit.replace(":serviceID", service._id!)}
+            to={path.servicesEdit.replace(":serviceID", service._id)}
           >
             <Icon name="edit" />
           </Button>
@@ -194,7 +194,7 @@ class MarketModal extends React.Component<
       selectedSubServiceID,
       serviceName
     } = this.state;
-    const ss = service.sub_services!.find(
+    const ss = service.sub_services.find(
       s => s._id === selectedSubServiceID
     ) as ISubService;
 
@@ -348,7 +348,7 @@ class MarketModal extends React.Component<
       variables,
       opts
     } = this.state;
-    
+
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
       deployService(selectedGroupID, selectedSubServiceID, serviceName, variables, opts)

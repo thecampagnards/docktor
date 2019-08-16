@@ -241,7 +241,7 @@ class ServiceForm extends React.Component<
     event.preventDefault();
 
     const service = this.state.service;
-    service.sub_services!.splice(key, 1);
+    service.sub_services.splice(key, 1);
     this.setState({ service });
   };
 
