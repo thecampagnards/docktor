@@ -42,7 +42,7 @@ class MarketModal extends React.Component<
     selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
     serviceName: this.props.service.name,
     variables: [] as IServiceVariable[],
-    opts: new Map<string, any>(),
+    opts: new Map<string, any>([["auto-update", true]]),
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
