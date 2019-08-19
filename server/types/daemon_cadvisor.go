@@ -2,7 +2,6 @@ package types
 
 import (
 	"errors"
-	"fmt"
 	"strings"
 
 	client "github.com/google/cadvisor/client"
@@ -56,9 +55,7 @@ func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
 	// compute CPU usage
 	if len(stats) > 1 {
 		inst := stats[n-2].CpuInst.Usage.Total
-		fmt.Printf("CPU inst : %v nanocores/s \n", inst)
 		ratio := float32(inst) / float32(machineInfo.NumCores) / 1000000000
-		fmt.Printf("CPU ratio : %v \n", ratio)
 		usage.CPU = int(ratio * 100)
 	}
 
@@ -66,9 +63,7 @@ func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
 	{
 		capacity := machineInfo.MemoryCapacity
 		inst := stats[n-1].Memory.Usage
-		fmt.Printf("RAM capa : %v, RAM inst : %v \n", capacity, inst)
 		ratio := float32(inst) / float32(capacity)
-		fmt.Printf("RAM ratio : %v \n", ratio)
 		percent := ratio * 100
 		usage.RAM = int(percent)
 	}
