@@ -58,15 +58,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public render() {
     const { daemons, error, isFetching, index, filter } = this.state;
 
-    if (!daemons) {
-      return (
-        <>
-          <h2>Daemons</h2>
-          <p>No data yet ...</p>;
-        </>
-      );
-    }
-
     if (error.message) {
       return (
         <>

@@ -31,16 +31,7 @@ class Users extends React.Component<{}, IUsersStates> {
   }
 
   public render() {
-    const { users, usersFiltered, error, isFetching } = this.state;
-
-    if (!users) {
-      return (
-        <>
-          <h2>Users</h2>
-          <p>No data yet ...</p>;
-        </>
-      );
-    }
+    const { usersFiltered, error, isFetching } = this.state;
 
     if (error.message) {
       return (
