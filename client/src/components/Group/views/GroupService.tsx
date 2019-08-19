@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps } from 'semantic-ui-react';
+import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal, DropdownProps } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
@@ -15,7 +15,6 @@ interface IGroupServiceProps {
 interface IGroupServiceState {
   status: IContainerStatus[];
   modalOpen: boolean;
-  content: string;
   error: Error;
   isFetching: boolean;
 }
@@ -24,9 +23,8 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
   public state = {
     status: [] as IContainerStatus[],
     modalOpen: false,
-    content: "",
     error: Error(),
-    isFetching: true
+    isFetching: false,
   }
 
   public componentDidMount() {
@@ -35,7 +33,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
 
   public render() {
     const { service, admin } = this.props;
-    const { status } = this.state;
+    const { status, modalOpen } = this.state;
     const options = [
       { key: 1, text: "Edit service", value: 1 },
       { key: 2, text: "Delete service", value: 2 },
@@ -67,9 +65,21 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
               </Grid.Column>
               <Grid.Column width={8}>
                 {admin && 
-                  <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" options={options} trigger={<React.Fragment />} />
+                  <Dropdown
+                    className="button icon float-right margin-left"
+                    basic={true}
+                    closeOnChange={true}
+                    icon="ellipsis vertical"
+                    options={options}
+                    trigger={<React.Fragment />}
+                    onClick={this.handleDropdown}
+                  />
                 }
                 <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" disabled={true} />
+                <Modal open={modalOpen} onClose={this.handleClose}>
+                  <Modal.Header icon="file alternate outline" content={`${service.name} compose file`} />
+                  <Modal.Content>{service.file}</Modal.Content>
+                </Modal>
               </Grid.Column>
             </Grid.Row>
           </Grid>
@@ -94,7 +104,10 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
     updateServiceStatus(groupID, service.sub_service_id, name)
-      .then(response => console.log("Service " + service.name + " : Status updated to " + name))
+      .then(response => {
+        console.log("Service " + service.name + " : Status updated to " + name);
+        this.refreshStatus();
+      })
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
@@ -111,11 +124,11 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
   }
 
   private buttonStatus = () => {
-    const { status } = this.state;
+    const { status, isFetching } = this.state;
 
-    const buttonStart = <Button floated="right" basic={true} circular={true} color="green" icon="play" labelPosition="right" content="Start" name="start" onClick={this.updateServiceStatus} />;
-    const buttonStop = <Button floated="right" basic={true} circular={true} color="orange" icon="stop" labelPosition="right" content="Stop" name="stop" onClick={this.updateServiceStatus} />;
-    const buttonDelete = <Button floated="right" basic={true} circular={true} color="red" icon="delete" title="Remove containers" name="remove" onClick={this.updateServiceStatus} />;
+    const buttonStart = <Button floated="right" basic={true} circular={true} color="green" icon="play" labelPosition="right" loading={isFetching} content="Start" name="start" onClick={this.updateServiceStatus} />;
+    const buttonStop = <Button floated="right" basic={true} circular={true} color="orange" icon="stop" labelPosition="right" loading={isFetching} content="Stop" name="stop" onClick={this.updateServiceStatus} />;
+    const buttonDelete = <Button floated="right" basic={true} circular={true} color="red" icon="delete" loading={isFetching} title="Remove containers" name="remove" onClick={this.updateServiceStatus} />;
 
     switch (true) {
       case status.length === 0:
@@ -147,9 +160,22 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     }
   }
 
+  private handleDropdown = (
+    e: React.SyntheticEvent<HTMLElement, Event>,
+    { value } : DropdownProps
+  ) => {
+    switch (value) {
+      case 1:
+        this.handleOpen();
+        break;
+      default:
+        return;
+    }
+  }
+
   private handleOpen = () => {
     const { service } = this.props;
-    this.setState({ modalOpen: true, content: service.file });
+    this.setState({ modalOpen: true });
   };
 
   private handleClose = () => this.setState({ modalOpen: false });
