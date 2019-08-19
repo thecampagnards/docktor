@@ -34,7 +34,7 @@ require (
 	github.com/kr/pretty v0.1.0 // indirect
 	github.com/kr/pty v1.1.8 // indirect
 	github.com/labstack/echo/v4 v4.1.9
-	github.com/labstack/gommon v0.2.9
+	github.com/labstack/gommon v0.3.0
 	github.com/mwitkow/go-conntrack v0.0.0-20190716064945-2f068394615f // indirect
 	github.com/namsral/flag v0.0.0-20170814194028-67f268f20922
 	github.com/opencontainers/go-digest v1.0.0-rc1 // indirect
