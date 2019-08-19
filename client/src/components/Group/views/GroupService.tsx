@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal, DropdownProps, Menu } from 'semantic-ui-react';
+import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
