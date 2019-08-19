@@ -78,7 +78,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                     <CodeMirror
                       value={file}
                       options={{
-                        mode: "markdown",
+                        mode: "yaml",
                         theme: "material",
                         lineNumbers: true
                       }}

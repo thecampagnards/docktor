@@ -38,7 +38,7 @@ class MarketModal extends React.Component<
   IMarketModalStates
 > {
   public state = {
-    selectedGroupID: this.props.groups.length === 1 ? this.props.groups[0]._id : "",
+    selectedGroupID: this.props.groups && this.props.groups.length === 1 ? this.props.groups[0]._id : "",
     selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
     serviceName: this.props.service.name,
     variables: [] as IServiceVariable[],

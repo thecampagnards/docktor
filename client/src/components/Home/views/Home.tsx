@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Card, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal, Segment
+    Button, Card, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal, Segment, Divider
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -70,7 +70,11 @@ class Home extends React.Component<{}, IHomeState> {
       return (
         <>
           <h2>Home</h2>
-          No group available
+          <Divider />
+          <Message info={true}>
+            <Message.Header>No group available</Message.Header>
+            <Message.Content>You are not assigned to any CDK environment. Follow the user manual to get started.</Message.Content>
+          </Message>
         </>
       );
     }

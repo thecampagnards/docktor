@@ -51,7 +51,7 @@ class Market extends React.Component<
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
     const url = new URL(
-      "http://lol.xd" +
+      "http://dummy.url" +
         this.props.location.pathname +
         this.props.location.search
     );

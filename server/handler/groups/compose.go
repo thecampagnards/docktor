@@ -108,13 +108,15 @@ func updateServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	servicePrefix := fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name)
+
 	switch c.QueryParam("status") {
 	case "start":
-		err = daemon.ComposeUp(group.Name, group.Subnet, [][]byte{serviceGroup.File})
+		err = daemon.ComposeUp(servicePrefix, group.Subnet, [][]byte{serviceGroup.File})
 	case "stop":
-		err = daemon.ComposeStop(group.Name, [][]byte{serviceGroup.File})
+		err = daemon.ComposeStop(servicePrefix, [][]byte{serviceGroup.File})
 	case "remove":
-		err = daemon.ComposeRemove(group.Name, [][]byte{serviceGroup.File})
+		err = daemon.ComposeRemove(servicePrefix, [][]byte{serviceGroup.File})
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
@@ -126,10 +128,10 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"groupName":  group.Name,
-			"daemonHost": daemon.Host,
-			"service":    serviceGroup.File,
-			"error":      err,
+			"servicePrefix": servicePrefix,
+			"daemonHost":    daemon.Host,
+			"service":       serviceGroup.File,
+			"error":         err,
 		}).Error("Error when compose up")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
