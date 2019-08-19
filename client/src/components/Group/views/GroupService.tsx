@@ -1,10 +1,11 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal, DropdownProps } from 'semantic-ui-react';
+import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal, DropdownProps, Menu } from 'semantic-ui-react';
 
 import { IGroupService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
 import { getServiceStatus, updateServiceStatus } from '../actions/group';
 import { IContainerStatus } from '../types/group';
+import { UnControlled as CodeMirror } from 'react-codemirror2';
 
 interface IGroupServiceProps {
   groupID: string;
@@ -17,6 +18,7 @@ interface IGroupServiceState {
   modalOpen: boolean;
   error: Error;
   isFetching: boolean;
+  file: string;
 }
 
 export default class GroupService extends React.Component<IGroupServiceProps, IGroupServiceState> {
@@ -25,6 +27,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     modalOpen: false,
     error: Error(),
     isFetching: false,
+    file: window.atob(this.props.service.file)
   }
 
   public componentDidMount() {
@@ -33,11 +36,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
 
   public render() {
     const { service, admin } = this.props;
-    const { status, modalOpen } = this.state;
-    const options = [
-      { key: 1, text: "Edit service", value: 1 },
-      { key: 2, text: "Delete service", value: 2 },
-    ];
+    const { status, modalOpen, file } = this.state;
 
     return (
       <Card fluid={true}>
@@ -65,20 +64,27 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
               </Grid.Column>
               <Grid.Column width={8}>
                 {admin && 
-                  <Dropdown
-                    className="button icon float-right margin-left"
-                    basic={true}
-                    closeOnChange={true}
-                    icon="ellipsis vertical"
-                    options={options}
-                    trigger={<React.Fragment />}
-                    onClick={this.handleDropdown}
-                  />
+                    <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" >
+                      <Dropdown.Menu>
+                        <Dropdown.Item onClick={this.handleOpen}>Edit service</Dropdown.Item>
+                        <Dropdown.Item>Delete service</Dropdown.Item>
+                      </Dropdown.Menu>
+                    </Dropdown>
                 }
                 <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" disabled={true} />
-                <Modal open={modalOpen} onClose={this.handleClose}>
+                <Modal size="large" open={modalOpen} onClose={this.handleClose}>
                   <Modal.Header icon="file alternate outline" content={`${service.name} compose file`} />
-                  <Modal.Content>{service.file}</Modal.Content>
+                  <Modal.Content>
+                    <CodeMirror
+                      value={file}
+                      options={{
+                        mode: "markdown",
+                        theme: "material",
+                        lineNumbers: true
+                      }}
+                      autoCursor={false}
+                    />
+                  </Modal.Content>
                 </Modal>
               </Grid.Column>
             </Grid.Row>
@@ -139,6 +145,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
           color="blue"
           icon="sliders"
           labelPosition="right"
+          loading={isFetching}
           content="Create" 
           name="start"
           onClick={this.updateServiceStatus} 
@@ -160,24 +167,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     }
   }
 
-  private handleDropdown = (
-    e: React.SyntheticEvent<HTMLElement, Event>,
-    { value } : DropdownProps
-  ) => {
-    switch (value) {
-      case 1:
-        this.handleOpen();
-        break;
-      default:
-        return;
-    }
-  }
-
-  private handleOpen = () => {
-    const { service } = this.props;
-    this.setState({ modalOpen: true });
-  };
-
+  private handleOpen = () => this.setState({ modalOpen: true });
   private handleClose = () => this.setState({ modalOpen: false });
 
 }
