@@ -60,7 +60,7 @@ func createServiceGroup(c echo.Context) error {
 
 	serviceGroup.Name = c.QueryParam("service-name")
 
-	err = daemon.ComposeUp(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), group.Subnet, [][]byte{serviceGroup.File})
+	err = daemon.ComposeUp(group.Name, serviceGroup.Name, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -108,15 +108,15 @@ func updateServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	servicePrefix := fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name)
+	contextName := fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name)
 
 	switch c.QueryParam("status") {
 	case "start":
-		err = daemon.ComposeUp(servicePrefix, group.Subnet, [][]byte{serviceGroup.File})
+		err = daemon.ComposeUp(group.Name, serviceGroup.Name, group.Subnet, [][]byte{serviceGroup.File})
 	case "stop":
-		err = daemon.ComposeStop(servicePrefix, [][]byte{serviceGroup.File})
+		err = daemon.ComposeStop(contextName, [][]byte{serviceGroup.File})
 	case "remove":
-		err = daemon.ComposeRemove(servicePrefix, [][]byte{serviceGroup.File})
+		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
@@ -128,10 +128,10 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"servicePrefix": servicePrefix,
-			"daemonHost":    daemon.Host,
-			"service":       serviceGroup.File,
-			"error":         err,
+			"contextName": contextName,
+			"daemonHost":  daemon.Host,
+			"service":     serviceGroup.File,
+			"error":       err,
 		}).Error("Error when compose up")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
@@ -164,7 +164,7 @@ func getServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	info, err := daemon.ComposeStatus(group.Name, [][]byte{serviceGroup.File})
+	info, err := daemon.ComposeStatus(fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name), [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,
