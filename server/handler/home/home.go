@@ -1,9 +1,11 @@
 package home
 
 import (
+	"net/http"
+	"sync"
+
 	"docktor/server/storage"
 	"docktor/server/types"
-	"net/http"
 
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
@@ -21,34 +23,57 @@ func getHomePage(c echo.Context) error {
 	}
 
 	response := types.HomePage{User: user.UserLight, Environments: []types.Environment{}}
+	var wg sync.WaitGroup
 
 	for _, group := range g {
-		env := types.Environment{
-			Group: group.GroupLight,
-		}
 
-		d, err := db.Daemons().FindByID(group.Daemon.Hex())
-		if err != nil {
-			log.WithError(err).WithField("daemonId", group.Daemon.Hex()).Error("Error while retreiving daemon by ID")
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
+		wg.Add(1)
+		go func(group types.Group) {
+			defer wg.Done()
 
-		env.Daemon = d.DaemonLight
+			env := types.Environment{
+				Group: group.GroupLight,
+			}
 
-		env.Resources, err = d.CAdvisorInfoFilterFs(group.Name)
-		if err != nil {
-			log.WithError(err).WithField("daemon", d.Name).Error("Error while getting machine infos")
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
+			d, err := db.Daemons().FindByID(group.Daemon.Hex())
+			if err != nil {
+				log.WithError(err).WithField("daemonId", group.Daemon.Hex()).Error("Error while retreiving daemon by ID")
+				return
+			}
 
-		env.Containers, err = d.GetContainersStartByName(group.Name)
-		if err != nil {
-			log.WithError(err).WithField("daemon", d.Name).Error("Error while getting containers status")
-			return c.JSON(http.StatusInternalServerError, err.Error())
-		}
+			env.Daemon = d.DaemonLight
 
-		response.Environments = append(response.Environments, env)
+			var wggroup sync.WaitGroup
+
+			wggroup.Add(1)
+			go func() {
+				defer wggroup.Done()
+
+				env.Resources, err = d.CAdvisorInfoFilterFs(group.Name)
+				if err != nil {
+					log.WithError(err).WithField("daemon", d.Name).Error("Error while getting machine infos")
+					return
+				}
+			}()
+
+			wggroup.Add(1)
+			go func() {
+				defer wggroup.Done()
+
+				env.Containers, err = d.GetContainersStartByName(group.Name)
+				if err != nil {
+					log.WithError(err).WithField("daemon", d.Name).Error("Error while getting containers status")
+					return
+				}
+			}()
+
+			wggroup.Wait()
+
+			response.Environments = append(response.Environments, env)
+		}(group)
 	}
+
+	wg.Wait()
 
 	return c.JSON(http.StatusOK, response)
 }
