@@ -6,7 +6,7 @@ import { Message, Tab, TabProps } from 'semantic-ui-react';
 
 import { path as constPath } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
-import { fetchDaemons } from '../../Daemon/actions/daemon';
+import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
 import { fetchGroup } from '../actions/group';
 import { IGroup } from '../types/group';
@@ -31,7 +31,6 @@ interface IGroupIndexStates {
   daemon: IDaemon;
   isFetching: boolean;
   error: Error;
-  activeTab: number;
 }
 
 class GroupIndex extends React.Component<
@@ -39,7 +38,6 @@ class GroupIndex extends React.Component<
   IGroupIndexStates
 > {
   public state = {
-    activeTab: 0,
     isFetching: true,
     group: {} as IGroup,
     daemons: [],
@@ -47,38 +45,39 @@ class GroupIndex extends React.Component<
     error: Error()
   };
 
-  public componentDidMount() {
+  private activeTab: number = 0;
+
+  public constructor(props: RouteComponentProps<IRouterProps> & IGroupIndexProps) {
+    super(props);
+
     const { groupID } = this.props.match.params;
     const path = window.location.pathname;
 
     this.refreshGroup();
-
-    let activeTab: number;
+    
     switch (true) {
       case path === constPath.groupsServices.replace(":groupID", groupID):
-        activeTab = 0;
+        this.activeTab = 0;
         break;
       case path === constPath.groupsContainers.replace(":groupID", groupID):
-        activeTab = 1;
+        this.activeTab = 1;
         break;
       case path === constPath.groupsMembers.replace(":groupID", groupID):
-        activeTab = 2;
+        this.activeTab = 2;
         break;
       case path === constPath.groupCAdvisor.replace(":groupID", groupID):
-        activeTab = 3;
+        this.activeTab = 3;
         break;
       case path === constPath.groupsEdit.replace(":groupID", groupID):
-        activeTab = 4;
+        this.activeTab = 4;
         break;
       default:
-        activeTab = 0;
+        this.activeTab = 0;
     }
-
-    this.setState({ activeTab });
   }
 
   public render() {
-    const { daemon, group, activeTab, isFetching, error } = this.state;
+    const { daemon, group, isFetching, error } = this.state;
     const { username, isAdmin } = this.props;
 
     if (error.message) {
@@ -156,7 +155,7 @@ class GroupIndex extends React.Component<
         <Tab
           panes={panes}
           renderActiveOnly={false}
-          defaultActiveIndex={activeTab}
+          defaultActiveIndex={this.activeTab}
           onTabChange={this.changeTab}
         />
       </>
@@ -202,11 +201,8 @@ class GroupIndex extends React.Component<
     fetchGroup(groupID)
       .then((group: IGroup) => {
         this.setState({ group });
-        fetchDaemons().then((daemons: IDaemon[]) =>
-          this.setState({
-            daemons,
-            daemon: daemons.find(d => d._id === group.daemon_id) as IDaemon
-          })
+        group.daemon_id && fetchDaemon(group.daemon_id).then((daemon: IDaemon) =>
+          this.setState({ daemon })
         );
       })
       .catch((error: Error) => this.setState({ error }))

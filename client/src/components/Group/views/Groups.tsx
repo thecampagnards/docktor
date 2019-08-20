@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     Button, Checkbox, CheckboxProps, Divider, Dropdown, DropdownProps, Grid, Label, Loader, Message,
-    Search, SearchProps
+    Search, SearchProps, Segment
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -32,7 +32,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
   public state = {
     groups: [] as IGroup[],
     daemons: [] as IDaemon[],
-    isFetching: false,
+    isFetching: true,
     error: Error(),
     expanded: false,
     searchFilter: "",
@@ -46,8 +46,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
 
   public componentDidMount() {
     fetchGroups(this.displayAll)
-      .then(groups => this.setState({ groups, isFetching: false }))
-      .catch(error => this.setState({ error, isFetching: false }));
+      .then(groups => this.setState({ groups }))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
 
     fetchDaemons().then(daemons => this.setState({ daemons }));
   }
@@ -77,15 +78,6 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       );
     }
 
-    if (isFetching) {
-      return (
-        <>
-          <h2>Groups</h2>
-          <Loader active={true} />
-        </>
-      );
-    }
-
     const groupsFiltered = groups
       ? groups.filter(
           group =>
@@ -95,7 +87,9 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       : [];
 
     const resultsTotal = groupsFiltered.length;
-    const groupsDisplayed = expanded ? groupsFiltered : groupsFiltered.slice(0, defaultDisplayNb);
+    const groupsDisplayed = expanded
+      ? groupsFiltered
+      : groupsFiltered.slice(0, defaultDisplayNb);
 
     return (
       <>
@@ -110,6 +104,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               showNoResults={false}
               name="searchFilter"
               onSearchChange={this.filter}
+              disabled={isFetching}
             />
           </Grid.Column>
           <Grid.Column width={5}>
@@ -124,21 +119,29 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
                 return { text: d.name, value: d._id };
               })}
               onChange={this.filter}
+              disabled={isFetching}
             />
           </Grid.Column>
-          <Grid.Column width={3}>
-            <Checkbox
+          <Grid.Column width={isAdmin ? 4: 6}>
+            <Segment
+              compact={true}
+              color={this.displayAll && "blue"}
               floated="right"
-              slider={true}
-              defaultChecked={this.displayAll}
-              label="Display all groups"
-              onChange={this.handleToggle}
-            />
+            >
+              <Checkbox
+                toggle={true}
+                defaultChecked={this.displayAll}
+                label="Display all groups"
+                onChange={this.handleToggle}
+                disabled={isFetching}
+              />
+            </Segment>
           </Grid.Column>
-          <Grid.Column width={3}>
-            {isAdmin && (
+          {isAdmin && (
+            <Grid.Column width={2}>
               <Button
-                primary={true}
+                basic={true}
+                color="blue"
                 floated="right"
                 as={Link}
                 to={path.groupsNew}
@@ -146,33 +149,46 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
                 content="Create group"
                 labelPosition="left"
               />
-            )}
-          </Grid.Column>
-        </Grid>
-        <Grid>
-          {groupsDisplayed.map((group: IGroup) => (
-            <Grid.Column key={group._id} width={4}>
-              <GroupCard
-                group={group}
-                admin={isAdmin}
-                groupAdmin={isAdmin || group.admins.includes(username)}
-                displayButtons={!this.displayAll}
-              />
             </Grid.Column>
-          ))}
+          )}
         </Grid>
         <Divider />
-        <Grid>
-          <Grid.Column width={7}>
-            <Label>{`Total : ${resultsTotal}`}</Label>
-          </Grid.Column>
-          <Grid.Column width={2}>
-            {resultsTotal > defaultDisplayNb && (
-              <Button circular={true} compact={true} fluid={true} content={expanded ? "Display less" : "Display more"} onClick={this.handleExpand} />
-            )}
-          </Grid.Column>
-          <Grid.Column width={7} />
-        </Grid>
+        {isFetching ? (
+          <Loader active={true} inline="centered" content="Loading groups..." />
+        ) : (
+          <>
+            <Grid>
+              {groupsDisplayed.map((group: IGroup) => (
+                <Grid.Column key={group._id} width={4}>
+                  <GroupCard
+                    group={group}
+                    admin={isAdmin}
+                    groupAdmin={isAdmin || group.admins.includes(username)}
+                    displayButtons={!this.displayAll}
+                  />
+                </Grid.Column>
+              ))}
+            </Grid>
+            <Divider />
+            <Grid>
+              <Grid.Column width={7}>
+                <Label>{`Total : ${resultsTotal}`}</Label>
+              </Grid.Column>
+              <Grid.Column width={2}>
+                {resultsTotal > defaultDisplayNb && (
+                  <Button
+                    circular={true}
+                    compact={true}
+                    fluid={true}
+                    content={expanded ? "Display less" : "Display more"}
+                    onClick={this.handleExpand}
+                  />
+                )}
+              </Grid.Column>
+              <Grid.Column width={7} />
+            </Grid>
+          </>
+        )}
       </>
     );
   }
@@ -181,11 +197,13 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     event: React.SyntheticEvent,
     { checked }: CheckboxProps
   ) => {
+    this.setState({ isFetching: true });
     this.displayAll = checked as boolean;
     localStorage.setItem("displayAllGroups", this.displayAll);
     fetchGroups(this.displayAll)
-      .then(groups => this.setState({ groups, isFetching: false }))
-      .catch(error => this.setState({ error, isFetching: false }));
+      .then(groups => this.setState({ groups }))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   };
 
   private handleExpand = () => {

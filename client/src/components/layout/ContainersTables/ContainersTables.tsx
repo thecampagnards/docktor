@@ -51,16 +51,9 @@ export default class ContainerTable extends React.Component<
     // filter containers
     let containersFiltered =
       containers &&
-      containers.filter(
-        c =>
-          (c.Name ? [c.Name] : c.Names).filter(n =>
-            n.toLowerCase().includes(searchFilter.toLowerCase())
-          ).length > 0
-      );
-
-    containersFiltered = containersFiltered.sort((a, b) =>
-      a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0
-    );
+      containers
+        .filter(c => (c.Name ? [c.Name] : c.Names).filter(n => n.toLowerCase().includes(searchFilter.toLowerCase())).length > 0)
+        .sort((a, b) => a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0);
 
     return (
       <>
@@ -75,7 +68,7 @@ export default class ContainerTable extends React.Component<
                 value={searchFilter}
               />
             </Grid.Column>
-            <Grid.Column width={6} />
+            <Grid.Column width={8} />
             <Grid.Column width={4}>
               <Popup
                 content={error.message}
@@ -100,16 +93,6 @@ export default class ContainerTable extends React.Component<
                       onClick={this.handleAllOnClick.bind(this, "start")}
                     >
                       <Icon name="play" /> START ALL
-                    </Button>
-
-                    <Button
-                      color="blue"
-                      icon={true}
-                      floated="right"
-                      loading={isFetching}
-                      onClick={this.handleAllOnClick.bind(this, "create")}
-                    >
-                      <Icon name="cog" /> CREATE ALL
                     </Button>
                   </Button.Group>
                 }

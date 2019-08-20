@@ -69,6 +69,7 @@ func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 	return
 }
 
+// if files is a []string this has to be the compose file path array
 func getComposeProjectContext(projectName string, files interface{}) (con project.Context, err error) {
 	con.ProjectName = projectName
 
@@ -85,7 +86,7 @@ func getComposeProjectContext(projectName string, files interface{}) (con projec
 }
 
 // ComposeUp run service, files has to be []string or [][]byte
-func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{}) (err error) {
+func (d *Daemon) ComposeUp(projectName string, serviceName string, subnet string, files interface{}) (err error) {
 
 	if subnet != "" {
 		_, err = d.CreateNetwork(fmt.Sprintf("%s-net", projectName), subnet)
@@ -94,7 +95,9 @@ func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{})
 		}
 	}
 
-	con, err := getComposeProjectContext(projectName, files)
+	contextName := fmt.Sprintf("%s_%s", projectName, serviceName)
+
+	con, err := getComposeProjectContext(contextName, files)
 	if err != nil {
 		return
 	}
@@ -119,9 +122,9 @@ func (d *Daemon) ComposeUp(projectName string, subnet string, files interface{})
 }
 
 // ComposeStop stop service, files has to be []string or [][]byte
-func (d *Daemon) ComposeStop(projectName string, files interface{}) (err error) {
+func (d *Daemon) ComposeStop(contextName string, files interface{}) (err error) {
 
-	con, err := getComposeProjectContext(projectName, files)
+	con, err := getComposeProjectContext(contextName, files)
 	if err != nil {
 		return
 	}
@@ -146,9 +149,9 @@ func (d *Daemon) ComposeStop(projectName string, files interface{}) (err error) 
 }
 
 // ComposeRemove remove service, files has to be []string or [][]byte
-func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error) {
+func (d *Daemon) ComposeRemove(contextName string, files interface{}) (err error) {
 
-	con, err := getComposeProjectContext(projectName, files)
+	con, err := getComposeProjectContext(contextName, files)
 	if err != nil {
 		return
 	}
@@ -170,4 +173,31 @@ func (d *Daemon) ComposeRemove(projectName string, files interface{}) (err error
 	}
 
 	return project.Delete(context.Background(), options.Delete{RemoveVolume: true, RemoveRunning: true})
+}
+
+// ComposeStatus get status of service, files has to be []string or [][]byte
+func (d *Daemon) ComposeStatus(contextName string, files interface{}) (info project.InfoSet, err error) {
+
+	con, err := getComposeProjectContext(contextName, files)
+	if err != nil {
+		return
+	}
+
+	c, err := d.getComposeCli()
+	if err != nil {
+		return
+	}
+
+	defer c.Close()
+
+	project, err := docker.NewProject(&ctx.Context{
+		Context:       con,
+		ClientFactory: c,
+	}, nil)
+
+	if err != nil {
+		return
+	}
+
+	return project.Ps(context.Background())
 }

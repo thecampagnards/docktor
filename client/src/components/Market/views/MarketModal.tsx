@@ -10,12 +10,13 @@ import {
 import { path } from '../../../constants/path';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubService } from '../../Services/types/service';
+import { IService, ISubService, IServiceVariable } from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string;
   selectedSubServiceID: string;
-  variables: Map<string, any>;
+  serviceName: string;
+  variables: IServiceVariable[];
   opts: Map<string, any>;
 
   serviceGroup: IServiceGroup;
@@ -37,10 +38,11 @@ class MarketModal extends React.Component<
   IMarketModalStates
 > {
   public state = {
-    selectedGroupID: this.props.groups.length === 1 ? this.props.groups[0]._id : "",
+    selectedGroupID: this.props.groups && this.props.groups.length === 1 ? this.props.groups[0]._id : "",
     selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
-    variables: new Map<string, any>(),
-    opts: new Map<string, any>(),
+    serviceName: this.props.service.name,
+    variables: [] as IServiceVariable[],
+    opts: new Map<string, any>([["auto-update", true]]),
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -82,7 +84,7 @@ class MarketModal extends React.Component<
             floated="right"
             icon={true}
             as={Link}
-            to={path.servicesEdit.replace(":serviceID", service._id!)}
+            to={path.servicesEdit.replace(":serviceID", service._id)}
           >
             <Icon name="edit" />
           </Button>
@@ -172,9 +174,6 @@ class MarketModal extends React.Component<
                 defaultValue={selectedSubServiceID}
                 search={true}
               />
-              <Button color="red" onClick={this.close}>
-                <Icon name="remove" /> Exit
-              </Button>
               <Button color="blue" onClick={this.continueFormStage2}>
                 Proceed <Icon name="chevron right" />
               </Button>
@@ -190,13 +189,12 @@ class MarketModal extends React.Component<
   private renderModalStage2 = () => {
     const { service } = this.props;
     const {
-      variables,
-      opts,
       error,
       isFetching,
-      selectedSubServiceID
+      selectedSubServiceID,
+      serviceName
     } = this.state;
-    const ss = service.sub_services!.find(
+    const ss = service.sub_services.find(
       s => s._id === selectedSubServiceID
     ) as ISubService;
 
@@ -209,17 +207,28 @@ class MarketModal extends React.Component<
               <Message.Header>{error.message}</Message.Header>
             </Message>
           )}
-          <Form>
+          <Form id="modal-form" onSubmit={this.handleForm}>
+            <Form.Field>
+              <label>Service name</label>
+              <Form.Input
+                name="name"
+                required={true}
+                onChange={this.handleChangeName}
+                value={serviceName}
+              />
+            </Form.Field>
             {ss.variables && (
               <>
                 <h3>Variables</h3>
-                {ss.variables.map((variable: string) => (
-                  <Form.Field inline={true} key={variable}>
-                    <label>{variable}</label>
+                {ss.variables.map((variable: IServiceVariable) => (
+                  <Form.Field inline={true} key={variable.name} required={!variable.optional}>
+                    <label>{variable.name.toUpperCase().replace(/_/g, " ")}</label>
                     <Input
-                      name={variable}
+                      name={variable.name}
+                      required={!variable.optional}
                       onChange={this.handleChangeVariable}
-                      value={variables.get(variable)}
+                      value={variable.value}
+                      type={variable.secret ? "password" : "text"}
                     />
                   </Form.Field>
                 ))}
@@ -230,16 +239,16 @@ class MarketModal extends React.Component<
               inline={true}
               label="Auto update"
               name="auto-update"
-              defaultChecked={opts.get("auto-update") as boolean}
+              defaultChecked={true}
               onChange={this.handleChangeOpts}
             />
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button color="red" onClick={this.continueFormStage.bind(this, 1)}>
+          <Button color="red" onClick={this.continueFormStage.bind(this, 1)} >
             <Icon name="chevron left" /> Previous
           </Button>
-          <Button color="green" onClick={this.handleForm} loading={isFetching}>
+          <Button form="modal-form" color="green" type="submit" loading={isFetching}>
             <Icon name="checkmark" /> Install
           </Button>
         </Modal.Actions>
@@ -286,12 +295,20 @@ class MarketModal extends React.Component<
     this.setState({ selectedSubServiceID: String(data.value) });
   };
 
+  private handleChangeName = (
+    event: any,
+    { name, value }: InputOnChangeData
+  ) => {
+    this.setState({ serviceName: value });
+  }
+
   private handleChangeVariable = (
     event: any,
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    variables.set(name, value);
+    const currentVar = variables.find(v => v.name === name);
+    currentVar && (currentVar.value = value);
     this.setState({ variables });
   };
 
@@ -307,21 +324,14 @@ class MarketModal extends React.Component<
 
   private continueFormStage2 = () => {
     const { selectedGroupID, selectedSubServiceID } = this.state;
-    const { groups } = this.props;
+    const { service } = this.props;
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
-      const sg = (groups.find(
-        g => g._id === selectedGroupID
-      ) as IGroup).services.find(
-        s => s._id === selectedSubServiceID
-      ) as IServiceGroup;
+      const variables = (service.sub_services.find(ss => ss._id === selectedSubServiceID) || {} as ISubService)
+        .variables;
       this.setState({
         stage: 2,
-        variables: sg
-          ? new Map(Object.entries(sg.variables))
-          : new Map<string, string>(),
-        opts: sg
-          ? new Map([["auto-update", sg.auto_update]])
-          : new Map<string, string>(),
+        serviceName: service.name,
+        variables,
         error: Error()
       });
     } else {
@@ -329,30 +339,19 @@ class MarketModal extends React.Component<
     }
   };
 
-  private handleForm = () => {
-    const { service } = this.props;
+  private handleForm = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const {
       selectedGroupID,
       selectedSubServiceID,
+      serviceName,
       variables,
       opts
     } = this.state;
-    const v = (service.sub_services!.find(
-      s => s._id === selectedSubServiceID
-    ) as ISubService).variables;
-
-    if (v) {
-      for (const key of v) {
-        if (!variables.has(key)) {
-          this.setState({ error: Error("Please set every variables") });
-          return;
-        }
-      }
-    }
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
-      deployService(selectedGroupID, selectedSubServiceID, variables, opts)
+      deployService(selectedGroupID, selectedSubServiceID, serviceName, variables, opts)
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false, error: Error() });
           this.continueFormStage(3);

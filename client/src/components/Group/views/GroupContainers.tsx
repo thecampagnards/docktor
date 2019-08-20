@@ -114,7 +114,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
           <Button
             icon="terminal"
             labelPosition="right"
-            content="Daemon"
+            content="VM terminal"
             as={Link}
             to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}
           />

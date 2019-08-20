@@ -34,7 +34,7 @@ var (
 )
 
 func parseFlags() {
-	flag.String(flag.DefaultConfigFlagname, "", "Path to config file")
+	flag.String(flag.DefaultConfigFlagname, "conf", "Path to config file")
 	flag.BoolVar(&production, "production", false, "Enable the production mode")
 	flag.StringVar(&logLevel, "log-level", "debug", "The log level to use (debug, info, warn, error, fatal, panic)")
 	flag.StringVar(&defaultAdminAccount, "default-admin-account", "root", "The username of a default administrator account")
@@ -56,7 +56,7 @@ func parseFlags() {
 	flag.Parse()
 }
 
-func configure(e *echo.Echo) {
+func configure() {
 	l, err := log.ParseLevel(logLevel)
 	if err != nil {
 		log.Fatalf("Error when parsing log level: %s", err)
@@ -106,10 +106,9 @@ func configure(e *echo.Echo) {
 
 func main() {
 	parseFlags()
+	configure()
 
 	e := echo.New()
-	configure(e)
-
 	e.Logger = customMiddleware.Logger{Logger: log.StandardLogger()}
 	e.Use(customMiddleware.Hook())
 	e.Use(middleware.Recover())

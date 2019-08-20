@@ -108,7 +108,7 @@ func updateDaemonComposeStatus(c echo.Context) error {
 func updateComposeStatus(project string, daemon types.Daemon, status string, services ...string) (err error) {
 	switch status {
 	case "start":
-		err = daemon.ComposeUp(project, "", services)
+		err = daemon.ComposeUp(project, "", "", services)
 	case "stop":
 		err = daemon.ComposeStop(project, services)
 	case "remove":

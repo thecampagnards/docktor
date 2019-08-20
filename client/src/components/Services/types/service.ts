@@ -12,6 +12,22 @@ export interface ISubService {
   _id: string
   name: string
   file?: string
+  variables: IServiceVariable[]
   active: boolean
-  variables: any
+}
+
+export interface IGroupService {
+  sub_service_id: string
+  name: string
+  variables: IServiceVariable[]
+  file: string
+  url: string
+}
+
+export interface IServiceVariable {
+  name: string
+  description: string
+  value: string
+  secret: boolean
+  optional: boolean
 }

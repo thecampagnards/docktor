@@ -73,6 +73,7 @@ export const saveGroup = (group: IGroup) => {
 export const deployService = (
   groupID: string,
   serviceID: string,
+  serviceName: string,
   variables: any,
   opts: Map<string, string>
 ) => {
@@ -82,7 +83,7 @@ export const deployService = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/create/${serviceID}${opt && "?" + opt}`,
+    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt && "&" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -97,20 +98,34 @@ export const deployService = (
     .then((response: Response) => response.json());
 };
 
-export const startService = (groupID: string, serviceID: string) => {
+export const updateServiceStatus = (groupID: string, serviceID: string, status: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/start/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}?status=${status}`,
     {
       credentials: "same-origin",
       method: "POST",
       headers: {
-        "Content-Type": "application/json",
         Authorization: `Bearer ${GetToken()}`
       }
     }
   )
     .then(checkStatus)
     .then(response => response.json());
+};
+
+export const getServiceStatus = (groupID: string, serviceID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json())
 };
 
 export const getService = (groupID: string, serviceID: string) => {

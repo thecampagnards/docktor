@@ -1,12 +1,12 @@
 package types
 
 import (
+	"fmt"
 	"reflect"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/libcompose/config"
 	"github.com/globalsign/mgo/bson"
-	log "github.com/sirupsen/logrus"
 	yaml "gopkg.in/yaml.v2"
 )
 
@@ -23,7 +23,7 @@ type GroupLight struct {
 // Group data
 type Group struct {
 	GroupLight  `bson:",inline"`
-	Services    []ServiceGroup `json:"services" bson:"services"`
+	Services    []GroupService `json:"services" bson:"services"`
 	GroupDocker `bson:",inline"`
 }
 
@@ -35,12 +35,15 @@ type GroupDocker struct {
 	Containers []types.ContainerJSON `json:"containers" bson:"containers"`
 }
 
-// ServiceGroup data
-type ServiceGroup struct {
-	SubServiceID bson.ObjectId          `json:"_id,omitempty" bson:"_id,omitempty"`
-	Variables    map[string]interface{} `json:"variables,omitempty" bson:"variables"`
-	AutoUpdate   bool                   `json:"auto_update" bson:"auto_update"`
-	Ports        []uint16               `json:"ports" bson:"ports"`
+// GroupService data
+type GroupService struct {
+	SubServiceID bson.ObjectId     `json:"sub_service_id,omitempty" bson:"sub_service_id,omitempty"`
+	Name         string            `json:"name" bson:"name" validate:"required"`
+	File         []byte            `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables    []ServiceVariable `json:"variables" bson:"-"`
+	URL          string            `json:"url" bson:"url" validate:"required"`
+	AutoUpdate   bool              `json:"auto_update" bson:"auto_update"`
+	Ports        []uint16          `json:"ports" bson:"ports"`
 }
 
 // Groups data
@@ -81,11 +84,13 @@ func (g *Group) IsMyGroup(u *User) bool {
 
 // GetFreePort return the first available port
 func (g *Group) GetFreePort() uint16 {
-	var ports []uint16
-	for _, s := range g.Services {
-		ports = append(ports, s.Ports...)
-	}
 
+	var ports []uint16
+	/*
+		for _, s := range g.Services {
+			ports = append(ports, s.Ports...)
+		}
+	*/
 	for i := g.MinPort; i < g.MaxPort; i++ {
 		if !findPort(i, ports) {
 			return i
@@ -102,6 +107,16 @@ func findPort(port uint16, ports []uint16) bool {
 		}
 	}
 	return false
+}
+
+// FindServiceByID return the service by id
+func (g *Group) FindServiceByID(id string) *GroupService {
+	for _, service := range g.Services {
+		if service.SubServiceID.Hex() == id {
+			return &service
+		}
+	}
+	return nil
 }
 
 // FindContainersByNameOrID return the group containers by id or name
@@ -135,7 +150,7 @@ func (g *GroupDocker) AppendOrUpdate(containers []types.ContainerJSON) {
 }
 
 // FindSubServiceByID return the subservice by string id
-func (g *Group) FindSubServiceByID(subServiceID string) *ServiceGroup {
+func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 	for _, s := range g.Services {
 		if s.SubServiceID.Hex() == subServiceID {
 			return &s
@@ -144,46 +159,35 @@ func (g *Group) FindSubServiceByID(subServiceID string) *ServiceGroup {
 	return nil
 }
 
-// GetComposeService this function retrun the subservice compose file
-func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceGroup ServiceGroup) (service []byte, err error) {
+// ConvertToGroupService this function convert a sub service to a service group
+func (ss *SubService) ConvertToGroupService(daemon Daemon, group Group, autoUpdate bool) (groupService GroupService, err error) {
+
+	groupService.Variables = ss.Variables
+	groupService.SubServiceID = ss.ID
+	groupService.URL = daemon.Host
 
 	variables := map[string]interface{}{
-		"Group":  g,
+		"Group":  group,
 		"Daemon": daemon,
 	}
 
 	// Copy of variables
-	for k, v := range serviceGroup.Variables {
-		variables[k] = v
+	for _, v := range ss.Variables {
+		variables[v.Name] = v.Value
 	}
 
-	service, err = subService.ConvertSubService(variables)
+	service, err := ss.ConvertSubService(variables)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"serviceGroup":   serviceGroup.Variables,
-			"subServiceName": subService.Name,
-			"groupName":      g.Name,
-			"daemonHost":     daemon.Host,
-			"variables":      serviceGroup.Variables,
-			"error":          err,
-		}).Error("Error when converting sub service")
-		return
+		return groupService, fmt.Errorf("Error when converting sub service: %s", err)
 	}
 
 	var config config.Config
 	if err = yaml.Unmarshal(service, &config); err != nil {
-		log.WithFields(log.Fields{
-			"service": string(service),
-			"error":   err,
-		}).Error("Error when unmarshal service")
-		return
+		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
 
-	if serviceGroup.AutoUpdate {
+	if autoUpdate {
 		// Use https://github.com/v2tec/watchtower
-		log.WithFields(log.Fields{
-			"config": config,
-		}).Infof("Add auto update for %s with watchtower", subService.Name)
 		for key := range config.Services {
 			if labels, ok := config.Services[key]["labels"]; ok {
 				v := reflect.ValueOf(labels)
@@ -192,23 +196,13 @@ func (g *Group) GetComposeService(daemon Daemon, subService SubService, serviceG
 				config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
 			}
 		}
-		log.WithFields(log.Fields{
-			"config": config,
-		}).Infof("Configuration updated for %s", subService.Name)
+		groupService.AutoUpdate = autoUpdate
 	}
 
-	service, err = yaml.Marshal(config)
+	groupService.File, err = yaml.Marshal(config)
 	if err != nil {
-		log.WithFields(log.Fields{
-			"config": config,
-			"error":  err,
-		}).Error("Error when marshal config")
-		return
+		return groupService, fmt.Errorf("Error when marshal config: %s", err)
 	}
 
-	log.WithFields(log.Fields{
-		"service": string(service),
-	}).Info("Sub service converted")
-
-	return
+	return groupService, nil
 }

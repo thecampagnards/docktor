@@ -31,10 +31,15 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
         </Card.Content>}
         {(displayButtons || admin) &&
         <Card.Content>
-          <Button basic={true} color="green" icon={true} labelPosition="left" title="Go to services" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
+          <Button basic={true} color="green" icon={true} labelPosition="left" title="Open group services" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
             <Icon name="cubes" />
             Services
           </Button>
+          {admin &&
+          <Button basic={true} color="blue" icon={true} title="Containers" as={Link} to={path.groupsContainers.replace(":groupID", group._id)}>
+            <Icon name="docker" />
+          </Button>
+          }
           <Button basic={true} icon={true} title="Group members" as={Link} to={path.groupsMembers.replace(":groupID", group._id)}>
             <Icon name="users" />
           </Button>

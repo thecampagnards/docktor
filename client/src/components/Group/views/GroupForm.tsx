@@ -122,7 +122,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   ) => {
     const group = this.state.group;
     if (type === "number") {
-      value = parseInt(value, undefined);
+      value = parseInt(value);
     }
     this.setState({ group: _.set(group, name, value) });
   };

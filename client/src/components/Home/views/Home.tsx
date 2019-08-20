@@ -1,13 +1,14 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Card, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal, Segment
+    Button, Card, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal, Segment, Divider
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import TextSocket from '../../layout/TextSocket';
 import { fetchHome } from '../actions/home';
 import { IEnvironment, IHomeData } from '../types/home';
+import './Home.css';
 
 interface IHomeState {
   environments: IEnvironment[];
@@ -69,7 +70,11 @@ class Home extends React.Component<{}, IHomeState> {
       return (
         <>
           <h2>Home</h2>
-          No group available
+          <Divider />
+          <Message info={true}>
+            <Message.Header>No group available</Message.Header>
+            <Message.Content>You are not assigned to any CDK environment. Follow the user manual to get started.</Message.Content>
+          </Message>
         </>
       );
     }
@@ -95,8 +100,8 @@ class Home extends React.Component<{}, IHomeState> {
               />
             </Grid.Column>
           </Grid.Row>
-          <Grid.Row>
             {envSelected.map(env => {
+              const exitedContainers = env.containers.filter(c => c.State === "exited");
               const filesystem = env.resources.fs[0];
               const fsUsage = Math.round(
                 (100 * filesystem.usage) / filesystem.capacity
@@ -144,15 +149,19 @@ class Home extends React.Component<{}, IHomeState> {
                             env.group._id
                           )}
                         >
-                          Go to containers
+                          <Icon name="docker" /> Go to containers
                         </Link>
                       </Card.Description>
                     </Card.Content>
                     <Card.Content>
+                      {exitedContainers.length === 0 ?
+                      <Card.Description>
+                        <Icon name="check" color="green" />
+                        All containers are up and running
+                      </Card.Description>
+                      :
                       <List>
-                        {env.containers
-                          .filter(c => c.State === "exited")
-                          .map(c => (
+                        {exitedContainers.map(c => (
                             <List.Item key={c.Id}>
                               <List.Content>
                                 <Button
@@ -169,10 +178,9 @@ class Home extends React.Component<{}, IHomeState> {
                                 <Icon circular={true} color="red" name="fire" />
                                 <Modal
                                   trigger={
-                                    <Button>
-                                      {c.Names[0].replace("/", "")}
-                                    </Button>
+                                    <Button basic={true} compact={true} circular={true} labelPosition="right" icon="align left" content={c.Names[0].replace("/", "")} />
                                   }
+                                  className="logs-modal"
                                 >
                                   <Modal.Content
                                     style={{
@@ -191,12 +199,12 @@ class Home extends React.Component<{}, IHomeState> {
                             </List.Item>
                           ))}
                       </List>
+                      }
                     </Card.Content>
                   </Card>
                 </Grid.Column>
               );
             })}
-          </Grid.Row>
         </Grid>
       </>
     );

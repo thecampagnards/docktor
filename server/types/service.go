@@ -7,6 +7,7 @@ import (
 	"math/rand"
 	"net/http"
 	"net/url"
+	"regexp"
 	"strings"
 	"time"
 
@@ -26,18 +27,30 @@ type Service struct {
 
 // SubService data
 type SubService struct {
-	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name      string        `json:"name" bson:"name" validate:"required"`
-	Active    bool          `json:"active" bson:"active"`
-	File      string        `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables interface{}   `json:"variables" bson:"-"`
+	ID        bson.ObjectId     `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name      string            `json:"name" bson:"name" validate:"required"`
+	Active    bool              `json:"active" bson:"active"`
+	File      string            `json:"file,omitempty"  bson:"file" validate:"required"`
+	Variables []ServiceVariable `json:"variables" bson:"-"`
+}
+
+// ServiceVariable data
+type ServiceVariable struct {
+	Name     string `json:"name" bson:"name" validate:"required"`
+	Value    string `json:"value" bson:"value"`
+	Optional bool   `json:"optional" bson:"optional"`
+	Secret   bool   `json:"secret" bson:"secret"`
 }
 
 // GetVariablesOfSubServices get all the variables of all subservices
-func (s *Service) GetVariablesOfSubServices() {
-	for index := 0; index < len(s.SubServices); index++ {
-		s.SubServices[index].GetVariables()
+func (s *Service) GetVariablesOfSubServices() (err error) {
+	for i := 0; i < len(s.SubServices); i++ {
+		err = s.SubServices[i].GetVariables()
+		if err != nil {
+			return
+		}
 	}
+	return
 }
 
 // Services data
@@ -100,20 +113,51 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 }
 
 // GetVariables retrieve the variables of a template
-func (sub *SubService) GetVariables() (err error) {
+func (ss *SubService) GetVariables() (err error) {
 
 	// Get remote file if needed
-	err = sub.GetRemoteFile()
+	err = ss.GetRemoteFile()
 	if err != nil {
 		return
 	}
 
-	sub.Variables, err = FindTemplateVariables(sub.File, map[string]interface{}{
+	variables, err := FindTemplateVariables(ss.File, map[string]interface{}{
 		"Group":  Group{},
 		"Daemon": Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 	})
 
-	return err
+	if err != nil {
+		return
+	}
+
+	ss.Variables = make([]ServiceVariable, len(variables))
+	for i := 0; i < len(variables); i++ {
+		ss.Variables[i] = parseVar(variables[i])
+	}
+
+	return
+}
+
+// parseVar parses a variable to return a ServiceVariable
+func parseVar(variable string) ServiceVariable {
+	r, _ := regexp.Compile(`(optional_)?(secret_)?([a-zA-Z_]+)`)
+	match := r.FindStringSubmatch(variable)
+
+	serviceVar := ServiceVariable{
+		Name:     match[3],
+		Value:    "",
+		Secret:   false,
+		Optional: false,
+	}
+
+	if len(match[1]) != 0 {
+		serviceVar.Optional = true
+	}
+	if len(match[2]) != 0 {
+		serviceVar.Secret = true
+	}
+
+	return serviceVar
 }
 
 // split used in go template

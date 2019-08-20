@@ -65,9 +65,9 @@ class Images extends React.Component<{}, IImagesStates> {
           error={!!error.message}
           onSubmit={this.submit}
         >
-          <Grid columns={2} divided={true}>
+          <Grid columns={2} divided={false}>
             <Grid.Row>
-              <Grid.Column width={4}>
+              <Grid.Column width={3}>
                 <List selection={true}>
                   {images &&
                     images.map((img, key) => (
@@ -93,12 +93,15 @@ class Images extends React.Component<{}, IImagesStates> {
                   icon={true}
                   labelPosition="left"
                   onClick={this.addImage}
-                  primary={true}
+                  basic={true}
+                  color="blue"
                 >
                   <Icon name="plus" />
                   Add image
                 </Button>
               </Grid.Column>
+
+              <Grid.Column width={1} />
 
               <Grid.Column width={12}>
                 {images && images.length > imageKey ? (
@@ -150,6 +153,7 @@ class Images extends React.Component<{}, IImagesStates> {
                                 </Grid.Column>
                                 <Grid.Column width={4}>
                                   <Button
+                                    basic={true}
                                     color="red"
                                     icon="minus"
                                     labelPosition="left"
@@ -183,6 +187,7 @@ class Images extends React.Component<{}, IImagesStates> {
                           <Grid.Row>
                             <Grid.Column>
                               <Button
+                                basic={true}
                                 icon="plus"
                                 labelPosition="left"
                                 content="Add command"
@@ -300,7 +305,7 @@ class Images extends React.Component<{}, IImagesStates> {
     event.preventDefault();
 
     const { images, imageKey } = this.state;
-    delete images[imageKey].commands[commandKey];
+    images[imageKey].commands = images[imageKey].commands.splice(commandKey, 1);
     this.setState({ images });
   };
 

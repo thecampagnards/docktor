@@ -109,7 +109,7 @@ export const registerRequestThunk = (u: IUser) => {
         localStorage.setItem("token", token);
         dispatch({
           type: RegisterSuccess,
-          username: (JWT(token) as IUserToken).username
+          username: JWT<IUserToken>(token).username
         });
       })
       .catch((error: Error) => {
@@ -124,11 +124,11 @@ export const registerRequestThunk = (u: IUser) => {
 export const validateThunk = () => {
   return (dispatch: Dispatch<AuthAction>) => {
     const token = GetToken();
-    if (token && (JWT(token) as IUserToken).exp * 1000 > Date.now()) {
+    if (token && JWT<IUserToken>(token).exp * 1000 > Date.now()) {
       dispatch({
         type: LoginSuccess,
-        username: (JWT(token) as IUserToken).username,
-        isAdmin: (JWT(token) as IUserToken).isAdmin
+        username: JWT<IUserToken>(token).username,
+        isAdmin: JWT<IUserToken>(token).isAdmin
       });
     }
   };

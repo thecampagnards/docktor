@@ -43,7 +43,7 @@ func Remove(array []string, value string) []string {
 }
 
 // FindTemplateVariables retrieve the variables of a go template
-func FindTemplateVariables(tpmlt string, defaultVariables map[string]interface{}) (variables []string, err error) {
+func FindTemplateVariables(file string, defaultVariables map[string]interface{}) (variables []string, err error) {
 
 	if defaultVariables == nil {
 		defaultVariables = make(map[string]interface{})
@@ -53,7 +53,7 @@ func FindTemplateVariables(tpmlt string, defaultVariables map[string]interface{}
 	tmpl, err := template.New("template").
 		Funcs(template.FuncMap{"split": split, "randString": randString}).
 		Option("missingkey=error").
-		Parse(tpmlt)
+		Parse(file)
 	if err != nil {
 		return
 	}

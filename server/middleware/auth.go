@@ -57,7 +57,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 		log.WithFields(log.Fields{
 			"group": group,
 			"user":  user,
-		}).Info("Check if user is your group")
+		}).Debug("Check if group is yours")
 
 		if !group.IsMyGroup(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "This is not your group")

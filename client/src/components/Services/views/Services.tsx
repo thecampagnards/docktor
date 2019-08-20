@@ -79,7 +79,8 @@ class Services extends React.Component<{}, IServicesStates> {
           </Grid.Column>
           <Grid.Column width={10}>
             <Button
-              primary={true}
+              basic={true}
+              color="blue"
               floated="right"
               as={Link}
               to={path.servicesNew}
@@ -88,6 +89,7 @@ class Services extends React.Component<{}, IServicesStates> {
               content="New service"
             />
             <Button
+              basic={true}
               floated="right"
               as="a"
               href="https://innersource.soprasteria.com/dep/cdk/library/docktor-services"

@@ -58,15 +58,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   public render() {
     const { daemons, error, isFetching, index, filter } = this.state;
 
-    if (!daemons) {
-      return (
-        <>
-          <h2>Daemons</h2>
-          <p>No data yet ...</p>;
-        </>
-      );
-    }
-
     if (error.message) {
       return (
         <>
@@ -168,7 +159,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Grid.Column>
             <Grid.Column width={3} floated="right">
               <Button
-                primary={true}
+                basic={true}
+                color="blue"
                 floated="right"
                 as={Link}
                 to={path.daemonsNew}

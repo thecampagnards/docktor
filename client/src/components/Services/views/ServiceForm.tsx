@@ -154,6 +154,7 @@ class ServiceForm extends React.Component<
                         </Grid.Column>
                         <Grid.Column width={4}>
                           <Button
+                            basic={true}
                             color="red"
                             icon="minus"
                             labelPosition="left"
@@ -185,6 +186,7 @@ class ServiceForm extends React.Component<
                 <Grid.Row>
                   <Grid.Column>
                     <Button
+                      basic={true}
                       icon="plus"
                       labelPosition="left"
                       content="Add version"
@@ -239,7 +241,7 @@ class ServiceForm extends React.Component<
     event.preventDefault();
 
     const service = this.state.service;
-    service.sub_services!.splice(key, 1);
+    service.sub_services.splice(key, 1);
     this.setState({ service });
   };
 

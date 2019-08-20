@@ -68,7 +68,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
     if (error.message) {
       return (
         <Message negative={true}>
-          <Message.Header>There was an issue</Message.Header>
+          <Message.Header>There was an issue while fetching users</Message.Header>
           <p>{error.message}</p>
         </Message>
       );
@@ -135,18 +135,21 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                   <Table.Cell width={5}>
                     <Button
                       icon="mail"
-                      title="Send Email"
+                      labelPosition="left"
+                      content="Send Email"
                       as="a"
                       href={`mailto:${user.email}`}
                     />
                     <Button
                       icon="copy"
-                      title="Copy Email"
+                      labelPosition="left"
+                      content="Copy Email"
                       onClick={copy.bind(this, user.email)}
                     />
                     <Button
-                      icon="trash"
-                      title="Delete from group"
+                      icon="user delete"
+                      labelPosition="right"
+                      content="Delete user"
                       color="red"
                       name={user.username}
                       onClick={this.deleteFromGroup}
@@ -266,20 +269,15 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
         );
       }
     }
-    if (group.users) {
-      if (group.users.indexOf(username) > -1) {
-        return (
-          <Checkbox
-            name={username}
-            toggle={true}
-            label="user"
-            onChange={this.handleRoleChange}
-            disabled={!admin || this.state.isFetching}
-          />
-        );
-      }
-    }
-    return <Checkbox toggle={true} label="unknown" disabled={true} />;
+    return (
+      <Checkbox
+        name={username}
+        toggle={true}
+        label="user"
+        onChange={this.handleRoleChange}
+        disabled={!admin || this.state.isFetching}
+      />
+    );
   };
 }
 

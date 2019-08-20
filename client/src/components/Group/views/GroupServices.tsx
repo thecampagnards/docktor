@@ -1,14 +1,11 @@
 import * as React from 'react';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Link } from 'react-router-dom';
-import { Button, Card, Grid, Icon, Loader, Message, Modal } from 'semantic-ui-react';
+import { Button, Message, Grid, Icon } from 'semantic-ui-react';
 
-import { path } from '../../../constants/path';
-import { fetchServiceBySubService } from '../../Services/actions/service';
-import { IService } from '../../Services/types/service';
-import { getService } from '../actions/group';
+import { IGroupService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
+import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -16,7 +13,6 @@ interface IGroupProps {
 }
 
 interface IGroupStates {
-  services: IService[];
   isFetching: boolean;
   error: Error;
   modalOpen: boolean;
@@ -32,109 +28,50 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     content: ""
   };
 
-  public componentDidMount() {
-    const { group } = this.props;
-    group.services.forEach(service => {
-      fetchServiceBySubService(service._id)
-        .then(s => {
-          const services: IService[] = this.state.services;
-          services.push(s);
-          this.setState({ services });
-        })
-        .catch(error => this.setState({ error }));
-    });
-  }
-
   public render() {
     const { group, admin } = this.props;
-    const { services, error, isFetching, modalOpen, content } = this.state;
+    const { error } = this.state;
 
     if (error.message) {
       return (
         <Message negative={true}>
-          <Message.Header>There was an issue</Message.Header>
+          <Message.Header>Error while fetching services</Message.Header>
           <p>{error.message}</p>
         </Message>
       );
     }
 
-    if (isFetching) {
-      return <Loader active={true} />;
-    }
-
     return (
       <>
-        <Grid>
-          <Grid.Column width={12} />
-          <Grid.Column width={4}>
-            <Button
-              primary={true}
-              labelPosition="right"
-              icon={true}
-              as={Link}
-              to={path.marketgroup.replace(":groupID", group._id)}
-              floated="right"
-            >
-              <Icon name="plus" />
-              ADD SERVICE
-            </Button>
-          </Grid.Column>
-        </Grid>
 
-        <Card.Group>
-          {services.map((service: IService, index: number) => (
-            <span key={index}>
-              <GroupService service={service} />
-              {admin && (
-                <Modal
-                  trigger={
-                    <Button
-                      onClick={this.handleOpen.bind(
-                        this,
-                        group.services[0]._id
-                      )}
-                    >
-                      Get Compose File
-                    </Button>
-                  }
-                  open={modalOpen}
-                  onClose={this.handleClose}
-                  basic={true}
-                  size="fullscreen"
-                  style={{ height: "80%" }}
-                >
-                  <Modal.Content style={{ height: "100%" }}>
-                    <CodeMirror
-                      className="height-100"
-                      value={content}
-                      options={{
-                        mode: "yaml",
-                        lint: true,
-                        theme: "material",
-                        lineNumbers: true,
-                        readOnly: true,
-                        cursorBlinkRate: -1
-                      }}
-                    />
-                  </Modal.Content>
-                </Modal>
+        {admin ? 
+          <Grid>
+            <Grid.Column width={12}>
+              {group.services.length === 0 && (
+                <pre>No service in this group. Use the button on the right to deploy one.</pre>
               )}
-            </span>
+            </Grid.Column>
+            <Grid.Column width={4}>
+              <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
+                <Icon name="plus" />ADD SERVICE
+              </Button>
+            </Grid.Column>
+          </Grid>
+          : 
+          <pre>No service in this group. Contact your group administrator to request one.</pre>
+        }
+
+        <Grid>
+          {group.services.map((service: IGroupService, index: number) => (
+            <Grid.Column width={8} key={index}>
+              <GroupService groupID={group._id} service={service} admin={admin} />
+            </Grid.Column>
           ))}
-        </Card.Group>
+        </Grid>
+        
       </>
     );
   }
-
-  private handleOpen = (subserviceID: string) => {
-    const { group } = this.props;
-    getService(group._id, subserviceID)
-      .then(content => this.setState({ content }))
-      .catch(content => this.setState({ content }))
-      .finally(() => this.setState({ modalOpen: true }));
-  };
-
-  private handleClose = () => this.setState({ modalOpen: false });
 }
 
 export default GroupServices;
