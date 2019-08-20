@@ -26,7 +26,7 @@ COPY --from=builderFront /npm/docktor/build client
 COPY --from=builderBack /go/docktor/server/app .
 COPY --from=builderBack /go/docktor/server/assets assets
 
-CMD ["./app", "-config ''"]
+CMD ["./app", "-config", ""]
 VOLUME [ "/docktor/assets" ]
 
 EXPOSE 8080
