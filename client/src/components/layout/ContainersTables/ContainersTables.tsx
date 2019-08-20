@@ -45,7 +45,7 @@ export default class ContainerTable extends React.Component<
   }
 
   public render() {
-    const { daemon, admin, containers } = this.props;
+    const { daemon, containers } = this.props;
     const { isFetching, error, images, searchFilter } = this.state;
 
     // filter containers
@@ -166,7 +166,6 @@ export default class ContainerTable extends React.Component<
                           trigger={
                             <Button
                               disabled={
-                                !admin ||
                                 !status.Started.includes(container.State) ||
                                 !this.allowShell(container)
                               }
@@ -236,8 +235,7 @@ export default class ContainerTable extends React.Component<
   };
 
   private allowShell = (container: IContainer): boolean => {
-    const { admin } = this.props;
-    if (admin) {
+    if (this.props.admin) {
       return true;
     }
 

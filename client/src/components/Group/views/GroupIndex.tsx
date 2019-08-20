@@ -92,14 +92,14 @@ class GroupIndex extends React.Component<
       );
     }
 
-    const admin = isAdmin || (group.admins && group.admins.includes(username));
+    const groupAdmin = group.admins && group.admins.includes(username);
 
     const panes = [
       {
         menuItem: "Services",
         pane: (
           <Tab.Pane loading={isFetching} key={1}>
-            {group._id && <GroupServices group={group} admin={admin} />}
+            {group._id && <GroupServices group={group} admin={isAdmin} />}
           </Tab.Pane>
         )
       },
@@ -108,7 +108,7 @@ class GroupIndex extends React.Component<
         pane: (
           <Tab.Pane loading={isFetching} key={2}>
             {group._id && (
-              <GroupContainers group={group} admin={admin} daemon={daemon} />
+              <GroupContainers group={group} admin={isAdmin} daemon={daemon} />
             )}
           </Tab.Pane>
         )
@@ -120,7 +120,7 @@ class GroupIndex extends React.Component<
             {group._id && (
               <GroupMembers
                 group={group}
-                admin={admin}
+                admin={groupAdmin || isAdmin}
                 refresh={this.refreshGroup}
               />
             )}
@@ -131,13 +131,13 @@ class GroupIndex extends React.Component<
         menuItem: "CAdvisor",
         pane: (
           <Tab.Pane loading={isFetching} key={4}>
-            {group._id && <GroupCAdvisor group={group} admin={admin} />}
+            {group._id && <GroupCAdvisor group={group} />}
           </Tab.Pane>
         )
       }
     ];
 
-    if (admin) {
+    if (isAdmin) {
       panes.push({
         menuItem: "Edit",
         pane: (
