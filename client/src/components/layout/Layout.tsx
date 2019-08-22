@@ -6,7 +6,7 @@ import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { Action } from 'redux';
 import { ThunkDispatch } from 'redux-thunk';
-import { Button, Container, Icon, Menu, Message } from 'semantic-ui-react';
+import { Button, Container, Icon, Image, Menu, Message } from 'semantic-ui-react';
 
 import { path } from '../../constants/path';
 import { IStoreState } from '../../types/store';
@@ -36,9 +36,7 @@ class Layout extends React.Component<ILayoutProps> {
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
-              <Button icon={true} onClick={this.goBack}>
-                <Icon name="arrow left" /> Previous
-              </Button>
+              <Image src="/favicon.png" width="20px"/>
             </Menu.Item>
           </Menu.Menu>
 
@@ -114,10 +112,6 @@ class Layout extends React.Component<ILayoutProps> {
       </>
     );
   }
-
-  private goBack = () => {
-    window.history.back();
-  };
 }
 
 const mapStateToProps = (state: IStoreState) => {

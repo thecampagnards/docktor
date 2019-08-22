@@ -112,7 +112,8 @@ func (d *Daemon) CreateNetwork(networkName string, subnet string) (types.Network
 	}
 
 	resp, err := cli.NetworkCreate(context.Background(), networkName, net)
-	if err != nil && !strings.Contains(err.Error(), fmt.Sprintf("network with name %s already exists", networkName)) {
+	if err != nil && !(strings.Contains(err.Error(), fmt.Sprintf("network with name %s already exists", networkName)) ||
+		strings.Contains(err.Error(), "is a pre-defined network and cannot be created")) {
 		return types.NetworkCreateResponse{}, err
 	}
 	return resp, nil
@@ -293,6 +294,28 @@ func (d *Daemon) RemoveContainers(containersName ...string) (errs map[string]str
 
 	for _, c := range containersName {
 		err = cli.ContainerRemove(context.Background(), c, types.ContainerRemoveOptions{Force: true})
+		if err != nil {
+			errs[c] = err.Error()
+		}
+	}
+
+	return
+}
+
+// RestartContainers
+func (d *Daemon) RestartContainers(containersName ...string) (errs map[string]string) {
+	errs = make(map[string]string)
+
+	cli, err := d.getDockerCli()
+	if err != nil {
+		return
+	}
+
+	defer cli.Close()
+
+	var timeout = DOCKER_STOP_TIMEOUT
+	for _, c := range containersName {
+		err = cli.ContainerRestart(context.Background(), c, &timeout)
 		if err != nil {
 			errs[c] = err.Error()
 		}
