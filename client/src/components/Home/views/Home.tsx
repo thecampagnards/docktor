@@ -1,14 +1,16 @@
+import './Home.css';
+
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Card, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal, Segment, Divider
+    Button, Card, Divider, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal,
+    Segment
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import TextSocket from '../../layout/TextSocket';
 import { fetchHome } from '../actions/home';
 import { IEnvironment, IHomeData } from '../types/home';
-import './Home.css';
 
 interface IHomeState {
   environments: IEnvironment[];
@@ -73,7 +75,10 @@ class Home extends React.Component<{}, IHomeState> {
           <Divider />
           <Message info={true}>
             <Message.Header>No group available</Message.Header>
-            <Message.Content>You are not assigned to any CDK environment. Follow the user manual to get started.</Message.Content>
+            <Message.Content>
+              You are not assigned to any CDK environment. Follow the user
+              manual to get started.
+            </Message.Content>
           </Message>
         </>
       );
@@ -100,24 +105,25 @@ class Home extends React.Component<{}, IHomeState> {
               />
             </Grid.Column>
           </Grid.Row>
-            {envSelected.map(env => {
-              const exitedContainers = env.containers.filter(c => c.State === "exited");
-              const filesystem = env.resources.fs[0];
-              const fsUsage = Math.round(
-                (100 * filesystem.usage) / filesystem.capacity
-              );
-              return (
-                <Grid.Column width={8} key={env.group.name}>
-                  <Card fluid={true}>
-                    <Card.Content>
-                      <Segment
-                        as={Link}
-                        to={path.groupCAdvisor.replace(
-                          ":groupID",
-                          env.group._id
-                        )}
-                        floated="right"
-                      >
+          {envSelected.map(env => (
+            <Grid.Column width={8} key={env.group.name}>
+              <Card fluid={true}>
+                <Card.Content>
+                  <Segment
+                    as={Link}
+                    to={path.groupCAdvisor.replace(":groupID", env.group._id)}
+                    floated="right"
+                  >
+                    {env.resources === null ? (
+                      <Icon
+                        name="warning circle"
+                        className="reverse"
+                        size="big"
+                        title="CAdvisor not available"
+                        color="orange"
+                      />
+                    ) : (
+                      <>
                         <Icon
                           data-percent={env.resources.cpu}
                           name="microchip"
@@ -133,78 +139,100 @@ class Home extends React.Component<{}, IHomeState> {
                           title={`RAM : ${env.resources.ram}%`}
                         />
                         <Icon
-                          data-percent={fsUsage}
+                          data-percent={Math.round(
+                            (100 * env.resources.fs[0].usage) /
+                              env.resources.fs[0].capacity
+                          )}
                           name="hdd"
                           className="reverse"
                           size="big"
-                          title={`Disk : ${fsUsage}%`}
+                          title={`Disk : ${Math.round(
+                            (100 * env.resources.fs[0].usage) /
+                              env.resources.fs[0].capacity
+                          )}%`}
                         />
-                      </Segment>
-                      <Card.Header>{env.group.name}</Card.Header>
-                      <Card.Meta>{env.daemon.host}</Card.Meta>
-                      <Card.Description>
-                        <Link
-                          to={path.groupsContainers.replace(
-                            ":groupID",
-                            env.group._id
-                          )}
-                        >
-                          <Icon name="docker" /> Go to containers
-                        </Link>
-                      </Card.Description>
-                    </Card.Content>
-                    <Card.Content>
-                      {exitedContainers.length === 0 ?
-                      <Card.Description>
-                        <Icon name="check" color="green" />
-                        All containers are up and running
-                      </Card.Description>
-                      :
-                      <List>
-                        {exitedContainers.map(c => (
-                            <List.Item key={c.Id}>
-                              <List.Content>
-                                <Button
-                                  compact={true}
-                                  basic={true}
-                                  color="green"
-                                  labelPosition="right"
-                                  icon="fire extinguisher"
-                                  content="Restart"
-                                  floated="right"
-                                />
-                              </List.Content>
-                              <List.Content>
-                                <Icon circular={true} color="red" name="fire" />
-                                <Modal
-                                  trigger={
-                                    <Button basic={true} compact={true} circular={true} labelPosition="right" icon="align left" content={c.Names[0].replace("/", "")} />
-                                  }
-                                  className="logs-modal"
+                      </>
+                    )}
+                  </Segment>
+                  <Card.Header>{env.group.name}</Card.Header>
+                  <Card.Meta>{env.daemon.host}</Card.Meta>
+                  <Card.Description>
+                    <Link
+                      to={path.groupsContainers.replace(
+                        ":groupID",
+                        env.group._id
+                      )}
+                    >
+                      <Icon name="docker" /> Go to containers
+                    </Link>
+                  </Card.Description>
+                </Card.Content>
+                <Card.Content>
+                  {env.containers === null ? (
+                    <Card.Description>
+                      <Icon name="warning circle" color="orange" />
+                      Error when getting containers
+                    </Card.Description>
+                  ) : env.containers.filter(c => c.State === "exited")
+                      .length === 0 ? (
+                    <Card.Description>
+                      <Icon name="check" color="green" />
+                      All containers are up and running
+                    </Card.Description>
+                  ) : (
+                    <List>
+                      {env.containers
+                        .filter(c => c.State === "exited")
+                        .map(c => (
+                          <List.Item key={c.Id}>
+                            <List.Content>
+                              <Button
+                                compact={true}
+                                basic={true}
+                                color="green"
+                                labelPosition="right"
+                                icon="fire extinguisher"
+                                content="Restart"
+                                floated="right"
+                              />
+                            </List.Content>
+                            <List.Content>
+                              <Icon circular={true} color="red" name="fire" />
+                              <Modal
+                                trigger={
+                                  <Button
+                                    basic={true}
+                                    compact={true}
+                                    circular={true}
+                                    labelPosition="right"
+                                    icon="align left"
+                                    content={c.Names[0].replace("/", "")}
+                                  />
+                                }
+                                className="logs-modal"
+                              >
+                                <Modal.Content
+                                  style={{
+                                    background: "black",
+                                    color: "white"
+                                  }}
                                 >
-                                  <Modal.Content
-                                    style={{
-                                      background: "black",
-                                      color: "white"
-                                    }}
-                                  >
-                                    <pre style={{ whiteSpace: "pre-line" }}>
-                                      <TextSocket
-                                        wsPath={`/api/daemons/${env.daemon._id}/docker/containers/${c.Id}/log`}
-                                      />
-                                    </pre>
-                                  </Modal.Content>
-                                </Modal>
-                              </List.Content>
-                            </List.Item>
-                          ))}
-                      </List>
-                      }
-                    </Card.Content>
-                  </Card>
-                </Grid.Column>
-              );
-            })}
+                                  <pre style={{ whiteSpace: "pre-line" }}>
+                                    <TextSocket
+                                      wsPath={`/api/daemons/${env.daemon._id}/docker/containers/${c.Id}/log`}
+                                    />
+                                  </pre>
+                                </Modal.Content>
+                              </Modal>
+                            </List.Content>
+                          </List.Item>
+                        ))}
+                    </List>
+                  )}
+                </Card.Content>
+              </Card>
+            </Grid.Column>
+          ))}
         </Grid>
       </>
     );

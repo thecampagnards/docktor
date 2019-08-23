@@ -87,6 +87,8 @@ func updateContainersStatus(c echo.Context) error {
 		errs = daemon.StopContainers(containers...)
 	case "remove":
 		errs = daemon.RemoveContainers(containers...)
+	case "restart":
+		errs = daemon.RestartContainers(containers...)
 	case "create":
 
 		// Find groups of daemon

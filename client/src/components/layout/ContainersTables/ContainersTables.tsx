@@ -52,8 +52,15 @@ export default class ContainerTable extends React.Component<
     let containersFiltered =
       containers &&
       containers
-        .filter(c => (c.Name ? [c.Name] : c.Names).filter(n => n.toLowerCase().includes(searchFilter.toLowerCase())).length > 0)
-        .sort((a, b) => a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0);
+        .filter(
+          c =>
+            (c.Name ? [c.Name] : c.Names).filter(n =>
+              n.toLowerCase().includes(searchFilter.toLowerCase())
+            ).length > 0
+        )
+        .sort((a, b) =>
+          a.Created > b.Created ? 1 : b.Created > a.Created ? -1 : 0
+        );
 
     return (
       <>
@@ -68,8 +75,8 @@ export default class ContainerTable extends React.Component<
                 value={searchFilter}
               />
             </Grid.Column>
-            <Grid.Column width={8} />
-            <Grid.Column width={4}>
+            <Grid.Column width={6} />
+            <Grid.Column width={6}>
               <Popup
                 content={error.message}
                 disabled={!error.message}
@@ -93,6 +100,15 @@ export default class ContainerTable extends React.Component<
                       onClick={this.handleAllOnClick.bind(this, "start")}
                     >
                       <Icon name="play" /> START ALL
+                    </Button>
+                    <Button
+                      color="blue"
+                      icon={true}
+                      floated="right"
+                      loading={isFetching}
+                      onClick={this.handleAllOnClick.bind(this, "create")}
+                    >
+                      <Icon name="sliders" /> CREATE ALL
                     </Button>
                   </Button.Group>
                 }
@@ -128,9 +144,9 @@ export default class ContainerTable extends React.Component<
                       .map(port => (
                         <Label
                           key={port.PublicPort}
-                          content={port.PrivatePort}
+                          content={`${port.PublicPort}:${port.PrivatePort}`}
                           as="a"
-                          href={"http://" + daemon.host + ":" + port.PublicPort}
+                          href={`http://${daemon.host}:${port.PublicPort}`}
                           target="_blank"
                         />
                       ))}
