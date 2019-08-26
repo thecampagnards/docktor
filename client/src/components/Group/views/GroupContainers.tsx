@@ -4,9 +4,9 @@ import { Button, Loader, Message } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import ContainerTable from '../../layout/ContainersTables/ContainersTables';
 import { fetchContainers, saveContainers } from '../actions/group';
 import { IGroup } from '../types/group';
+import ContainerGrid from '../../layout/ContainersTables/ContainersGrid';
 
 interface IGroupProps {
   group: IGroup;
@@ -98,20 +98,10 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
             <p>{saveError.message}</p>
           </Message>
         )}
-        {containers && containers.length > 0 && (
-          <Button
-            color="teal"
-            icon="save"
-            labelPosition="right"
-            content="SAVE CONTAINERS"
-            onClick={this.handleSaveContainer}
-            loading={isSaveFetching}
-            floated="right"
-          />
-        )}
-        <ContainerTable daemon={daemon} containers={containers} admin={admin} />
+        <ContainerGrid containers={containers} admin={admin} daemon={daemon} />
         {admin && (
           <Button
+            color="black"
             icon="terminal"
             labelPosition="right"
             content="VM terminal"
