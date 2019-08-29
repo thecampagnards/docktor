@@ -23,11 +23,11 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     error: Error(),
   };
 
-  private refreshIntervalId: number;
+  private refreshIntervalId: NodeJS.Timeout;
 
   public componentDidMount() {
     this.fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 60);
+    this.refreshIntervalId = setInterval(this.fetch, 1000 * 60);
   }
 
   public componentWillUnmount() {
@@ -53,7 +53,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-        <ContainerGrid containers={containers} admin={admin} daemon={daemon} groupId={group._id} />
+        <ContainerGrid containers={containers} admin={admin} daemon={daemon} groupId={group._id} refresh={this.fetch} />
     );
   }
 

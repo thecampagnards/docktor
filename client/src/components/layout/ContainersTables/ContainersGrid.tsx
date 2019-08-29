@@ -16,6 +16,7 @@ interface IContainerGridProps {
   daemon: IDaemon;
   admin: boolean;
   containers: IContainer[];
+  refresh: () => void;
   groupId?: string;
 }
 
@@ -48,7 +49,7 @@ export default class ContainerGrid extends React.Component<
   }
 
   public render() {
-    const { daemon, containers, admin, groupId } = this.props;
+    const { daemon, containers, admin, refresh, groupId } = this.props;
     const { isFetching, error, images, searchFilter } = this.state;
 
     // filter containers
@@ -137,7 +138,7 @@ export default class ContainerGrid extends React.Component<
           <Grid className="three column grid">
             {containersFiltered.map((c: IContainer) => (
               <Grid.Column key={c.Id}>
-                <ContainerCard container={c} images={images.filter(i => RegExp(i.image.Pattern).test(c.Image))} admin={admin} daemon={daemon} />
+                <ContainerCard container={c} images={images.filter(i => RegExp(i.image.Pattern).test(c.Image))} admin={admin} daemon={daemon} refresh={refresh} />
               </Grid.Column>
               )
             )}
@@ -150,10 +151,11 @@ export default class ContainerGrid extends React.Component<
   }
 
   private handleAllOnClick = (state: string) => {
-    const { containers, daemon } = this.props;
+    const { containers, daemon, refresh } = this.props;
 
     this.setState({ isFetching: true });
     changeContainersStatus(daemon._id, state, containers.map(c => c.Id))
+      .then(() => refresh())
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };

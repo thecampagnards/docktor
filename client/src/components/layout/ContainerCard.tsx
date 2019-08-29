@@ -13,6 +13,7 @@ interface IContainerCardProps {
     daemon: IDaemon;
     container: IContainer;
     admin: boolean;
+    refresh: () => void;
     images: IImage[];
 }
 
