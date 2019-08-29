@@ -1,69 +1,212 @@
 import * as React from 'react';
-import { Button, Card, Icon, Label, Grid } from 'semantic-ui-react';
+import { Button, Card, Label, Grid, Segment, Popup, Dropdown, Divider, Modal } from 'semantic-ui-react';
 
-import { IContainer } from '../Daemon/types/daemon';
+import { IContainer, IPort, IDaemon } from '../Daemon/types/daemon';
 import { IImage } from '../Images/types/image';
+import TextSocket from './TextSocket';
+import { copy } from '../../utils/clipboard';
+import ShellSocket from './ShellSocket';
+import Commands from './ContainersTables/Commands';
+import { changeContainersStatus } from '../Daemon/actions/daemon';
 
 interface IContainerCardProps {
-    container: IContainer,
-    admin: boolean,
-    images: IImage[],
+    daemon: IDaemon;
+    container: IContainer;
+    admin: boolean;
+    images: IImage[];
 }
 
-export default class ContainerCard extends React.Component<IContainerCardProps> {
+interface IContainerCardState {
+    containerState: string;
+    isFetchingState: boolean;
+    updateError: Error;
+}
+
+export default class ContainerCard extends React.Component<IContainerCardProps, IContainerCardState> {
+    public state = {
+        containerState: this.props.container.Status ? this.props.container.State : "removed",
+        isFetchingState: false,
+        updateError: Error(),
+    }
+
+    private containerName = this.props.container.Name || this.props.container.Names[0] || "Container";
+
     public render() {
-        const { container, admin } = this.props
-        const containerName = container.Name || container.Names[0] || "Container";
+        const { container, daemon, images } = this.props;
+        const { containerState, isFetchingState, updateError } = this.state;
 
         return (
-            <Card fluid={true}>
+            <Card fluid={true} color={this.getStatusColor(containerState)}>
                 <Card.Content>
                     <Grid>
                         <Grid.Column width={13}>
-                            <Card.Header>{containerName.toUpperCase()}</Card.Header>
+                            <Card.Header>{this.containerName.toUpperCase()}</Card.Header>
                             <Card.Meta>{container.Image}</Card.Meta>
                         </Grid.Column>
                         <Grid.Column width={3}>
-                            {this.containerStatus}
+                            {this.containerStatus()}
                         </Grid.Column>
                     </Grid>
                 </Card.Content>
                 <Card.Content>
-                    <Button.Group>
-                        {container.Status && container.Status.startsWith("Up") && (
+                    <Segment>
+                        <Button.Group style={{ "margin-right": 10}}>
+                            {containerState === "running" && (
+                                <>
+                                    <Button basic={true} color="green" icon="redo" title="Restart" loading={isFetchingState} />
+                                    <Button basic={true} color="orange" icon="stop" title="Stop" loading={isFetchingState} />
+                                </>
+                            )}
+                            {containerState === "exited" &&
+                                <Button basic={true} color="green" icon="play" title="Start" loading={isFetchingState} />
+                            }
+                            {container.Status ?
+                                <Popup
+                                    trigger={<Button basic={true} color="red" icon="delete" title="Delete" loading={isFetchingState} />}
+                                    content={<Button basic={true} color="red" content="Confirm container removal" />}
+                                    on="click"
+                                    position="bottom left"
+                                    basic={true}
+                                />
+                                :
+                                <Button basic={true} color="blue" icon="sliders" content="Create" loading={isFetchingState} />
+                            }
+                        </Button.Group>
+
+                        {containerState === "running" && container.Ports && daemon.host && (
+                            <Dropdown className="button basic icon" icon="external alternate" title="Links (Ports external:internal)">
+                                <Dropdown.Menu>
+                                    {container.Ports
+                                        .filter(p => p.PublicPort && p.IP === "0.0.0.0")
+                                        .map((p: IPort) => (
+                                            <Dropdown.Item 
+                                                key={p.PublicPort} 
+                                                as="a"
+                                                href={`http://${daemon.host}:${p.PublicPort}`}
+                                                target="_blank"
+                                            >
+                                                {`${p.PublicPort}:${p.PrivatePort}`}
+                                            </Dropdown.Item>
+                                    ))}
+                                </Dropdown.Menu>
+                            </Dropdown>
+                        )}
+
+                        {container.Status && (
+                            <Modal trigger={<Button basic={true} icon="align left" title="Show logs" />} size="fullscreen">
+                                <Modal.Content style={{ background: "black", color: "white" }}>
+                                    <pre style={{ whiteSpace: "pre-line" }}>
+                                    <TextSocket wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/log`} />
+                                    </pre>
+                                </Modal.Content>
+                            </Modal>
+                        )}
+
+                        {containerState === "running" && (
                             <>
-                                <Button color="green" icon="redo" title="Restart" />
-                                <Button color="orange" icon="stop" title="Stop" />
+                                <Modal trigger={<Button basic={true} icon="code" title="Run commands" />} size="tiny">
+                                    <Modal.Header>
+                                        {this.containerName + " available commands :"}
+                                    </Modal.Header>
+                                    <Modal.Content>
+                                        <Commands images={images} daemon={daemon} container={container} />
+                                    </Modal.Content>
+                                </Modal>
+
+                                {this.allowShell && (
+                                    <Modal trigger={<Button basic={true} circular={true} floated="right" icon="terminal" title="Exec shell" />} size="fullscreen">
+                                        <Modal.Content style={{ background: "black" }}>
+                                            <ShellSocket
+                                                wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/term`}
+                                            />
+                                        </Modal.Content>
+                                    </Modal>
+                                )}
                             </>
                         )}
-                        {container.Status && container.Status.startsWith("Exited") &&
-                            <Button color="green" icon="play" title="Start" />
-                        }
-                        {container.Status ?
-                            <Button color="red" icon="delete" title="Delete" />
-                            :
-                            <Button color="blue" icon="sliders" title="Create" />
-                        }
-                    </Button.Group>
-                    
+
+                        <Modal trigger={<Button basic={true} icon="cog" title="Inspect container" />}>
+                            <Modal.Content style={{ background: "black", color: "white" }}>
+                                <pre>{JSON.stringify(container, null, 2)}</pre>
+                            </Modal.Content>
+                        </Modal>
+
+                        <Dropdown className="button basic" text="Copy">
+                            <Dropdown.Menu>
+                                <Dropdown.Item onClick={copy.bind(this, this.containerName)}>
+                                    Container name
+                                </Dropdown.Item>
+                                <Dropdown.Item onClick={copy.bind(this, container.Image)}>
+                                    Container image
+                                </Dropdown.Item>
+                                <Dropdown.Item>Pull command</Dropdown.Item>
+                                <Dropdown.Item>Create command</Dropdown.Item>
+                            </Dropdown.Menu>
+                        </Dropdown>
+
+                    </Segment>
                 </Card.Content>
             </Card>
         )
     }
 
-    private containerStatus = () => {
-        const status = this.props.container.Status || "Removed";
-        switch (true) {
-            case status.startsWith("Up"):
-                return <Label color="green" title={status} content="RUNNING" />;
-            case status.startsWith("Exited"):
-                return <Label color="orange" title={status} content="EXITED" />;
-            case status.startsWith("Dead"):
-                return <Label color="black" title={status} content="DEAD" />;
-            case status.startsWith("Removed"):
-                return <Label color="red" title={status} content="REMOVED" />;
-            default:
-                return <Label color="grey" title={status} content="?" />;
+    private handleStatusButton = (state: string) => {
+        const { container, daemon } = this.props;
+    
+        this.setState({ isFetchingState: true });
+    
+        if (daemon) {
+          changeContainersStatus(daemon._id, state, [container.Id])
+            .then(() => console.log("State updated"))
+            .catch(error => this.setState({ updateError: error }))
+            .finally(() => this.setState({ isFetchingState: false }));
         }
+      };
+    
+
+    private getStatusColor = (state: string) => {
+        let color: "green" | "orange" | "red" | "black" | "grey" | undefined = "grey";
+        switch (state) {
+            case "running":
+                color = "green";
+                break;
+            case"exited":
+                color = "orange";
+                break;
+            case "dead":
+                color = "black";
+                break;
+            case "removed":
+                color = "red";
+                break;
+            default:
+                break;
+        }
+        return color;
     }
+
+    private containerStatus = () => {
+        const status = this.props.container.Status;
+        const state = status ? this.props.container.State : "removed";
+        
+        return <Label color={this.getStatusColor(state)} title={status || "Removed"} content={state.toUpperCase()} />;
+    }
+
+    private computeAllowShell = () => {
+        const { admin, images } = this.props;
+
+        if (admin) {
+            return true;
+        }
+
+        for (const image of images) {
+            if (image.is_allow_shell) {
+              return true;
+            }
+        }
+
+        return false;
+    };
+    private allowShell = this.computeAllowShell();
 }
+ 

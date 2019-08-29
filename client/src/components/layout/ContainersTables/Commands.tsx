@@ -98,7 +98,7 @@ export default class Commands extends React.Component<
                   {command.variables.map(v => (
                     <Form.Input
                       key={v}
-                      fluid={true}
+                      inline={true}
                       label={v}
                       required={true}
                       onChange={this.handleInput}
