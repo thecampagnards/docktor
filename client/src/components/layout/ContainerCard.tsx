@@ -54,23 +54,37 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                         <Button.Group style={{ "margin-right": 10}}>
                             {containerState === "running" && (
                                 <>
-                                    <Button basic={true} color="green" icon="redo" title="Restart" loading={isFetchingState} />
-                                    <Button basic={true} color="orange" icon="stop" title="Stop" loading={isFetchingState} />
+                                    <Button basic={true} color="green" icon="redo" title="Restart"
+                                        loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "restart")}
+                                    />
+                                    <Button basic={true} color="orange" icon="stop" title="Stop"
+                                        loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "stop")}
+                                    />
                                 </>
                             )}
                             {containerState === "exited" &&
-                                <Button basic={true} color="green" icon="play" title="Start" loading={isFetchingState} />
+                                <Button basic={true} color="green" icon="play" title="Start"
+                                    loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "start")}
+                                />
                             }
                             {container.Status ?
                                 <Popup
-                                    trigger={<Button basic={true} color="red" icon="delete" title="Delete" loading={isFetchingState} />}
-                                    content={<Button basic={true} color="red" content="Confirm container removal" />}
+                                    trigger={
+                                        <Button basic={true} color="red" icon="delete" title="Delete"
+                                            loading={isFetchingState} 
+                                        />}
+                                    content={
+                                        <Button basic={true} color="red"
+                                            content="Confirm container removal" onClick={this.handleStatusButton.bind(this, "remove")}
+                                        />}
                                     on="click"
                                     position="bottom left"
                                     basic={true}
                                 />
                                 :
-                                <Button basic={true} color="blue" icon="sliders" content="Create" loading={isFetchingState} />
+                                <Button basic={true} color="blue" icon="sliders" content="Create"
+                                    loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "create")}
+                                />
                             }
                         </Button.Group>
 
@@ -158,11 +172,16 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
     
         if (daemon) {
           changeContainersStatus(daemon._id, state, [container.Id])
-            .then(() => console.log("State updated"))
+            .then(() => this.refreshStatus())
             .catch(error => this.setState({ updateError: error }))
             .finally(() => this.setState({ isFetchingState: false }));
         }
-      };
+    };
+
+    private refreshStatus = () => {
+        this.props.refresh();
+        this.setState({ containerState: this.props.container.Status ? this.props.container.State : "removed" });
+    }
     
 
     private getStatusColor = (state: string) => {
