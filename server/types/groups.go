@@ -119,12 +119,13 @@ func (g *Group) FindServiceByID(id string) *GroupService {
 	return nil
 }
 
-// FindContainersByNameOrID return the group containers by id or name
+// FindContainersByNameOrID return the group containers by id or name and keep the array key
 func (g *GroupDocker) FindContainersByNameOrID(containers []string) (cont []types.ContainerJSON) {
+	cont = make([]types.ContainerJSON, len(g.Containers))
 	for _, container := range containers {
-		for _, c := range g.Containers {
+		for key, c := range g.Containers {
 			if c.ID == container || c.Name == container {
-				cont = append(cont, c)
+				cont[key] = c
 				break
 			}
 		}

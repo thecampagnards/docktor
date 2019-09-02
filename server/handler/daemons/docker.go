@@ -89,7 +89,7 @@ func updateContainersStatus(c echo.Context) error {
 		errs = daemon.RemoveContainers(containers...)
 	case "restart":
 		errs = daemon.RestartContainers(containers...)
-	case "create":
+	case "create", "destroy":
 
 		// Find groups of daemon
 		groups, err := db.Groups().FindByDaemonIDBson(daemon.ID)
@@ -103,17 +103,41 @@ func updateContainersStatus(c echo.Context) error {
 
 		errs = make(map[string]string)
 
-		for _, group := range groups {
-			for _, container := range group.FindContainersByNameOrID(containers) {
-				err = daemon.CreateContainer(container)
+		switch c.QueryParam("status") {
+		case "create":
+			for _, group := range groups {
+				for _, container := range group.FindContainersByNameOrID(containers) {
+					err = daemon.CreateContainer(container)
+					if err != nil {
+						errs[container.Name] = err.Error()
+						log.WithFields(log.Fields{
+							"daemon":    daemon.Name,
+							"status":    c.QueryParam("status"),
+							"err":       err,
+							"container": container,
+						}).Error("Error when create this container")
+					}
+				}
+			}
+		case "destroy":
+
+			for keyGroup := 0; keyGroup < len(groups); keyGroup++ {
+				for keyContainer, c := range groups[keyGroup].FindContainersByNameOrID(containers) {
+					if c.ContainerJSONBase != nil {
+						groups[keyGroup].Containers = append(groups[keyGroup].Containers[:keyContainer], groups[keyGroup].Containers[keyContainer+1:]...)
+					}
+				}
+			}
+
+			for _, group := range groups {
+				_, err = db.Groups().Save(group)
 				if err != nil {
-					errs[container.Name] = err.Error()
+					errs[group.Name] = err.Error()
 					log.WithFields(log.Fields{
-						"daemon":    daemon.Name,
-						"status":    c.QueryParam("status"),
-						"err":       err,
-						"container": container,
-					}).Error("Error when create this container")
+						"status": c.QueryParam("status"),
+						"err":    err,
+						"group":  group.Name,
+					}).Error("Error when destroy containers")
 				}
 			}
 		}
@@ -122,7 +146,7 @@ func updateContainersStatus(c echo.Context) error {
 			"daemon": daemon.Name,
 			"status": c.QueryParam("status"),
 			"error":  "Wrong status",
-		}).Error("Error when retrieving daemon")
+		}).Error("Wrong status")
 		return c.JSON(http.StatusBadRequest, "Wrong status")
 	}
 

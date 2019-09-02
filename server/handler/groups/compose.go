@@ -117,6 +117,13 @@ func updateServiceGroupStatus(c echo.Context) error {
 		err = daemon.ComposeStop(contextName, [][]byte{serviceGroup.File})
 	case "remove":
 		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
+	case "destroy":
+		for key, service := range group.Services {
+			if (service.SubServiceID == serviceGroup.SubServiceID) {
+				group.Services = append(group.Services[:key], group.Services[key+1:]...)
+			}
+		}
+		_, err = db.Groups().Save(group)
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
