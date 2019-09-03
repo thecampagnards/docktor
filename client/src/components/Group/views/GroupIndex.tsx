@@ -123,6 +123,7 @@ class GroupIndex extends React.Component<
               <GroupMembers
                 group={group}
                 admin={groupAdmin || isAdmin}
+                username={username}
                 refresh={this.refreshGroup}
               />
             )}
