@@ -162,7 +162,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                         )}
 
                         {(container.Status || admin) && (
-                            <Modal trigger={<Button basic={true} icon="cog" title="Inspect container" />}>
+                            <Modal trigger={<Button basic={true} icon="cog" title="Inspect container" />} size="fullscreen">
                                 <Modal.Content style={{ background: "black", color: "white" }}>
                                     <pre>{JSON.stringify(container, null, 2)}</pre>
                                 </Modal.Content>
