@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { Button, Card, Label, Grid, Segment, Popup, Dropdown, Modal } from 'semantic-ui-react';
 
-import { IContainer, IPort, IDaemon } from '../Daemon/types/daemon';
-import { IImage } from '../Images/types/image';
-import TextSocket from './TextSocket';
-import { copy } from '../../utils/clipboard';
-import ShellSocket from './ShellSocket';
-import Commands from './ContainersTables/Commands';
-import { changeContainersStatus } from '../Daemon/actions/daemon';
+import { IContainer, IPort, IDaemon } from '../../Daemon/types/daemon';
+import { IImage } from '../../Images/types/image';
+import TextSocket from '../TextSocket';
+import { copy } from '../../../utils/clipboard';
+import ShellSocket from '../ShellSocket';
+import Commands from './Commands';
+import { changeContainersStatus } from '../../Daemon/actions/daemon';
 
 interface IContainerCardProps {
     daemon: IDaemon;
@@ -99,7 +99,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                         trigger={<Button basic={true} color="red" icon="trash" title="Delete permanently" loading={isFetchingState} />}
                                         content={
                                             <Button basic={true} color="red" icon="warning sign"
-                                                content="Remove permanently"
+                                                content="Remove permanently" onClick={this.handleStatusButton.bind(this, "destroy")}
                                             />}
                                         on="click"
                                         position="bottom left"

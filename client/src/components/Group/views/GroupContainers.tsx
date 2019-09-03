@@ -4,7 +4,7 @@ import { Message } from 'semantic-ui-react';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import { fetchContainers } from '../actions/group';
 import { IGroup } from '../types/group';
-import ContainerGrid from '../../layout/ContainersTables/ContainersGrid';
+import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 
 interface IGroupProps {
   group: IGroup;

@@ -7,7 +7,7 @@ import { changeContainersStatus } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
-import ContainerCard from '../ContainerCard';
+import ContainerCard from './ContainerCard';
 import { Link } from 'react-router-dom';
 import { path } from '../../../constants/path';
 import { saveContainers } from '../../Group/actions/group';

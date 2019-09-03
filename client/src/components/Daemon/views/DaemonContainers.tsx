@@ -4,7 +4,7 @@ import { Grid, Label, Loader, Message } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
-import ContainerGrid from '../../layout/ContainersTables/ContainersGrid';
+import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 import { fetchComposeServices, fetchContainers, fetchSavedContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
