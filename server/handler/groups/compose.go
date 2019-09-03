@@ -36,6 +36,8 @@ func createServiceGroup(c echo.Context) error {
 		}).Error("Error when retrieving subservice")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+	// Assign form variables for the convert
+	subService.Variables = variables
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
 	if err != nil {
