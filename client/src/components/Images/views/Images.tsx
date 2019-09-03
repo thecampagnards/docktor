@@ -239,10 +239,10 @@ class Images extends React.Component<{}, IImagesStates> {
       | React.ChangeEvent<HTMLInputElement>
       | React.FormEvent<HTMLInputElement>
       | React.FormEvent<HTMLTextAreaElement>,
-    { value, name }: TextAreaProps | InputOnChangeData | CheckboxProps
+    { value, name, checked }: TextAreaProps | InputOnChangeData | CheckboxProps
   ) => {
     event.preventDefault();
-    this.setState(_.set(this.state, name, value));
+    this.setState(_.set(this.state, name, checked || value));
   };
 
   private handleChangeCodeEditor = (

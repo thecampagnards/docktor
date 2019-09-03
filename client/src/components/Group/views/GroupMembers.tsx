@@ -12,6 +12,7 @@ import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
+  username: string;
   admin: boolean;
   refresh: () => void;
 }
@@ -36,9 +37,11 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
   };
 
   public componentDidMount() {
-    fetchUsers().then(users =>
-      this.setState({ allUsers: users.map((u: IUser) => u.username) })
-    );
+    fetchUsers()
+      .then(users =>
+        this.setState({ allUsers: users.map((u: IUser) => u.username) })
+      )
+      .finally(() => this.setState({ isFetching: false }));
 
     const { group } = this.props;
     const usernames = group.users.concat(group.admins);
@@ -49,8 +52,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
           members.push(u);
           this.setState({ members });
         })
-        .catch(() => console.warn(`User ${username} not found`))
-        .finally(() => this.setState({ isFetching: false }));
+        .catch(() => console.warn(`User ${username} not found`));
     });
   }
 
@@ -63,12 +65,14 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
       error,
       isFetching
     } = this.state;
-    const { admin } = this.props;
+    const { username, admin } = this.props;
 
     if (error.message) {
       return (
         <Message negative={true}>
-          <Message.Header>There was an issue while fetching users</Message.Header>
+          <Message.Header>
+            There was an issue while fetching users
+          </Message.Header>
           <p>{error.message}</p>
         </Message>
       );
@@ -153,7 +157,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                       color="red"
                       name={user.username}
                       onClick={this.deleteFromGroup}
-                      disabled={!admin}
+                      disabled={!(admin || user.username === username)}
                     />
                   </Table.Cell>
                 </Table.Row>

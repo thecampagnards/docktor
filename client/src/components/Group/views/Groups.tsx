@@ -122,10 +122,10 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               disabled={isFetching}
             />
           </Grid.Column>
-          <Grid.Column width={isAdmin ? 4: 6}>
+          <Grid.Column width={isAdmin ? 4 : 6}>
             <Segment
               compact={true}
-              color={this.displayAll && "blue"}
+              color={this.displayAll ? "blue" : undefined}
               floated="right"
             >
               <Checkbox

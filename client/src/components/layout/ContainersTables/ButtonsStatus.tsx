@@ -97,16 +97,26 @@ export default class ButtonsStatus extends React.Component<
             disabled={!error.message}
             inverted={true}
             trigger={
-              <Button
-                fluid={true}
-                loading={isFetching}
-                icon={true}
-                labelPosition="left"
-                color="blue"
-                onClick={this.handleOnClick.bind(this, "create")}
-              >
-                <Icon name="sliders" /> CREATE
-              </Button>
+              <Button.Group vertical={true} compact={true} fluid={true}>
+                <Button
+                  loading={isFetching}
+                  icon={true}
+                  labelPosition="left"
+                  color="blue"
+                  onClick={this.handleOnClick.bind(this, "create")}
+                >
+                  <Icon name="sliders" /> CREATE
+                </Button>
+                <Button
+                  loading={isFetching}
+                  icon={true}
+                  labelPosition="left"
+                  color="red"
+                  onClick={this.handleOnClick.bind(this, "destroy")}
+                >
+                  <Icon name="delete" /> DESTROY
+                </Button>
+              </Button.Group>
             }
           />
         );

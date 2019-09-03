@@ -122,7 +122,7 @@ export default class ProfileCard extends React.Component<
   private deleteFromGroup = (group: IGroup) => {
     this.setState({ isFetching: true });
     const username = this.props.user.username;
-    updateUser(group.name, username, "delete")
+    updateUser(group._id, username, "delete")
       .then(() => this.props.refresh())
       .finally(() => this.setState({ isFetching: false }));
   };

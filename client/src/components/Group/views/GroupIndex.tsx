@@ -47,14 +47,16 @@ class GroupIndex extends React.Component<
 
   private activeTab: number = 0;
 
-  public constructor(props: RouteComponentProps<IRouterProps> & IGroupIndexProps) {
+  public constructor(
+    props: RouteComponentProps<IRouterProps> & IGroupIndexProps
+  ) {
     super(props);
 
     const { groupID } = this.props.match.params;
     const path = window.location.pathname;
 
     this.refreshGroup();
-    
+
     switch (true) {
       case path === constPath.groupsServices.replace(":groupID", groupID):
         this.activeTab = 0;
@@ -201,9 +203,10 @@ class GroupIndex extends React.Component<
     fetchGroup(groupID)
       .then((group: IGroup) => {
         this.setState({ group });
-        group.daemon_id && fetchDaemon(group.daemon_id).then((daemon: IDaemon) =>
-          this.setState({ daemon })
-        );
+        group.daemon_id &&
+          fetchDaemon(group.daemon_id).then((daemon: IDaemon) =>
+            this.setState({ daemon })
+          );
       })
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
