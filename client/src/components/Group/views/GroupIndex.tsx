@@ -67,7 +67,7 @@ class GroupIndex extends React.Component<
       case path === constPath.groupsMembers.replace(":groupID", groupID):
         this.activeTab = 2;
         break;
-      case path === constPath.groupCAdvisor.replace(":groupID", groupID):
+      case path === constPath.groupsCAdvisor.replace(":groupID", groupID):
         this.activeTab = 3;
         break;
       case path === constPath.groupsEdit.replace(":groupID", groupID):
@@ -188,7 +188,7 @@ class GroupIndex extends React.Component<
         break;
       case 3:
         this.props.history.push(
-          constPath.groupCAdvisor.replace(":groupID", groupID)
+          constPath.groupsCAdvisor.replace(":groupID", groupID)
         );
         break;
       case 4:

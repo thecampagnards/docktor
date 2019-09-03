@@ -111,7 +111,7 @@ class Home extends React.Component<{}, IHomeState> {
                 <Card.Content>
                   <Segment
                     as={Link}
-                    to={path.groupCAdvisor.replace(":groupID", env.group._id)}
+                    to={path.groupsCAdvisor.replace(":groupID", env.group._id)}
                     floated="right"
                   >
                     {env.resources === null ? (

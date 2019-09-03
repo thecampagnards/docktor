@@ -44,7 +44,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     return (
       <>
 
-        {admin ? 
+        {admin ?
           <Grid>
             <Grid.Column width={12}>
               {group.services.length === 0 && (
@@ -52,12 +52,12 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
               )}
             </Grid.Column>
             <Grid.Column width={4}>
-              <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketgroup.replace(":groupID", group._id)} floated="right">
+              <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketGroup.replace(":groupID", group._id)} floated="right">
                 <Icon name="plus" />ADD SERVICE
               </Button>
             </Grid.Column>
           </Grid>
-          : 
+          :
           <pre>No service in this group. Contact your group administrator to request one.</pre>
         }
 
@@ -68,7 +68,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
             </Grid.Column>
           ))}
         </Grid>
-        
+
       </>
     );
   }

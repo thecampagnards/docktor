@@ -2,9 +2,9 @@ import * as React from 'react';
 import { Message } from 'semantic-ui-react';
 
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
+import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 import { fetchContainers } from '../actions/group';
 import { IGroup } from '../types/group';
-import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 
 interface IGroupProps {
   group: IGroup;
@@ -20,7 +20,7 @@ interface IGroupStates {
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     containers: [],
-    error: Error(),
+    error: Error()
   };
 
   private refreshIntervalId: NodeJS.Timeout;
@@ -36,10 +36,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { group, daemon, admin } = this.props;
-    const {
-      containers,
-      error,
-    } = this.state;
+    const { containers, error } = this.state;
 
     if (error.message) {
       return (
@@ -53,7 +50,13 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-        <ContainerGrid containers={containers} admin={admin} daemon={daemon} groupId={group._id} refresh={this.fetch} />
+      <ContainerGrid
+        containers={containers}
+        admin={admin}
+        daemon={daemon}
+        groupId={group._id}
+        refresh={this.fetch}
+      />
     );
   }
 

@@ -4,14 +4,14 @@ export const path = {
   images: "/images",
 
   market: "/market",
-  marketgroup: "/market?group=:groupID",
+  marketGroup: "/market?group=:groupID",
 
   groups: "/groups",
   groupsNew: "/groups/new",
   groupsEdit: "/groups/:groupID/edit",
   groupsMore: "/groups/:groupID",
   groupsContainers: "/groups/:groupID/containers",
-  groupCAdvisor: "/groups/:groupID/cadvisor",
+  groupsCAdvisor: "/groups/:groupID/cadvisor",
   groupsServices: "/groups/:groupID/services",
   groupsMembers: "/groups/:groupID/members",
 
