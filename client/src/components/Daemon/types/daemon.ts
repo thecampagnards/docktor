@@ -56,6 +56,9 @@ export interface IContainer {
   Ports: IPort[];
   State: string;
   Status: string;
+  Config: {
+    Image: string;
+  }
 }
 
 export interface IPort {

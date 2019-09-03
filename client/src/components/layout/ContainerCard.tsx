@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Card, Label, Grid, Segment, Popup, Dropdown, Divider, Modal } from 'semantic-ui-react';
+import { Button, Card, Label, Grid, Segment, Popup, Dropdown, Modal } from 'semantic-ui-react';
 
 import { IContainer, IPort, IDaemon } from '../Daemon/types/daemon';
 import { IImage } from '../Images/types/image';
@@ -31,9 +31,21 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
     }
 
     private containerName = this.props.container.Name || this.props.container.Names[0] || "Container";
+    private containerImage = this.props.container.Config ? this.props.container.Config.Image : this.props.container.Image;
+
+    public getDerivedStateFromProps() {
+        const containerState = this.props.container.Status ? this.props.container.State : "removed";
+
+        if (containerState === "removed") {
+            this.containerName = this.props.container.Name;
+            this.containerImage = this.props.container.Config.Image;
+        }
+
+        this.setState({ containerState })
+    }
 
     public render() {
-        const { container, daemon, images } = this.props;
+        const { container, daemon, images, admin } = this.props;
         const { containerState, isFetchingState, updateError } = this.state;
 
         return (
@@ -42,7 +54,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                     <Grid>
                         <Grid.Column width={13}>
                             <Card.Header>{this.containerName.toUpperCase()}</Card.Header>
-                            <Card.Meta>{container.Image}</Card.Meta>
+                            <Card.Meta>{this.containerImage}</Card.Meta>
                         </Grid.Column>
                         <Grid.Column width={3}>
                             {this.containerStatus()}
@@ -51,7 +63,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                 </Card.Content>
                 <Card.Content>
                     <Segment>
-                        <Button.Group style={{ "margin-right": 10}}>
+                        <Button.Group style={{ "marginRight": 10 }}>
                             {containerState === "running" && (
                                 <>
                                     <Button basic={true} color="green" icon="redo" title="Restart"
@@ -69,10 +81,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                             }
                             {container.Status ?
                                 <Popup
-                                    trigger={
-                                        <Button basic={true} color="red" icon="delete" title="Delete"
-                                            loading={isFetchingState} 
-                                        />}
+                                    trigger={<Button basic={true} color="red" icon="delete" title="Delete" loading={isFetchingState} />}
                                     content={
                                         <Button basic={true} color="red"
                                             content="Confirm container removal" onClick={this.handleStatusButton.bind(this, "remove")}
@@ -82,9 +91,21 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                     basic={true}
                                 />
                                 :
-                                <Button basic={true} color="blue" icon="sliders" content="Create"
-                                    loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "create")}
-                                />
+                                <>
+                                    <Button basic={true} color="blue" icon="sliders" content="Create"
+                                        loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "create")}
+                                    />
+                                    <Popup
+                                        trigger={<Button basic={true} color="red" icon="trash" title="Delete permanently" loading={isFetchingState} />}
+                                        content={
+                                            <Button basic={true} color="red" icon="warning sign"
+                                                content="Remove permanently"
+                                            />}
+                                        on="click"
+                                        position="bottom left"
+                                        basic={true}
+                                    />
+                                </>
                             }
                         </Button.Group>
 
@@ -140,18 +161,20 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                             </>
                         )}
 
-                        <Modal trigger={<Button basic={true} icon="cog" title="Inspect container" />}>
-                            <Modal.Content style={{ background: "black", color: "white" }}>
-                                <pre>{JSON.stringify(container, null, 2)}</pre>
-                            </Modal.Content>
-                        </Modal>
+                        {(container.Status || admin) && (
+                            <Modal trigger={<Button basic={true} icon="cog" title="Inspect container" />}>
+                                <Modal.Content style={{ background: "black", color: "white" }}>
+                                    <pre>{JSON.stringify(container, null, 2)}</pre>
+                                </Modal.Content>
+                            </Modal>
+                        )}
 
                         <Dropdown className="button basic" text="Copy">
                             <Dropdown.Menu>
                                 <Dropdown.Item onClick={copy.bind(this, this.containerName)}>
                                     Container name
                                 </Dropdown.Item>
-                                <Dropdown.Item onClick={copy.bind(this, container.Image)}>
+                                <Dropdown.Item onClick={copy.bind(this, this.containerImage)}>
                                     Container image
                                 </Dropdown.Item>
                                 <Dropdown.Item>Pull command</Dropdown.Item>
@@ -166,23 +189,17 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
     }
 
     private handleStatusButton = (state: string) => {
-        const { container, daemon } = this.props;
+        const { container, daemon, refresh } = this.props;
     
         this.setState({ isFetchingState: true });
     
         if (daemon) {
           changeContainersStatus(daemon._id, state, [container.Id])
-            .then(() => this.refreshStatus())
+            .then(() => refresh())
             .catch(error => this.setState({ updateError: error }))
             .finally(() => this.setState({ isFetchingState: false }));
         }
     };
-
-    private refreshStatus = () => {
-        this.props.refresh();
-        this.setState({ containerState: this.props.container.Status ? this.props.container.State : "removed" });
-    }
-    
 
     private getStatusColor = (state: string) => {
         let color: "green" | "orange" | "red" | "black" | "grey" | undefined = "grey";
@@ -190,7 +207,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
             case "running":
                 color = "green";
                 break;
-            case"exited":
+            case "exited":
                 color = "orange";
                 break;
             case "dead":
