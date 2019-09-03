@@ -47,9 +47,10 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	serviceName := c.QueryParam("service-name")
 	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
 
-	serviceGroup, err := subService.ConvertToGroupService(daemon, group, autoUpdate)
+	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -58,9 +59,7 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	serviceGroup.Name = c.QueryParam("service-name")
-
-	err = daemon.ComposeUp(group.Name, serviceGroup.Name, group.Subnet, [][]byte{serviceGroup.File})
+	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -119,7 +118,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
 	case "destroy":
 		for key, service := range group.Services {
-			if (service.SubServiceID == serviceGroup.SubServiceID) {
+			if service.SubServiceID == serviceGroup.SubServiceID {
 				group.Services = append(group.Services[:key], group.Services[key+1:]...)
 			}
 		}

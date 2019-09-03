@@ -161,15 +161,17 @@ func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 }
 
 // ConvertToGroupService this function convert a sub service to a service group
-func (ss *SubService) ConvertToGroupService(daemon Daemon, group Group, autoUpdate bool) (groupService GroupService, err error) {
+func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, group Group, autoUpdate bool) (groupService GroupService, err error) {
 
+	groupService.Name = serviceName
 	groupService.Variables = ss.Variables
 	groupService.SubServiceID = ss.ID
 	groupService.URL = daemon.Host
 
 	variables := map[string]interface{}{
-		"Group":  group,
-		"Daemon": daemon,
+		"Group":       group,
+		"Daemon":      daemon,
+		"ServiceName": serviceName,
 	}
 
 	// Copy of variables

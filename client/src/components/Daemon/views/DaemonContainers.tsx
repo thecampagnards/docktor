@@ -4,7 +4,7 @@ import { Grid, Label, Loader, Message } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
-import ContainerTable from '../../layout/ContainersTables/ContainersTables';
+import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 import { fetchComposeServices, fetchContainers, fetchSavedContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
@@ -41,33 +41,14 @@ class Daemon extends React.Component<
       this.setState({ services })
     );
 
-    const saved = fetchSavedContainers(daemon._id)
-      .then(savedContainers => (this.savedContainers = savedContainers))
+    fetchSavedContainers(daemon._id)
+      .then(savedContainers => {
+        this.savedContainers = savedContainers;
+        this.fetch()
+      })
       .catch(error => this.setState({ error }));
 
-    const fetch = () => {
-      fetchContainers(daemon._id)
-        .then(async (containers: IContainer[]) => {
-          await saved;
-          if (this.savedContainers) {
-            for (const container of this.savedContainers) {
-              if (
-                !containers.find(
-                  c => c.Names && c.Names.indexOf(container.Name) !== -1
-                )
-              ) {
-                containers.push(container);
-              }
-            }
-          }
-          this.setState({ containers, error: Error() });
-        })
-        .catch(error => this.setState({ error }))
-        .finally(() => this.setState({ isFetching: false }));
-    };
-
-    fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(this.fetch, 1000 * 5);
   }
 
   public componentWillUnmount() {
@@ -99,7 +80,7 @@ class Daemon extends React.Component<
           <Grid.Column width={10}>
             NETWORKS :{" "}
             {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
-              <Label>{n}</Label>
+              <Label key={n}>{n}</Label>
             ))}
           </Grid.Column>
           <Grid.Column width={6}>
@@ -108,16 +89,37 @@ class Daemon extends React.Component<
         </Grid.Row>
         <Grid.Row>
           <Grid.Column>
-            <ContainerTable
+            <ContainerGrid
               daemon={daemon}
               containers={containers}
               admin={true}
+              refresh={this.fetch}
             />
           </Grid.Column>
         </Grid.Row>
       </Grid>
     );
   }
+
+  private fetch = () => {
+    fetchContainers(this.props.daemon._id)
+      .then((containers: IContainer[]) => {
+        if (this.savedContainers) {
+          for (const container of this.savedContainers) {
+            if (
+              !containers.find(
+                c => c.Names && c.Names.indexOf(container.Name) !== -1
+              )
+            ) {
+              containers.push(container);
+            }
+          }
+        }
+        this.setState({ containers, error: Error() });
+      })
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  };
 }
 
 export default Daemon;

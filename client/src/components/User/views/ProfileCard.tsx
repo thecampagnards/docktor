@@ -72,7 +72,7 @@ export default class ProfileCard extends React.Component<
                       />
                       <Button
                         name={group._id}
-                        icon="trash"
+                        icon="user delete"
                         color="red"
                         title="Exit this group"
                         onClick={this.deleteFromGroup.bind(this, group)}

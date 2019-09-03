@@ -1,12 +1,10 @@
 import * as React from 'react';
-import { Link } from 'react-router-dom';
-import { Button, Loader, Message } from 'semantic-ui-react';
+import { Message } from 'semantic-ui-react';
 
-import { path } from '../../../constants/path';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import ContainerTable from '../../layout/ContainersTables/ContainersTables';
-import { fetchContainers, saveContainers } from '../actions/group';
+import { fetchContainers } from '../actions/group';
 import { IGroup } from '../types/group';
+import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
 
 interface IGroupProps {
   group: IGroup;
@@ -16,47 +14,20 @@ interface IGroupProps {
 
 interface IGroupStates {
   containers: IContainer[];
-  isFetching: boolean;
   error: Error;
-
-  isSaveFetching: boolean;
-  saveError: Error;
 }
 
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     containers: [],
-    isFetching: true,
     error: Error(),
-
-    isSaveFetching: false,
-    saveError: Error()
   };
 
   private refreshIntervalId: NodeJS.Timeout;
 
   public componentDidMount() {
-    const { group } = this.props;
-
-    const fetch = () => {
-      fetchContainers(group._id)
-        .then((containers: IContainer[]) => {
-          for (const container of group.containers) {
-            if (
-              !containers.find(
-                c => c.Names && c.Names.indexOf(container.Name) !== -1
-              )
-            ) {
-              containers.push(container);
-            }
-          }
-          this.setState({ isFetching: false, containers, error: Error() });
-        })
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
-    };
-
-    fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 10);
+    this.fetch();
+    this.refreshIntervalId = setInterval(this.fetch, 1000 * 60);
   }
 
   public componentWillUnmount() {
@@ -67,10 +38,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     const { group, daemon, admin } = this.props;
     const {
       containers,
-      saveError,
       error,
-      isFetching,
-      isSaveFetching
     } = this.state;
 
     if (error.message) {
@@ -84,53 +52,26 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
       );
     }
 
-    if (isFetching) {
-      return <Loader active={true} />;
-    }
-
     return (
-      <>
-        {saveError.message && (
-          <Message negative={true}>
-            <Message.Header>
-              There was an issue to save Docker containers
-            </Message.Header>
-            <p>{saveError.message}</p>
-          </Message>
-        )}
-        {containers && containers.length > 0 && (
-          <Button
-            color="teal"
-            icon="save"
-            labelPosition="right"
-            content="SAVE CONTAINERS"
-            onClick={this.handleSaveContainer}
-            loading={isSaveFetching}
-            floated="right"
-          />
-        )}
-        <ContainerTable daemon={daemon} containers={containers} admin={admin} />
-        {admin && (
-          <Button
-            icon="terminal"
-            labelPosition="right"
-            content="VM terminal"
-            as={Link}
-            to={path.daemonsSSH.replace(":daemonID", group.daemon_id!)}
-          />
-        )}
-      </>
+        <ContainerGrid containers={containers} admin={admin} daemon={daemon} groupId={group._id} refresh={this.fetch} />
     );
   }
 
-  private handleSaveContainer = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-    this.setState({ isSaveFetching: true });
-    saveContainers(this.props.group._id)
-      .catch(saveError => this.setState({ saveError }))
-      .finally(() => this.setState({ isSaveFetching: false }));
+  private fetch = () => {
+    fetchContainers(this.props.group._id)
+      .then((containers: IContainer[]) => {
+        for (const container of this.props.group.containers) {
+          if (
+            !containers.find(
+              c => c.Names && c.Names.indexOf(container.Name) !== -1
+            )
+          ) {
+            containers.push(container);
+          }
+        }
+        this.setState({ containers, error: Error() });
+      })
+      .catch((error: Error) => this.setState({ error }));
   };
 }
 
