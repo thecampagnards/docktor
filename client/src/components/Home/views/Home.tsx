@@ -119,8 +119,8 @@ class Home extends React.Component<{}, IHomeState> {
                         name="warning circle"
                         className="reverse"
                         size="big"
-                        title="CAdvisor not available"
-                        color="orange"
+                        title="CAdvisor info not available"
+                        color="red"
                       />
                     ) : (
                       <>
@@ -154,7 +154,7 @@ class Home extends React.Component<{}, IHomeState> {
                       </>
                     )}
                   </Segment>
-                  <Card.Header>{env.group.name}</Card.Header>
+                  <Card.Header as={Link} to={path.groupsServices.replace(":groupID", env.group._id)}>{env.group.name}</Card.Header>
                   <Card.Meta>{env.daemon.host}</Card.Meta>
                   <Card.Description>
                     <Link
@@ -170,8 +170,8 @@ class Home extends React.Component<{}, IHomeState> {
                 <Card.Content>
                   {env.containers === null ? (
                     <Card.Description>
-                      <Icon name="warning circle" color="orange" />
-                      Error when getting containers
+                      <Icon name="warning circle" color="red" />
+                      Error when getting containers. Click the link above to see the detail.
                     </Card.Description>
                   ) : env.containers.filter(c => c.State === "exited")
                       .length === 0 ? (
@@ -197,7 +197,7 @@ class Home extends React.Component<{}, IHomeState> {
                               />
                             </List.Content>
                             <List.Content>
-                              <Icon circular={true} color="red" name="fire" />
+                              <Icon circular={true} color="orange" name="fire" />
                               <Modal
                                 trigger={
                                   <Button
