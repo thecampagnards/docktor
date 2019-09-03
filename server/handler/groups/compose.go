@@ -59,8 +59,6 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	serviceGroup.Name = serviceName
-
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
