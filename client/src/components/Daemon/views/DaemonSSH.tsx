@@ -108,10 +108,8 @@ class Daemon extends React.Component<IDaemonSSHProps, IDaemonSSHStates> {
     command.isFetching = false;
 
     execCommand(daemon, [command.command])
-      .then((d: Map<string, string>) => {
-        command.data = d.has(command.command)
-          ? (d.get(command.command) as string)
-          : "";
+      .then(d => {
+        command.data = d[command.command] || "";
         command.error = Error();
 
         commands[index] = command;
