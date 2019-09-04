@@ -115,8 +115,8 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                     {container.Ports
                                         .filter(p => p.PublicPort && p.IP === "0.0.0.0")
                                         .map((p: IPort) => (
-                                            <Dropdown.Item 
-                                                key={p.PublicPort} 
+                                            <Dropdown.Item
+                                                key={p.PublicPort}
                                                 as="a"
                                                 href={`http://${daemon.host}:${p.PublicPort}`}
                                                 target="_blank"
@@ -177,7 +177,9 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                 <Dropdown.Item onClick={copy.bind(this, this.containerImage)}>
                                     Container image
                                 </Dropdown.Item>
-                                <Dropdown.Item>Pull command</Dropdown.Item>
+                                <Dropdown.Item onClick={copy.bind(this, `docker pull ${this.containerImage}`)}>
+                                    Pull command
+                                </Dropdown.Item>
                                 <Dropdown.Item>Create command</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>
@@ -190,9 +192,9 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
 
     private handleStatusButton = (state: string) => {
         const { container, daemon, refresh } = this.props;
-    
+
         this.setState({ isFetchingState: true });
-    
+
         if (daemon) {
           changeContainersStatus(daemon._id, state, [container.Id])
             .then(() => refresh())
@@ -225,7 +227,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
     private containerStatus = () => {
         const status = this.props.container.Status;
         const state = status ? this.props.container.State : "removed";
-        
+
         return <Label color={this.getStatusColor(state)} title={status || "Removed"} content={state.toUpperCase()} />;
     }
 
@@ -246,4 +248,3 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
     };
     private allowShell = this.computeAllowShell();
 }
- 
