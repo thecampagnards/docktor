@@ -3,7 +3,7 @@
     margin: auto;
     margin-top: 3px;
     margin-bottom: 3px;
-    background: none;
+    background: none !important;
 }
 
 .markdown {
