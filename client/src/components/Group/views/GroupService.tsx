@@ -49,8 +49,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
               <Grid.Column width={4}>
                 <Label compact={true} basic={true}>{service.sub_service_id}</Label>
               </Grid.Column>
-              <Grid.Column width={6} />
-              <Grid.Column width={2}>
+              <Grid.Column width={8}>
                 {status.map(cs => this.statusIndicator(cs))}
               </Grid.Column>
             </Grid.Row>

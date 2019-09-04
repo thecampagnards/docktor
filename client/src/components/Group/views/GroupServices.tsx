@@ -48,7 +48,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           <Grid>
             <Grid.Column width={12}>
               {group.services.length === 0 && (
-                <Message content="No service in this group. Use the button on the right to deploy one." />
+                <Message content="No service in this group. Use the button on the right to deploy one." compact={true} />
               )}
             </Grid.Column>
             <Grid.Column width={4}>
@@ -58,7 +58,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
             </Grid.Column>
           </Grid>
           :
-          <Message content="No service in this group. Contact your group administrator to request one." />
+          <Message content="No service in this group. Contact your group administrator to request one." compact={true} />
         }
 
         <Grid>

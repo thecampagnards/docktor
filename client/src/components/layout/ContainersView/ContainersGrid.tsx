@@ -10,7 +10,6 @@ import { IImage } from '../../Images/types/image';
 import ContainerCard from './ContainerCard';
 import { Link } from 'react-router-dom';
 import { path } from '../../../constants/path';
-import { saveContainers } from '../../Group/actions/group';
 
 interface IContainerGridProps {
   daemon: IDaemon;
@@ -24,10 +23,8 @@ interface IContainerGridState {
   images: IImage[];
 
   searchFilter: string;
-  isFetching: boolean;
-  isSaving: boolean;
+  isFetching: string;
   error: Error;
-  saveError: Error;
 }
 
 export default class ContainerGrid extends React.Component<
@@ -38,10 +35,8 @@ export default class ContainerGrid extends React.Component<
     images: [] as IImage[],
 
     searchFilter: "",
-    isFetching: false,
-    isSaving: false,
+    isFetching: "",
     error: Error(),
-    saveError: Error(),
   };
 
   public componentDidMount() {
@@ -88,7 +83,8 @@ export default class ContainerGrid extends React.Component<
                     labelPosition="left"
                     icon="double angle right"
                     content="Run all"
-                    disabled={isFetching}
+                    loading={isFetching === "create"}
+                    disabled={isFetching !== ""}
                     onClick={this.handleAllOnClick.bind(this, "create")}
                   />
                   <Button
@@ -97,7 +93,8 @@ export default class ContainerGrid extends React.Component<
                     labelPosition="left"
                     icon="play"
                     content="Start all"
-                    disabled={isFetching}
+                    loading={isFetching === "start"}
+                    disabled={isFetching !== ""}
                     onClick={this.handleAllOnClick.bind(this, "start")}
                   />
                   <Button
@@ -106,20 +103,13 @@ export default class ContainerGrid extends React.Component<
                     labelPosition="left"
                     icon="stop"
                     content="Stop all"
-                    disabled={isFetching}
+                    loading={isFetching === "stop"}
+                    disabled={isFetching !== ""}
                     onClick={this.handleAllOnClick.bind(this, "stop")}
                   />
-                  {groupId && (
-                    <Button
-                      color="teal"
-                      circular={true}
-                      icon="save"
-                      onClick={this.handleSaveContainers}
-                    />
-                  )}
               </Grid.Column>
               <Grid.Column width={4}>
-                {admin && (
+                {groupId && admin && (
                   <Button
                     color="black"
                     circular={true}
@@ -138,7 +128,7 @@ export default class ContainerGrid extends React.Component<
           <Grid className="three column grid">
             {containersFiltered.map((c: IContainer) => (
               <Grid.Column key={c.Id}>
-                <ContainerCard container={c} images={images.filter(i => RegExp(i.image.Pattern).test(c.Image))} admin={admin} daemon={daemon} refresh={refresh} />
+                <ContainerCard container={c} images={images.filter(i => RegExp(i.image.Pattern).test(c.Image))} admin={admin} daemon={daemon} refresh={refresh} groupId={groupId} />
               </Grid.Column>
               )
             )}
@@ -152,25 +142,15 @@ export default class ContainerGrid extends React.Component<
 
   private handleAllOnClick = (state: string) => {
     const { containers, daemon, refresh } = this.props;
-
-    this.setState({ isFetching: true });
+    
+    this.setState({ isFetching: state });
     changeContainersStatus(daemon._id, state, containers.map(c => c.Id))
       .then(() => refresh())
       .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
+      .finally(() => this.setState({ isFetching: "" }));
   };
 
   private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });
-  };
-
-  private handleSaveContainers = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-    this.setState({ isSaving: true });
-    saveContainers(this.props.groupId || "")
-      .catch(saveError => this.setState({ saveError }))
-      .finally(() => this.setState({ isSaving: false }));
   };
 }
