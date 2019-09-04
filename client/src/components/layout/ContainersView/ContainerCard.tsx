@@ -20,6 +20,8 @@ interface IContainerCardProps {
 }
 
 interface IContainerCardState {
+    containerName: string;
+    containerImage: string;
     containerState: string;
     isFetchingState: boolean;
     updateError: Error;
@@ -27,38 +29,35 @@ interface IContainerCardState {
 }
 
 export default class ContainerCard extends React.Component<IContainerCardProps, IContainerCardState> {
+    public static getDerivedStateFromProps(props: IContainerCardProps) {
+        const containerState = props.container.Status ? props.container.State : "removed";
+        const containerName = props.container.Status ? props.container.Names[0] : props.container.Name;
+        const containerImage = props.container.Status ? props.container.Image : props.container.Config.Image;
+        const isFetchingState = false;
+
+        return { containerState, containerName, containerImage, isFetchingState };
+    }
+
     public state = {
+        containerName: "",
+        containerImage: "",
         containerState: this.props.container.Status ? this.props.container.State : "removed",
         isFetchingState: false,
         updateError: Error(),
         saveError: Error(),
     }
 
-    private containerName = this.props.container.Name || this.props.container.Names[0] || "Container";
-    private containerImage = this.props.container.Config ? this.props.container.Config.Image : this.props.container.Image;
-
-    public getDerivedStateFromProps() {
-        const containerState = this.props.container.Status ? this.props.container.State : "removed";
-
-        if (containerState === "removed") {
-            this.containerName = this.props.container.Name;
-            this.containerImage = this.props.container.Config.Image;
-        }
-
-        this.setState({ containerState })
-    }
-
     public render() {
         const { container, daemon, images, admin } = this.props;
-        const { containerState, isFetchingState, updateError } = this.state;
+        const { containerName, containerImage, containerState, isFetchingState, updateError } = this.state;
 
         return (
             <Card fluid={true} color={this.getStatusColor(containerState)}>
                 <Card.Content>
                     <Grid>
                         <Grid.Column width={13}>
-                            <Card.Header>{this.containerName.toUpperCase()}</Card.Header>
-                            <Card.Meta>{this.containerImage}</Card.Meta>
+                            <Card.Header>{containerName.toUpperCase()}</Card.Header>
+                            <Card.Meta>{containerImage}</Card.Meta>
                         </Grid.Column>
                         <Grid.Column width={3}>
                             {this.containerStatus()}
@@ -148,7 +147,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                             <>
                                 <Modal trigger={<Button basic={true} icon="code" title="Run commands" />} size="tiny">
                                     <Modal.Header>
-                                        {this.containerName + " available commands :"}
+                                        {containerName + " available commands :"}
                                     </Modal.Header>
                                     <Modal.Content>
                                         <Commands images={images} daemon={daemon} container={container} />
@@ -177,13 +176,13 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
 
                         <Dropdown className="button basic" text="Copy">
                             <Dropdown.Menu>
-                                <Dropdown.Item onClick={copy.bind(this, this.containerName)}>
+                                <Dropdown.Item onClick={copy.bind(this, containerName)}>
                                     Container name
                                 </Dropdown.Item>
-                                <Dropdown.Item onClick={copy.bind(this, this.containerImage)}>
+                                <Dropdown.Item onClick={copy.bind(this, containerImage)}>
                                     Container image
                                 </Dropdown.Item>
-                                <Dropdown.Item onClick={copy.bind(this, `docker pull ${this.containerImage}`)}>
+                                <Dropdown.Item onClick={copy.bind(this, `docker pull ${containerImage}`)}>
                                     Pull command
                                 </Dropdown.Item>
                                 <Dropdown.Item>Create command</Dropdown.Item>
@@ -214,8 +213,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
         if (daemon) {
           changeContainersStatus(daemon._id, state, [container.Id])
             .then(() => refresh())
-            .catch(error => this.setState({ updateError: error }))
-            .finally(() => this.setState({ isFetchingState: false }));
+            .catch(error => this.setState({ updateError: error, isFetchingState: false }));
         }
     };
 
