@@ -4,7 +4,7 @@ import { Grid, Label, Loader, Message } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
-import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
+import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
 import { fetchComposeServices, fetchContainers, fetchSavedContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import DaemonServiceButtons from './DaemonServiceButtons';
@@ -89,7 +89,7 @@ class Daemon extends React.Component<
         </Grid.Row>
         <Grid.Row>
           <Grid.Column>
-            <ContainerGrid
+            <ContainersGrid
               daemon={daemon}
               containers={containers}
               admin={true}
