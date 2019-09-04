@@ -125,7 +125,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
           <Grid.Column width={isAdmin ? 4 : 6}>
             <Segment
               compact={true}
-              color={this.displayAll ? "blue" : undefined}
+              color={this.displayAll ? "blue" : "grey"}
               floated="right"
             >
               <Checkbox
