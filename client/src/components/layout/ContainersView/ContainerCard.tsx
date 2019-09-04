@@ -8,8 +8,10 @@ import { copy } from '../../../utils/clipboard';
 import ShellSocket from '../ShellSocket';
 import Commands from './Commands';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
+import { saveContainers } from '../../Group/actions/group';
 
 interface IContainerCardProps {
+    groupId?: string;
     daemon: IDaemon;
     container: IContainer;
     admin: boolean;
@@ -21,6 +23,7 @@ interface IContainerCardState {
     containerState: string;
     isFetchingState: boolean;
     updateError: Error;
+    saveError: Error;
 }
 
 export default class ContainerCard extends React.Component<IContainerCardProps, IContainerCardState> {
@@ -28,6 +31,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
         containerState: this.props.container.Status ? this.props.container.State : "removed",
         isFetchingState: false,
         updateError: Error(),
+        saveError: Error(),
     }
 
     private containerName = this.props.container.Name || this.props.container.Names[0] || "Container";
@@ -84,7 +88,7 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                     trigger={<Button basic={true} color="red" icon="delete" title="Delete" loading={isFetchingState} />}
                                     content={
                                         <Button basic={true} color="red"
-                                            content="Confirm container removal" onClick={this.handleStatusButton.bind(this, "remove")}
+                                            content="Confirm container removal" onClick={this.handleContainerRm}
                                         />}
                                     on="click"
                                     position="bottom left"
@@ -92,19 +96,21 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
                                 />
                                 :
                                 <>
-                                    <Button basic={true} color="blue" icon="sliders" content="Create"
+                                    <Button basic={true} color="blue" labelPosition="left" icon="double angle right" content="Run"
                                         loading={isFetchingState} onClick={this.handleStatusButton.bind(this, "create")}
                                     />
-                                    <Popup
-                                        trigger={<Button basic={true} color="red" icon="trash" title="Delete permanently" loading={isFetchingState} />}
-                                        content={
-                                            <Button basic={true} color="red" icon="warning sign"
-                                                content="Remove permanently" onClick={this.handleStatusButton.bind(this, "destroy")}
-                                            />}
-                                        on="click"
-                                        position="bottom left"
-                                        basic={true}
-                                    />
+                                    {admin && (
+                                        <Popup
+                                            trigger={<Button basic={true} color="red" icon="trash" title="Delete permanently" loading={isFetchingState} />}
+                                            content={
+                                                <Button basic={true} color="red" icon="warning sign"
+                                                    content="Remove permanently" onClick={this.handleStatusButton.bind(this, "destroy")}
+                                                />}
+                                            on="click"
+                                            position="bottom left"
+                                            basic={true}
+                                        />
+                                    )}
                                 </>
                             }
                         </Button.Group>
@@ -187,6 +193,16 @@ export default class ContainerCard extends React.Component<IContainerCardProps, 
             </Card>
         )
     }
+
+    private handleContainerRm = (
+        event: React.MouseEvent<HTMLButtonElement, MouseEvent>
+    ) => {
+        event.preventDefault();
+        this.setState({ isFetchingState: true });
+        saveContainers(this.props.groupId || "")
+            .then(() => this.handleStatusButton("remove"))
+            .catch(saveError => this.setState({ saveError, isFetchingState: false }));
+    };
 
     private handleStatusButton = (state: string) => {
         const { container, daemon, refresh } = this.props;

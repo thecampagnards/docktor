@@ -245,10 +245,7 @@ class Home extends React.Component<{}, IHomeState> {
     const { environments } = this.state;
     const groups = data.value as string[];
 
-    let envSelected = environments.filter(e => groups.includes(e.group.name));
-    if (envSelected.length === 0) {
-      envSelected = environments;
-    }
+    const envSelected = environments.filter(e => groups.includes(e.group.name));
 
     const hidden = environments
       .filter(e => !envSelected.includes(e))

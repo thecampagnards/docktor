@@ -41,9 +41,7 @@ export default class DaemonServiceButtons extends React.Component<IDaemonService
               loading={isFetching} 
               color="green" 
               onClick={this.handleOnClick.bind(this, "start")}
-            >
-              START
-            </Button>
+            />
           } 
           content={error.message ? error.message : result} 
         />

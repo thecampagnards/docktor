@@ -125,6 +125,7 @@ class Images extends React.Component<{}, IImagesStates> {
                       checked={images[imageKey].is_allow_shell}
                       name={`images.${imageKey}.is_allow_shell`}
                       onChange={this.handleInput}
+                      disabled={images[imageKey].image.Pattern === ".*"}
                     />
 
                     <br />

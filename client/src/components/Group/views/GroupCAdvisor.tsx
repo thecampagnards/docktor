@@ -44,7 +44,7 @@ class GroupCAdvisor extends React.Component<
     };
 
     fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 10);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 60);
   }
 
   public componentWillUnmount() {
