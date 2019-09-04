@@ -107,15 +107,17 @@ func updateContainersStatus(c echo.Context) error {
 		case "create":
 			for _, group := range groups {
 				for _, container := range group.FindContainersByNameOrID(containers) {
-					err = daemon.CreateContainer(container)
-					if err != nil {
-						errs[container.Name] = err.Error()
-						log.WithFields(log.Fields{
-							"daemon":    daemon.Name,
-							"status":    c.QueryParam("status"),
-							"err":       err,
-							"container": container,
-						}).Error("Error when create this container")
+					if container.ContainerJSONBase != nil {
+						err = daemon.CreateContainer(container)
+						if err != nil {
+							errs[container.Name] = err.Error()
+							log.WithFields(log.Fields{
+								"daemon":    daemon.Name,
+								"status":    c.QueryParam("status"),
+								"err":       err,
+								"container": container,
+							}).Error("Error when create this container")
+						}
 					}
 				}
 			}
@@ -155,7 +157,7 @@ func updateContainersStatus(c echo.Context) error {
 			"daemon":     daemon.Name,
 			"status":     c.QueryParam("status"),
 			"containers": containers,
-			"error":      err,
+			"errors":     errs,
 		}).Error("Error when changing containers status")
 		return c.JSON(http.StatusBadRequest, errs)
 	}
