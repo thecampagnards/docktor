@@ -13,6 +13,7 @@ import MarketCard from './MarketCard';
 
 interface IMarketProps {
   isAdmin: boolean;
+  username: string;
 }
 
 interface IServicesStates {
@@ -62,7 +63,7 @@ class Market extends React.Component<
         .catch((error: Error) => this.setState({ error }));
     } else {
       fetchGroups(false)
-        .then((groups: IGroup[]) => this.setState({ groups }))
+        .then((groups: IGroup[]) => this.setState({ groups: groups.filter((g: IGroup) => this.props.isAdmin || g.admins.includes(this.props.username)) }))
         .catch((error: Error) => this.setState({ error }));
     }
   }
@@ -181,7 +182,8 @@ class Market extends React.Component<
 const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
-    isAdmin: login.isAdmin
+    isAdmin: login.isAdmin,
+    username: login.username || "",
   };
 };
 

@@ -179,7 +179,7 @@ class MarketModal extends React.Component<
               </Button>
             </>
           ) : (
-            <p>You cannot deploy this service (you may not be in any group).</p>
+            <p>You cannot deploy this service (you may not be admin of any group).</p>
           )}
         </Modal.Actions>
       </>

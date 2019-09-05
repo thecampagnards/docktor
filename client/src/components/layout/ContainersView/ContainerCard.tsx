@@ -322,9 +322,7 @@ export default class ContainerCard extends React.Component<
     if (daemon) {
       changeContainersStatus(daemon._id, state, [container.Id])
         .then(() => refresh())
-        .catch(error =>
-          this.setState({ updateError: error, isFetchingState: false })
-        );
+        .catch(error => this.setState({ updateError: error, isFetchingState: false }));
     }
   };
 
