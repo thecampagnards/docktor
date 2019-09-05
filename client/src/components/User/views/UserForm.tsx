@@ -35,7 +35,7 @@ class UserForm extends React.Component<
     const { isFetching } = this.props;
     return (
       <>
-        <h2>Register</h2>
+        <h2>Create local account</h2>
 
         <Form
           error={!!error.message || !!this.props.error}
