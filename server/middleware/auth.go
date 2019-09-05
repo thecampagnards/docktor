@@ -2,12 +2,14 @@ package middleware
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 
 	"docktor/server/storage"
 	"docktor/server/types"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	typesDocker "github.com/docker/docker/api/types"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -178,6 +180,36 @@ func WithDaemonContainer(next echo.HandlerFunc) echo.HandlerFunc {
 			if strings.HasPrefix(types.NormalizeName(containers[0].Name), types.NormalizeName(group.Name)) {
 				c.Set("group", group)
 				return next(c)
+			}
+		}
+
+		c.Set("containers", containers)
+
+		return echo.NewHTTPError(http.StatusForbidden, "You don't have permission on this container")
+	}
+}
+
+// WithIsAllowShellContainers (need WithUser, WithDaemonContainer) check if user has webshell permission on the container
+func WithIsAllowShellContainers(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		containers := c.Get("containers").([]typesDocker.Container)
+
+		db := c.Get("DB").(*storage.Docktor)
+
+		images, err := db.Images().FindAll()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when retrieving images")
+			return echo.NewHTTPError(http.StatusForbidden, err.Error())
+		}
+
+		for _, container := range containers {
+			for _, image := range images {
+				if match, _ := regexp.MatchString(image.Image.Pattern, container.Image); match && image.IsAllowShell {
+					return next(c)
+				}
 			}
 		}
 
