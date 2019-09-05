@@ -36,3 +36,13 @@ export const UserIsAdmin = compose(
     wrapperDisplayName: "UserIsAdmin",
   }),
 );
+
+export const UserCanCreateAccount = connectedRouterRedirect<any, IStoreState>(
+  {
+    allowRedirectBack: false,
+    authenticatedSelector: state => state.login.username === "" || state.login.isAdmin,
+    redirectPath: (state, ownProps) =>
+      locationHelper.getRedirectQueryParam(ownProps) || path.home,
+    wrapperDisplayName: "UserCanCreateAccount",
+  },
+);
