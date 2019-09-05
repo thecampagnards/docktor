@@ -42,6 +42,7 @@ export default class DaemonServiceButtons extends React.Component<
               compact={true}
               loading={isFetching}
               color="green"
+              icon="play"
               onClick={this.handleOnClick.bind(this, "start")}
             />
           }
@@ -56,10 +57,9 @@ export default class DaemonServiceButtons extends React.Component<
               compact={true}
               loading={isFetching}
               color="orange"
+              icon="stop"
               onClick={this.handleOnClick.bind(this, "stop")}
-            >
-              STOP
-            </Button>
+            />
           }
           content={error.message ? error.message : result}
         />
@@ -72,10 +72,9 @@ export default class DaemonServiceButtons extends React.Component<
               compact={true}
               loading={isFetching}
               color="red"
+              icon="delete"
               onClick={this.handleOnClick.bind(this, "remove")}
-            >
-              RM
-            </Button>
+            />
           }
           content={error.message ? error.message : result}
         />

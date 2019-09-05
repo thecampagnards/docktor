@@ -79,6 +79,10 @@ func login(jwtSecret string) echo.HandlerFunc {
 	}
 }
 
+func register(c echo.Context) error {
+	return c.JSON(http.StatusNoContent, "To be implemented")
+}
+
 func profile(c echo.Context) error {
 	user := c.Get("user").(types.User)
 	db := c.Get("DB").(*storage.Docktor)
