@@ -183,17 +183,17 @@ func WithDaemonContainer(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
-		c.Set("containers", containers)
+		c.Set("container", containers[0])
 
 		return echo.NewHTTPError(http.StatusForbidden, "You don't have permission on this container")
 	}
 }
 
-// WithIsAllowShellContainers (need WithUser, WithDaemonContainer) check if user has webshell permission on the container
-func WithIsAllowShellContainers(next echo.HandlerFunc) echo.HandlerFunc {
+// WithIsAllowShellContainer (need WithUser, WithDaemonContainer) check if user has webshell permission on the container
+func WithIsAllowShellContainer(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 
-		containers := c.Get("containers").([]typesDocker.Container)
+		container := c.Get("container").(typesDocker.Container)
 
 		db := c.Get("DB").(*storage.Docktor)
 
@@ -205,15 +205,13 @@ func WithIsAllowShellContainers(next echo.HandlerFunc) echo.HandlerFunc {
 			return echo.NewHTTPError(http.StatusForbidden, err.Error())
 		}
 
-		for _, container := range containers {
-			for _, image := range images {
-				if match, _ := regexp.MatchString(image.Image.Pattern, container.Image); match && image.IsAllowShell {
-					return next(c)
-				}
+		for _, image := range images {
+			if match, _ := regexp.MatchString(image.Image.Pattern, container.Image); match && image.IsAllowShell {
+				return next(c)
 			}
 		}
 
-		return echo.NewHTTPError(http.StatusForbidden, "You don't have permission on this container")
+		return echo.NewHTTPError(http.StatusForbidden, "You don't have shell permission on this container")
 	}
 }
 

@@ -26,7 +26,7 @@ import ServiceForm from './components/Services/views/ServiceForm';
 import Services from './components/Services/views/Services';
 import { fetchConfig } from './actions/config';
 import { validateThunk } from './components/User/actions/user';
-import { UserIsAdmin, UserIsAuthenticated, UserIsNotAuthenticated } from './components/User/auth';
+import { UserIsAdmin, UserIsAuthenticated, UserIsNotAuthenticated, UserCanCreateAccount } from './components/User/auth';
 import Login from './components/User/views/Login';
 import Profile from './components/User/views/Profile';
 import User from './components/User/views/User';
@@ -136,7 +136,7 @@ ReactDOM.render(
           <Route
             exact={true}
             path={path.usersNew}
-            component={UserIsNotAuthenticated(UserForm)}
+            component={UserCanCreateAccount(UserForm)}
           />
           <Route
             exact={true}

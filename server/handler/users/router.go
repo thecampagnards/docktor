@@ -24,6 +24,8 @@ func AddRoute(e *echo.Group) {
 		user.GET("", getByUsername)
 		user.DELETE("", deleteByUsername, middleware.WithAdmin)
 	}
+
+	e.POST("/register", register)
 }
 
 // AddAuthRoute add route on echo

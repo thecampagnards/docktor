@@ -35,7 +35,7 @@ func AddRoute(e *echo.Group) {
 			docker.GET("/containers/saved", getSavedContainers, middleware.WithAdmin)
 			docker.POST("/containers/status", updateContainersStatus)
 			docker.GET(fmt.Sprintf("/containers/:%s/log", types.CONTAINER_ID_PARAM), getContainerLog, middleware.WithDaemonContainer)
-			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), getContainerTerm, middleware.WithDaemonContainer, middleware.WithIsAllowShellContainers)
+			docker.GET(fmt.Sprintf("/containers/:%s/term", types.CONTAINER_ID_PARAM), getContainerTerm, middleware.WithDaemonContainer, middleware.WithIsAllowShellContainer)
 			docker.POST(fmt.Sprintf("/containers/:%s/exec/:%s", types.CONTAINER_ID_PARAM, types.COMMAND_ID_PARAM), execContainer, middleware.WithDaemonContainer)
 		}
 		{
