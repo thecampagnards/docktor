@@ -104,9 +104,17 @@ func deleteByID(c echo.Context) error {
 // updateUser updates the role of a user in the group or delete it
 func updateUser(c echo.Context) error {
 	group := c.Get("group").(types.Group)
-	username := c.Param("username")
+	user := c.Get("user").(types.User)
 
-	switch c.Param("status") {
+	username := c.Param("username")
+	status := c.Param("status")
+
+	// Check if user is admin or if it's his username and delete case
+	if !(group.IsAdmin(&user) || (user.Username == username && status == "delete")) {
+		return echo.NewHTTPError(http.StatusForbidden, "Group admin permission required")
+	}
+
+	switch status {
 	case "admin":
 		group.Users = types.Remove(group.Users, username)
 		group.Admins = append(group.Admins, username)

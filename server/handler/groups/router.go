@@ -23,7 +23,7 @@ func AddRoute(e *echo.Group) {
 
 		group.GET("", getByID)
 		group.DELETE("", deleteByID, middleware.WithAdmin)
-		group.POST("/updateuser/:username/:status", updateUser, middleware.WithGroupAdmin)
+		group.POST("/updateuser/:username/:status", updateUser)
 
 		{
 			// Compose requests
