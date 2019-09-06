@@ -1,5 +1,6 @@
 import 'xterm/dist/xterm.css';
 
+import chalk from 'chalk';
 import * as React from 'react';
 import { Terminal } from 'xterm';
 import { fit } from 'xterm/lib/addons/fit/fit';
@@ -17,9 +18,6 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
   public componentDidMount() {
     const { wsPath } = this.props;
-
-    const shellRed = "\x1B[1331m";
-    const shellNc = "\x1B[0m";
 
     const loc = window.location;
     let uri = "ws:";
@@ -40,6 +38,15 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       this.term.open(this.container);
       fit(this.term);
 
+      const forcedChalk = new chalk.constructor({ enabled: true, level: 2 });
+
+      this.term.writeln(
+        forcedChalk.blue("ctrl+ins to copy and shift+ins to paste.")
+      );
+      this.term.writeln(
+        forcedChalk.red("We are not responsible for your mistakes.")
+      );
+
       this.term.setOption("screenKeys", true);
 
       this.term.on("data", (data: string) => {
@@ -51,18 +58,18 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       };
 
       this.ws.onclose = e => {
-        this.term.write("Session terminated");
+        this.term.write(forcedChalk.green("Session terminated"));
         this.term.destroy();
 
         if (!e.wasClean) {
           this.term.write(
-            `${shellRed}WebSocket error: ${e.code} ${e.reason}${shellNc}`
+            forcedChalk.red(`WebSocket error: ${e.code} ${e.reason}`)
           );
         }
       };
 
       this.ws.onerror = () => {
-        this.term.write(`${shellRed}WebSocket error${shellNc}`);
+        this.term.write(forcedChalk.red("WebSocket error"));
       };
     };
   }
