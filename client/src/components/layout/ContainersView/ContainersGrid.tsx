@@ -79,7 +79,7 @@ export default class ContainersGrid extends React.Component<
                     flowing={true}
                     on="click"
                     inverted={true}
-                    content={error.message}
+                    content={error.message || "Done!"}
                     trigger={
                       <Button
                         color="blue"
@@ -97,7 +97,7 @@ export default class ContainersGrid extends React.Component<
                     flowing={true}
                     on="click"
                     inverted={true}
-                    content={error.message}
+                    content={error.message || "Done!"}
                     trigger={
                       <Button
                         color="green"
@@ -115,7 +115,7 @@ export default class ContainersGrid extends React.Component<
                     flowing={true}
                     on="click"
                     inverted={true}
-                    content={error.message}
+                    content={error.message || "Done!"}
                     trigger={
                       <Button
                         color="orange"
@@ -173,11 +173,24 @@ export default class ContainersGrid extends React.Component<
     const { containers, daemon, refresh } = this.props;
 
     this.setState({ isFetching: state });
-    changeContainersStatus(daemon._id, state, containers.map(c => c.Id))
+    changeContainersStatus(daemon._id, state, this.filterContainers(containers, state).map(c => c.Id))
       .then(() => refresh())
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: "" }));
   };
+
+  private filterContainers = (containers: IContainer[], state: string) => {
+    switch (state) {
+      case "create":
+        return containers.filter(c => !c.Status || c.State === "exited");
+      case "start":
+        return containers.filter(c => c.State === "exited");
+      case "stop":
+        return containers.filter(c => c.State === "running");
+      default:
+        return [] as IContainer[];
+    }
+  }
 
   private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });

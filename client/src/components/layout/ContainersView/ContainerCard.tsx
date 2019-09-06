@@ -23,7 +23,7 @@ interface IContainerCardState {
   containerName: string;
   containerImage: string;
   containerState: string;
-  isFetchingState: boolean;
+  isFetchingState: string;
   updateError: Error;
   saveError: Error;
 }
@@ -42,9 +42,8 @@ export default class ContainerCard extends React.Component<
     const containerImage = props.container.Status
       ? props.container.Image
       : props.container.Config.Image;
-    const isFetchingState = false;
 
-    return { containerState, containerName, containerImage, isFetchingState };
+    return { containerState, containerName, containerImage };
   }
 
   public state = {
@@ -53,7 +52,7 @@ export default class ContainerCard extends React.Component<
     containerState: this.props.container.Status
       ? this.props.container.State
       : "removed",
-    isFetchingState: false,
+    isFetchingState: "",
     updateError: Error(),
     saveError: Error()
   };
@@ -89,7 +88,8 @@ export default class ContainerCard extends React.Component<
                     color="green"
                     icon="redo"
                     title="Restart"
-                    loading={isFetchingState}
+                    loading={isFetchingState === "restart"}
+                    disabled={isFetchingState !== ""}
                     onClick={this.handleStatusButton.bind(this, "restart")}
                   />
                   <Button
@@ -97,7 +97,8 @@ export default class ContainerCard extends React.Component<
                     color="orange"
                     icon="stop"
                     title="Stop"
-                    loading={isFetchingState}
+                    loading={isFetchingState === "stop"}
+                    disabled={isFetchingState !== ""}
                     onClick={this.handleStatusButton.bind(this, "stop")}
                   />
                 </>
@@ -108,7 +109,8 @@ export default class ContainerCard extends React.Component<
                   color="green"
                   icon="play"
                   title="Start"
-                  loading={isFetchingState}
+                  loading={isFetchingState === "start"}
+                  disabled={isFetchingState !== ""}
                   onClick={this.handleStatusButton.bind(this, "start")}
                 />
               )}
@@ -120,7 +122,8 @@ export default class ContainerCard extends React.Component<
                       color="red"
                       icon="delete"
                       title="Delete"
-                      loading={isFetchingState}
+                      loading={isFetchingState === "delete"}
+                      disabled={isFetchingState !== ""}
                     />
                   }
                   content={
@@ -134,9 +137,10 @@ export default class ContainerCard extends React.Component<
                           color="red"
                           content="Confirm container removal"
                           onClick={this.handleContainerRm}
+                          disabled={isFetchingState !== ""}
                         />
                       }
-                      content={updateError.message}
+                      content={updateError.message || "..."}
                     />
                   }
                   on="click"
@@ -151,7 +155,8 @@ export default class ContainerCard extends React.Component<
                     labelPosition="left"
                     icon="double angle right"
                     content="Run"
-                    loading={isFetchingState}
+                    loading={isFetchingState === "create"}
+                    disabled={isFetchingState !== ""}
                     onClick={this.handleStatusButton.bind(this, "create")}
                   />
                   {admin && (
@@ -162,7 +167,8 @@ export default class ContainerCard extends React.Component<
                           color="red"
                           icon="trash"
                           title="Delete permanently"
-                          loading={isFetchingState}
+                          loading={isFetchingState === "destroy"}
+                          disabled={isFetchingState !== ""}
                         />
                       }
                       content={
@@ -175,6 +181,7 @@ export default class ContainerCard extends React.Component<
                             this,
                             "destroy"
                           )}
+                          disabled={isFetchingState !== ""}
                         />
                       }
                       on="click"
@@ -308,21 +315,21 @@ export default class ContainerCard extends React.Component<
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
-    this.setState({ isFetchingState: true });
+    this.setState({ isFetchingState: "remove" });
     saveContainers(this.props.groupId || "")
       .then(() => this.handleStatusButton("remove"))
-      .catch(saveError => this.setState({ saveError, isFetchingState: false }));
+      .catch(saveError => this.setState({ saveError, isFetchingState: "" }));
   };
 
   private handleStatusButton = (state: string) => {
     const { container, daemon, refresh } = this.props;
 
-    this.setState({ isFetchingState: true });
-
     if (daemon) {
+      this.setState({ isFetchingState: state });
       changeContainersStatus(daemon._id, state, [container.Id])
         .then(() => refresh())
-        .catch(error => this.setState({ updateError: error, isFetchingState: false }));
+        .catch(error => this.setState({ updateError: error }))
+        .finally(() => this.setState({ isFetchingState: "" }));
     }
   };
 

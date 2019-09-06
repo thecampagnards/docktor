@@ -3,12 +3,11 @@ import './Home.css';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, Card, Divider, Dropdown, DropdownProps, Grid, Icon, List, Loader, Message, Modal,
+    Card, Divider, Dropdown, DropdownProps, Grid, Icon, Loader, Message,
     Segment
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import TextSocket from '../../layout/TextSocket';
 import { fetchHome } from '../actions/home';
 import { IEnvironment, IHomeData } from '../types/home';
 
@@ -177,57 +176,13 @@ class Home extends React.Component<{}, IHomeState> {
                       .length === 0 ? (
                     <Card.Description>
                       <Icon name="check" color="green" />
-                      All containers are up and running
+                      All containers are up and running.
                     </Card.Description>
                   ) : (
-                    <List>
-                      {env.containers
-                        .filter(c => c.State === "exited")
-                        .map(c => (
-                          <List.Item key={c.Id}>
-                            <List.Content>
-                              <Button
-                                compact={true}
-                                basic={true}
-                                color="green"
-                                labelPosition="right"
-                                icon="fire extinguisher"
-                                content="Restart"
-                                floated="right"
-                              />
-                            </List.Content>
-                            <List.Content>
-                              <Icon circular={true} color="orange" name="fire" />
-                              <Modal
-                                trigger={
-                                  <Button
-                                    basic={true}
-                                    compact={true}
-                                    circular={true}
-                                    labelPosition="right"
-                                    icon="align left"
-                                    content={c.Names[0].replace("/", "")}
-                                  />
-                                }
-                                className="logs-modal"
-                              >
-                                <Modal.Content
-                                  style={{
-                                    background: "black",
-                                    color: "white"
-                                  }}
-                                >
-                                  <pre style={{ whiteSpace: "pre-line" }}>
-                                    <TextSocket
-                                      wsPath={`/api/daemons/${env.daemon._id}/docker/containers/${c.Id}/log`}
-                                    />
-                                  </pre>
-                                </Modal.Content>
-                              </Modal>
-                            </List.Content>
-                          </List.Item>
-                        ))}
-                    </List>
+                    <Card.Description>
+                      <Icon name="warning" color="orange" />
+                      There are exited containers that may cause unavailable services. Click the link above to restart them if needed.
+                    </Card.Description>
                   )}
                 </Card.Content>
               </Card>
