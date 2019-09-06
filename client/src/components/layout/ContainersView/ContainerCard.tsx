@@ -1,3 +1,5 @@
+import './ContainerCard.css';
+
 import * as React from 'react';
 import { Button, Card, Dropdown, Grid, Label, Modal, Popup, Segment } from 'semantic-ui-react';
 
@@ -258,6 +260,9 @@ export default class ContainerCard extends React.Component<
                       />
                     }
                     size="fullscreen"
+                    closeOnEscape={false}
+                    closeIcon={true}
+                    className="modal-shell"
                   >
                     <Modal.Content style={{ background: "black" }}>
                       <ShellSocket
@@ -322,7 +327,9 @@ export default class ContainerCard extends React.Component<
     if (daemon) {
       changeContainersStatus(daemon._id, state, [container.Id])
         .then(() => refresh())
-        .catch(error => this.setState({ updateError: error, isFetchingState: false }));
+        .catch(error =>
+          this.setState({ updateError: error, isFetchingState: false })
+        );
     }
   };
 
