@@ -16,14 +16,6 @@ import (
 func createServiceGroup(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
-	user := c.Get("user").(types.User)
-	if !(user.IsAdmin() || group.IsAdmin(&user)) {
-		log.WithFields(log.Fields{
-			"username": user.Username,
-			"group":    group.Name,
-		}).Error("User not allowed to deploy service in group")
-		return c.JSON(http.StatusForbidden, "You don't have the permission to deploy services in this group")
-	}
 
 	var variables []types.ServiceVariable
 	err := c.Bind(&variables)

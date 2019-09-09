@@ -16,6 +16,7 @@ interface IUserFormProps {
 }
 
 interface IUserFormStates {
+  isFetching: boolean;
   error: Error;
   pwd: string;
   login: boolean;
@@ -26,6 +27,7 @@ class UserForm extends React.Component<
   IUserFormStates
 > {
   public state = {
+    isFetching: false,
     pwd: "",
     login: false,
     error: Error()
@@ -148,6 +150,7 @@ class UserForm extends React.Component<
       return;
     }
 
+    this.setState({ isFetching: true });
     this.props.registerRequest(this.user, this.state.login);
   };
 }

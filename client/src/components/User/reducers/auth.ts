@@ -47,8 +47,7 @@ export default (
       return {
         ...state,
         error: "",
-        isFetching: false,
-        isAdmin: false
+        isFetching: false
       }
     case RegisterSuccessLogin:
       return {
