@@ -33,8 +33,6 @@ func getByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	s.GetVariablesOfSubServices()
-
 	return c.JSON(http.StatusOK, s)
 }
 

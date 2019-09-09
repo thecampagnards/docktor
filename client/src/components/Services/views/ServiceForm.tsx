@@ -91,7 +91,9 @@ class ServiceForm extends React.Component<
           <br />
 
           <Form.Group widths="equal">
-            {service.image && <img src={service.image} alt={service.name} />}
+            {service.image && (
+              <img width={100} src={service.image} alt={service.name} />
+            )}
 
             <Form.Input
               label="Image"
@@ -168,7 +170,7 @@ class ServiceForm extends React.Component<
                         <Grid.Column width={16}>
                           Write docker-compose or remote file URL :
                           <CodeMirror
-                            value={this.isURL(ss.file) ? "" : ss.file}
+                            value={ss.file}
                             options={{
                               mode: "yaml",
                               theme: "material",
@@ -219,15 +221,6 @@ class ServiceForm extends React.Component<
         </Form>
       </>
     );
-  }
-
-  private isURL(str: string | undefined): boolean {
-    try {
-      const u = new URL(str!);
-      return !!u.host;
-    } catch (_) {
-      return false;
-    }
   }
 
   private handleToggleVersions = () => {
