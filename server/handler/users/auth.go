@@ -111,7 +111,7 @@ func register(jwtSecret string) echo.HandlerFunc {
 		}
 
 		// JWT token creation
-		token, err := user.CreateToken(jwtSecret)
+		token, err := u.CreateToken(jwtSecret)
 		if err != nil {
 			log.WithError(err).WithField("username", u.Username).Error("Token creation error")
 			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user token")
