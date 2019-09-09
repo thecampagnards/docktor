@@ -63,7 +63,7 @@ class Market extends React.Component<
         .catch((error: Error) => this.setState({ error }));
     } else {
       fetchGroups(false)
-        .then((groups: IGroup[]) => this.setState({ groups: groups.filter((g: IGroup) => this.props.isAdmin || g.admins.includes(this.props.username)) }))
+        .then((groups: IGroup[]) => groups && this.setState({ groups: groups.filter((g: IGroup) => this.props.isAdmin || g.admins.includes(this.props.username)) }))
         .catch((error: Error) => this.setState({ error }));
     }
   }

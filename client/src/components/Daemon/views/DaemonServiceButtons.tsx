@@ -26,13 +26,9 @@ export default class DaemonServiceButtons extends React.Component<
   };
 
   public render() {
-    const { services } = this.props;
     const { result, error, isFetching } = this.state;
     return (
-      <Button.Group floated="right">
-        <Button compact={true} disabled={true}>
-          {services.map(s => s.toUpperCase()).join(", ")}
-        </Button>
+      <Button.Group>
         <Popup
           flowing={true}
           on="click"

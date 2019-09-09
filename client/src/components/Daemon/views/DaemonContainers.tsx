@@ -77,13 +77,14 @@ class Daemon extends React.Component<
     return (
       <Grid>
         <Grid.Row>
-          <Grid.Column width={10}>
+          <Grid.Column width={13}>
             NETWORKS :{" "}
             {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
               <Label key={n}>{n}</Label>
             ))}
           </Grid.Column>
-          <Grid.Column width={6}>
+          <Grid.Column width={3}>
+            <Label pointing="right" content={services.join(",")} />
             <DaemonServiceButtons daemon={daemon} services={services} />
           </Grid.Column>
         </Grid.Row>

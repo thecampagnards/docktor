@@ -10,7 +10,7 @@ import { registerRequestThunk } from '../actions/user';
 import { IUser } from '../types/user';
 
 interface IUserFormProps {
-  registerRequest: (user: IUser) => void;
+  registerRequest: (user: IUser, login: boolean) => void;
   isFetching: boolean;
   error: string;
 }
@@ -18,6 +18,7 @@ interface IUserFormProps {
 interface IUserFormStates {
   error: Error;
   pwd: string;
+  login: boolean;
 }
 
 class UserForm extends React.Component<
@@ -26,12 +27,13 @@ class UserForm extends React.Component<
 > {
   public state = {
     pwd: "",
+    login: false,
     error: Error()
   };
   private user = {} as IUser;
 
   public render() {
-    const { error } = this.state;
+    const { error, login, pwd } = this.state;
     const { isFetching } = this.props;
     return (
       <>
@@ -92,10 +94,16 @@ class UserForm extends React.Component<
             label="Confirm Password"
             placeholder="Confirm password"
             type="password"
-            value={this.state.pwd}
+            value={pwd}
             onChange={this.handlePasswordChange}
           />
           <br />
+          <Form.Checkbox
+            label="Log in with this account"
+            defaultChecked={false}
+            checked={login}
+            onClick={this.handleCheckbox}
+          />
           <Message
             error={true}
             header="Error"
@@ -127,6 +135,11 @@ class UserForm extends React.Component<
     this.setState({ pwd: value });
   };
 
+  private handleCheckbox = () => {
+    const login = !!!this.state.login;
+    this.setState({ login })
+  }
+
   private submit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -135,7 +148,7 @@ class UserForm extends React.Component<
       return;
     }
 
-    this.props.registerRequest(this.user);
+    this.props.registerRequest(this.user, this.state.login);
   };
 }
 
@@ -149,8 +162,8 @@ const mapStateToProps = (state: IStoreState) => {
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, Action>) => {
   return {
-    registerRequest: (user: IUser) => {
-      dispatch(registerRequestThunk(user));
+    registerRequest: (user: IUser, login: boolean) => {
+      dispatch(registerRequestThunk(user, login));
     }
   };
 };
