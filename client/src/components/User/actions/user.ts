@@ -41,6 +41,12 @@ type RegisterSuccess = "REGISTER_SUCCESS";
 export const RegisterSuccess: RegisterSuccess = "REGISTER_SUCCESS";
 export interface IRegisterSuccess {
   type: RegisterSuccess;
+}
+
+type RegisterSuccessLogin = "REGISTER_SUCCESS_LOGIN";
+export const RegisterSuccessLogin: RegisterSuccessLogin = "REGISTER_SUCCESS_LOGIN";
+export interface IRegisterSuccessLogin {
+  type: RegisterSuccessLogin;
   username: string;
 }
 
@@ -58,6 +64,7 @@ export type AuthAction =
   | ILogoutSuccess
   | IRegisterRequest
   | IRegisterSuccess
+  | IRegisterSuccessLogin
   | IRegisterFailure;
 
 export const loginRequestThunk = (u: IUser, ldap: boolean) => {
@@ -92,7 +99,7 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
   };
 };
 
-export const registerRequestThunk = (u: IUser) => {
+export const registerRequestThunk = (u: IUser, login: boolean) => {
   return (dispatch: Dispatch<AuthAction>) => {
     dispatch({
       type: RegisterRequest
@@ -106,11 +113,17 @@ export const registerRequestThunk = (u: IUser) => {
       .then(checkStatus)
       .then((response: Response) => response.json())
       .then((token: string) => {
-        localStorage.setItem("token", token);
-        dispatch({
-          type: RegisterSuccess,
-          username: JWT<IUserToken>(token).username
-        });
+        if (login) {
+          localStorage.setItem("token", token);
+          dispatch({
+            type: RegisterSuccessLogin,
+            username: JWT<IUserToken>(token).username
+          });
+        } else {
+          dispatch({
+            type: RegisterSuccess
+          })
+        }
       })
       .catch((error: Error) => {
         dispatch({

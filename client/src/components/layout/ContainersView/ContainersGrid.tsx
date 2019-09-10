@@ -1,18 +1,15 @@
 import * as React from 'react';
-import {
-    Button, Grid, Search, SearchProps, Segment
-} from 'semantic-ui-react';
+import { Link } from 'react-router-dom';
+import { Button, Grid, Popup, Search, SearchProps, Segment } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
 import ContainerCard from './ContainerCard';
-import { Link } from 'react-router-dom';
-import { path } from '../../../constants/path';
-import { saveContainers } from '../../Group/actions/group';
 
-interface IContainerGridProps {
+interface IContainersGridProps {
   daemon: IDaemon;
   admin: boolean;
   containers: IContainer[];
@@ -20,28 +17,24 @@ interface IContainerGridProps {
   groupId?: string;
 }
 
-interface IContainerGridState {
+interface IContainersGridState {
   images: IImage[];
 
   searchFilter: string;
-  isFetching: boolean;
-  isSaving: boolean;
+  isFetching: string;
   error: Error;
-  saveError: Error;
 }
 
-export default class ContainerGrid extends React.Component<
-  IContainerGridProps,
-  IContainerGridState
+export default class ContainersGrid extends React.Component<
+  IContainersGridProps,
+  IContainersGridState
 > {
   public state = {
     images: [] as IImage[],
 
     searchFilter: "",
-    isFetching: false,
-    isSaving: false,
-    error: Error(),
-    saveError: Error(),
+    isFetching: "",
+    error: Error()
   };
 
   public componentDidMount() {
@@ -70,80 +63,106 @@ export default class ContainerGrid extends React.Component<
       <>
         {containers.length > 0 && (
           <>
-          <Segment>
-            <Grid>
-              <Grid.Column width={6}>
-                <Search
-                  size="tiny"
-                  placeholder="Search containers..."
-                  showNoResults={false}
-                  onSearchChange={this.filterSearch}
-                  value={searchFilter}
-                />
-              </Grid.Column>
-              <Grid.Column width={6}>
-                  <Button
-                    color="blue"
-                    circular={true}
-                    labelPosition="left"
-                    icon="double angle right"
-                    content="Run all"
-                    disabled={isFetching}
-                    onClick={this.handleAllOnClick.bind(this, "create")}
+            <Segment>
+              <Grid>
+                <Grid.Column width={6}>
+                  <Search
+                    size="tiny"
+                    placeholder="Search containers..."
+                    showNoResults={false}
+                    onSearchChange={this.filterSearch}
+                    value={searchFilter}
                   />
-                  <Button
-                    color="green"
-                    circular={true}
-                    labelPosition="left"
-                    icon="play"
-                    content="Start all"
-                    disabled={isFetching}
-                    onClick={this.handleAllOnClick.bind(this, "start")}
+                </Grid.Column>
+                <Grid.Column width={6}>
+                  <Popup
+                    flowing={true}
+                    on="click"
+                    inverted={true}
+                    content={error.message || "Done!"}
+                    trigger={
+                      <Button
+                        color="blue"
+                        circular={true}
+                        labelPosition="left"
+                        icon="double angle right"
+                        content="Run all"
+                        loading={isFetching === "create"}
+                        disabled={isFetching !== ""}
+                        onClick={this.handleAllOnClick.bind(this, "create")}
+                      />
+                    }
                   />
-                  <Button
-                    color="orange"
-                    circular={true}
-                    labelPosition="left"
-                    icon="stop"
-                    content="Stop all"
-                    disabled={isFetching}
-                    onClick={this.handleAllOnClick.bind(this, "stop")}
+                  <Popup
+                    flowing={true}
+                    on="click"
+                    inverted={true}
+                    content={error.message || "Done!"}
+                    trigger={
+                      <Button
+                        color="green"
+                        circular={true}
+                        labelPosition="left"
+                        icon="play"
+                        content="Start all"
+                        loading={isFetching === "start"}
+                        disabled={isFetching !== ""}
+                        onClick={this.handleAllOnClick.bind(this, "start")}
+                      />
+                    }
                   />
-                  {groupId && (
+                  <Popup
+                    flowing={true}
+                    on="click"
+                    inverted={true}
+                    content={error.message || "Done!"}
+                    trigger={
+                      <Button
+                        color="orange"
+                        circular={true}
+                        labelPosition="left"
+                        icon="stop"
+                        content="Stop all"
+                        loading={isFetching === "stop"}
+                        disabled={isFetching !== ""}
+                        onClick={this.handleAllOnClick.bind(this, "stop")}
+                      />
+                    }
+                  />
+                </Grid.Column>
+                <Grid.Column width={4}>
+                  {groupId && admin && (
                     <Button
-                      color="teal"
+                      color="black"
                       circular={true}
-                      icon="save"
-                      onClick={this.handleSaveContainers}
+                      icon="terminal"
+                      labelPosition="right"
+                      content="VM Terminal"
+                      as={Link}
+                      to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
+                      floated="right"
                     />
                   )}
-              </Grid.Column>
-              <Grid.Column width={4}>
-                {admin && (
-                  <Button
-                    color="black"
-                    circular={true}
-                    icon="terminal"
-                    labelPosition="right"
-                    content="VM Terminal"
-                    as={Link}
-                    to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
-                    floated="right"
+                </Grid.Column>
+              </Grid>
+            </Segment>
+
+            <Grid className="three column grid">
+              {containersFiltered.map((c: IContainer) => (
+                <Grid.Column key={c.Id}>
+                  <ContainerCard
+                    container={c}
+                    images={images.filter(i =>
+                      RegExp(i.image.Pattern).test(c.Image)
+                    )}
+                    admin={admin}
+                    daemon={daemon}
+                    refresh={refresh}
+                    groupId={groupId}
                   />
-                )}
-              </Grid.Column>
+                </Grid.Column>
+              ))}
             </Grid>
-          </Segment>
-
-          <Grid className="three column grid">
-            {containersFiltered.map((c: IContainer) => (
-              <Grid.Column key={c.Id}>
-                <ContainerCard container={c} images={images.filter(i => RegExp(i.image.Pattern).test(c.Image))} admin={admin} daemon={daemon} refresh={refresh} />
-              </Grid.Column>
-              )
-            )}
-          </Grid>
-
           </>
         )}
       </>
@@ -153,24 +172,27 @@ export default class ContainerGrid extends React.Component<
   private handleAllOnClick = (state: string) => {
     const { containers, daemon, refresh } = this.props;
 
-    this.setState({ isFetching: true });
-    changeContainersStatus(daemon._id, state, containers.map(c => c.Id))
+    this.setState({ isFetching: state });
+    changeContainersStatus(daemon._id, state, this.filterContainers(containers, state).map(c => c.Id))
       .then(() => refresh())
       .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
+      .finally(() => this.setState({ isFetching: "" }));
   };
+
+  private filterContainers = (containers: IContainer[], state: string) => {
+    switch (state) {
+      case "create":
+        return containers.filter(c => !c.Status || c.State === "exited");
+      case "start":
+        return containers.filter(c => c.State === "exited");
+      case "stop":
+        return containers.filter(c => c.State === "running");
+      default:
+        return [] as IContainer[];
+    }
+  }
 
   private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });
-  };
-
-  private handleSaveContainers = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>
-  ) => {
-    event.preventDefault();
-    this.setState({ isSaving: true });
-    saveContainers(this.props.groupId || "")
-      .catch(saveError => this.setState({ saveError }))
-      .finally(() => this.setState({ isSaving: false }));
   };
 }

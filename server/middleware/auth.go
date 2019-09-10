@@ -2,12 +2,14 @@ package middleware
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 
 	"docktor/server/storage"
 	"docktor/server/types"
 
 	jwt "github.com/dgrijalva/jwt-go"
+	typesDocker "github.com/docker/docker/api/types"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -181,7 +183,35 @@ func WithDaemonContainer(next echo.HandlerFunc) echo.HandlerFunc {
 			}
 		}
 
+		c.Set("container", containers[0])
+
 		return echo.NewHTTPError(http.StatusForbidden, "You don't have permission on this container")
+	}
+}
+
+// WithIsAllowShellContainer (need WithUser, WithDaemonContainer) check if user has webshell permission on the container
+func WithIsAllowShellContainer(next echo.HandlerFunc) echo.HandlerFunc {
+	return func(c echo.Context) error {
+
+		container := c.Get("container").(typesDocker.Container)
+
+		db := c.Get("DB").(*storage.Docktor)
+
+		images, err := db.Images().FindAll()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when retrieving images")
+			return echo.NewHTTPError(http.StatusForbidden, err.Error())
+		}
+
+		for _, image := range images {
+			if match, _ := regexp.MatchString(image.Image.Pattern, container.Image); match && image.IsAllowShell {
+				return next(c)
+			}
+		}
+
+		return echo.NewHTTPError(http.StatusForbidden, "You don't have shell permission on this container")
 	}
 }
 

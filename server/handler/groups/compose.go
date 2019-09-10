@@ -15,6 +15,8 @@ import (
 // createServiceGroup this function create and run a sub service via compose
 func createServiceGroup(c echo.Context) error {
 
+	group := c.Get("group").(types.Group)
+
 	var variables []types.ServiceVariable
 	err := c.Bind(&variables)
 	if err != nil {
@@ -24,8 +26,6 @@ func createServiceGroup(c echo.Context) error {
 		}).Error("Error when parsing variables")
 		return c.JSON(http.StatusBadRequest, err)
 	}
-
-	group := c.Get("group").(types.Group)
 
 	db := c.Get("DB").(*storage.Docktor)
 	subService, err := db.Services().FindSubServicByID(c.Param(types.SUBSERVICE_ID_PARAM))

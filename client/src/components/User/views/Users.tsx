@@ -60,13 +60,16 @@ class Users extends React.Component<{}, IUsersStates> {
           <Grid.Column width={2}>
             <h2>Users</h2>
           </Grid.Column>
-          <Grid.Column width={14}>
+          <Grid.Column width={6}>
             <Search
               size="tiny"
               placeholder="Search users..."
               showNoResults={false}
               onSearchChange={this.filterSearch}
             />
+          </Grid.Column>
+          <Grid.Column width={8}>
+            <Button primary={true} floated="right" as={Link} to={path.usersNew} content="Create local account" />
           </Grid.Column>
         </Grid>
         <Table celled={true}>
@@ -91,13 +94,13 @@ class Users extends React.Component<{}, IUsersStates> {
                   {user.groups &&
                     user.groups.map((group: IGroup) => (
                       <Button
+                        key={group._id}
                         basic={true}
                         compact={true}
+                        content={group.name}
                         as={Link}
                         to={path.groupsServices.replace(":groupID", group._id)}
-                      >
-                        {group.name}
-                      </Button>
+                      />
                     ))}
                 </Table.Cell>
                 <Table.Cell width={1}>
@@ -129,12 +132,21 @@ class Users extends React.Component<{}, IUsersStates> {
     this.setState({ usersFiltered });
   };
 
+  private filterAdmins = () => {
+    const usersFiltered = this.state.users.filter(user => user.role === "admin");
+    this.setState({ usersFiltered });
+  }
+
   private filterSearch = (
     event: React.SyntheticEvent,
     { value }: SearchProps
   ) => {
     this.searchFilter = value as string;
-    this.filterUsers();
+    if (this.searchFilter === "admin") {
+      this.filterAdmins();
+    } else {
+      this.filterUsers();
+    }
   };
 }
 

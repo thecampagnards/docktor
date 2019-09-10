@@ -1,6 +1,7 @@
 import {
     AuthAction, LoginFailure, LoginSuccess, LogoutSuccess, RegisterFailure, RegisterRequest,
-    RegisterSuccess
+    RegisterSuccess,
+    RegisterSuccessLogin
 } from '../actions/user';
 import { ILoginState } from '../types/user';
 
@@ -43,6 +44,12 @@ export default (
         isFetching: true
       };
     case RegisterSuccess:
+      return {
+        ...state,
+        error: "",
+        isFetching: false
+      }
+    case RegisterSuccessLogin:
       return {
         ...state,
         error: "",

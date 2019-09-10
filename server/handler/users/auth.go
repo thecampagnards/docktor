@@ -79,6 +79,49 @@ func login(jwtSecret string) echo.HandlerFunc {
 	}
 }
 
+func register(jwtSecret string) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		var u, user types.User
+
+		err := c.Bind(&u)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"body":  c.Request().Body,
+				"error": err,
+			}).Error("Error when parsing user")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		db := c.Get("DB").(*storage.Docktor)
+		user, err = db.Users().FindByUsername(u.Username)
+		if err == nil {
+			if user.Username == u.Username {
+				log.WithField("username", u.Username).Error("Trying to create user that already exists")
+				return echo.NewHTTPError(http.StatusInternalServerError, "This username is already used")
+			}
+		}
+
+		u.Role = types.USER_ROLE
+		u.Password = u.EncodePassword(u.Password)
+
+		u, err = db.Users().Save(u)
+		if err != nil {
+			log.WithError(err).WithField("user", u).Error("Failed to save user")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to synchronize user data")
+		}
+
+		// JWT token creation
+		token, err := u.CreateToken(jwtSecret)
+		if err != nil {
+			log.WithError(err).WithField("username", u.Username).Error("Token creation error")
+			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to create user token")
+		}
+		log.WithField("username", u.Username).Info("Token creation successful")
+
+		return c.JSON(http.StatusOK, token)
+	}
+}
+
 func profile(c echo.Context) error {
 	user := c.Get("user").(types.User)
 	db := c.Get("DB").(*storage.Docktor)

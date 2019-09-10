@@ -29,4 +29,5 @@ func AddRoute(e *echo.Group) {
 // AddAuthRoute add route on echo
 func AddAuthRoute(e *echo.Group, jwtSecret string) {
 	e.POST("/login", login(jwtSecret))
+	e.POST("/register", register(jwtSecret))
 }

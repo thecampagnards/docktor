@@ -22,14 +22,23 @@ interface ILayoutProps {
   logoutRequest?: () => void;
 }
 
+interface ILayoutState {
+  showBanner: boolean;
+}
+
 class Layout extends React.Component<ILayoutProps> {
+  public state = {
+    showBanner: true
+  }
+
   public render() {
     const { message, username, isAuthenticated, isAdmin } = this.props;
+    const { showBanner } = this.state;
 
     return (
       <>
-        {(message.header || message.content) && (
-          <Message className="banner" {...message} />
+        {showBanner && (message.header || message.content) && (
+          <Message className="banner" {...message} onDismiss={this.handleDismissBanner} />
         )}
 
         <KonamiCode />
@@ -111,6 +120,10 @@ class Layout extends React.Component<ILayoutProps> {
         <Container>{this.props.children}</Container>
       </>
     );
+  }
+
+  private handleDismissBanner = () => {
+    this.setState({ showBanner: false });
   }
 }
 

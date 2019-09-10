@@ -2,7 +2,7 @@ import * as React from 'react';
 import { Message } from 'semantic-ui-react';
 
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import ContainerGrid from '../../layout/ContainersView/ContainersGrid';
+import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
 import { fetchContainers } from '../actions/group';
 import { IGroup } from '../types/group';
 
@@ -50,7 +50,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
-      <ContainerGrid
+      <ContainersGrid
         containers={containers}
         admin={admin}
         daemon={daemon}
