@@ -320,10 +320,14 @@ export default class ContainerCard extends React.Component<
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
-    this.setState({ isFetchingState: "remove" });
-    saveContainers(this.props.groupId || "")
-      .then(() => this.handleStatusButton("remove"))
-      .catch(saveError => this.setState({ saveError, isFetchingState: "" }));
+    if (this.props.groupId) {
+      this.setState({ isFetchingState: "remove" });
+      saveContainers(this.props.groupId)
+        .then(() => this.handleStatusButton("remove"))
+        .catch(saveError => this.setState({ saveError, isFetchingState: "" }));
+    } else {
+      this.handleStatusButton("remove");
+    }
   };
 
   private handleStatusButton = (state: string) => {
