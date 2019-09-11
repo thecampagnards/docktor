@@ -27,6 +27,17 @@ type Daemon struct {
 	SSH         SSH      `json:"ssh" bson:"ssh"`
 }
 
+// RundeckDaemon data
+type RundeckDaemon struct {
+	Nodename  string   `json:"nodename"`
+	Hostname  string   `json:"hostname"`
+	Username  string   `json:"username"`
+	Tags      []string `json:"tags"`
+	OsFamily  string   `json:"osFamily"`
+	OsName    string   `json:"osName"`
+	OsVersion string   `json:"osVersion"`
+}
+
 // Docker data
 type Docker struct {
 	Status string `json:"status" bson:"status"`
@@ -56,7 +67,20 @@ type Daemons []Daemon
 // DaemonsLight data
 type DaemonsLight []DaemonLight
 
-// GetCompleteHost get tfmt.Sprintf("he tcp url if the port is empty return the socket
+// ToRundeck convert daemon format to rundeck format
+func (d *Daemon) ToRundeck() RundeckDaemon {
+	return RundeckDaemon{
+		Nodename:  d.Name,
+		Hostname:  d.Host,
+		Username:  d.SSH.User,
+		Tags:      d.Tags,
+		OsFamily:  "unix",
+		OsName:    "CentOS",
+		OsVersion: "7.2",
+	}
+}
+
+// GetCompleteHost get the docker complete host
 func (d *Daemon) GetCompleteHost() string {
 	if d.Docker.Port != 0 {
 		return fmt.Sprintf("tcp://%s:%v", d.Host, d.Docker.Port)

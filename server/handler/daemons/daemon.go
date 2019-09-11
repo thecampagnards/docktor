@@ -24,8 +24,8 @@ func getAll(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 		return c.JSON(http.StatusOK, daemons)
-
 	}
+
 	daemons, err := db.Daemons().FindAllLight()
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -35,6 +35,26 @@ func getAll(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, daemons)
+}
+
+// getAllRundeck find all daemons to rundeck format
+func getAllRundeck(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+
+	daemons, err := db.Daemons().FindAll()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error": err,
+		}).Error("Error when retrieving daemons")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	var nodes []types.RundeckDaemon
+	for _, daemon := range daemons {
+		nodes = append(nodes, daemon.ToRundeck())
+	}
+
+	return c.JSON(http.StatusOK, nodes)
 }
 
 // getByID find one daemon by id
