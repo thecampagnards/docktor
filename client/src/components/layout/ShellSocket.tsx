@@ -1,9 +1,8 @@
-import 'xterm/dist/xterm.css';
+import 'xterm/css/xterm.css';
 
 import chalk from 'chalk';
 import * as React from 'react';
 import { Terminal } from 'xterm';
-import { fit } from 'xterm/lib/addons/fit/fit';
 
 import { GetToken } from '../User/actions/user';
 
@@ -36,7 +35,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       });
 
       this.term.open(this.container);
-      fit(this.term);
+      this.term.focus();
 
       const forcedChalk = new chalk.constructor({ enabled: true, level: 2 });
 
@@ -49,7 +48,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
       this.term.setOption("screenKeys", true);
 
-      this.term.on("data", (data: string) => {
+      this.term.onData(data => {
         this.ws.send(data);
       });
 
@@ -59,7 +58,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
       this.ws.onclose = e => {
         this.term.write(forcedChalk.green("Session terminated"));
-        this.term.destroy();
+        this.term.dispose();
 
         if (!e.wasClean) {
           this.term.write(
@@ -79,7 +78,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       this.ws.close();
     }
     if (this.term) {
-      this.term.destroy();
+      this.term.dispose();
     }
   }
 
