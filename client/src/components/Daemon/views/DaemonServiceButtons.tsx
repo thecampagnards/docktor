@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Popup } from 'semantic-ui-react';
+import { Button, Popup, SemanticCOLORS } from 'semantic-ui-react';
 
 import { changeComposeStatus } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
@@ -25,55 +25,45 @@ export default class DaemonServiceButtons extends React.Component<
     result: ""
   };
 
+  private buttons = [
+    {
+      color: "green",
+      icon: "play",
+      action: "start"
+    },
+    {
+      color: "orange",
+      icon: "stop",
+      action: "stop"
+    },
+    {
+      color: "red",
+      icon: "delete",
+      action: "remove"
+    }
+  ];
+
   public render() {
     const { result, error, isFetching } = this.state;
     return (
       <Button.Group>
-        <Popup
-          flowing={true}
-          on="click"
-          inverted={true}
-          trigger={
-            <Button
-              compact={true}
-              loading={isFetching}
-              color="green"
-              icon="play"
-              onClick={this.handleOnClick.bind(this, "start")}
-            />
-          }
-          content={error.message ? error.message : result}
-        />
-        <Popup
-          flowing={true}
-          on="click"
-          inverted={true}
-          trigger={
-            <Button
-              compact={true}
-              loading={isFetching}
-              color="orange"
-              icon="stop"
-              onClick={this.handleOnClick.bind(this, "stop")}
-            />
-          }
-          content={error.message ? error.message : result}
-        />
-        <Popup
-          flowing={true}
-          on="click"
-          inverted={true}
-          trigger={
-            <Button
-              compact={true}
-              loading={isFetching}
-              color="red"
-              icon="delete"
-              onClick={this.handleOnClick.bind(this, "remove")}
-            />
-          }
-          content={error.message ? error.message : result}
-        />
+        {this.buttons.map(button => (
+          <Popup
+            flowing={true}
+            on="click"
+            inverted={true}
+            trigger={
+              <Button
+                compact={true}
+                loading={isFetching}
+                color={button.color as SemanticCOLORS}
+                icon={button.icon}
+                onClick={this.handleOnClick.bind(this, button.action)}
+              />
+            }
+            content={error.message ? error.message : result}
+          />
+        ))}
       </Button.Group>
     );
   }
