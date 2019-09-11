@@ -78,7 +78,7 @@ func updateContainersStatus(c echo.Context) error {
 
 	containers := strings.FieldsFunc(c.QueryParam("containers"), splitFn)
 
-	var errs map[string]string
+	errs := make(map[string]string)
 
 	switch c.QueryParam("status") {
 	case "start":
@@ -89,7 +89,7 @@ func updateContainersStatus(c echo.Context) error {
 		errs = daemon.RemoveContainers(containers...)
 	case "restart":
 		errs = daemon.RestartContainers(containers...)
-	case "create", "destroy":
+	case "create":
 
 		// Find groups of daemon
 		groups, err := db.Groups().FindByDaemonIDBson(daemon.ID)
@@ -101,48 +101,55 @@ func updateContainersStatus(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 
-		errs = make(map[string]string)
-
-		switch c.QueryParam("status") {
-		case "create":
-			for _, group := range groups {
-				for _, container := range group.FindContainersByNameOrID(containers) {
-					if container.ContainerJSONBase != nil {
-						err = daemon.CreateContainer(container)
-						if err != nil {
-							errs[container.Name] = err.Error()
-							log.WithFields(log.Fields{
-								"daemon":    daemon.Name,
-								"status":    c.QueryParam("status"),
-								"err":       err,
-								"container": container,
-							}).Error("Error when create this container")
-						}
+		for _, group := range groups {
+			for _, container := range group.FindContainersByNameOrID(containers) {
+				if container.ContainerJSONBase != nil {
+					err = daemon.CreateContainer(container)
+					if err != nil {
+						errs[container.Name] = err.Error()
+						log.WithFields(log.Fields{
+							"daemon":    daemon.Name,
+							"status":    c.QueryParam("status"),
+							"err":       err,
+							"container": container,
+						}).Error("Error when create this container")
 					}
-				}
-			}
-		case "destroy":
-
-			for keyGroup := 0; keyGroup < len(groups); keyGroup++ {
-				for keyContainer, c := range groups[keyGroup].FindContainersByNameOrID(containers) {
-					if c.ContainerJSONBase != nil {
-						groups[keyGroup].Containers = append(groups[keyGroup].Containers[:keyContainer], groups[keyGroup].Containers[keyContainer+1:]...)
-					}
-				}
-			}
-
-			for _, group := range groups {
-				_, err = db.Groups().Save(group)
-				if err != nil {
-					errs[group.Name] = err.Error()
-					log.WithFields(log.Fields{
-						"status": c.QueryParam("status"),
-						"err":    err,
-						"group":  group.Name,
-					}).Error("Error when destroy containers")
 				}
 			}
 		}
+
+	case "destroy":
+
+		// Find groups of daemon
+		groups, err := db.Groups().FindByDaemonIDBson(daemon.ID)
+		if err != nil {
+			log.WithFields(log.Fields{
+				"daemonID": daemon.ID,
+				"error":    err,
+			}).Error("Error when retrieving groups")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		for keyGroup := 0; keyGroup < len(groups); keyGroup++ {
+			for keyContainer, c := range groups[keyGroup].FindContainersByNameOrID(containers) {
+				if c.ContainerJSONBase != nil {
+					groups[keyGroup].Containers = append(groups[keyGroup].Containers[:keyContainer], groups[keyGroup].Containers[keyContainer+1:]...)
+				}
+			}
+		}
+
+		for _, group := range groups {
+			_, err = db.Groups().Save(group)
+			if err != nil {
+				errs[group.Name] = err.Error()
+				log.WithFields(log.Fields{
+					"status": c.QueryParam("status"),
+					"err":    err,
+					"group":  group.Name,
+				}).Error("Error when destroy containers")
+			}
+		}
+
 	default:
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
