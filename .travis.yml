@@ -5,9 +5,7 @@ matrix:
     # Sonar scan
     - language: go
       go:
-        - "1.12"
-      env:
-        - GO111MODULE=on
+        - "1.13"
       addons:
         sonarcloud:
           organization: "thecampagnards-github"
@@ -17,18 +15,16 @@ matrix:
           - "$GOPATH/pkg/mod"
           - "client/node_modules"
       install:
-        - nvm install stable
-        - node -v
+        - nvm install 12
         - git fetch --unshallow --quiet
         - npm link typescript
       script:
-        - cd client
+        - cd "$TRAVIS_BUILD_DIR/client"
         - npm install
         - CI=true npm run test
-        - cd ..
-        - cd server
+        - cd "$TRAVIS_BUILD_DIR/server"
         - go test ./... -coverprofile="coverage.out"
-        - cd ..
+        - cd "$TRAVIS_BUILD_DIR"
         - sonar-scanner
     # Docker build
     - language: sh
