@@ -129,7 +129,7 @@ class Admin extends React.Component<{}, IAdminStates> {
     value: string
   ) => {
     const { assets } = this.state;
-    assets.set(editor.getOption("gutters")[0], value);
+    assets.set(editor.getOption("gutters")![0], value);
     this.setState({ assets });
   };
 
