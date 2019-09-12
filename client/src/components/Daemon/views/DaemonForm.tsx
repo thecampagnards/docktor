@@ -272,7 +272,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     value: string
   ) => {
     this.setState({
-      daemon: _.set(this.state.daemon, editor.getOption("gutters")[0], value)
+      daemon: _.set(this.state.daemon, editor.getOption("gutters")![0], value)
     });
   };
 
