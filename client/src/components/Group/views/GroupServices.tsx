@@ -10,6 +10,7 @@ import { path } from '../../../constants/path';
 interface IGroupProps {
   group: IGroup;
   admin: boolean;
+  groupAdmin: boolean;
 }
 
 interface IGroupStates {
@@ -29,7 +30,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   };
 
   public render() {
-    const { group, admin } = this.props;
+    const { group, admin, groupAdmin } = this.props;
     const { error } = this.state;
 
     if (error.message) {
@@ -44,7 +45,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     return (
       <>
 
-        {admin ?
+        {groupAdmin ?
           <Grid>
             <Grid.Column width={12}>
               {group.services.length === 0 && (

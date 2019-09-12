@@ -2,6 +2,7 @@ package daemons
 
 import (
 	"encoding/binary"
+	"fmt"
 	"io"
 	"net/http"
 	"net/url"
@@ -196,15 +197,28 @@ func execContainer(c echo.Context) error {
 		"command": command.Title,
 	}).Info("Command retrieved")
 
+	variables := map[string]interface{}{} /*{
+		"Daemon": daemon,
+	}*/
+
 	// Get the body variables ton replace in the go template
-	var variables interface{}
-	err = c.Bind(&variables)
+	var cmdVars []types.CommandVariable
+	err = c.Bind(&cmdVars)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"variables": c.Request().Body,
 			"error":     err,
 		}).Error("Error when parsing variables")
 		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	// Copy of variables
+	for _, v := range cmdVars {
+		if v.Optional {
+			variables[fmt.Sprintf("optional_%s", v.Name)] = v.Value
+		} else {
+			variables[v.Name] = v.Value
+		}
 	}
 
 	log.WithFields(log.Fields{

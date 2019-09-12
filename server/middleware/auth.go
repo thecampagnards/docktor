@@ -57,7 +57,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 		}
 
 		log.WithFields(log.Fields{
-			"group": group,
+			"group": group.Name,
 			"user":  user,
 		}).Debug("Check if group is yours")
 
@@ -192,6 +192,11 @@ func WithDaemonContainer(next echo.HandlerFunc) echo.HandlerFunc {
 // WithIsAllowShellContainer (need WithUser, WithDaemonContainer) check if user has webshell permission on the container
 func WithIsAllowShellContainer(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
+		user := c.Get("user").(types.User)
+
+		if user.IsAdmin() {
+			return next(c)
+		}
 
 		container := c.Get("container").(typesDocker.Container)
 

@@ -132,7 +132,7 @@ func updateUser(c echo.Context) error {
 	group, err := db.Groups().Save(group)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"group": group,
+			"group": group.Name,
 			"error": err,
 		}).Error("Error when updating/creating group")
 		return c.JSON(http.StatusBadRequest, err.Error())

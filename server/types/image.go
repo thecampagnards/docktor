@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"html/template"
+	"regexp"
 
 	"github.com/globalsign/mgo/bson"
 )
@@ -18,10 +19,17 @@ type Image struct {
 
 // Command data
 type Command struct {
-	ID        bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Title     string        `json:"title" bson:"title"`
-	Command   string        `json:"command" bson:"command"`
-	Variables interface{}   `json:"variables" bson:"-"`
+	ID        bson.ObjectId     `json:"_id,omitempty" bson:"_id,omitempty"`
+	Title     string            `json:"title" bson:"title"`
+	Command   string            `json:"command" bson:"command"`
+	Variables []CommandVariable `json:"variables" bson:"-"`
+}
+
+// CommandVariable data
+type CommandVariable struct {
+	Name     string `json:"name" bson:"name" validate:"required"`
+	Value    string `json:"value" bson:"value"`
+	Optional bool   `json:"optional" bson:"optional"`
 }
 
 // Images data
@@ -46,14 +54,41 @@ func (cmd *Command) SetVariables(variables interface{}) (string, error) {
 
 // GetVariables retrieve the variables of a template
 func (cmd *Command) GetVariables() (err error) {
-	cmd.Variables, err = FindTemplateVariables(cmd.Command, nil)
+	variables, err := FindTemplateVariables(cmd.Command, nil)
+
+	cmd.Variables = make([]CommandVariable, len(variables))
+	for i := 0; i < len(variables); i++ {
+		cmd.Variables[i] = parseCmdVar(variables[i])
+	}
+
 	return err
 }
 
 // GetCommandsVariables retrieve the commands variables
 func (img *Image) GetCommandsVariables() (err error) {
 	for index := 0; index < len(img.Commands); index++ {
-		img.Commands[index].Variables, err = FindTemplateVariables(img.Commands[index].Command, nil)
+		err = img.Commands[index].GetVariables()
+		if err != nil {
+			return err
+		}
 	}
 	return err
+}
+
+// parseVar parses a variable to return a CommandVariable
+func parseCmdVar(variable string) CommandVariable {
+	r, _ := regexp.Compile(`(optional_)?([a-zA-Z_]+)`)
+	match := r.FindStringSubmatch(variable)
+
+	cmdVar := CommandVariable{
+		Name:     match[2],
+		Value:    "",
+		Optional: false,
+	}
+
+	if len(match[1]) != 0 {
+		cmdVar.Optional = true
+	}
+
+	return cmdVar
 }

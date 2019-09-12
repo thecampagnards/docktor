@@ -28,7 +28,7 @@ func getContainers(c echo.Context) error {
 	cs, err := daemon.GetContainersStartByName(group.Name)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"error":  err,
 		}).Error("Error when retrieving group daemon containers")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -53,7 +53,7 @@ func saveContainers(c echo.Context) error {
 	cs, err := daemon.GetContainersStartByName(group.Name)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"error":  err,
 		}).Error("Error when retrieving group daemon containers")
 		return c.JSON(http.StatusBadRequest, err.Error())
@@ -70,7 +70,7 @@ func saveContainers(c echo.Context) error {
 	csj, err := daemon.InspectContainers(ids...)
 	log.WithFields(log.Fields{
 		"ids":    ids,
-		"daemon": daemon,
+		"daemon": daemon.Name,
 		"error":  err,
 	}).Error("Error when retrieving group containers inspect")
 
