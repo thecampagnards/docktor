@@ -21,13 +21,13 @@ docker-compose up
 ### Only docker
 
 Docker image available here <https://hub.docker.com/r/thecampagnards/docktor/>.
-Run a mongo on localhost, then run the service with this command:
+Run a **mongo** on localhost, then run the service with this command:
 
 ```sh
 docker run -p 8080:8080 -v /data/docktor/assets:/docktor/assets thecampagnards/docktor
 ```
 
-You can define some env vars:
+You can define some env vars, check [back section](#back):
 
 - MONGO_URL: mongodb url (default localhost)
 - JWT_SECRET: the jwt signed key (default secret)
@@ -42,21 +42,85 @@ Docktor is a Go/React(TS) app and use [libcompose](https://github.com/docker/lib
 
 ### Installation
 
+#### DB
+
+Docktor needs a mongo as DB. To run a mongo use this command:
+
+```bash
+docker run -v /data:/data/db --net host --rm mongo
+```
+
 #### Back
 
-Go version used 1.12.
+Go version used 1.13.
+
+Create file `conf`, adds the flag and its value separates from a space to change its default value.
+
+```text
+Usage of server:
+  -config string
+        Path to config file (default "conf")
+  -cron-refresh string
+        Text param of cron functions to define refresh time (default "@every 30m")
+  -default-admin-account string
+        The username of a default administrator account (default "root")
+  -default-admin-password string
+        The password of a default administrator account (default "root")
+  -jwt-secret string
+        The secret used to sign JWT tokens (default "secret")
+  -ldap-attr-email string
+        The LDAP attribute corresponding to the email address of an account
+  -ldap-attr-firstname string
+        The LDAP attribute corresponding to the first name of an account
+  -ldap-attr-lastname string
+        The LDAP attribute corresponding to the last name of an account
+  -ldap-attr-username string
+        The LDAP attribute corresponding to the username of an account
+  -ldap-base-dn string
+        The base DN where to search for users
+  -ldap-bind-dn string
+        The DN of a LDAP user able to perform queries
+  -ldap-bind-password string
+        The password associated to the ldap-bind-dn user
+  -ldap-host string
+        The host of the LDAP to connect to
+  -ldap-port int
+        The port of the LDAP to connect to (default 389)
+  -ldap-search-filter string
+        The search filter
+  -ldap-secure
+        The LDAP needs TLS connection
+  -log-level string
+        The log level to use (debug, info, warn, error, fatal, panic) (default "debug")
+  -mongo-url string
+        The mongo db url (default "localhost")
+  -production
+        Enable the production mode
+```
 
 ```bash
 cd server
 go run .
 ```
 
+or
+
+```bash
+docker run -v $(pwd)/server:/server --net host --rm -ti golang:1.13 sh -c 'cd /server && go run .'
+```
+
 #### Front
 
-Node version user 12.
+Node version used 12.
 
 ```bash
 cd client
 npm install
 npm start
+```
+
+or
+
+```bash
+docker run -v $(pwd)/client:/client --net host --rm -ti node:12 sh -c 'cd /client && npm install && npm start'
 ```
