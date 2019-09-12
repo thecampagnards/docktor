@@ -100,6 +100,7 @@ export default class Commands extends React.Component<
                       required={!v.optional}
                       onChange={this.handleInput}
                       name={v.name}
+                      defaultValue={v.value}
                     />
                   ))}
                 </Form.Group>
