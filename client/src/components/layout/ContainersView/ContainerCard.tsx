@@ -59,8 +59,8 @@ export default class ContainerCard extends React.Component<
     saveError: Error()
   };
 
-  private service = Object.keys(this.props.container.Labels).includes("SERVICE_NAME");
-  private composeServiceName = Object.keys(this.props.container.Labels).includes("com.docker.compose.service") ?
+  private service = this.props.container.Labels && Object.keys(this.props.container.Labels).includes("SERVICE_NAME");
+  private composeServiceName = this.service && Object.keys(this.props.container.Labels).includes("com.docker.compose.service") ?
     this.props.container.Labels["com.docker.compose.service"] : "?";
   private containerService = this.service ?
     `Service : ${this.props.container.Labels["SERVICE_NAME"]} - ${this.composeServiceName}` :
