@@ -59,6 +59,14 @@ export default class ContainerCard extends React.Component<
     saveError: Error()
   };
 
+  private service = Object.keys(this.props.container.Labels).includes("SERVICE_NAME");
+  private composeServiceName = Object.keys(this.props.container.Labels).includes("com.docker.compose.service") ?
+    this.props.container.Labels["com.docker.compose.service"] : "?";
+  private containerService = this.service ?
+    `Service : ${this.props.container.Labels["SERVICE_NAME"]} - ${this.composeServiceName}` :
+    "No service associated";
+
+
   public render() {
     const { container, daemon, images, admin } = this.props;
     const {
@@ -76,6 +84,9 @@ export default class ContainerCard extends React.Component<
             <Grid.Column width={13}>
               <Card.Header>{containerName.toUpperCase()}</Card.Header>
               <Card.Meta>{containerImage}</Card.Meta>
+              <Card.Description>
+                {this.containerService}
+              </Card.Description>
             </Grid.Column>
             <Grid.Column width={3}>{this.containerStatus()}</Grid.Column>
           </Grid>
@@ -328,7 +339,7 @@ export default class ContainerCard extends React.Component<
 
   private handleStatusButton = (state: string) => {
     const { container, daemon, refresh } = this.props;
-
+    
     if (daemon) {
       this.setState({ isFetchingState: state });
       changeContainersStatus(daemon._id, state, [container.Id])

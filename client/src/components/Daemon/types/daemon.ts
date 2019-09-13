@@ -38,7 +38,7 @@ export interface IContainer {
   Id: string;
   Image: string;
   ImageID: string;
-  Labels: string[];
+  Labels: any;
   Mounts: [
     {
       Type: string;
