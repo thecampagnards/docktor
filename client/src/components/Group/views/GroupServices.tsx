@@ -6,7 +6,6 @@ import { IGroupService, IService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
 import { path } from '../../../constants/path';
-import { fetchServiceBySubService } from '../../Services/actions/service';
 
 interface IGroupProps {
   group: IGroup;

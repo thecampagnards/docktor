@@ -12,6 +12,7 @@ export interface ISubService {
   _id: string
   name: string
   file?: string
+  compose?: string
   variables: IServiceVariable[]
   active: boolean
 }
