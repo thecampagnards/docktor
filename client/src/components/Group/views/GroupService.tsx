@@ -1,11 +1,12 @@
 import * as React from 'react';
 import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal } from 'semantic-ui-react';
 
-import { IGroupService } from '../../Services/types/service';
+import { IGroupService, IService } from '../../Services/types/service';
 import { copy } from '../../../utils/clipboard';
 import { getServiceStatus, updateServiceStatus } from '../actions/group';
 import { IContainerStatus } from '../types/group';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
+import { fetchServiceBySubService } from '../../Services/actions/service';
 
 interface IGroupServiceProps {
   groupID: string;
@@ -18,6 +19,8 @@ interface IGroupServiceState {
   modalOpen: boolean;
   error: Error;
   isFetching: boolean;
+  subServiceError: Error;
+  isFetchingSub: boolean;
   file: string;
 }
 
@@ -27,11 +30,26 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     modalOpen: false,
     error: Error(),
     isFetching: false,
+    subServiceError: Error(),
+    isFetchingSub: true,
     file: window.atob(this.props.service.file)
   }
 
+  private serviceVersion = "Version";
+  private serviceDoc = "https://docs.cdk.corp.sopra/start/";
+
   public componentDidMount() {
     this.refreshStatus();
+
+    const ssId = this.props.service.sub_service_id;
+    fetchServiceBySubService(ssId)
+      .then((s: IService) => {
+        const sub = s.sub_services.find(ss => ss._id === ssId);
+        this.serviceVersion = sub ? sub.name : ssId;
+        this.serviceDoc = s.link;
+      })
+      .catch(error => this.setState({ subServiceError: error }))
+      .finally(() => this.setState({ isFetchingSub: false }));
   }
 
   public render() {
@@ -47,7 +65,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                 <h3>{service.name}</h3>
               </Grid.Column>
               <Grid.Column width={4}>
-                <Label basic={true}>{service.sub_service_id}</Label>
+                <Label basic={true}>{this.serviceVersion}</Label>
               </Grid.Column>
               <Grid.Column width={8}>
                 {status.map(cs => this.statusIndicator(cs))}
@@ -70,7 +88,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                       </Dropdown.Menu>
                     </Dropdown>
                 }
-                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={service.url} target="_blank" floated="right" disabled={true} />
+                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={this.serviceDoc} target="_blank" floated="right" />
                 <Modal size="large" open={modalOpen} onClose={this.handleClose}>
                   <Modal.Header icon="file alternate outline" content={`${service.name} compose file`} />
                   <Modal.Content>
