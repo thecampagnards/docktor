@@ -3,6 +3,7 @@ package types
 import (
 	"fmt"
 	"reflect"
+	"strings"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/libcompose/config"
@@ -166,7 +167,7 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, g
 	groupService.Name = serviceName
 	groupService.Variables = ss.Variables
 	groupService.SubServiceID = ss.ID
-	groupService.URL = daemon.Host
+	groupService.URL = computeServiceURL(serviceName, group.Name, daemon.Host)
 
 	variables := map[string]interface{}{
 		"Group":       group,
@@ -215,4 +216,13 @@ func addLabel(config *config.Config, label string) {
 			config.Services[key]["labels"] = []string{label}
 		}
 	}
+}
+
+func computeServiceURL(serviceName, groupName, host string) string {
+	service := strings.ReplaceAll(serviceName, "[_-]", "")
+	service = strings.ToLower(service)
+	group := strings.ReplaceAll(groupName, "_", "-")
+	group = strings.ToLower(group)
+
+	return fmt.Sprintf("https://%s.%s.%s/", service, group, host)
 }
