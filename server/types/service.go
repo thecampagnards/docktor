@@ -3,6 +3,7 @@ package types
 import (
 	"bytes"
 	"crypto/tls"
+	"errors"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -55,6 +56,27 @@ func (s *Service) GetVariablesOfSubServices() (err error) {
 
 // Services data
 type Services []Service
+
+// ValidateServiceName checks if another service in the group has the same name or if the associated volume already exists
+func ValidateServiceName(name string, group Group, daemon Daemon) error {
+
+	r, _ := regexp.Compile(`[a-zA-Z0-9_-]+`)
+	match := r.FindStringSubmatch(name)
+
+	if len(match[0]) == 0 {
+		return errors.New("The service name should not contain special chars")
+	}
+
+	for _, s := range group.Services {
+		if s.Name == name {
+			return errors.New("This service name is already used in this group")
+		}
+	}
+
+	// TODO check volumes
+
+	return nil
+}
 
 // GetRemoteFile Check if file is remote and pull it
 func (sub *SubService) GetRemoteFile() (err error) {

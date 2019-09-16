@@ -52,6 +52,11 @@ func createServiceGroup(c echo.Context) error {
 	serviceName := c.QueryParam("service-name")
 	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
 
+	err = types.ValidateServiceName(serviceName, group, daemon)
+	if err != nil {
+		return c.JSON(http.StatusConflict, err.Error())
+	}
+
 	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{

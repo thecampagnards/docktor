@@ -74,7 +74,14 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
             <Grid.Row>
               <Grid.Column width={8}>
                 <Button.Group color="blue" floated="left">
-                  <Button labelPosition="left" icon="external alternate" content="Open" as="a" href={service.url} />
+                  <Button
+                    labelPosition="left"
+                    icon="external alternate"
+                    content="Open"
+                    as="a"
+                    href={service.url}
+                    disabled={status.filter(cs => cs.State.startsWith("Exited")).length !== 0}
+                  />
                   <Button icon="clipboard" title="Copy URL" onClick={copy.bind(this, service.url)} />
                 </Button.Group>
                 {this.buttonStatus()}
@@ -127,10 +134,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
     updateServiceStatus(groupID, service.sub_service_id, name)
-      .then(response => {
-        console.log("Service " + service.name + " : Status updated to " + name);
-        this.refreshStatus();
-      })
+      .then(() => this.refreshStatus())
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   }
