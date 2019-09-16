@@ -133,7 +133,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     value: string
   ) => {
     this.setState({
-      group: _.set(this.state.group, editor.getOption("gutters")[0], value)
+      group: _.set(this.state.group, editor.getOption("gutters")![0], value)
     });
   };
 

@@ -2,6 +2,7 @@ package services
 
 import (
 	"net/http"
+	"sync"
 
 	"docktor/server/storage"
 	"docktor/server/types"
@@ -17,9 +18,19 @@ func getAll(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	// To run multiple get variables at the same time
+	var wg sync.WaitGroup
+
 	for i := 0; i < len(s); i++ {
-		s[i].GetVariablesOfSubServices()
+		wg.Add(1)
+		go func(i int) {
+			defer wg.Done()
+			s[i].GetVariablesOfSubServices()
+		}(i)
 	}
+	wg.Wait()
+
 	return c.JSON(http.StatusOK, s)
 }
 

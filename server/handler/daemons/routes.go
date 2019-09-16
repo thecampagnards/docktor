@@ -15,6 +15,7 @@ func AddRoute(e *echo.Group) {
 
 	// Basic daemon request
 	daemons.GET("", getAll)
+	daemons.GET("/rundeck", getAllRundeck, middleware.WithAdmin)
 	daemons.POST("", save, middleware.WithAdmin)
 
 	{

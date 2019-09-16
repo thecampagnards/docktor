@@ -251,7 +251,7 @@ class Images extends React.Component<{}, IImagesStates> {
     data: CodeMirror.EditorChange,
     value: string
   ) => {
-    this.setState(_.set(this.state, editor.getOption("gutters")[0], value));
+    this.setState(_.set(this.state, editor.getOption("gutters")![0], value));
   };
 
   private addImage = (

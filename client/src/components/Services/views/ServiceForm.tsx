@@ -287,7 +287,7 @@ class ServiceForm extends React.Component<
     value: string
   ) => {
     this.setState({
-      service: _.set(this.state.service, editor.getOption("gutters")[0], value)
+      service: _.set(this.state.service, editor.getOption("gutters")![0], value)
     });
   };
 
