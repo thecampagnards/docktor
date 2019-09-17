@@ -40,7 +40,7 @@ class MarketModal extends React.Component<
   public state = {
     selectedGroupID: this.props.groups && this.props.groups.length === 1 ? this.props.groups[0]._id : "",
     selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
-    serviceName: this.props.service.name,
+    serviceName: this.props.service.name.replace(" ", "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
 
@@ -59,10 +59,12 @@ class MarketModal extends React.Component<
     return (
       <>
         <Button
+          style={{ width: "70%" }}
           color="green"
           labelPosition="left"
           icon="dolly"
-          content={`DEPLOY ${service.name.toUpperCase()}`}
+          content={`Install ${service.name}`}
+          title="Deploy the service in a group"
           floated="left"
           onClick={this.open}
         />
@@ -70,6 +72,7 @@ class MarketModal extends React.Component<
           disabled={!service.link}
           basic={true}
           icon="info circle"
+          title="Open documentation"
           as="a"
           href={service.link}
           target="_blank"
@@ -303,8 +306,11 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    const currentVar = variables.find(v => v.name === name);
-    currentVar && (currentVar.value = value);
+    for (const i in variables) {
+      if (variables[i].name === name) {
+        variables[i].value = value;
+      }
+    }
     this.setState({ variables });
   };
 
@@ -344,6 +350,12 @@ class MarketModal extends React.Component<
       variables,
       opts
     } = this.state;
+
+    const format = /[ !@#$%^&*()+=[\]{};':"\\|,.<>/?]/;
+    if (format.test(serviceName)) {
+      this.setState({ error: Error("No special characters allowed in the service name")});
+      return;
+    }
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
