@@ -22,9 +22,6 @@ export default class MarketCard extends React.Component<IMarketCardProps> {
         {service.image && (
           <Image className="market-icon" src={service.image} />
         )}
-        <Card.Content>
-          <Card.Header>{service.name}</Card.Header>
-        </Card.Content>
         <Card.Content extra={true}>
           <MarketModal service={service} groups={groups} admin={admin} />
         </Card.Content>

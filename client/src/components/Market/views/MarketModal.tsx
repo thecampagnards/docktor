@@ -58,36 +58,32 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        {service.link && (
-          <Button
-            icon={true}
-            labelPosition="left"
-            as="a"
-            href={service.link}
-            target="_blank"
-          >
-            <Icon name="info circle" />
-            Info
-          </Button>
-        )}
         <Button
           color="green"
-          icon={true}
-          labelPosition="right"
+          labelPosition="left"
+          icon="dolly"
+          content={`DEPLOY ${service.name.toUpperCase()}`}
+          floated="left"
           onClick={this.open}
-        >
-          <Icon name="play" />
-          Deploy
-        </Button>
+        />
+        <Button
+          disabled={!service.link}
+          basic={true}
+          icon="info circle"
+          as="a"
+          href={service.link}
+          target="_blank"
+          floated="left"
+        />
         {admin && (
           <Button
+            basic={true}
+            circular={true}
             floated="right"
-            icon={true}
+            icon="edit"
             as={Link}
             to={path.servicesEdit.replace(":serviceID", service._id)}
-          >
-            <Icon name="edit" />
-          </Button>
+          />
         )}
         <Modal
           closeIcon={true}
