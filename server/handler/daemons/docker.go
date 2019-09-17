@@ -204,9 +204,8 @@ func execContainer(c echo.Context) error {
 		"command": command.Title,
 	}).Info("Command retrieved")
 
-	variables := map[string]interface{}{} /*{
-		"Daemon": daemon,
-	}*/
+	// Here you can put default variables such as daemon if needed
+	variables := map[string]interface{}{}
 
 	// Get the body variables ton replace in the go template
 	var cmdVars []types.CommandVariable
