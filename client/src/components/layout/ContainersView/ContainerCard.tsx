@@ -65,6 +65,7 @@ export default class ContainerCard extends React.Component<
   private containerService = this.service ?
     `Service : ${this.props.container.Labels["SERVICE_NAME"]} - ${this.composeServiceName}` :
     "No service associated";
+  private publicPorts = this.props.container.Ports ? this.props.container.Ports.filter(p => p.PublicPort && p.IP === "0.0.0.0") : [];
 
 
   public render() {
@@ -206,16 +207,15 @@ export default class ContainerCard extends React.Component<
               )}
             </Button.Group>
 
-            {containerState === "running" && container.Ports && daemon.host && (
+            {containerState === "running" && daemon.host && (
               <Dropdown
                 className="button basic icon"
                 icon="external alternate"
                 title="Links (Ports external:internal)"
+                disabled={this.publicPorts.length === 0}
               >
                 <Dropdown.Menu>
-                  {container.Ports.filter(
-                    p => p.PublicPort && p.IP === "0.0.0.0"
-                  ).map((p: IPort) => (
+                  {this.publicPorts.map((p: IPort) => (
                     <Dropdown.Item
                       key={p.PublicPort}
                       as="a"
