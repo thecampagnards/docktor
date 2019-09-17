@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
+	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -60,6 +61,8 @@ type Services []Service
 // ValidateServiceName checks if another service in the group has the same name or if the associated volume already exists
 func ValidateServiceName(name string, group Group, daemon Daemon) error {
 
+	// Check special characters
+
 	r, _ := regexp.Compile(`[a-zA-Z0-9_-]+`)
 	match := r.FindStringSubmatch(name)
 
@@ -67,13 +70,24 @@ func ValidateServiceName(name string, group Group, daemon Daemon) error {
 		return errors.New("The service name should not contain special chars")
 	}
 
+	// Check other services names
+
 	for _, s := range group.Services {
 		if s.Name == name {
 			return errors.New("This service name is already used in this group")
 		}
 	}
 
-	// TODO check volumes
+	// Check volumes
+
+	command := fmt.Sprintf("test -d /%s/%s/%s && echo true", daemon.Docker.Volume, group.Name, name)
+	resp, err := daemon.ExecSSH(command)
+	if err != nil {
+		return err
+	}
+	if resp[command] == "true" {
+		return errors.New("A volume associated to this service name already exists")
+	}
 
 	return nil
 }
