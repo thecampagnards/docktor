@@ -47,8 +47,9 @@ export default class DaemonServiceButtons extends React.Component<
     const { result, error, isFetching } = this.state;
     return (
       <Button.Group>
-        {this.buttons.map(button => (
+        {this.buttons.map((button, index) => (
           <Popup
+            key={index}
             flowing={true}
             on="click"
             inverted={true}

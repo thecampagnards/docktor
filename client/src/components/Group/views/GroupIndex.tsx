@@ -101,7 +101,7 @@ class GroupIndex extends React.Component<
         menuItem: "Services",
         pane: (
           <Tab.Pane loading={isFetching} key={1}>
-            {group._id && <GroupServices group={group} admin={isAdmin} />}
+            {group._id && <GroupServices group={group} admin={isAdmin} groupAdmin={groupAdmin} />}
           </Tab.Pane>
         )
       },

@@ -8,7 +8,8 @@
   "jsRules": {
     "ordered-imports": false,
     "object-literal-sort-keys": false,
-    "no-console": false
+    "no-console": false,
+    "no-string-literal": false
   },
   "linterOptions": {
     "exclude": [

@@ -76,7 +76,7 @@ func updateDaemonComposeStatus(c echo.Context) error {
 	dir, err := os.Getwd()
 	if err != nil {
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"error":  err,
 		}).Error("Error when getting project directory")
 		return c.JSON(http.StatusBadRequest, err.Error())

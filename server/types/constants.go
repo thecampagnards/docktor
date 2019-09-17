@@ -12,7 +12,6 @@ const (
 	CONTAINER_ID_PARAM  = "containerID"
 	PROJECT_NAME        = "Docktor"
 	DOCKER_STOP_TIMEOUT = 10 * time.Second
-	WATCHTOWER_LABEL    = "com.centurylinklabs.watchtower.enable=true"
 
 	// Group
 	GROUP_ID_PARAM   = "groupID"
@@ -30,6 +29,9 @@ const (
 	SERVICE_ID_PARAM    = "serviceID"
 	SUBSERVICE_ID_PARAM = "subserviceID"
 	SERVICES_DB_COLUMN  = "services"
+	SERVICE_NAME_LABEL  = "SERVICE_NAME=%s"
+	GROUP_NAME_LABEL    = "PROJECT_NAME=%s"
+	WATCHTOWER_LABEL    = "com.centurylinklabs.watchtower.enable=true"
 
 	// Config
 	CONFIG_DB_COLUMN = "config"

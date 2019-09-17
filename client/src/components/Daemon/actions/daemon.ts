@@ -1,6 +1,7 @@
 import { checkStatus } from '../../../utils/promises';
 import { GetToken } from '../../User/actions/user';
 import { IDaemon } from '../types/daemon';
+import { ICommandVariable } from '../../Images/types/image';
 
 export const fetchDaemons = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
@@ -179,7 +180,7 @@ export const execDockerCommand = (
   daemonID: string,
   container: string,
   commandID: string,
-  variable: any
+  variables: ICommandVariable[]
 ) => {
   return fetch(
     `${
@@ -192,7 +193,7 @@ export const execDockerCommand = (
         "Content-Type": "application/json",
         Authorization: `Bearer ${GetToken()}`
       }),
-      body: JSON.stringify(variable)
+      body: JSON.stringify(variables)
     }
   )
     .then(checkStatus)

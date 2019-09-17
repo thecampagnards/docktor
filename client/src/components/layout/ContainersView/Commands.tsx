@@ -1,4 +1,3 @@
-import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
@@ -8,7 +7,7 @@ import {
 
 import { execDockerCommand } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { ICommand, IImage } from '../../Images/types/image';
+import { ICommand, IImage, ICommandVariable } from '../../Images/types/image';
 
 interface ICommandsProps {
   daemon: IDaemon;
@@ -22,7 +21,6 @@ interface ICommandsStates {
   modalView: boolean;
   command: ICommand;
   log: string;
-  variables: Map<string, any>;
 }
 
 export default class Commands extends React.Component<
@@ -36,7 +34,6 @@ export default class Commands extends React.Component<
 
     modalView: false,
     command: {} as ICommand,
-    variables: new Map<string, any>()
   };
 
   public render() {
@@ -93,16 +90,17 @@ export default class Commands extends React.Component<
           </Modal.Content>
           <Modal.Content>
             {command.variables && (
-              <Form>
+              <Form id="cmd-form" onSubmit={this.exec}>
                 <Form.Group widths="equal">
-                  {command.variables.map(v => (
+                  {command.variables.map((v, key) => (
                     <Form.Input
-                      key={v}
+                      key={key}
                       inline={true}
-                      label={v}
-                      required={true}
+                      label={v.name}
+                      required={!v.optional}
                       onChange={this.handleInput}
-                      name={`variables.${v}`}
+                      name={v.name}
+                      defaultValue={v.value}
                     />
                   ))}
                 </Form.Group>
@@ -119,6 +117,8 @@ export default class Commands extends React.Component<
               <Icon name="chevron circle left" /> Back
             </Button>
             <Button
+              type="submit"
+              form="cmf-form"
               icon={true}
               labelPosition="right"
               color="green"
@@ -146,21 +146,7 @@ export default class Commands extends React.Component<
 
   private exec = () => {
     const { daemon, container } = this.props;
-    const { variables, command } = this.state;
-
-    const commandArgs = command.variables;
-
-    if (commandArgs) {
-      for (const a of commandArgs) {
-        if (variables.has(a)) {
-          this.setState({
-            log: "",
-            error: Error(`Please set a value for ${a}`)
-          });
-          return;
-        }
-      }
-    }
+    const { command } = this.state;
 
     this.setState({
       isFetching: true,
@@ -171,7 +157,7 @@ export default class Commands extends React.Component<
       daemon._id,
       container.Names[0] || container.Name,
       command._id,
-      variables
+      command.variables || [] as ICommandVariable[]
     )
       .then(log => this.setState({ log, error: Error() }))
       .catch(error => this.setState({ error, log: "" }))
@@ -182,6 +168,14 @@ export default class Commands extends React.Component<
     event: React.ChangeEvent<HTMLInputElement>,
     { value, name }: InputOnChangeData
   ) => {
-    this.setState(_.set(this.state, name, value));
+    const command = this.state.command;
+    const variables = command.variables || [];
+    for (const variable of variables) {
+      if (variable.name === name) {
+        variable.value = value;
+      }
+    }
+    command.variables = variables;
+    this.setState({ command });
   };
 }

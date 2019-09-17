@@ -41,13 +41,13 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     return (
       <Card fluid={true}>
         <Card.Content>
-          <Grid fluid={true}>
+          <Grid>
             <Grid.Row>
               <Grid.Column width={4}>
                 <h3>{service.name}</h3>
               </Grid.Column>
               <Grid.Column width={4}>
-                <Label compact={true} basic={true}>{service.sub_service_id}</Label>
+                <Label basic={true}>{service.sub_service_id}</Label>
               </Grid.Column>
               <Grid.Column width={8}>
                 {status.map(cs => this.statusIndicator(cs))}
@@ -120,11 +120,11 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
   private statusIndicator = (cs: IContainerStatus) => {
     switch (true) {
       case cs.State.startsWith("Up"):
-        return <Icon className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.Name} is running`} />;
+        return <Icon key={cs.Name} className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.Name} is running`} />;
       case cs.State.startsWith("Exited"):
-        return <Icon className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.Name} is not running`} />;
+        return <Icon key={cs.Name} className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.Name} is not running`} />;
       default:
-        return <Icon className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.Name} : ${cs.State}`} />;
+        return <Icon key={cs.Name} className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.Name} : ${cs.State}`} />;
     }
   }
 

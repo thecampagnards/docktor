@@ -13,5 +13,11 @@ export interface ICommand {
   _id: string;
   title: string;
   command: string;
-  variables?: string[];
+  variables?: ICommandVariable[];
+}
+
+export interface ICommandVariable {
+  name: string;
+  value: string;
+  optional: boolean;
 }

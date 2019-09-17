@@ -189,16 +189,12 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, g
 		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
 
+	addLabel(&config, fmt.Sprintf(SERVICE_NAME_LABEL, serviceName))
+	addLabel(&config, fmt.Sprintf(GROUP_NAME_LABEL, group.Name))
+
 	if autoUpdate {
 		// Use https://github.com/v2tec/watchtower
-		for key := range config.Services {
-			if labels, ok := config.Services[key]["labels"]; ok {
-				v := reflect.ValueOf(labels)
-				config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(WATCHTOWER_LABEL)).Interface()
-			} else {
-				config.Services[key]["labels"] = []string{WATCHTOWER_LABEL}
-			}
-		}
+		addLabel(&config, WATCHTOWER_LABEL)
 		groupService.AutoUpdate = autoUpdate
 	}
 
@@ -208,4 +204,15 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, g
 	}
 
 	return groupService, nil
+}
+
+func addLabel(config *config.Config, label string) {
+	for key := range config.Services {
+		if labels, ok := config.Services[key]["labels"]; ok {
+			v := reflect.ValueOf(labels)
+			config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(label)).Interface()
+		} else {
+			config.Services[key]["labels"] = []string{label}
+		}
+	}
 }

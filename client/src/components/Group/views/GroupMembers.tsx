@@ -153,7 +153,7 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                     <Button
                       icon="user delete"
                       labelPosition="right"
-                      content="Delete user"
+                      content={user.username === username ? "Leave group" : "Delete user"}
                       color="red"
                       name={user.username}
                       onClick={this.deleteFromGroup}

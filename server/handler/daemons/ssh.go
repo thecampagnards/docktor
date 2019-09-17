@@ -28,7 +28,7 @@ func execSSH(c echo.Context) error {
 	var commands []string
 	if err := c.Bind(&commands); err != nil {
 		log.WithFields(log.Fields{
-			"daemon": daemon,
+			"daemon": daemon.Name,
 			"body":   c.Request().Body,
 			"error":  err,
 		}).Error("Error when parsing ssh commands")
