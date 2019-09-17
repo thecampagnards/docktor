@@ -143,7 +143,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		log.WithFields(log.Fields{
 			"contextName": contextName,
 			"daemonHost":  daemon.Host,
-			"service":     serviceGroup.File,
+			"service":     serviceGroup.Name,
 			"error":       err,
 		}).Error("Error when compose up")
 		return c.JSON(http.StatusBadRequest, err.Error())

@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/docker/go-connections/tlsconfig"
 	"github.com/docker/libcompose/docker"
@@ -118,7 +119,12 @@ func (d *Daemon) ComposeUp(projectName string, serviceName string, subnet string
 		return
 	}
 
-	return project.Up(context.Background(), options.Up{})
+	err = project.Up(context.Background(), options.Up{})
+	if strings.Contains(err.Error(), "already exists") {
+		return nil
+	}
+
+	return
 }
 
 // ComposeStop stop service, files has to be []string or [][]byte
