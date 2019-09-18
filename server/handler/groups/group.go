@@ -72,6 +72,10 @@ func save(c echo.Context) error {
 		if !group.IsAdmin(&user) {
 			return echo.NewHTTPError(http.StatusForbidden, "Admin group permission required")
 		}
+
+		if g.Name != group.Name || g.Subnet != group.Subnet || g.Daemon != group.Daemon || g.MinPort != group.MinPort || g.MaxPort != group.MaxPort {
+			return echo.NewHTTPError(http.StatusForbidden, "Admin permission required to change groupe name, subnet, min/max port and daemon")
+		}
 	}
 
 	g, err = db.Groups().Save(g)
