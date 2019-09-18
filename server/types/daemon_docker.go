@@ -9,7 +9,6 @@ import (
 	"os"
 	"regexp"
 	"strings"
-	"time"
 
 	"github.com/docker/docker/api/types"
 	"github.com/docker/docker/api/types/network"
@@ -39,7 +38,6 @@ func (d *Daemon) getDockerCli() (cli DockerCli, err error) {
 	c := &http.Client{
 		Transport:     &http.Transport{},
 		CheckRedirect: client.CheckRedirect,
-		Timeout:       time.Second * 5,
 	}
 
 	if d.Docker.Certs != (Certs{}) {
@@ -74,7 +72,6 @@ func (d *Daemon) getDockerCli() (cli DockerCli, err error) {
 		c = &http.Client{
 			Transport:     &http.Transport{TLSClientConfig: tlsc},
 			CheckRedirect: client.CheckRedirect,
-			Timeout:       time.Second * 5,
 		}
 	}
 
