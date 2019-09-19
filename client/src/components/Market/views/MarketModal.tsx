@@ -351,8 +351,8 @@ class MarketModal extends React.Component<
       opts
     } = this.state;
 
-    const format = /[ !@#$%^&*()+=[\]{};':"\\|,.<>/?]/;
-    if (format.test(serviceName)) {
+    const format = /[a-zA-Z0-9_-]+/;
+    if (!format.test(serviceName)) {
       this.setState({ error: Error("No special characters allowed in the service name")});
       return;
     }
