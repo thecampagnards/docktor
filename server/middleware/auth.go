@@ -44,7 +44,6 @@ func WithAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(types.User)
-
 		db := c.Get("DB").(*storage.Docktor)
 
 		group, err := db.Groups().FindByID(c.Param(types.GROUP_ID_PARAM))

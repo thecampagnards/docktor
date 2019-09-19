@@ -96,7 +96,7 @@ export default class Commands extends React.Component<
                     <Form.Input
                       key={key}
                       inline={true}
-                      label={v.name}
+                      label={v.name.replace(/_/g, " ").toUpperCase()}
                       required={!v.optional}
                       onChange={this.handleInput}
                       name={v.name}

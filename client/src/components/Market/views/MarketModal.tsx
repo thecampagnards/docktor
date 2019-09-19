@@ -40,7 +40,7 @@ class MarketModal extends React.Component<
   public state = {
     selectedGroupID: this.props.groups && this.props.groups.length === 1 ? this.props.groups[0]._id : "",
     selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
-    serviceName: this.props.service.name,
+    serviceName: this.props.service.name.replace(" ", "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
 
@@ -58,36 +58,35 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        {service.link && (
-          <Button
-            icon={true}
-            labelPosition="left"
-            as="a"
-            href={service.link}
-            target="_blank"
-          >
-            <Icon name="info circle" />
-            Info
-          </Button>
-        )}
         <Button
+          style={{ width: "70%" }}
           color="green"
-          icon={true}
-          labelPosition="right"
+          labelPosition="left"
+          icon="dolly"
+          content={`Install ${service.name}`}
+          title="Deploy the service in a group"
+          floated="left"
           onClick={this.open}
-        >
-          <Icon name="play" />
-          Deploy
-        </Button>
+        />
+        <Button
+          disabled={!service.link}
+          basic={true}
+          icon="info circle"
+          title="Open documentation"
+          as="a"
+          href={service.link}
+          target="_blank"
+          floated="left"
+        />
         {admin && (
           <Button
+            basic={true}
+            circular={true}
             floated="right"
-            icon={true}
+            icon="edit"
             as={Link}
             to={path.servicesEdit.replace(":serviceID", service._id)}
-          >
-            <Icon name="edit" />
-          </Button>
+          />
         )}
         <Modal
           closeIcon={true}
@@ -307,8 +306,11 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     const { variables } = this.state;
-    const currentVar = variables.find(v => v.name === name);
-    currentVar && (currentVar.value = value);
+    for (const i in variables) {
+      if (variables[i].name === name) {
+        variables[i].value = value;
+      }
+    }
     this.setState({ variables });
   };
 
@@ -348,6 +350,12 @@ class MarketModal extends React.Component<
       variables,
       opts
     } = this.state;
+
+    const format = /[a-zA-Z0-9_-]+/;
+    if (!format.test(serviceName)) {
+      this.setState({ error: Error("No special characters allowed in the service name")});
+      return;
+    }
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });

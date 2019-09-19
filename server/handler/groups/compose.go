@@ -52,6 +52,11 @@ func createServiceGroup(c echo.Context) error {
 	serviceName := c.QueryParam("service-name")
 	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
 
+	err = types.ValidateServiceName(serviceName, group, daemon)
+	if err != nil {
+		return c.JSON(http.StatusConflict, err.Error())
+	}
+
 	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -138,7 +143,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		log.WithFields(log.Fields{
 			"contextName": contextName,
 			"daemonHost":  daemon.Host,
-			"service":     serviceGroup.File,
+			"service":     serviceGroup.Name,
 			"error":       err,
 		}).Error("Error when compose up")
 		return c.JSON(http.StatusBadRequest, err.Error())

@@ -4,7 +4,7 @@ import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { RouteComponentProps } from 'react-router';
 import { Accordion, Button, Divider, Form, Grid, Icon, Loader, Message } from 'semantic-ui-react';
 
-import { fetchService, saveService } from '../actions/service';
+import { fetchComposeFileContent, fetchService, saveService } from '../actions/service';
 import { IService, ISubService } from '../types/service';
 
 interface IRouterProps {
@@ -35,7 +35,20 @@ class ServiceForm extends React.Component<
     const { serviceID } = this.props.match.params;
     if (serviceID) {
       fetchService(serviceID)
-        .then(service => this.setState({ service }))
+        .then((service: IService) => {
+          // get the compose file of the services if url
+          for (const key in service.sub_services) {
+            if (service.sub_services.hasOwnProperty(key)) {
+              const file = service.sub_services[key].file;
+              if (this.isURL(file)) {
+                fetchComposeFileContent(file).then(
+                  content => (service.sub_services[key].compose = content)
+                );
+              }
+            }
+          }
+          this.setState({ service });
+        })
         .catch(error => this.setState({ error }))
         .finally(() => this.setState({ isFetching: false }));
     } else {
@@ -92,7 +105,7 @@ class ServiceForm extends React.Component<
 
           <Form.Group widths="equal">
             {service.image && (
-              <img width={100} src={service.image} alt={service.name} />
+              <img height={100} src={service.image} alt={service.name} />
             )}
 
             <Form.Input
@@ -168,17 +181,29 @@ class ServiceForm extends React.Component<
                       </Grid.Row>
                       <Grid.Row>
                         <Grid.Column width={16}>
-                          Write docker-compose or remote file URL :
+                          <Form.Input
+                            label="Service file URL"
+                            fluid={true}
+                            value={this.isURL(ss.file) ? ss.file : ""}
+                            onChange={this.handleChange}
+                            name={`sub_services.${key}.file`}
+                          />
                           <CodeMirror
-                            value={ss.file}
+                            value={this.isURL(ss.file) ? ss.compose : ss.file}
                             options={{
                               mode: "yaml",
                               theme: "material",
                               lineNumbers: true,
-                              gutters: [`sub_services.${key}.File`]
+                              readOnly: this.isURL(ss.file),
+                              cursorBlinkRate: this.isURL(ss.file) ? -1 : 530,
+                              gutters: [`sub_services.${key}.file`]
                             }}
                             autoCursor={false}
-                            onChange={this.handleChangeCodeEditor}
+                            onChange={
+                              this.isURL(ss.file)
+                                ? void 0
+                                : this.handleChangeCodeEditor
+                            }
                           />
                         </Grid.Column>
                       </Grid.Row>
@@ -252,6 +277,15 @@ class ServiceForm extends React.Component<
       : (service.sub_services = [sub]);
     this.setState({ service });
   };
+
+  private isURL(str: string | undefined): boolean {
+    try {
+      const u = new URL(str!);
+      return !!u.host;
+    } catch (_) {
+      return false;
+    }
+  }
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,

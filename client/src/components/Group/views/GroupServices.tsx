@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button, Grid, Icon, Message } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { IGroupService } from '../../Services/types/service';
+import { IGroupService, IService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
 
@@ -14,6 +14,7 @@ interface IGroupProps {
 }
 
 interface IGroupStates {
+  services: IService[];
   isFetching: boolean;
   error: Error;
   modalOpen: boolean;
@@ -22,7 +23,7 @@ interface IGroupStates {
 
 class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   public state = {
-    services: [],
+    services: [] as IService[],
     isFetching: true,
     error: Error(),
     modalOpen: false,

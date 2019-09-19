@@ -38,6 +38,15 @@ export const fetchServiceBySubService = (ssID: string) => {
     .then((response: Response) => response.json());
 };
 
+export const fetchComposeFileContent = (url: string) => {
+  return fetch(url, {
+    method: "GET"
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.text());
+
+}
+
 export const saveService = (service: IService) => {
   return fetch(`${process.env.PUBLIC_URL}/api/services`, {
     credentials: "same-origin",
