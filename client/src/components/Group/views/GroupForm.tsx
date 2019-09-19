@@ -10,6 +10,7 @@ import { IGroup } from '../types/group';
 
 interface IGroupProps {
   group: IGroup;
+  isAdmin: boolean;
 }
 interface IGroupStates {
   group: IGroup;
@@ -33,8 +34,9 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public render() {
+    let { isAdmin } = this.props;
     const { daemons, group, error, isSuccess, isFetching } = this.state;
-
+    isAdmin = typeof isAdmin === "undefined" ? true : isAdmin;
     return (
       <>
         {!group._id && <h1>Create new group</h1>}
@@ -50,6 +52,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             value={group.name}
             onChange={this.handleChange}
             required={true}
+            disabled={!isAdmin}
           />
           <CodeMirror
             value={group.description}
@@ -74,6 +77,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             })}
             onChange={this.handleChange}
             required={true}
+            disabled={!isAdmin}
           />
           <Form.Group widths="equal">
             <Form.Input
@@ -83,6 +87,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               value={group.min_port}
               onChange={this.handleChange}
               required={true}
+              disabled={!isAdmin}
             />
             <Form.Input
               label="Docker MaxPort"
@@ -91,6 +96,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               value={group.max_port}
               onChange={this.handleChange}
               required={true}
+              disabled={!isAdmin}
             />
           </Form.Group>
           <Form.Input
@@ -101,6 +107,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             value={group.subnet}
             onChange={this.handleChange}
             required={true}
+            disabled={!isAdmin}
           />
           <Message
             success={true}

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Message } from 'semantic-ui-react';
+import { Button, Message } from 'semantic-ui-react';
 
 import { GetToken } from '../User/actions/user';
 
@@ -10,6 +10,7 @@ interface ITextSocketProps {
 interface ITextSocketStates {
   logs: string;
   error: Error;
+  follow: boolean;
 }
 
 export default class TextSocket extends React.Component<
@@ -18,10 +19,12 @@ export default class TextSocket extends React.Component<
 > {
   public state = {
     logs: "",
-    error: Error()
+    error: Error(),
+    follow: true
   };
 
   private ws: WebSocket;
+  private textLog: HTMLSpanElement | null;
 
   public componentDidMount() {
     const { wsPath } = this.props;
@@ -53,6 +56,12 @@ export default class TextSocket extends React.Component<
     };
   }
 
+  public componentDidUpdate() {
+    if (this.state.follow && this.textLog) {
+      this.textLog.scrollIntoView({ behavior: "smooth", block: "end" });
+    }
+  }
+
   public componentWillUnmount() {
     if (this.ws) {
       this.ws.close();
@@ -60,7 +69,7 @@ export default class TextSocket extends React.Component<
   }
 
   public render() {
-    const { logs, error } = this.state;
+    const { logs, follow, error } = this.state;
 
     if (error.message) {
       return (
@@ -71,6 +80,21 @@ export default class TextSocket extends React.Component<
       );
     }
 
-    return logs;
+    return (
+      <>
+        <span ref={textLog => (this.textLog = textLog)}>{logs}</span>
+        <Button
+          basic={true}
+          onClick={this.handleToggle}
+          active={follow}
+          color="blue"
+          style={{ position: "fixed", right: 0 }}
+        >
+          {follow ? "Unfollow" : "Follow"}
+        </Button>
+      </>
+    );
   }
+
+  private handleToggle = () => this.setState({ follow: !this.state.follow });
 }
