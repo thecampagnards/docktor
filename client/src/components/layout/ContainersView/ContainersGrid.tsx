@@ -10,6 +10,7 @@ import { IGroup } from '../../Group/types/group';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
 import ContainerCard from './ContainerCard';
+import { transformServices } from '../../Group/actions/group';
 
 interface IContainersGridProps {
   daemon: IDaemon;
@@ -157,16 +158,19 @@ export default class ContainersGrid extends React.Component<
                 </Grid.Column>
                 <Grid.Column width={4}>
                   {groupId && admin && (
-                    <Button
-                      color="black"
-                      circular={true}
-                      icon="terminal"
-                      labelPosition="right"
-                      content="VM Terminal"
-                      as={Link}
-                      to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
-                      floated="right"
-                    />
+                    <>
+                      <Button basic={true} circular={true} icon="recycle" onClick={this.handleTransform} floated="right" />
+                      <Button
+                        color="black"
+                        circular={true}
+                        icon="terminal"
+                        labelPosition="right"
+                        content="VM Terminal"
+                        as={Link}
+                        to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
+                        floated="right"
+                      />
+                    </>
                   )}
                 </Grid.Column>
               </Grid>
@@ -229,4 +233,12 @@ export default class ContainersGrid extends React.Component<
   private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });
   };
+
+  private handleTransform = () => {
+    const { groupId } = this.props;
+    // tslint:disable-next-line: no-unused-expression
+    groupId && transformServices(groupId)
+      .then(services => console.log(services))
+      .catch(error => console.log(error));
+  }
 }
