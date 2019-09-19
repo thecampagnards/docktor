@@ -39,6 +39,7 @@ func AddRoute(e *echo.Group) {
 			docker := group.Group("/docker/containers")
 			docker.GET("", getContainers)
 			docker.POST("", saveContainers)
+			docker.GET("/transform", transformServices)
 		}
 
 		{
