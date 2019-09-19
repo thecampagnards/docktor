@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Message, Grid, Icon } from 'semantic-ui-react';
+import { Button, Grid, Icon, Message } from 'semantic-ui-react';
 
+import { path } from '../../../constants/path';
 import { IGroupService } from '../../Services/types/service';
 import { IGroup } from '../types/group';
 import GroupService from './GroupService';
-import { path } from '../../../constants/path';
 
 interface IGroupProps {
   group: IGroup;
@@ -44,32 +44,52 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <>
-
-        {groupAdmin ?
+        {groupAdmin ? (
           <Grid>
             <Grid.Column width={12}>
               {group.services.length === 0 && (
-                <Message content="No service in this group. Use the button on the right to deploy one." compact={true} />
+                <Message
+                  content="No service in this group. Use the button on the right to deploy one."
+                  compact={true}
+                />
               )}
             </Grid.Column>
             <Grid.Column width={4}>
-              <Button primary={true} labelPosition="right" icon={true} as={Link} to={path.marketGroup.replace(":groupID", group._id)} floated="right">
-                <Icon name="plus" />ADD SERVICE
+              <Button
+                primary={true}
+                labelPosition="right"
+                icon={true}
+                as={Link}
+                to={path.marketGroup.replace(":groupID", group._id)}
+                floated="right"
+              >
+                <Icon name="plus" />
+                ADD SERVICE
               </Button>
             </Grid.Column>
           </Grid>
-          :
-          <Message content="No service in this group. Contact your group administrator to request one." compact={true} />
-        }
+        ) : (
+          <>
+            <Message
+              content="No service in this group. Contact your group administrator to request one."
+              compact={true}
+            />
+            <br />
+            <br />
+          </>
+        )}
 
         <Grid>
           {group.services.map((service: IGroupService, index: number) => (
             <Grid.Column width={8} key={index}>
-              <GroupService groupID={group._id} service={service} admin={admin} />
+              <GroupService
+                groupID={group._id}
+                service={service}
+                admin={admin}
+              />
             </Grid.Column>
           ))}
         </Grid>
-
       </>
     );
   }
