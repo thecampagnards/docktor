@@ -4,7 +4,7 @@ import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { RouteComponentProps } from 'react-router';
 import { Accordion, Button, Divider, Form, Grid, Icon, Loader, Message } from 'semantic-ui-react';
 
-import { fetchService, saveService, fetchComposeFileContent } from '../actions/service';
+import { fetchComposeFileContent, fetchService, saveService } from '../actions/service';
 import { IService, ISubService } from '../types/service';
 
 interface IRouterProps {
@@ -28,7 +28,7 @@ class ServiceForm extends React.Component<
     isSuccess: false,
     isFetching: true,
     openVersions: false,
-    error: Error(),
+    error: Error()
   };
 
   public componentDidMount() {
@@ -36,14 +36,18 @@ class ServiceForm extends React.Component<
     if (serviceID) {
       fetchService(serviceID)
         .then((service: IService) => {
-          this.setState({ service });
-          // tslint:disable-next-line: prefer-for-of
-          for (let i=0; i < service.sub_services.length; i++) {
-            const composeFile = service.sub_services[i].file;
-            // tslint:disable-next-line: no-unused-expression
-            composeFile && fetchComposeFileContent(composeFile)
-              .then(content => service.sub_services[i].compose = content);
+          // get the compose file of the services if url
+          for (const key in service.sub_services) {
+            if (service.sub_services.hasOwnProperty(key)) {
+              const file = service.sub_services[key].file;
+              if (this.isURL(file)) {
+                fetchComposeFileContent(file).then(
+                  content => (service.sub_services[key].compose = content)
+                );
+              }
+            }
           }
+          this.setState({ service });
         })
         .catch(error => this.setState({ error }))
         .finally(() => this.setState({ isFetching: false }));
@@ -180,20 +184,26 @@ class ServiceForm extends React.Component<
                           <Form.Input
                             label="Service file URL"
                             fluid={true}
-                            value={ss.file}
+                            value={this.isURL(ss.file) ? ss.file : ""}
                             onChange={this.handleChange}
                             name={`sub_services.${key}.file`}
-                            required={true}
                           />
                           <CodeMirror
-                            value={ss.compose}
+                            value={this.isURL(ss.file) ? ss.compose : ss.file}
                             options={{
                               mode: "yaml",
                               theme: "material",
                               lineNumbers: true,
-                              readOnly: true,
-                              cursorBlinkRate: -1
+                              readOnly: this.isURL(ss.file),
+                              cursorBlinkRate: this.isURL(ss.file) ? -1 : 530,
+                              gutters: [`sub_services.${key}.file`]
                             }}
+                            autoCursor={false}
+                            onChange={
+                              this.isURL(ss.file)
+                                ? void 0
+                                : this.handleChangeCodeEditor
+                            }
                           />
                         </Grid.Column>
                       </Grid.Row>
@@ -268,13 +278,13 @@ class ServiceForm extends React.Component<
     this.setState({ service });
   };
 
-  private isURL(str: string | undefined): boolean {	
-    try {	
-      const u = new URL(str!);	
-      return !!u.host;	
-    } catch (_) {	
-      return false;	
-    }	
+  private isURL(str: string | undefined): boolean {
+    try {
+      const u = new URL(str!);
+      return !!u.host;
+    } catch (_) {
+      return false;
+    }
   }
 
   private handleChange = (
