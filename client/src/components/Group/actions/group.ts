@@ -56,6 +56,21 @@ export const saveContainers = (groupID: string) => {
     .then(response => response.json());
 };
 
+export const transformServices = (groupID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/transform`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
 export const saveGroup = (group: IGroup) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups`, {
     credentials: "same-origin",

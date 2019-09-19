@@ -2,6 +2,7 @@ package groups
 
 import (
 	"net/http"
+	"strings"
 
 	"docktor/server/storage"
 	"docktor/server/types"
@@ -87,4 +88,42 @@ func saveContainers(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, "ok")
+}
+
+func transformServices(c echo.Context) error {
+	err := saveContainers(c)
+	if err != nil {
+		return err
+	}
+
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+
+	services, err := db.Services().FindAll()
+	if err != nil {
+		return err
+	}
+
+	findService := func(services []types.Service, name string) types.Service {
+		for _, s := range services {
+			if s.Name == name {
+				return s
+			}
+		}
+		log.Errorf("Service %s not found", name)
+		return types.Service{}
+	}
+
+	gs := []types.GroupService{}
+	for _, conf := range group.Containers {
+		switch true {
+		case strings.Contains(conf.Config.Image, "jenkins"):
+			gs = append(gs, types.TransformJenkins(conf, findService(services, "Jenkins")))
+			break
+		default:
+			log.Warningf("No match found for image : %s", conf.Config.Image)
+		}
+	}
+
+	return c.JSON(http.StatusOK, gs)
 }
