@@ -74,10 +74,6 @@ func WithGroupAdmin(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		user := c.Get("user").(types.User)
 
-		if user.IsAdmin() {
-			return next(c)
-		}
-
 		group := c.Get("group").(types.Group)
 
 		if !group.IsAdmin(&user) {

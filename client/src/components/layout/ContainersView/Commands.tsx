@@ -69,7 +69,7 @@ export default class Commands extends React.Component<
             )}
             {log && (
               <Message info={true}>
-                <Message.Header style={{ whiteSpace: "pre" }}>
+                <Message.Header>
                   {log}
                 </Message.Header>
               </Message>

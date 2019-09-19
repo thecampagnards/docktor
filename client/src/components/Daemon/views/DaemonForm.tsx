@@ -23,7 +23,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   public state = {
     daemon: this.props.daemon
       ? this.props.daemon
-      : ({ docker: {}, ssh: {} } as IDaemon),
+      : ({ docker: { certs: {} }, ssh: {} } as IDaemon),
     isFetching: false,
     isSuccess: false,
     error: Error(),
