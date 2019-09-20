@@ -16,6 +16,7 @@ func AddRoute(e *echo.Group) {
 	// Basic daemon request
 	groups.GET("", getAllWithDaemons)
 	groups.POST("", save)
+	groups.GET(fmt.Sprintf("/daemon/:%s", types.DAEMON_ID_PARAM), getByDaemon, middleware.WithAdmin)
 
 	{
 		group := groups.Group(fmt.Sprintf("/:%s", types.GROUP_ID_PARAM))

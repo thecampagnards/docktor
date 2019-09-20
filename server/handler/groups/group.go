@@ -36,6 +36,20 @@ func getAllWithDaemons(c echo.Context) error {
 	return c.JSON(http.StatusOK, groups)
 }
 
+// getByDaemon find all groups by daemons id
+func getByDaemon(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+	groups, err := db.Groups().FindByDaemonID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"error":     err,
+			"daemon_id": c.Param(types.DAEMON_ID_PARAM),
+		}).Error("Error when retrieving groups by daemon id")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	return c.JSON(http.StatusOK, groups)
+}
+
 // getByID find one by id
 func getByID(c echo.Context) error {
 	return c.JSON(http.StatusOK, c.Get("group"))

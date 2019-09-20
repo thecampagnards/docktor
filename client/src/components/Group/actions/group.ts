@@ -26,6 +26,18 @@ export const fetchGroup = (groupID: string) => {
     .then(response => response.json());
 };
 
+export const fetchGroupsByDaemon = (daemonID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/daemon/${daemonID}`, {
+    credentials: "same-origin",
+    method: "GET",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
 export const fetchContainers = (groupID: string) => {
   return fetch(
     `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers`,
@@ -83,7 +95,8 @@ export const deployService = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt && "&" + opt}`,
+    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt &&
+      "&" + opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -98,7 +111,11 @@ export const deployService = (
     .then((response: Response) => response.json());
 };
 
-export const updateServiceStatus = (groupID: string, serviceID: string, status: string) => {
+export const updateServiceStatus = (
+  groupID: string,
+  serviceID: string,
+  status: string
+) => {
   return fetch(
     `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}?status=${status}`,
     {
@@ -125,7 +142,7 @@ export const getServiceStatus = (groupID: string, serviceID: string) => {
     }
   )
     .then(checkStatus)
-    .then(response => response.json())
+    .then(response => response.json());
 };
 
 export const getService = (groupID: string, serviceID: string) => {

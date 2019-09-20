@@ -22,6 +22,8 @@ type GroupsRepo interface {
 	FindByIDBson(id bson.ObjectId) (types.Group, error)
 	// FindByDaemonIDBson get all groups of a daemon
 	FindByDaemonIDBson(id bson.ObjectId) (t types.Groups, err error)
+	// FindByDaemonID get all groups of a daemon
+	FindByDaemonID(id string) (t types.Groups, err error)
 	// FindContainersByDaemonID get containers groups by daemon id
 	FindContainersByDaemonID(id string) (c []dockerTypes.ContainerJSON, err error)
 	// FindByUser get all groups of a user
@@ -82,6 +84,11 @@ func (r *DefaultGroupsRepo) FindByUser(u types.User) (t types.Groups, err error)
 func (r *DefaultGroupsRepo) FindByDaemonIDBson(id bson.ObjectId) (t types.Groups, err error) {
 	err = r.coll.Find(bson.M{"daemon_id": id}).All(&t)
 	return t, err
+}
+
+// FindByDaemonID get groups by daemon id
+func (r *DefaultGroupsRepo) FindByDaemonID(id string) (t types.Groups, err error) {
+	return r.FindByDaemonIDBson(bson.ObjectIdHex(id))
 }
 
 // FindContainersByDaemonID get containers groups by daemon id
