@@ -16,6 +16,22 @@ import (
 func createServiceGroup(c echo.Context) error {
 
 	group := c.Get("group").(types.Group)
+	user := c.Get("user").(types.User)
+	db := c.Get("DB").(*storage.Docktor)
+
+	if !user.IsAdmin() {
+		config, err := db.Config().Find()
+		if err != nil {
+			log.WithFields(log.Fields{
+				"error": err,
+			}).Error("Error when getting the configuration")
+			return c.JSON(http.StatusBadRequest, err)
+		}
+
+		if config.MaxServices < len(group.Services)+1 {
+			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can deploy more than %v services", config.MaxServices))
+		}
+	}
 
 	var variables []types.ServiceVariable
 	err := c.Bind(&variables)
@@ -27,7 +43,6 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	db := c.Get("DB").(*storage.Docktor)
 	subService, err := db.Services().FindSubServicByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{

@@ -26,10 +26,10 @@ interface ILayoutState {
   showBanner: boolean;
 }
 
-class Layout extends React.Component<ILayoutProps> {
+class Layout extends React.Component<ILayoutProps, ILayoutState> {
   public state = {
     showBanner: true
-  }
+  };
 
   public render() {
     const { message, username, isAuthenticated, isAdmin } = this.props;
@@ -38,14 +38,18 @@ class Layout extends React.Component<ILayoutProps> {
     return (
       <>
         {showBanner && (message.header || message.content) && (
-          <Message className="banner" {...message} onDismiss={this.handleDismissBanner} />
+          <Message
+            className="banner"
+            {...message}
+            onDismiss={this.handleDismissBanner}
+          />
         )}
 
         <KonamiCode />
         <Menu size="tiny">
           <Menu.Menu position="left">
             <Menu.Item>
-              <Image src="/favicon.png" width="20px"/>
+              <Image src="/favicon.png" width="20px" />
             </Menu.Item>
           </Menu.Menu>
 
@@ -124,7 +128,7 @@ class Layout extends React.Component<ILayoutProps> {
 
   private handleDismissBanner = () => {
     this.setState({ showBanner: false });
-  }
+  };
 }
 
 const mapStateToProps = (state: IStoreState) => {

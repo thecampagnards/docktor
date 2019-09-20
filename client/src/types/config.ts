@@ -9,4 +9,5 @@ export interface IConfigState {
 export interface IConfig {
   message: IMessage;
   source: string;
+  max_services: number;
 }

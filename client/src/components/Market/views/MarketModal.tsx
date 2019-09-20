@@ -2,15 +2,19 @@ import './MarketModal.css';
 
 import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
+import { connect } from 'react-redux';
 import { Link } from 'react-router-dom';
 import {
     Button, DropdownProps, Form, Grid, Icon, Image, Input, InputOnChangeData, Message, Modal, Select
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
+import { IStoreState } from '../../../types/store';
 import { deployService } from '../../Group/actions/group';
 import { IGroup, IServiceGroup } from '../../Group/types/group';
-import { IService, ISubService, IServiceVariable } from '../../Services/types/service';
+import {
+    IGroupService, IService, IServiceVariable, ISubService
+} from '../../Services/types/service';
 
 interface IMarketModalStates {
   selectedGroupID: string;
@@ -31,6 +35,8 @@ interface IMarketModalProps {
   service: IService;
   groups: IGroup[];
   admin: boolean;
+
+  max_services: number;
 }
 
 class MarketModal extends React.Component<
@@ -38,8 +44,14 @@ class MarketModal extends React.Component<
   IMarketModalStates
 > {
   public state = {
-    selectedGroupID: this.props.groups && this.props.groups.length === 1 ? this.props.groups[0]._id : "",
-    selectedSubServiceID: this.props.service.sub_services.length === 1 ? this.props.service.sub_services[0]._id : "",
+    selectedGroupID:
+      this.props.groups && this.props.groups.length === 1
+        ? this.props.groups[0]._id
+        : "",
+    selectedSubServiceID:
+      this.props.service.sub_services.length === 1
+        ? this.props.service.sub_services[0]._id
+        : "",
     serviceName: this.props.service.name.replace(" ", "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
@@ -113,8 +125,11 @@ class MarketModal extends React.Component<
   }
 
   private renderModalStage1 = () => {
-    const { service, groups } = this.props;
+    const { admin, service, groups, max_services } = this.props;
     const { error, selectedGroupID, selectedSubServiceID } = this.state;
+    const group =
+      groups.find(g => g._id === selectedGroupID) ||
+      ({ services: [] as IGroupService[] } as IGroup);
 
     return (
       <>
@@ -126,6 +141,14 @@ class MarketModal extends React.Component<
               {error.message && (
                 <Message negative={true}>
                   <Message.Header>{error.message}</Message.Header>
+                </Message>
+              )}
+              {max_services < group.services.length + 1 && (
+                <Message warning={true}>
+                  <Message.Header>
+                    You reach the maximum of services in this group (
+                    {max_services})
+                  </Message.Header>
                 </Message>
               )}
             </Grid.Column>
@@ -173,12 +196,19 @@ class MarketModal extends React.Component<
                 defaultValue={selectedSubServiceID}
                 search={true}
               />
-              <Button color="blue" onClick={this.continueFormStage2}>
+              <Button
+                color="blue"
+                onClick={this.continueFormStage2}
+                disabled={!admin || max_services < group.services.length + 1}
+              >
                 Proceed <Icon name="chevron right" />
               </Button>
             </>
           ) : (
-            <p>You cannot deploy this service (you may not be admin of any group).</p>
+            <p>
+              You cannot deploy this service (you may not be admin of any
+              group).
+            </p>
           )}
         </Modal.Actions>
       </>
@@ -187,12 +217,7 @@ class MarketModal extends React.Component<
 
   private renderModalStage2 = () => {
     const { service } = this.props;
-    const {
-      error,
-      isFetching,
-      selectedSubServiceID,
-      serviceName
-    } = this.state;
+    const { error, isFetching, selectedSubServiceID, serviceName } = this.state;
     const ss = service.sub_services.find(
       s => s._id === selectedSubServiceID
     ) as ISubService;
@@ -220,8 +245,14 @@ class MarketModal extends React.Component<
               <>
                 <h3>Variables</h3>
                 {ss.variables.map((variable: IServiceVariable) => (
-                  <Form.Field inline={true} key={variable.name} required={!variable.optional}>
-                    <label>{variable.name.toUpperCase().replace(/_/g, " ")}</label>
+                  <Form.Field
+                    inline={true}
+                    key={variable.name}
+                    required={!variable.optional}
+                  >
+                    <label>
+                      {variable.name.toUpperCase().replace(/_/g, " ")}
+                    </label>
                     <Input
                       name={variable.name}
                       required={!variable.optional}
@@ -244,10 +275,15 @@ class MarketModal extends React.Component<
           </Form>
         </Modal.Content>
         <Modal.Actions>
-          <Button color="red" onClick={this.continueFormStage.bind(this, 1)} >
+          <Button color="red" onClick={this.continueFormStage.bind(this, 1)}>
             <Icon name="chevron left" /> Previous
           </Button>
-          <Button form="modal-form" color="green" type="submit" loading={isFetching}>
+          <Button
+            form="modal-form"
+            color="green"
+            type="submit"
+            loading={isFetching}
+          >
             <Icon name="checkmark" /> Install
           </Button>
         </Modal.Actions>
@@ -299,7 +335,7 @@ class MarketModal extends React.Component<
     { name, value }: InputOnChangeData
   ) => {
     this.setState({ serviceName: value });
-  }
+  };
 
   private handleChangeVariable = (
     event: any,
@@ -328,8 +364,10 @@ class MarketModal extends React.Component<
     const { selectedGroupID, selectedSubServiceID } = this.state;
     const { service } = this.props;
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
-      const variables = (service.sub_services.find(ss => ss._id === selectedSubServiceID) || {} as ISubService)
-        .variables;
+      const variables = (
+        service.sub_services.find(ss => ss._id === selectedSubServiceID) ||
+        ({} as ISubService)
+      ).variables;
       this.setState({
         stage: 2,
         serviceName: service.name,
@@ -353,13 +391,21 @@ class MarketModal extends React.Component<
 
     const format = /[a-zA-Z0-9_-]+/;
     if (!format.test(serviceName)) {
-      this.setState({ error: Error("No special characters allowed in the service name")});
+      this.setState({
+        error: Error("No special characters allowed in the service name")
+      });
       return;
     }
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
-      deployService(selectedGroupID, selectedSubServiceID, serviceName, variables, opts)
+      deployService(
+        selectedGroupID,
+        selectedSubServiceID,
+        serviceName,
+        variables,
+        opts
+      )
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false, error: Error() });
           this.continueFormStage(3);
@@ -369,4 +415,11 @@ class MarketModal extends React.Component<
   };
 }
 
-export default MarketModal;
+const mapStateToProps = (state: IStoreState) => {
+  const { config } = state;
+  return {
+    max_services: config.config.max_services || 0
+  };
+};
+
+export default connect(mapStateToProps)(MarketModal);

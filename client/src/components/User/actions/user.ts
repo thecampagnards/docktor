@@ -3,6 +3,8 @@ import { Dispatch } from 'redux';
 
 import { checkStatus } from '../../../utils/promises';
 import { IUser, IUserToken } from '../types/user';
+import store from '../../../store';
+import { fetchConfig } from '../../../actions/config';
 
 type LoginRequest = "LOGIN_REQUEST";
 export const LoginRequest: LoginRequest = "LOGIN_REQUEST";
@@ -89,6 +91,7 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
           username: JWT<IUserToken>(token).username,
           isAdmin: JWT<IUserToken>(token).isAdmin
         });
+        store.dispatch(fetchConfig());
       })
       .catch((error: Error) => {
         dispatch({
