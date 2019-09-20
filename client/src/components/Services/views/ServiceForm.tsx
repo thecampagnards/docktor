@@ -88,7 +88,13 @@ class ServiceForm extends React.Component<
             onChange={this.handleChange}
             required={true}
           />
-
+          <Form.Checkbox
+            width={1}
+            label="Admin"
+            name="admin"
+            defaultChecked={service.admin}
+            onChange={this.handleChange}
+          />
           <CodeMirror
             value={service.description}
             options={{
@@ -289,7 +295,7 @@ class ServiceForm extends React.Component<
 
   private handleChange = (
     e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
-    { name, value }: any
+    { name, value, checked }: any
   ) => {
     const { service } = this.state;
 
@@ -311,7 +317,7 @@ class ServiceForm extends React.Component<
       if (name === "tags") {
         value = value.split(",");
       }
-      this.setState({ service: _.set(service, name, value) });
+      this.setState({ service: _.set(service, name, value || checked) });
     }
   };
 

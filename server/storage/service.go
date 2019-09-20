@@ -21,10 +21,10 @@ type ServicesRepo interface {
 	FindByIDBson(id bson.ObjectId) (types.Service, error)
 	// FindBySubServiceID get the service which has this subservice id
 	FindBySubServiceID(id string) (types.Service, error)
-	// FindSubServicByID get the subservice by id
-	FindSubServicByID(id string) (types.SubService, error)
-	// FindSubServicByIDBson get the subservice by bson id
-	FindSubServicByIDBson(id bson.ObjectId) (types.SubService, error)
+	// FindSubServiceByID get the subservice by id
+	FindSubServiceByID(id string) (types.SubService, error)
+	// FindSubServiceByIDBson get the subservice by bson id
+	FindSubServiceByIDBson(id bson.ObjectId) (types.SubService, error)
 	// FindAll get all services
 	FindAll() (types.Services, error)
 	// GetCollectionName returns the name of the collection
@@ -77,15 +77,15 @@ func (r *DefaultServicesRepo) FindBySubServiceID(id string) (t types.Service, er
 	return t, err
 }
 
-// FindSubServicByID get one sub service by subservice id without file
-func (r *DefaultServicesRepo) FindSubServicByID(id string) (types.SubService, error) {
+// FindSubServiceByID get one sub service by subservice id without file
+func (r *DefaultServicesRepo) FindSubServiceByID(id string) (types.SubService, error) {
 	t := types.Service{}
 	err := r.coll.Find(bson.M{"sub_services._id": bson.ObjectIdHex(id)}).Select(bson.M{"sub_services.$": 1}).One(&t)
 	return t.SubServices[0], err
 }
 
-// FindSubServicByIDBson get one sub service by subservice id without file
-func (r *DefaultServicesRepo) FindSubServicByIDBson(id bson.ObjectId) (types.SubService, error) {
+// FindSubServiceByIDBson get one sub service by subservice id without file
+func (r *DefaultServicesRepo) FindSubServiceByIDBson(id bson.ObjectId) (types.SubService, error) {
 	t := types.Service{}
 	err := r.coll.Find(bson.M{"sub_services._id": id}).Select(bson.M{"sub_services.$": 1}).One(&t)
 	return t.SubServices[0], err

@@ -25,6 +25,7 @@ type Service struct {
 	Link        string        `json:"link" bson:"link"`
 	Image       string        `json:"image" bson:"image"` // Base 64 encoded
 	SubServices []SubService  `json:"sub_services" bson:"sub_services"`
+	Admin       bool          `json:"admin" bson:"admin"` // If it's only deployable by admins
 }
 
 // SubService data

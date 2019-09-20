@@ -63,7 +63,16 @@ class Market extends React.Component<
         .catch((error: Error) => this.setState({ error }));
     } else {
       fetchGroups(false)
-        .then((groups: IGroup[]) => groups && this.setState({ groups: groups.filter((g: IGroup) => this.props.isAdmin || g.admins.includes(this.props.username)) }))
+        .then(
+          (groups: IGroup[]) =>
+            groups &&
+            this.setState({
+              groups: groups.filter(
+                (g: IGroup) =>
+                  this.props.isAdmin || g.admins.includes(this.props.username)
+              )
+            })
+        )
         .catch((error: Error) => this.setState({ error }));
     }
   }
@@ -135,11 +144,19 @@ class Market extends React.Component<
           </Grid.Column>
         </Grid>
         <Grid verticalAlign="middle">
-          {servicesFiltered.map((service: IService) => (
-            <Grid.Column key={service._id} width={4}>
-              <MarketCard groups={groups} service={service} admin={isAdmin} />
-            </Grid.Column>
-          ))}
+          {servicesFiltered.map((service: IService) => {
+            if ((service.admin && isAdmin) || !service.admin) {
+              return (
+                <Grid.Column key={service._id} width={4}>
+                  <MarketCard
+                    groups={groups}
+                    service={service}
+                    admin={isAdmin}
+                  />
+                </Grid.Column>
+              );
+            }
+          })}
         </Grid>
       </>
     );
@@ -183,7 +200,7 @@ const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
     isAdmin: login.isAdmin,
-    username: login.username || "",
+    username: login.username || ""
   };
 };
 

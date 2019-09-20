@@ -31,6 +31,19 @@ func createServiceGroup(c echo.Context) error {
 		if config.MaxServices < len(group.Services)+1 {
 			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can deploy more than %v services", config.MaxServices))
 		}
+
+		service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
+		if err != nil {
+			log.WithFields(log.Fields{
+				"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
+				"error":        err,
+			}).Error("Error when retrieving subservice")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
+		if service.Admin {
+			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can't deploy this service: %s", service.Name))
+		}
 	}
 
 	var variables []types.ServiceVariable
@@ -43,7 +56,7 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	subService, err := db.Services().FindSubServicByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	subService, err := db.Services().FindSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),

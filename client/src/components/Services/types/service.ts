@@ -6,6 +6,7 @@ export interface IService {
   tags: string[];
   image: string;
   sub_services: ISubService[];
+  admin: boolean;
 }
 
 export interface ISubService {
