@@ -11,7 +11,7 @@ import (
 func importVariables(sub *SubService, env []string) {
 	for i := 0; i < len(sub.Variables); i++ {
 		for _, v := range env {
-			if strings.Contains(v, sub.Variables[i].Name) {
+			if strings.Contains(strings.ToLower(v), sub.Variables[i].Name) {
 				value := strings.Split(v, "=")[1]
 				log.Infof("Variable %s = %s", sub.Variables[i].Name, value)
 				sub.Variables[i].Value = value
@@ -21,7 +21,14 @@ func importVariables(sub *SubService, env []string) {
 }
 
 // TransformJenkins converts a Docktor V1 Jenkins into Docktor V2 service
-func TransformJenkins(config types.ContainerJSON, jenkins Service) SubService {
+func TransformJenkins(config types.ContainerJSON, jenkins Service) (string, SubService) {
+
+	serviceName := "jenkins"
+	for _, mount := range config.Mounts {
+		if strings.Contains(mount.Source, "/data/") {
+			serviceName = strings.Split(mount.Source, "/")[3]
+		}
+	}
 
 	image, _ := regexp.Compile(`[^:]+:([^-]+)(-[.*]+)?`)
 	version := image.FindStringSubmatch(config.Config.Image)[1]
@@ -35,9 +42,9 @@ func TransformJenkins(config types.ContainerJSON, jenkins Service) SubService {
 			// Set variable values
 			importVariables(&sub, config.Config.Env)
 
-			return sub
+			return serviceName, sub
 		}
 	}
 
-	return SubService{}
+	return serviceName, SubService{}
 }

@@ -104,6 +104,15 @@ func transformServices(c echo.Context) error {
 		return err
 	}
 
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": group.Daemon,
+			"error":    err,
+		}).Error("Error when retrieving group daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	findService := func(services []types.Service, name string) types.Service {
 		for _, s := range services {
 			if s.Name == name {
@@ -118,7 +127,12 @@ func transformServices(c echo.Context) error {
 	for _, conf := range group.Containers {
 		switch true {
 		case strings.Contains(conf.Config.Image, "jenkins"):
-			gs = append(gs, types.TransformJenkins(conf, findService(services, "Jenkins")))
+			serviceName, sub := types.TransformJenkins(conf, findService(services, "Jenkins"))
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, true)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
 			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
