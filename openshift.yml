@@ -1,0 +1,137 @@
+kind: Template
+apiVersion: template.openshift.io/v1
+message: "Login to Docktor with the admin user: root/${DEFAULT_ADMIN_PASSWORD}"
+metadata:
+  name: docktor
+  labels:
+    template: docktor
+    author: TheCampagnards
+  annotations:
+    description: "Administration & Monitoring Deployment with Docker"
+    tags: docktor,docker,management,monitoring
+    iconClass: fa fa-user-md
+    openshift.io/display-name: Docktor
+    openshift.io/provider-display-name: TheCampagnards
+    openshift.io/documentation-url: "https://github.com/thecampagnards/docktor"
+    openshift.io/support-url: "https://github.com/thecampagnards/docktor/issues"
+
+objects:
+  - apiVersion: v1
+    kind: Route
+    metadata:
+      annotations:
+        description: Route for Docktor's http service.
+      name: docktor
+      labels:
+        app: docktor
+    spec:
+      to:
+        kind: Service
+        name: docktor
+      tls:
+        termination: edge
+
+  - apiVersion: v1
+    kind: Service
+    metadata:
+      name: docktor
+      labels:
+        app: docktor
+    spec:
+      ports:
+        - name: docktor
+          port: 8080
+          targetPort: 8080
+      selector:
+        app: docktor
+
+  - apiVersion: v1
+    kind: DeploymentConfig
+    metadata:
+      labels:
+        app: docktor
+        deploymentconfig: docktor
+      name: docktor
+    spec:
+      replicas: 1
+      selector:
+        app: docktor
+        deploymentconfig: docktor
+      strategy:
+        type: Recreate
+      template:
+        metadata:
+          labels:
+            app: docktor
+            deploymentconfig: docktor
+        spec:
+          containers:
+            - env:
+                - name: PRODUCTION
+                  value: "true"
+                - name: LOG_LEVEL
+                  value: info
+                - name: DEFAULT_ADMIN_PASSWORD
+                  value: ${DEFAULT_ADMIN_PASSWORD}
+                - name: JWT_SECRET
+                  value: ${JWT_SECRET}
+                - name: MONGO_URL
+                  value: ${MONGO_URL}
+              image: thecampagnards/docktor:${DOCKTOR_VERSION}
+              imagePullPolicy: IfNotPresent
+              name: docktor
+              ports:
+                - containerPort: 8080
+                  protocol: TCP
+              livenessProbe:
+                failureThreshold: 3
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                httpGet:
+                  port: 8080
+                  path: /
+                timeoutSeconds: 5
+              readinessProbe:
+                failureThreshold: 3
+                initialDelaySeconds: 30
+                periodSeconds: 10
+                successThreshold: 1
+                httpGet:
+                  port: 8080
+                  path: /
+                timeoutSeconds: 5
+              resources:
+                requests:
+                  cpu: 200m
+                  memory: 900Mi
+                limits:
+                  cpu: 800m
+                  memory: 1800Mi
+          dnsPolicy: ClusterFirst
+          restartPolicy: Always
+          terminationGracePeriodSeconds: 30
+      test: false
+
+parameters:
+  - description: Url for Docktor Server MongoDB backend
+    displayName: Docktor's MongoDB Url
+    name: MONGO_URL
+    required: true
+  - description: Version of Docktor Docker image
+    displayName: Docktor Version
+    name: DOCKTOR_VERSION
+    required: true
+    value: latest
+  - description: JWT secret
+    displayName: JWT secret
+    name: JWT_SECRET
+    required: true
+    from: "[a-zA-Z0-9]{32}"
+    generate: expression
+  - description: Docktor admin password
+    displayName: Docktor admin password
+    name: DEFAULT_ADMIN_PASSWORD
+    required: true
+    from: "[a-zA-Z0-9]{16}"
+    generate: expression
