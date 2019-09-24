@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/tlsconfig"
@@ -164,6 +166,29 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 	}
 
 	return cli.ContainerStart(ctx, container.Name, types.ContainerStartOptions{})
+}
+
+// RemoveDataContainer
+func (d *Daemon) RemoveDataContainer(source string) (err error) {
+	return d.CreateContainer(types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			HostConfig: &container.HostConfig{
+				AutoRemove: true,
+			},
+		},
+		Config: &container.Config{
+			Image: "alpine",
+			Cmd:   []string{"rm", "-rf", "/data"},
+		},
+		Mounts: []types.MountPoint{
+			types.MountPoint{
+				Type:        mount.TypeBind,
+				Source:      source,
+				Destination: "/data",
+				Mode:        "rw",
+			},
+		},
+	})
 }
 
 // GetContainers
