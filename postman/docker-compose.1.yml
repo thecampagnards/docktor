@@ -1,6 +1,0 @@
-version: '2'
-services:
-  mailer-api:
-    image: "thecampagnards/mailer-api:1.3"
-    ports: 
-      - 8082:8080
