@@ -2,6 +2,7 @@ package groups
 
 import (
 	"net/http"
+	"regexp"
 	"strings"
 
 	"docktor/server/storage"
@@ -136,6 +137,56 @@ func transformServices(c echo.Context) error {
 			break
 		case strings.Contains(conf.Config.Image, "cdksonarqube"):
 			serviceName, sub := types.TransformSonarLegacy(conf, findService(services, "Sonarqube"))
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			break
+		case strings.Contains(conf.Config.Image, "sonarqube"):
+			var dbName, dbPort string
+			for _, env := range conf.Config.Env {
+				if strings.Contains(env, "SONARQUBE_JDBC_URL") {
+					r, _ := regexp.Compile(`jdbc:postgresql://([^:]+):([0-9]+)/[a-zA-Z]+`)
+					match := r.FindStringSubmatch(strings.Split(env, "=")[1])
+					dbPort = match[1]
+				}
+			}
+			if dbPort == "" {
+				log.Errorf("Couldn't find db port in %s variables", conf.Name)
+			} else if dbPort == "5432" {
+				for _, c := range group.Containers {
+					if strings.TrimPrefix(c.Name, "/") == dbName {
+						serviceName, sub := types.TransformSonarqube(conf, c, findService(services, "Sonarqube"))
+						groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, true)
+						if err != nil {
+							return err
+						}
+						gs = append(gs, groupService)
+						break
+					}
+				}
+				log.Errorf("Couldn't find postgres database %s", dbName)
+			} else {
+				for _, c := range group.Containers {
+					if len(c.HostConfig.PortBindings["5432/tcp"]) != 0 {
+						externalPort := c.HostConfig.PortBindings["5432/tcp"][0].HostPort
+						if externalPort == dbPort {
+							serviceName, sub := types.TransformSonarqube(conf, c, findService(services, "Sonarqube"))
+							groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, true)
+							if err != nil {
+								return err
+							}
+							gs = append(gs, groupService)
+							break
+						}
+					}
+				}
+				log.Errorf("Couldn't find container on port %s", dbPort)
+			}
+			break
+		case strings.Contains(conf.Config.Image, "nexus"):
+			serviceName, sub := types.TransformNexus(conf, findService(services, "Nexus"))
 			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, false)
 			if err != nil {
 				return err
