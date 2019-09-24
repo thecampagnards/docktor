@@ -134,6 +134,14 @@ func transformServices(c echo.Context) error {
 			}
 			gs = append(gs, groupService)
 			break
+		case strings.Contains(conf.Config.Image, "cdksonarqube"):
+			serviceName, sub := types.TransformSonarLegacy(conf, findService(services, "Sonarqube"))
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
 		}
