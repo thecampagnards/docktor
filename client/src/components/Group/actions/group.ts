@@ -128,12 +128,12 @@ export const deployService = (
 
 export const updateServiceStatus = (
   groupID: string,
-  serviceID: string,
+  serviceName: string,
   status: string,
   removeData?: boolean
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}?status=${status}${removeData && "&remove-data=true"}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceName}?status=${status}${removeData && "&remove-data=true"}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -146,9 +146,9 @@ export const updateServiceStatus = (
     .then(response => response.json());
 };
 
-export const getServiceStatus = (groupID: string, serviceID: string) => {
+export const getServiceStatus = (groupID: string, serviceName: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceName}`,
     {
       credentials: "same-origin",
       method: "GET",
@@ -159,21 +159,6 @@ export const getServiceStatus = (groupID: string, serviceID: string) => {
   )
     .then(checkStatus)
     .then(response => response.json());
-};
-
-export const getService = (groupID: string, serviceID: string) => {
-  return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/file/${serviceID}`,
-    {
-      credentials: "same-origin",
-      method: "GET",
-      headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
-    }
-  )
-    .then(checkStatus)
-    .then(response => response.text());
 };
 
 export const fetchCadvisor = (groupID: string) => {
