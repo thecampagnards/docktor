@@ -155,6 +155,9 @@ func updateServiceGroupStatus(c echo.Context) error {
 		for key, service := range group.Services {
 			if service.SubServiceID == serviceGroup.SubServiceID {
 				group.Services = append(group.Services[:key], group.Services[key+1:]...)
+				if removeData, _ := strconv.ParseBool(c.QueryParam("remove-data")); removeData {
+					err = daemon.RemoveDataContainer(fmt.Sprintf("/%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name))
+				}
 			}
 		}
 		_, err = db.Groups().Save(group)
