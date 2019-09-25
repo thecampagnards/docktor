@@ -105,7 +105,7 @@ class GroupIndex extends React.Component<
               <GroupServices
                 group={group}
                 admin={isAdmin}
-                groupAdmin={groupAdmin}
+                groupAdmin={isAdmin || groupAdmin}
               />
             )}
           </Tab.Pane>

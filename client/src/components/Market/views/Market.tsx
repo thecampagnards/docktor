@@ -144,9 +144,9 @@ class Market extends React.Component<
           </Grid.Column>
         </Grid>
         <Grid verticalAlign="middle">
-          {servicesFiltered.map((service: IService) => {
-            if ((service.admin && isAdmin) || !service.admin) {
-              return (
+          {servicesFiltered.map((service: IService) => 
+            (isAdmin || !service.admin) && 
+              (
                 <Grid.Column key={service._id} width={4}>
                   <MarketCard
                     groups={groups}
@@ -154,9 +154,8 @@ class Market extends React.Component<
                     admin={isAdmin}
                   />
                 </Grid.Column>
-              );
-            }
-          })}
+              )
+          )}
         </Grid>
       </>
     );

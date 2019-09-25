@@ -29,7 +29,7 @@ func createServiceGroup(c echo.Context) error {
 		}
 
 		if config.MaxServices < len(group.Services)+1 {
-			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can deploy more than %v services", config.MaxServices))
+			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can't deploy more than %v services", config.MaxServices))
 		}
 
 		service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))

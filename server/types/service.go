@@ -81,10 +81,11 @@ func ValidateServiceName(name string, group Group, daemon Daemon) error {
 
 	// Check volumes
 
-	command := fmt.Sprintf("test -d /%s/%s/%s && echo true", daemon.Docker.Volume, group.Name, name)
+	command := fmt.Sprintf("test -d %s/%s/%s && echo true", daemon.Docker.Volume, group.Name, name)
 	resp, err := daemon.ExecSSH(command)
 	if err != nil {
-		return err
+		fmt.Printf("Command : %s", command)
+		return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
 	}
 	if resp[command] == "true" {
 		return errors.New("A volume associated to this service name already exists")
