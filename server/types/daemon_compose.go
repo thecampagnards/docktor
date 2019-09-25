@@ -120,7 +120,7 @@ func (d *Daemon) ComposeUp(projectName string, serviceName string, subnet string
 	}
 
 	err = project.Up(context.Background(), options.Up{})
-	if strings.Contains(err.Error(), "already exists") {
+	if err != nil && strings.Contains(err.Error(), "already exists") {
 		return nil
 	}
 

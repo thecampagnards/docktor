@@ -110,10 +110,10 @@ func findPort(port uint16, ports []uint16) bool {
 	return false
 }
 
-// FindServiceByID return the service by id
-func (g *Group) FindServiceByID(id string) *GroupService {
+// FindServiceByName return the service by name (unique)
+func (g *Group) FindServiceByName(name string) *GroupService {
 	for _, service := range g.Services {
-		if service.SubServiceID.Hex() == id {
+		if service.Name == name {
 			return &service
 		}
 	}

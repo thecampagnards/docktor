@@ -29,9 +29,9 @@ func AddRoute(e *echo.Group) {
 		{
 			// Compose requests
 			compose := group.Group("/compose")
-			compose.POST(fmt.Sprintf("/create/:%s", types.SUBSERVICE_ID_PARAM), createServiceGroup, middleware.WithGroupAdmin)
-			compose.GET(fmt.Sprintf("/status/:%s", types.SUBSERVICE_ID_PARAM), getServiceGroupStatus)
-			compose.POST(fmt.Sprintf("/status/:%s", types.SUBSERVICE_ID_PARAM), updateServiceGroupStatus)
+			compose.POST(fmt.Sprintf("/create/:%s", types.GROUPSERVICE_NAME_PARAM), createServiceGroup, middleware.WithGroupAdmin)
+			compose.GET(fmt.Sprintf("/status/:%s", types.GROUPSERVICE_NAME_PARAM), getServiceGroupStatus)
+			compose.POST(fmt.Sprintf("/status/:%s", types.GROUPSERVICE_NAME_PARAM), updateServiceGroupStatus)
 		}
 
 		{

@@ -123,13 +123,13 @@ func updateServiceGroupStatus(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 
-	serviceGroup := group.FindServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	serviceGroup := group.FindServiceByName(c.Param(types.GROUPSERVICE_NAME_PARAM))
 	if serviceGroup == nil {
 		log.WithFields(log.Fields{
-			"groupName":    group.Name,
-			"subserviceID": types.SUBSERVICE_ID_PARAM,
+			"groupName":   group.Name,
+			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
 		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
+		return c.JSON(http.StatusBadRequest, "The service doesn't exist in this group")
 	}
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
@@ -153,10 +153,12 @@ func updateServiceGroupStatus(c echo.Context) error {
 		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
 	case "destroy":
 		for key, service := range group.Services {
-			if service.SubServiceID == serviceGroup.SubServiceID {
+			if service.Name == serviceGroup.Name {
 				group.Services = append(group.Services[:key], group.Services[key+1:]...)
 				if removeData, _ := strconv.ParseBool(c.QueryParam("remove-data")); removeData {
-					err = daemon.RemoveDataContainer(fmt.Sprintf("/%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name))
+					volume := fmt.Sprintf("/%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name)
+					command := []string{"rm", "-rf", "/data"}
+					err = daemon.CmdContainer(volume, command)
 				}
 			}
 		}
@@ -189,11 +191,11 @@ func getServiceGroupStatus(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 
-	serviceGroup := group.FindServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	serviceGroup := group.FindServiceByName(c.Param(types.GROUPSERVICE_NAME_PARAM))
 	if serviceGroup == nil {
 		log.WithFields(log.Fields{
-			"groupName":    group.Name,
-			"subserviceID": types.SUBSERVICE_ID_PARAM,
+			"groupName":   group.Name,
+			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
 		}).Error("Error when retrieving group service")
 		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
 	}

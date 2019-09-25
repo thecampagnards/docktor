@@ -26,12 +26,13 @@ const (
 	JWT_QUERY_PARAM = "jwt_token"
 
 	// Service
-	SERVICE_ID_PARAM    = "serviceID"
-	SUBSERVICE_ID_PARAM = "subserviceID"
-	SERVICES_DB_COLUMN  = "services"
-	SERVICE_NAME_LABEL  = "SERVICE_NAME=%s"
-	GROUP_NAME_LABEL    = "PROJECT_NAME=%s"
-	WATCHTOWER_LABEL    = "com.centurylinklabs.watchtower.enable=true"
+	SERVICE_ID_PARAM        = "serviceID"
+	SUBSERVICE_ID_PARAM     = "subserviceID"
+	GROUPSERVICE_NAME_PARAM = "serviceName"
+	SERVICES_DB_COLUMN      = "services"
+	SERVICE_NAME_LABEL      = "SERVICE_NAME=%s"
+	GROUP_NAME_LABEL        = "PROJECT_NAME=%s"
+	WATCHTOWER_LABEL        = "com.centurylinklabs.watchtower.enable=true"
 
 	// Config
 	CONFIG_DB_COLUMN = "config"

@@ -194,7 +194,7 @@ export default class GroupService extends React.Component<
   private refreshStatus = () => {
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
-    getServiceStatus(groupID, service.sub_service_id)
+    getServiceStatus(groupID, service.name)
       .then((status: IContainerStatus[]) => this.setState({ status }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
@@ -206,7 +206,7 @@ export default class GroupService extends React.Component<
   ) => {
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
-    updateServiceStatus(groupID, service.sub_service_id, name, !!removedata)
+    updateServiceStatus(groupID, service.name, name, !!removedata)
       .then(() => this.refreshStatus())
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
