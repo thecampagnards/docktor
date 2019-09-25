@@ -52,7 +52,7 @@ class MarketModal extends React.Component<
       this.props.service.sub_services.length === 1
         ? this.props.service.sub_services[0]._id
         : "",
-    serviceName: this.props.service.name.replace(" ", "_"),
+    serviceName: this.props.service.name.replace(/ /g, "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
 
@@ -143,14 +143,6 @@ class MarketModal extends React.Component<
                   <Message.Header>{error.message}</Message.Header>
                 </Message>
               )}
-              {max_services < group.services.length + 1 && (
-                <Message warning={true}>
-                  <Message.Header>
-                    You reach the maximum of services in this group (
-                    {max_services})
-                  </Message.Header>
-                </Message>
-              )}
             </Grid.Column>
             <Grid.Column width={service.link ? 10 : 12}>
               <Modal.Description>
@@ -173,6 +165,13 @@ class MarketModal extends React.Component<
                 </Button>
               </Grid.Column>
             )}
+            {max_services < group.services.length + 1 && (
+                <Message warning={true}>
+                  <Message.Header>
+                    You have reach the maximum amount of services in this group ({max_services})
+                  </Message.Header>
+                </Message>
+              )}
           </Grid>
         </Modal.Content>
         <Modal.Actions>
@@ -180,8 +179,8 @@ class MarketModal extends React.Component<
             <>
               <Select
                 placeholder="Select group"
-                options={groups.map(group => {
-                  return { text: group.name, value: group._id };
+                options={groups.map(g => {
+                  return { text: g.name, value: g._id };
                 })}
                 onChange={this.handleChangeGroup}
                 defaultValue={selectedGroupID}
@@ -199,7 +198,7 @@ class MarketModal extends React.Component<
               <Button
                 color="blue"
                 onClick={this.continueFormStage2}
-                disabled={!admin || max_services < group.services.length + 1}
+                disabled={!admin && max_services < group.services.length + 1}
               >
                 Proceed <Icon name="chevron right" />
               </Button>
@@ -332,7 +331,7 @@ class MarketModal extends React.Component<
 
   private handleChangeName = (
     event: any,
-    { name, value }: InputOnChangeData
+    { value }: InputOnChangeData
   ) => {
     this.setState({ serviceName: value });
   };
@@ -370,7 +369,6 @@ class MarketModal extends React.Component<
       ).variables;
       this.setState({
         stage: 2,
-        serviceName: service.name,
         variables,
         error: Error()
       });
@@ -389,12 +387,15 @@ class MarketModal extends React.Component<
       opts
     } = this.state;
 
-    const format = /[a-zA-Z0-9_-]+/;
-    if (!format.test(serviceName)) {
+    const format = /[ !@#$%^&*()+=[\]{};':"\\|,.<>/?]/;
+    if (format.test(serviceName)) {
+      console.log(format.exec(serviceName))
       this.setState({
         error: Error("No special characters allowed in the service name")
       });
       return;
+    } else {
+      this.setState({ error: Error() });
     }
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {

@@ -57,7 +57,7 @@ func WithGroup(next echo.HandlerFunc) echo.HandlerFunc {
 
 		log.WithFields(log.Fields{
 			"group": group.Name,
-			"user":  user,
+			"user":  user.Username,
 		}).Debug("Check if group is yours")
 
 		if !group.IsMyGroup(&user) {
