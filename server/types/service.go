@@ -59,42 +59,41 @@ func (s *Service) GetVariablesOfSubServices() (err error) {
 // Services data
 type Services []Service
 
-// ValidateServiceName checks if another service in the group has the same name or if the associated volume already exists
-func ValidateServiceName(name string, group Group, daemon Daemon) error {
+// ValidateServiceName checks if another service in the group has the same name
+func ValidateServiceName(name string, group Group) error {
 
 	// Check special characters
-
 	r, _ := regexp.Compile(`[a-zA-Z0-9_-]+`)
 	match := r.FindStringSubmatch(name)
 
-	if len(match[0]) == 0 {
+	if len(match[0]) != len(name) {
 		return errors.New("The service name should not contain special chars")
 	}
 
 	// Check other services names
-
 	for _, s := range group.Services {
 		if s.Name == name {
 			return errors.New("This service name is already used in this group")
 		}
 	}
 
-	// Check volumes
-
-	command := []string{"sh", "-c", fmt.Sprintf("test -d %s/%s/%s && echo true", daemon.Docker.Volume, group.Name, name)}
-	/*
-		resp, err := daemon.ExecSSH(command)
-		if err != nil {
-			fmt.Printf("Command : %s", command)
-			return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
-		}
-		if resp[command] == "true" {
-			return errors.New("A volume associated to this service name already exists")
-		}
-	*/
-	daemon.CmdContainer("/data", command)
-
 	return nil
+}
+
+// CheckFS checks if a directory exists
+func CheckFS(name string, path string, daemon Daemon) (err error) {
+	command := fmt.Sprintf("test -d %s && echo true", path)
+
+	resp, err := daemon.ExecSSH(command)
+	if err != nil {
+		fmt.Printf("Command : %s", command)
+		return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
+	}
+	if strings.Contains(resp[command], "true") {
+		return errors.New("A volume associated to this service name already exists")
+	}
+
+	return
 }
 
 // GetRemoteFile Check if file is remote and pull it

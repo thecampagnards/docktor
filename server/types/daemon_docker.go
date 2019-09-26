@@ -132,7 +132,6 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 	// Check if container doesn't exist if not create it
 	_, err = d.InspectContainers(container.Name)
 	if err != nil {
-
 		// Creating the networks
 		for key, net := range container.NetworkSettings.Networks {
 			ip := strings.Split(".", net.IPAddress)
@@ -172,6 +171,7 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 func (d *Daemon) CmdContainer(sourceVolume string, cmd []string) (err error) {
 	return d.CreateContainer(types.ContainerJSON{
 		ContainerJSONBase: &types.ContainerJSONBase{
+			Name: randString(32),
 			HostConfig: &container.HostConfig{
 				AutoRemove: true,
 			},

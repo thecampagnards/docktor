@@ -102,7 +102,8 @@ export const deployService = (
   serviceID: string,
   serviceName: string,
   variables: any,
-  opts: Map<string, string>
+  opts: Map<string, string>,
+  force: boolean
 ) => {
   let opt = "";
   opts.forEach(o => opts.has(o) && (opt += `${o}=${opts.get(o)}&`));
@@ -111,7 +112,7 @@ export const deployService = (
     `${
       process.env.PUBLIC_URL
     }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt &&
-      "&" + opt}`,
+      "&" + opt}&force=${force}`,
     {
       credentials: "same-origin",
       method: "POST",

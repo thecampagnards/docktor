@@ -22,6 +22,7 @@ interface IMarketModalStates {
   serviceName: string;
   variables: IServiceVariable[];
   opts: Map<string, any>;
+  force: boolean;
 
   serviceGroup: IServiceGroup;
   isFetching: boolean;
@@ -55,6 +56,7 @@ class MarketModal extends React.Component<
     serviceName: this.props.service.name.replace(/ /g, "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
+    force: false,
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -384,7 +386,8 @@ class MarketModal extends React.Component<
       selectedSubServiceID,
       serviceName,
       variables,
-      opts
+      opts,
+      force
     } = this.state;
 
     const format = /[ !@#$%^&*()+=[\]{};':"\\|,.<>/?]/;
@@ -405,13 +408,21 @@ class MarketModal extends React.Component<
         selectedSubServiceID,
         serviceName,
         variables,
-        opts
+        opts,
+        force
       )
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false, error: Error() });
           this.continueFormStage(3);
         })
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .catch((error: Error) => {
+          if (error.message === "A volume associated to this service name already exists") {
+            this.setState({ error, force: true });
+          } else {
+            this.setState({ error });
+          }
+        })
+        .finally(() => this.setState({ isFetching: false }));
     }
   };
 }
