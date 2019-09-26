@@ -79,10 +79,18 @@ func createServiceGroup(c echo.Context) error {
 
 	serviceName := c.QueryParam("service-name")
 	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
+	forceCreate, _ := strconv.ParseBool(c.QueryParam("force"))
 
-	err = types.ValidateServiceName(serviceName, group, daemon)
+	err = types.ValidateServiceName(serviceName, group)
 	if err != nil {
 		return c.JSON(http.StatusConflict, err.Error())
+	}
+
+	if !forceCreate {
+		err = types.CheckFS(serviceName, fmt.Sprintf("%s/%s/%s", daemon.Docker.Volume, group.Name, serviceName), daemon)
+		if err != nil {
+			return c.JSON(http.StatusFound, err.Error())
+		}
 	}
 
 	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
@@ -97,9 +105,9 @@ func createServiceGroup(c echo.Context) error {
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"serviceGroup": serviceGroup,
+			"serviceGroup": serviceGroup.Name,
 			"error":        err,
-		}).Error("Error when starting subservice")
+		}).Error("Error when starting service")
 		return err
 	}
 
@@ -128,7 +136,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		log.WithFields(log.Fields{
 			"groupName":   group.Name,
 			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
-		}).Error("Error when retrieving group")
+		}).Error("Error when retrieving group service")
 		return c.JSON(http.StatusBadRequest, "The service doesn't exist in this group")
 	}
 
@@ -197,7 +205,7 @@ func getServiceGroupStatus(c echo.Context) error {
 			"groupName":   group.Name,
 			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
 		}).Error("Error when retrieving group service")
-		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
+		return c.JSON(http.StatusBadRequest, "The service doesn't exist in this group")
 	}
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
