@@ -7,7 +7,7 @@ RUN npm install \
   && CI=true npm test \
   && npm run build
 
-FROM golang:1.13.0 as builderBack
+FROM golang:1.13.1 as builderBack
 
 WORKDIR /go/docktor/server
 COPY server .
