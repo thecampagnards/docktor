@@ -3,9 +3,9 @@ package types
 import (
 	"errors"
 	"strings"
+	"time"
 
 	client "github.com/google/cadvisor/client"
-	v1 "github.com/google/cadvisor/info/v1"
 	v2 "github.com/google/cadvisor/info/v2"
 )
 
@@ -25,7 +25,7 @@ type FileSystem struct {
 
 // CAdvisorInfo gets usage of resources
 func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
-	cli, err := client.NewClient(d.CAdvisor)
+	cli, err := client.NewClientWithTimeout(d.CAdvisor, 3*time.Second)
 	if err != nil {
 		return nil, err
 	}
@@ -81,16 +81,6 @@ func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
 	}
 
 	return &usage, nil
-}
-
-// CAdvisorMachineInfo gets machine specs
-func (d *Daemon) CAdvisorMachineInfo() (*v1.MachineInfo, error) {
-	cli, err := client.NewClient(d.CAdvisor)
-	if err != nil {
-
-		return nil, err
-	}
-	return cli.MachineInfo()
 }
 
 // CAdvisorInfoFilterFs keeps only group filesystem
