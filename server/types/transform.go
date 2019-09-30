@@ -22,8 +22,9 @@ func importVariables(sub *SubService, env []string) {
 	}
 }
 
-func findServiceName(init string, config types.ContainerJSON) string {
-	serviceName := "jenkins"
+// FindServiceName gets the a-priori unique name of a service based on mapped volumes
+func FindServiceName(init string, config types.ContainerJSON) string {
+	serviceName := init
 	for _, mount := range config.Mounts {
 		if strings.Contains(mount.Source, "/data/") {
 			serviceName = strings.Split(mount.Source, "/")[3]
@@ -39,35 +40,35 @@ func findVersion(image string) string {
 
 // TransformJenkins converts a Docktor V1 Jenkins into Docktor V2 service
 func TransformJenkins(config types.ContainerJSON, jenkins Service) (string, SubService) {
-	serviceName := findServiceName("jenkins", config)
+	serviceName := FindServiceName("jenkins", config)
 	version := findVersion(config.Config.Image)
 	return toSubService(serviceName, version, config, jenkins)
 }
 
 // TransformSonarLegacy converts a Docktor V1 Sonar legacy into Docktor V2 service
 func TransformSonarLegacy(config types.ContainerJSON, sonar Service) (string, SubService) {
-	serviceName := findServiceName("sonarqube_legacy", config)
+	serviceName := FindServiceName("sonarqube_legacy", config)
 	version := findVersion(config.Config.Image)
 	return toSubService(serviceName, version, config, sonar)
 }
 
 // TransformPhabricator converts a Docktor V1 Phabricator into Docktor V2 service
 func TransformPhabricator(config types.ContainerJSON, phab Service) (string, SubService) {
-	serviceName := findServiceName("phabricator", config)
+	serviceName := FindServiceName("phabricator", config)
 	version := findVersion(config.Config.Image)
 	return toSubService(serviceName, version, config, phab)
 }
 
 // TransformNexus converts a Docktor V1 Nexus into Docktor V2 service
 func TransformNexus(config types.ContainerJSON, nexus Service) (string, SubService) {
-	serviceName := findServiceName("nexus", config)
+	serviceName := FindServiceName("nexus", config)
 	version := findVersion(config.Config.Image)
 	return toSubService(serviceName, version, config, nexus)
 }
 
 // TransformSonarqube converts a Docktor V1 Sonarqube into Docktor V2 service
 func TransformSonarqube(config types.ContainerJSON, database types.ContainerJSON, sonarqube Service) (string, SubService) {
-	serviceName := findServiceName("sonarqube", config)
+	serviceName := FindServiceName("sonarqube", config)
 	version := findVersion(config.Config.Image)
 	return toSubService(serviceName, version, config, sonarqube)
 }
@@ -86,8 +87,17 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 	return serviceName, SubService{}
 }
 
-func mvVolumes(serviceName string, sources []string, daemon Daemon) {
-
+// MoveVolumes changes the path of a container's mapped volume
+func MoveVolumes(serviceName string, sources []string, groupName string, daemon Daemon) (err error) {
+	sourceVolume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, groupName)
+	for _, source := range sources {
+		cmd := []string{fmt.Sprintf("mv /data/%s /data/%s/", source, serviceName)}
+		err = daemon.CmdContainer(sourceVolume, cmd)
+		if err != nil {
+			return
+		}
+	}
+	return
 }
 
 // FindDependency finds the container in a set which is the wanted dependency based on env variables
