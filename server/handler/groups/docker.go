@@ -133,7 +133,7 @@ func transformServices(c echo.Context) error {
 				return err
 			}
 			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, group.Name, daemon)
+			types.MoveVolumes(serviceName, []string{serviceName}, []string{"jenkins"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "cdksonarqube"):
 			serviceName, sub := types.TransformSonarLegacy(conf, findService(services, "Sonarqube"))
@@ -142,7 +142,7 @@ func transformServices(c echo.Context) error {
 				return err
 			}
 			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, group.Name, daemon)
+			types.MoveVolumes(serviceName, []string{serviceName}, []string{"sonarqube"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "sonarqube"):
 			c, err := types.FindDependency(conf, "SONARQUBE_JDBC_URL", `jdbc:postgresql://([^:]+):([0-9]+)/[a-zA-Z]+`, 1, 2, "5432", group.Containers)
@@ -156,7 +156,7 @@ func transformServices(c echo.Context) error {
 				return err
 			}
 			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("postgres", *c)}, group.Name, daemon)
+			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "nexus"):
 			serviceName, sub := types.TransformNexus(conf, findService(services, "Nexus"))
@@ -165,7 +165,7 @@ func transformServices(c echo.Context) error {
 				return err
 			}
 			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, group.Name, daemon)
+			types.MoveVolumes(serviceName, []string{serviceName}, []string{"nexus"}, group.Name, daemon)
 			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
