@@ -88,10 +88,10 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 }
 
 // MoveVolumes changes the path of a container's mapped volume
-func MoveVolumes(serviceName string, sources []string, groupName string, daemon Daemon) (err error) {
+func MoveVolumes(serviceName string, sources []string, targets []string, groupName string, daemon Daemon) (err error) {
 	sourceVolume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, groupName)
-	for _, source := range sources {
-		cmd := []string{fmt.Sprintf("mv /data/%s /data/%s/", source, serviceName)}
+	for k, source := range sources {
+		cmd := []string{fmt.Sprintf("mv /data/%s /data/%s/%s", source, serviceName, targets[k])}
 		err = daemon.CmdContainer(sourceVolume, cmd)
 		if err != nil {
 			return
