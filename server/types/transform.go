@@ -1,10 +1,12 @@
 package types
 
 import (
+	"fmt"
 	"regexp"
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/go-connections/nat"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -82,4 +84,42 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 		}
 	}
 	return serviceName, SubService{}
+}
+
+func mvVolumes(serviceName string, sources []string, daemon Daemon) {
+
+}
+
+// FindDependency finds the container in a set which is the wanted dependency based on env variables
+func FindDependency(conf types.ContainerJSON, refEnv string, refExpr string, nameMatchIndex int, portMatchIndex int, defaultPortValue string, containers []types.ContainerJSON) (*types.ContainerJSON, error) {
+	var depName, depPort string
+	for _, env := range conf.Config.Env {
+		if strings.Contains(env, refEnv) {
+			r, _ := regexp.Compile(refExpr)
+			match := r.FindStringSubmatch(strings.Split(env, "=")[1])
+			depName = match[nameMatchIndex]
+			depPort = match[portMatchIndex]
+		}
+	}
+	if depPort == "" {
+		return nil, fmt.Errorf("Couldn't find dependency port in %s variables", conf.Name)
+	} else if depPort == defaultPortValue {
+		for _, c := range containers {
+			if strings.TrimPrefix(c.Name, "/") == depName {
+				return &c, nil
+			}
+		}
+		return nil, fmt.Errorf("Couldn't find dependency named %s", depName)
+	} else {
+		port, _ := nat.NewPort("tcp", defaultPortValue)
+		for _, c := range containers {
+			if len(c.HostConfig.PortBindings[port]) != 0 {
+				externalPort := c.HostConfig.PortBindings[port][0].HostPort
+				if externalPort == depPort {
+					return &c, nil
+				}
+			}
+		}
+		return nil, fmt.Errorf("Couldn't find container on port %s", depPort)
+	}
 }
