@@ -1,6 +1,7 @@
 package services
 
 import (
+	"io/ioutil"
 	"net/http"
 	"sync"
 
@@ -91,11 +92,7 @@ func deleteByID(c echo.Context) error {
 
 func validateTemplate(c echo.Context) error {
 
-	var template string
-	err := c.Bind(&template)
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Unable to parse the body")
-	}
+	template, err := ioutil.ReadAll(c.Request().Body)
 
 	daemon := types.Daemon{
 		DaemonLight: types.DaemonLight{
@@ -115,18 +112,18 @@ func validateTemplate(c echo.Context) error {
 
 	service := types.SubService{
 		Name:      "Test Service",
-		File:      template,
+		File:      string(template),
 		Variables: []types.ServiceVariable{},
 	}
 
 	err = service.GetVariables()
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Couldn't get variables")
+		return c.JSON(http.StatusBadRequest, "Couldn't get variables\n"+err.Error())
 	}
 
 	gs, err := service.ConvertToGroupService("ServiceTest", daemon, group, false)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Failed to convert to group service")
+		return c.JSON(http.StatusBadRequest, "Failed to convert to group service\n"+err.Error())
 	}
 
 	file := string(gs.File)
