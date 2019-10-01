@@ -190,7 +190,7 @@ class MarketModal extends React.Component<
               />
               <Select
                 placeholder="Select service version"
-                options={service.sub_services.map(ss => {
+                options={service.sub_services.filter(ss => ss.active).map(ss => {
                   return { text: ss.name, value: ss._id };
                 })}
                 onChange={this.handleChangeSubService}
