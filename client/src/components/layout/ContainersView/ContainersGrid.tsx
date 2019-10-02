@@ -71,7 +71,7 @@ export default class ContainersGrid extends React.Component<
 
     return (
       <>
-        {containers.length > 0 && (
+        {containers && containers.length > 0 && (
           <>
             {groups.length > 0 && (
               <>
