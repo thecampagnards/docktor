@@ -159,7 +159,7 @@ export default class ContainersGrid extends React.Component<
                 <Grid.Column width={4}>
                   {groupId && admin && (
                     <>
-                      <Button basic={true} circular={true} icon="recycle" onClick={this.handleTransform} floated="right" />
+                      <Button basic={true} circular={true} icon="recycle" onClick={this.handleTransform} floated="right" disabled={true} title="WIP" />
                       <Button
                         color="black"
                         circular={true}
