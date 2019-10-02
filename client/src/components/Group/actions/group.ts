@@ -130,11 +130,10 @@ export const deployService = (
 export const updateServiceStatus = (
   groupID: string,
   serviceName: string,
-  status: string,
-  removeData?: boolean
+  status: string
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceName}?status=${status}${removeData && "&remove-data=true"}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceName}?status=${status}`,
     {
       credentials: "same-origin",
       method: "POST",

@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal, Segment
+    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
@@ -192,11 +192,11 @@ export default class GroupService extends React.Component<
 
   private updateServiceStatus = (
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
-    { name, removedata }: ButtonProps
+    { name }: ButtonProps
   ) => {
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
-    updateServiceStatus(groupID, service.name, name, !!removedata)
+    updateServiceStatus(groupID, service.name, name)
       .then(() => this.refreshStatus())
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
@@ -343,8 +343,9 @@ export default class GroupService extends React.Component<
 
   private remove = (rm: boolean) => {
     const { groupID, service } = this.props;
+    this.setState({ isFetching: true })
     deleteGroupService(groupID, service.name, rm)
       .then(() => window.location.reload())
-      .catch(error => this.setState({ error }));
+      .catch(error => this.setState({ error, isFetching: false }));
   }
 }
