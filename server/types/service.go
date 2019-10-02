@@ -82,7 +82,7 @@ func ValidateServiceName(name string, group Group) error {
 
 // CheckFS checks if a directory exists
 func CheckFS(name string, path string, daemon Daemon) (err error) {
-	command := fmt.Sprintf("test -d %s && echo true", path)
+	command := fmt.Sprintf("test -d %s && echo true || echo false", path)
 
 	resp, err := daemon.ExecSSH(command)
 	if err != nil {

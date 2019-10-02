@@ -90,6 +90,7 @@ func createServiceGroup(c echo.Context) error {
 	if !forceCreate {
 		err = types.CheckFS(serviceName, fmt.Sprintf("%s/%s/%s", daemon.Docker.Volume, group.Name, serviceName), daemon)
 		if err != nil {
+			log.Errorln(err)
 			return c.JSON(http.StatusFound, err.Error())
 		}
 	}

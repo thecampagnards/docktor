@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Icon, Label, Modal, Popup
+    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal, Segment
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
@@ -44,6 +44,8 @@ export default class GroupService extends React.Component<
 
   private serviceVersion = "Version";
   private serviceDoc = "https://docs.cdk.corp.sopra/start/";
+  private serviceIcon : string;
+  private serviceTitle = "";
 
   public componentDidMount() {
     this.refreshStatus();
@@ -54,6 +56,8 @@ export default class GroupService extends React.Component<
         const sub = s.sub_services.find(ss => ss._id === ssId);
         this.serviceVersion = sub ? sub.name : ssId;
         this.serviceDoc = s.link;
+        this.serviceIcon = s.image;
+        this.serviceTitle = s.name;
       })
       .catch(error => this.setState({ subServiceError: error }))
       .finally(() => this.setState({ isFetchingSub: false }));
@@ -69,7 +73,8 @@ export default class GroupService extends React.Component<
           <Grid>
             <Grid.Row>
               <Grid.Column width={4}>
-                <h3>{service.name}</h3>
+                {this.serviceIcon && <Image src={this.serviceIcon} title={this.serviceTitle} avatar={true} />}
+                <span style={{ fontWeight: 'bold', fontSize: 16 }}>{" " + service.name}</span>
               </Grid.Column>
               <Grid.Column width={4}>
                 <Label basic={true}>{this.serviceVersion}</Label>

@@ -73,16 +73,6 @@ class MarketModal extends React.Component<
     return (
       <>
         <Button
-          style={{ width: "70%" }}
-          color="green"
-          labelPosition="left"
-          icon="dolly"
-          content={`Install ${service.name}`}
-          title="Deploy the service in a group"
-          floated="left"
-          onClick={this.open}
-        />
-        <Button
           disabled={!service.link}
           basic={true}
           icon="info circle"
@@ -91,6 +81,16 @@ class MarketModal extends React.Component<
           href={service.link}
           target="_blank"
           floated="left"
+        />
+        <Button
+          style={{ width: "70%" }}
+          color="green"
+          labelPosition="left"
+          icon="dolly"
+          content={`Install ${service.name}`}
+          title="Deploy the service in a group"
+          floated="left"
+          onClick={this.open}
         />
         {admin && (
           <Button
@@ -335,7 +335,7 @@ class MarketModal extends React.Component<
     event: any,
     { value }: InputOnChangeData
   ) => {
-    this.setState({ serviceName: value });
+    this.setState({ serviceName: value, force: false });
   };
 
   private handleChangeVariable = (
