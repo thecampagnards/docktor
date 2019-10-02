@@ -111,26 +111,27 @@ export default class GroupService extends React.Component<
                       <Dropdown.Item onClick={this.handleOpen}>
                         Edit service
                       </Dropdown.Item>
-                      <Popup
-                        trigger={<Dropdown.Item content="Remove service" />}
-                        on="click"
-                        content={
-                          <Button.Group>
+                      <Modal trigger={<Dropdown.Item content="Remove service" />} size="mini">
+                        <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
+                        <Modal.Actions>
+                          <Button.Group fluid={true}>
                             <Button
                               color="orange"
+                              icon="hdd"
                               content="Keep data"
                               loading={isFetching}
                               onClick={this.remove.bind(this, false)}
                             />
                             <Button
                               color="red"
+                              icon="trash"
                               content="Remove data"
                               loading={isFetching}
                               onClick={this.remove.bind(this, true)}
                             />
                           </Button.Group>
-                        }
-                      />
+                        </Modal.Actions>
+                      </Modal>
                     </Dropdown.Menu>
                   </Dropdown>
                 )}
@@ -338,7 +339,7 @@ export default class GroupService extends React.Component<
   private remove = (rm: boolean) => {
     const { groupID, service } = this.props;
     deleteGroupService(groupID, service.name, rm)
-      .then(() => this.refreshStatus)
+      .then(() => window.location.reload())
       .catch(error => this.setState({ error }));
   }
 }
