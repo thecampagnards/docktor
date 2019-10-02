@@ -7,7 +7,7 @@ import {
 import { copy } from '../../../utils/clipboard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IGroupService, IService } from '../../Services/types/service';
-import { getServiceStatus, updateServiceStatus } from '../actions/group';
+import { getServiceStatus, updateServiceStatus, saveGroupService, deleteGroupService } from '../actions/group';
 import { IContainerStatus } from '../types/group';
 
 interface IGroupServiceProps {
@@ -24,6 +24,7 @@ interface IGroupServiceState {
   subServiceError: Error;
   isFetchingSub: boolean;
   file: string;
+  saveState: string;
 }
 
 export default class GroupService extends React.Component<
@@ -37,7 +38,8 @@ export default class GroupService extends React.Component<
     isFetching: false,
     subServiceError: Error(),
     isFetchingSub: true,
-    file: window.atob(this.props.service.file)
+    file: window.atob(this.props.service.file),
+    saveState: "saved"
   };
 
   private serviceVersion = "Version";
@@ -59,7 +61,7 @@ export default class GroupService extends React.Component<
 
   public render() {
     const { service, admin } = this.props;
-    const { isFetching, status, modalOpen, file } = this.state;
+    const { isFetching, status, modalOpen, file, saveState } = this.state;
 
     return (
       <Card fluid={true}>
@@ -110,47 +112,23 @@ export default class GroupService extends React.Component<
                         Edit service
                       </Dropdown.Item>
                       <Popup
-                        wide
                         trigger={<Dropdown.Item content="Remove service" />}
                         on="click"
                         content={
-                          <Grid divided columns="equal">
-                            <Grid.Column>
-                              <Popup
-                                trigger={
-                                  <Button
-                                    color="orange"
-                                    content="Remove service"
-                                    fluid={true}
-                                    loading={isFetching}
-                                    name="remove"
-                                    onClick={this.updateServiceStatus}
-                                  />
-                                }
-                                content="Remove the service."
-                                size="tiny"
-                                inverted={true}
-                              />
-                            </Grid.Column>
-                            <Grid.Column>
-                              <Popup
-                                trigger={
-                                  <Button
-                                    color="red"
-                                    content="Remove service/data"
-                                    fluid={true}
-                                    loading={isFetching}
-                                    name="remove"
-                                    removedata="true"
-                                    onClick={this.updateServiceStatus}
-                                  />
-                                }
-                                content="Remove the service and the datas."
-                                size="tiny"
-                                inverted={true}
-                              />
-                            </Grid.Column>
-                          </Grid>
+                          <Button.Group>
+                            <Button
+                              color="orange"
+                              content="Keep data"
+                              loading={isFetching}
+                              onClick={this.remove.bind(this, false)}
+                            />
+                            <Button
+                              color="red"
+                              content="Remove data"
+                              loading={isFetching}
+                              onClick={this.remove.bind(this, true)}
+                            />
+                          </Button.Group>
                         }
                       />
                     </Dropdown.Menu>
@@ -180,8 +158,14 @@ export default class GroupService extends React.Component<
                         lineNumbers: true
                       }}
                       autoCursor={false}
+                      onChange={this.handleEdit}
                     />
                   </Modal.Content>
+                  <Modal.Actions>
+                    <Button basic={true} labelPosition="left" icon="download" content="Save" 
+                      onClick={this.save} loading={saveState === "saving"} disabled={saveState === "saved"}
+                    />
+                  </Modal.Actions>
                 </Modal>
               </Grid.Column>
             </Grid.Row>
@@ -331,4 +315,30 @@ export default class GroupService extends React.Component<
 
   private handleOpen = () => this.setState({ modalOpen: true });
   private handleClose = () => this.setState({ modalOpen: false });
+
+  private handleEdit = (
+    editor: CodeMirror.Editor,
+    data: CodeMirror.EditorChange,
+    value: string
+  ) => {
+    this.setState({
+      file: value, saveState: ""
+    });
+  };
+
+  private save = () => {
+    const { groupID, service } = this.props;
+    const { file } = this.state;
+    this.setState({ saveState: "saving" })
+    saveGroupService(groupID, service.name, file)
+      .then(() => this.setState({ saveState: "saved" }))
+      .catch(error => this.setState({ error, saveState: "" }));
+  }
+
+  private remove = (rm: boolean) => {
+    const { groupID, service } = this.props;
+    deleteGroupService(groupID, service.name, rm)
+      .then(() => this.refreshStatus)
+      .catch(error => this.setState({ error }));
+  }
 }
