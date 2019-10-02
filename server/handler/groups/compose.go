@@ -2,6 +2,7 @@ package groups
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -182,11 +183,11 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"contextName": contextName,
-			"daemonHost":  daemon.Host,
-			"service":     serviceGroup.Name,
-			"error":       err,
-		}).Error("Error when compose up")
+			"groupName":  group.Name,
+			"daemonHost": daemon.Host,
+			"service":    serviceGroup.File,
+			"error":      err,
+		}).Error("Error when compose info")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -230,4 +231,67 @@ func getServiceGroupStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, info)
+}
+
+func saveGroupService(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
+
+	for key, service := range group.Services {
+		if service.Name == serviceName {
+			group.Services[key].File, _ = ioutil.ReadAll(c.Request().Body)
+		}
+	}
+	_, err := db.Groups().Save(group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"groupName":   group.Name,
+			"serviceName": serviceName,
+			"error":       err,
+		}).Error("Error when saving service")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "Saved successfully")
+}
+
+func deleteGroupService(c echo.Context) error {
+
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
+
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID":  group.Daemon,
+			"groupName": group.Name,
+			"error":     err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	for key, service := range group.Services {
+		if service.Name == serviceName {
+			group.Services = append(group.Services[:key], group.Services[key+1:]...)
+			if rmData, _ := strconv.ParseBool(c.QueryParam("rmData")); rmData {
+				volume := fmt.Sprintf("%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name)
+				command := []string{"rm", "-rf", "/data"}
+				err = daemon.CmdContainer(volume, command)
+			}
+		}
+	}
+	_, err = db.Groups().Save(group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"groupName":   group.Name,
+			"daemonHost":  daemon.Host,
+			"serviceName": serviceName,
+			"error":       err,
+		}).Error("Error when delete service")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, group)
 }

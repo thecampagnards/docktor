@@ -162,6 +162,37 @@ export const getServiceStatus = (groupID: string, serviceName: string) => {
     .then(response => response.json());
 };
 
+export const saveGroupService = (groupID: string, serviceName: string, file: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      body: file,
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+}
+
+export const deleteGroupService = (groupID: string, serviceName: string, rmData: boolean) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}?rmData=${rmData}`,
+    {
+      credentials: "same-origin",
+      method: "DELETE",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+}
+
 export const fetchCadvisor = (groupID: string) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor`, {
     credentials: "same-origin",
