@@ -30,7 +30,7 @@ const (
 	SUBSERVICE_ID_PARAM     = "subserviceID"
 	GROUPSERVICE_NAME_PARAM = "serviceName"
 	SERVICES_DB_COLUMN      = "services"
-	SERVICE_NAME_LABEL      = "SERVICE_NAME=%s"
+	SERVICE_NAME_LABEL      = "SERVICE_TYPE=%s"
 	GROUP_NAME_LABEL        = "PROJECT_NAME=%s"
 	WATCHTOWER_LABEL        = "com.centurylinklabs.watchtower.enable=true"
 
