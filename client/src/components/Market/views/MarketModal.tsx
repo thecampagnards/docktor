@@ -252,7 +252,7 @@ class MarketModal extends React.Component<
                     required={!variable.optional}
                   >
                     <label>
-                      {variable.name.toUpperCase().replace(/_/g, " ")}
+                      {variable.name.replace(/optional_|secret_/g, "").replace(/_/g, " ").toUpperCase()}
                     </label>
                     <Input
                       name={variable.name}

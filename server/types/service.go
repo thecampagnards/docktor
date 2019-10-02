@@ -185,17 +185,10 @@ func parseVar(variable string) ServiceVariable {
 	match := r.FindStringSubmatch(variable)
 
 	serviceVar := ServiceVariable{
-		Name:     match[3],
+		Name:     variable,
 		Value:    "",
-		Secret:   false,
-		Optional: false,
-	}
-
-	if len(match[1]) != 0 {
-		serviceVar.Optional = true
-	}
-	if len(match[2]) != 0 {
-		serviceVar.Secret = true
+		Secret:   len(match[2]) != 0,
+		Optional: len(match[1]) != 0,
 	}
 
 	return serviceVar
