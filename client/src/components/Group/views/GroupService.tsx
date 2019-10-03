@@ -7,7 +7,7 @@ import {
 import { copy } from '../../../utils/clipboard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IGroupService, IService } from '../../Services/types/service';
-import { getServiceStatus, updateServiceStatus, saveGroupService, deleteGroupService } from '../actions/group';
+import { getServiceStatus, saveGroupService, updateServiceStatus } from '../actions/group';
 import { IContainerStatus } from '../types/group';
 
 interface IGroupServiceProps {
@@ -44,7 +44,7 @@ export default class GroupService extends React.Component<
 
   private serviceVersion = "Version";
   private serviceDoc = "https://docs.cdk.corp.sopra/start/";
-  private serviceIcon : string;
+  private serviceIcon: string;
   private serviceTitle = "";
 
   public componentDidMount() {
@@ -73,8 +73,16 @@ export default class GroupService extends React.Component<
           <Grid>
             <Grid.Row>
               <Grid.Column width={4}>
-                {this.serviceIcon && <Image src={this.serviceIcon} title={this.serviceTitle} avatar={true} />}
-                <span style={{ fontWeight: 'bold', fontSize: 16 }}>{" " + service.name}</span>
+                {this.serviceIcon && (
+                  <Image
+                    src={this.serviceIcon}
+                    title={this.serviceTitle}
+                    avatar={true}
+                  />
+                )}
+                <span style={{ fontWeight: "bold", fontSize: 16 }}>
+                  {" " + service.name}
+                </span>
               </Grid.Column>
               <Grid.Column width={4}>
                 <Label basic={true}>{this.serviceVersion}</Label>
@@ -116,7 +124,10 @@ export default class GroupService extends React.Component<
                       <Dropdown.Item onClick={this.handleOpen}>
                         Edit service
                       </Dropdown.Item>
-                      <Modal trigger={<Dropdown.Item content="Remove service" />} size="mini">
+                      <Modal
+                        trigger={<Dropdown.Item content="Remove service" />}
+                        size="mini"
+                      >
                         <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
                         <Modal.Actions>
                           <Button.Group fluid={true}>
@@ -168,8 +179,14 @@ export default class GroupService extends React.Component<
                     />
                   </Modal.Content>
                   <Modal.Actions>
-                    <Button basic={true} labelPosition="left" icon="download" content="Save" 
-                      onClick={this.save} loading={saveState === "saving"} disabled={saveState === "saved"}
+                    <Button
+                      basic={true}
+                      labelPosition="left"
+                      icon="download"
+                      content="Save"
+                      onClick={this.save}
+                      loading={saveState === "saving"}
+                      disabled={saveState === "saved"}
                     />
                   </Modal.Actions>
                 </Modal>
@@ -328,24 +345,25 @@ export default class GroupService extends React.Component<
     value: string
   ) => {
     this.setState({
-      file: value, saveState: ""
+      file: value,
+      saveState: ""
     });
   };
 
   private save = () => {
     const { groupID, service } = this.props;
     const { file } = this.state;
-    this.setState({ saveState: "saving" })
+    this.setState({ saveState: "saving" });
     saveGroupService(groupID, service.name, file)
       .then(() => this.setState({ saveState: "saved" }))
       .catch(error => this.setState({ error, saveState: "" }));
-  }
+  };
 
   private remove = (rm: boolean) => {
     const { groupID, service } = this.props;
-    this.setState({ isFetching: true })
-    deleteGroupService(groupID, service.name, rm)
+    this.setState({ isFetching: true });
+    updateServiceStatus(groupID, service.name, "destroy", rm)
       .then(() => window.location.reload())
       .catch(error => this.setState({ error, isFetching: false }));
-  }
+  };
 }
