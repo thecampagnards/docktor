@@ -5,12 +5,11 @@ import { Button, Grid, Popup, Search, SearchProps, Segment } from 'semantic-ui-r
 import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { fetchGroupsByDaemon } from '../../Group/actions/group';
+import { fetchGroupsByDaemon, transformServices } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
 import ContainerCard from './ContainerCard';
-import { transformServices } from '../../Group/actions/group';
 
 interface IContainersGridProps {
   daemon: IDaemon;
@@ -159,7 +158,15 @@ export default class ContainersGrid extends React.Component<
                 <Grid.Column width={4}>
                   {groupId && admin && (
                     <>
-                      <Button basic={true} circular={true} icon="recycle" onClick={this.handleTransform} floated="right" disabled={true} title="WIP" />
+                      <Button
+                        basic={true}
+                        circular={true}
+                        icon="recycle"
+                        onClick={this.handleTransform}
+                        floated="right"
+                        disabled={true}
+                        title="WIP"
+                      />
                       <Button
                         color="black"
                         circular={true}
@@ -189,8 +196,11 @@ export default class ContainersGrid extends React.Component<
                     groupId={
                       groupId ||
                       (
-                        groups.find(g => c.Names[0].startsWith("/" + g.name)) ||
-                        {}
+                        groups.find(g =>
+                          (c.Names ? c.Names[0] : c.Name).startsWith(
+                            "/" + g.name
+                          )
+                        ) || {}
                       )._id
                     }
                   />
@@ -237,8 +247,9 @@ export default class ContainersGrid extends React.Component<
   private handleTransform = () => {
     const { groupId } = this.props;
     // tslint:disable-next-line: no-unused-expression
-    groupId && transformServices(groupId)
-      .then(services => console.log(services))
-      .catch(error => console.log(error));
-  }
+    groupId &&
+      transformServices(groupId)
+        .then(services => console.log(services))
+        .catch(error => console.log(error));
+  };
 }
