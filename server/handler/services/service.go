@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"sync"
@@ -116,17 +117,10 @@ func validateTemplate(c echo.Context) error {
 		Variables: []types.ServiceVariable{},
 	}
 
-	err = service.GetVariables()
-	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Couldn't get variables\n"+err.Error())
-	}
-
 	gs, err := service.ConvertToGroupService("ServiceTest", daemon, group, false)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, "Failed to convert to group service\n"+err.Error())
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to convert to group service: %s", err))
 	}
 
-	file := string(gs.File)
-
-	return c.JSON(http.StatusOK, file)
+	return c.String(http.StatusOK, string(gs.File))
 }
