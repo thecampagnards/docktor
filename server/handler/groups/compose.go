@@ -20,6 +20,15 @@ func createServiceGroup(c echo.Context) error {
 	user := c.Get("user").(types.User)
 	db := c.Get("DB").(*storage.Docktor)
 
+	service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
+			"error":        err,
+		}).Error("Error when retrieving subservice")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	if !user.IsAdmin() {
 		config, err := db.Config().Find()
 		if err != nil {
@@ -33,22 +42,13 @@ func createServiceGroup(c echo.Context) error {
 			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can't deploy more than %v services", config.MaxServices))
 		}
 
-		service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
-		if err != nil {
-			log.WithFields(log.Fields{
-				"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
-				"error":        err,
-			}).Error("Error when retrieving subservice")
-			return c.JSON(http.StatusBadRequest, err.Error())
-		}
-
 		if service.Admin {
 			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can't deploy this service: %s", service.Name))
 		}
 	}
 
 	var variables []types.ServiceVariable
-	err := c.Bind(&variables)
+	err = c.Bind(&variables)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"variables": c.Request().Body,
@@ -95,7 +95,7 @@ func createServiceGroup(c echo.Context) error {
 		}
 	}
 
-	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
+	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,

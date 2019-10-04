@@ -105,6 +105,10 @@ func validateTemplate(c echo.Context) error {
 		},
 	}
 
+	serv := types.Service{
+		Name: "TEST_SERVICE",
+	}
+
 	group := types.Group{
 		GroupLight: types.GroupLight{
 			Name: "TEST_PROJECT",
@@ -117,7 +121,7 @@ func validateTemplate(c echo.Context) error {
 		Variables: []types.ServiceVariable{},
 	}
 
-	gs, err := service.ConvertToGroupService("ServiceTest", daemon, group, false)
+	gs, err := service.ConvertToGroupService("ServiceTest", daemon, serv, group, false)
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to convert to group service: %s", err))
 	}

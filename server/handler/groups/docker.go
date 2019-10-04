@@ -127,8 +127,9 @@ func transformServices(c echo.Context) error {
 	for _, conf := range group.Containers {
 		switch true {
 		case strings.Contains(conf.Config.Image, "jenkins"):
-			serviceName, sub := types.TransformJenkins(conf, findService(services, "Jenkins"))
-			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, true)
+			service := findService(services, "Jenkins")
+			serviceName, sub := types.TransformJenkins(conf, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, true)
 			if err != nil {
 				return err
 			}
@@ -136,8 +137,9 @@ func transformServices(c echo.Context) error {
 			types.MoveVolumes(serviceName, []string{serviceName}, []string{"jenkins"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "cdksonarqube"):
-			serviceName, sub := types.TransformSonarLegacy(conf, findService(services, "Sonarqube"))
-			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, false)
+			service := findService(services, "Sonarqube")
+			serviceName, sub := types.TransformSonarLegacy(conf, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
 			if err != nil {
 				return err
 			}
@@ -150,8 +152,9 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			serviceName, sub := types.TransformSonarqube(conf, *c, findService(services, "Sonarqube"))
-			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, true)
+			service := findService(services, "Sonarqube")
+			serviceName, sub := types.TransformSonarqube(conf, *c, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, true)
 			if err != nil {
 				return err
 			}
@@ -159,8 +162,9 @@ func transformServices(c echo.Context) error {
 			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "nexus"):
-			serviceName, sub := types.TransformNexus(conf, findService(services, "Nexus"))
-			groupService, err := sub.ConvertToGroupService(serviceName, daemon, group, false)
+			service := findService(services, "Nexus")
+			serviceName, sub := types.TransformNexus(conf, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
 			if err != nil {
 				return err
 			}
