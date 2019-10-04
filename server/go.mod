@@ -23,6 +23,6 @@ require (
 	golang.org/x/net v0.0.0-20190613194153-d28f0bde5980
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
 	gopkg.in/ldap.v3 v3.0.3
-	gopkg.in/yaml.v2 v2.2.2
+	gopkg.in/yaml.v3 v3.0.0-20190924164351-c8b7dadae555
 	k8s.io/klog v1.0.0 // indirect
 )
