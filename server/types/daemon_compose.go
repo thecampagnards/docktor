@@ -15,7 +15,7 @@ import (
 	"golang.org/x/net/context"
 )
 
-// ComposeCli
+// ComposeCli type
 type ComposeCli struct {
 	client.Factory
 	ca   string
@@ -23,7 +23,7 @@ type ComposeCli struct {
 	key  string
 }
 
-// Close
+// Close client
 func (cli *ComposeCli) Close() {
 	os.Remove(cli.ca)
 	os.Remove(cli.cert)
@@ -71,8 +71,8 @@ func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 }
 
 // if files is a []string this has to be the compose file path array
-func getComposeProjectContext(projectName string, files interface{}) (con project.Context, err error) {
-	con.ProjectName = projectName
+func getComposeProjectContext(contextName string, files interface{}) (con project.Context, err error) {
+	con.ProjectName = contextName
 
 	switch files.(type) {
 	case []string:
@@ -96,7 +96,7 @@ func (d *Daemon) ComposeUp(projectName string, serviceName string, subnet string
 		}
 	}
 
-	contextName := fmt.Sprintf("%s_%s", projectName, serviceName)
+	contextName := fmt.Sprintf("%s-%s", projectName, serviceName)
 
 	con, err := getComposeProjectContext(contextName, files)
 	if err != nil {
