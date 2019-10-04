@@ -136,8 +136,7 @@ export const updateServiceStatus = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/status/${serviceName}?status=${status}${removeData &&
-      "&remove-data=true"}`,
+    }/api/groups/${groupID}/compose/status/${serviceName}?status=${status}${!!removeData ? "&remove-data=true":"&remove-data=false"}`,
     {
       credentials: "same-origin",
       method: "POST",
