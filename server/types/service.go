@@ -137,7 +137,7 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 
 	// Convert it
 	tmpl, err := template.New("template").
-		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Funcs(template.FuncMap{"split": split, "randString": randString, "toLower": toLower}).
 		Parse(sub.File)
 	if err != nil {
 		return nil, err
@@ -207,4 +207,9 @@ func randString(n int) string {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
+}
+
+// toLower used in go template
+func toLower(s string) string {
+	return strings.ToLower(s)
 }
