@@ -104,6 +104,13 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	// for non-sso services
+	for _, v := range variables {
+		if v.Name == "api_port" {
+			serviceGroup.URL = fmt.Sprintf("http://%s:%s/", daemon.Host, v.Value)
+		}
+	}
+
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
