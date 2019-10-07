@@ -190,6 +190,7 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, g
 		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
 
+	addLabel(&config, fmt.Sprintf(SERVICE_TYPE_NAME_LABEL, ss.Name))
 	addLabel(&config, fmt.Sprintf(SERVICE_NAME_LABEL, serviceName))
 	addLabel(&config, fmt.Sprintf(GROUP_NAME_LABEL, group.Name))
 
