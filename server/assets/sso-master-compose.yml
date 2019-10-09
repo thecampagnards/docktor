@@ -1,0 +1,18 @@
+version: "2"
+
+services:
+  sso-master:
+    network_mode: host
+    image: registry-innersource.soprasteria.com/dep/cdk/sso/sso-master:1.0.3-feat-watch-certs-change
+    environment: 
+      - ROOT_DATA_PATH=/data
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+      - /data:/data:ro
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  default:
+    external:
+      name: none
