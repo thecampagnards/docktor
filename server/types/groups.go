@@ -2,7 +2,6 @@ package types
 
 import (
 	"fmt"
-	"reflect"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -209,9 +208,8 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 
 func addLabel(config *config.Config, label string) {
 	for key := range config.Services {
-		if labels, ok := config.Services[key]["labels"]; ok {
-			v := reflect.ValueOf(labels)
-			config.Services[key]["labels"] = reflect.Append(v, reflect.ValueOf(label)).Interface()
+		if labels, ok := (config.Services[key]["labels"]).([]string); ok {
+			config.Services[key]["labels"] = append(labels, label)
 		} else {
 			config.Services[key]["labels"] = []string{label}
 		}
