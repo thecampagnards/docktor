@@ -172,6 +172,7 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 	variables := map[string]interface{}{
 		"Group":       group,
 		"Daemon":      daemon,
+		"Service":     service,
 		"ServiceName": serviceName,
 	}
 
@@ -190,9 +191,7 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
 
-	addLabel(&config, fmt.Sprintf(SERVICE_TYPE_LABEL, service.Name))
 	addLabel(&config, fmt.Sprintf(SERVICE_NAME_LABEL, serviceName))
-	addLabel(&config, fmt.Sprintf(GROUP_NAME_LABEL, group.Name))
 
 	if autoUpdate {
 		// Use https://github.com/v2tec/watchtower

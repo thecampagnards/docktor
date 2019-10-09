@@ -80,6 +80,16 @@ func ValidateServiceName(name string, group Group) error {
 	return nil
 }
 
+// FindSubServiceByID find subservice by id
+func (s *Service) FindSubServiceByID(id string) (*SubService, error) {
+	for _, ss := range s.SubServices {
+		if ss.ID.Hex() == id {
+			return &ss, nil
+		}
+	}
+	return nil, errors.New("No subservice found")
+}
+
 // CheckFS checks if a directory exists
 func CheckFS(name string, path string, daemon Daemon) (err error) {
 	command := fmt.Sprintf("test -d %s && echo true || echo false", path)

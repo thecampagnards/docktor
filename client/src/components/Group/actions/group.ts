@@ -106,13 +106,9 @@ export const deployService = (
   force: boolean
 ) => {
   let opt = "";
-  opts.forEach(o => opts.has(o) && (opt += `${o}=${opts.get(o)}&`));
-  opt = opt.slice(0, -1);
+  opts.forEach(o => opts.has(o) && (opt += `&${o}=${opts.get(o)}`));
   return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt &&
-      "&" + opt}&force=${force}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}&force=${force}${opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -136,7 +132,9 @@ export const updateServiceStatus = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/status/${serviceName}?status=${status}${!!removeData ? "&remove-data=true":"&remove-data=false"}`,
+    }/api/groups/${groupID}/compose/status/${serviceName}?status=${status}&${
+      removeData ? "remove-data=true" : "remove-data=false"
+    }`,
     {
       credentials: "same-origin",
       method: "POST",
