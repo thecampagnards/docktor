@@ -100,7 +100,7 @@ func CheckFS(name string, path string, daemon Daemon) (err error) {
 		return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
 	}
 	if strings.Contains(resp[command], "true") {
-		return errors.New("A volume associated to this service name already exists")
+		return errors.New("A volume associated to this service name already exists. Click again on 'Install' to proceed anyway")
 	}
 
 	return

@@ -1,6 +1,6 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Grid, Popup, Search, SearchProps, Segment } from 'semantic-ui-react';
+import { Button, Grid, Popup, Search, SearchProps, Segment, Message } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
@@ -70,7 +70,7 @@ export default class ContainersGrid extends React.Component<
 
     return (
       <>
-        {containers && containers.length > 0 && (
+        {containers && containers.length > 0 ? (
           <>
             {groups.length > 0 && (
               <>
@@ -208,7 +208,12 @@ export default class ContainersGrid extends React.Component<
               ))}
             </Grid>
           </>
-        )}
+        )
+      :
+        (
+          <Message>No container found. Use the Create button in the Services tab and refresh the page.</Message>
+        )
+      }
       </>
     );
   }

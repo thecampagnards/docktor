@@ -414,7 +414,7 @@ class MarketModal extends React.Component<
           this.continueFormStage(3);
         })
         .catch((error: Error) => {
-          if (error.message === "A volume associated to this service name already exists") {
+          if (error.message.includes("volume")) {
             this.setState({ error, force: true });
           } else {
             this.setState({ error });
