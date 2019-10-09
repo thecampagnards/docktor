@@ -57,12 +57,12 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	subService, err := db.Services().FindSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	subService, err := service.FindSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
 			"error":        err,
-		}).Error("Error when retrieving subservice")
+		}).Error("Error when finding subservice")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// Assign form variables for the convert
