@@ -81,7 +81,10 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
         )}
 
         <Grid>
-          {group.services.map((service: IGroupService, index: number) => (
+          {group.services
+              .sort((a,b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()))
+              .map((service: IGroupService, index: number) => 
+          (
             <Grid.Column width={8} key={index}>
               <GroupService
                 groupID={group._id}

@@ -100,6 +100,7 @@ export default class GroupService extends React.Component<
                     content="Open"
                     as="a"
                     href={service.url}
+                    target="_blank"
                     disabled={
                       status.filter(cs => cs.State.startsWith("Exited"))
                         .length !== 0
