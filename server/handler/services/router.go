@@ -29,4 +29,6 @@ func AddRoute(e *echo.Group) {
 
 		subService.GET("", getBySubServiceID)
 	}
+
+	services.POST("/validate", validateTemplate)
 }

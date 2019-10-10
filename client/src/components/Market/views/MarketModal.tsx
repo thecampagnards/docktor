@@ -22,6 +22,7 @@ interface IMarketModalStates {
   serviceName: string;
   variables: IServiceVariable[];
   opts: Map<string, any>;
+  force: boolean;
 
   serviceGroup: IServiceGroup;
   isFetching: boolean;
@@ -52,9 +53,10 @@ class MarketModal extends React.Component<
       this.props.service.sub_services.length === 1
         ? this.props.service.sub_services[0]._id
         : "",
-    serviceName: this.props.service.name.replace(" ", "_"),
+    serviceName: this.props.service.name.replace(/ /g, "_"),
     variables: [] as IServiceVariable[],
     opts: new Map<string, any>([["auto-update", true]]),
+    force: false,
 
     serviceGroup: {} as IServiceGroup,
     isFetching: false,
@@ -71,16 +73,6 @@ class MarketModal extends React.Component<
     return (
       <>
         <Button
-          style={{ width: "70%" }}
-          color="green"
-          labelPosition="left"
-          icon="dolly"
-          content={`Install ${service.name}`}
-          title="Deploy the service in a group"
-          floated="left"
-          onClick={this.open}
-        />
-        <Button
           disabled={!service.link}
           basic={true}
           icon="info circle"
@@ -89,6 +81,16 @@ class MarketModal extends React.Component<
           href={service.link}
           target="_blank"
           floated="left"
+        />
+        <Button
+          style={{ width: "70%" }}
+          color="green"
+          labelPosition="left"
+          icon="dolly"
+          content={`Install ${service.name}`}
+          title="Deploy the service in a group"
+          floated="left"
+          onClick={this.open}
         />
         {admin && (
           <Button
@@ -143,14 +145,6 @@ class MarketModal extends React.Component<
                   <Message.Header>{error.message}</Message.Header>
                 </Message>
               )}
-              {max_services < group.services.length + 1 && (
-                <Message warning={true}>
-                  <Message.Header>
-                    You reach the maximum of services in this group (
-                    {max_services})
-                  </Message.Header>
-                </Message>
-              )}
             </Grid.Column>
             <Grid.Column width={service.link ? 10 : 12}>
               <Modal.Description>
@@ -173,6 +167,13 @@ class MarketModal extends React.Component<
                 </Button>
               </Grid.Column>
             )}
+            {max_services < group.services.length + 1 && (
+                <Message warning={true}>
+                  <Message.Header>
+                    You have reach the maximum amount of services in this group ({max_services})
+                  </Message.Header>
+                </Message>
+              )}
           </Grid>
         </Modal.Content>
         <Modal.Actions>
@@ -180,8 +181,8 @@ class MarketModal extends React.Component<
             <>
               <Select
                 placeholder="Select group"
-                options={groups.map(group => {
-                  return { text: group.name, value: group._id };
+                options={groups.map(g => {
+                  return { text: g.name, value: g._id };
                 })}
                 onChange={this.handleChangeGroup}
                 defaultValue={selectedGroupID}
@@ -189,7 +190,7 @@ class MarketModal extends React.Component<
               />
               <Select
                 placeholder="Select service version"
-                options={service.sub_services.map(ss => {
+                options={service.sub_services.filter(ss => ss.active).map(ss => {
                   return { text: ss.name, value: ss._id };
                 })}
                 onChange={this.handleChangeSubService}
@@ -199,7 +200,7 @@ class MarketModal extends React.Component<
               <Button
                 color="blue"
                 onClick={this.continueFormStage2}
-                disabled={!admin || max_services < group.services.length + 1}
+                disabled={!admin && max_services < group.services.length + 1}
               >
                 Proceed <Icon name="chevron right" />
               </Button>
@@ -251,7 +252,7 @@ class MarketModal extends React.Component<
                     required={!variable.optional}
                   >
                     <label>
-                      {variable.name.toUpperCase().replace(/_/g, " ")}
+                      {variable.name.replace(/optional_|secret_/g, "").replace(/_/g, " ").toUpperCase()}
                     </label>
                     <Input
                       name={variable.name}
@@ -332,9 +333,9 @@ class MarketModal extends React.Component<
 
   private handleChangeName = (
     event: any,
-    { name, value }: InputOnChangeData
+    { value }: InputOnChangeData
   ) => {
-    this.setState({ serviceName: value });
+    this.setState({ serviceName: value, force: false });
   };
 
   private handleChangeVariable = (
@@ -370,7 +371,6 @@ class MarketModal extends React.Component<
       ).variables;
       this.setState({
         stage: 2,
-        serviceName: service.name,
         variables,
         error: Error()
       });
@@ -386,16 +386,18 @@ class MarketModal extends React.Component<
       selectedSubServiceID,
       serviceName,
       variables,
-      opts
+      opts,
+      force
     } = this.state;
 
-    const format = /[a-zA-Z0-9_-]+/;
+    const format = /^[a-zA-Z0-9_-]+$/;
     if (!format.test(serviceName)) {
       this.setState({
         error: Error("No special characters allowed in the service name")
       });
       return;
     }
+    this.setState({ error: Error() });
 
     if (selectedGroupID !== "" && selectedSubServiceID !== "") {
       this.setState({ isFetching: true });
@@ -404,13 +406,21 @@ class MarketModal extends React.Component<
         selectedSubServiceID,
         serviceName,
         variables,
-        opts
+        opts,
+        force
       )
         .then((serviceGroup: IServiceGroup) => {
           this.setState({ serviceGroup, isFetching: false, error: Error() });
           this.continueFormStage(3);
         })
-        .catch((error: Error) => this.setState({ error, isFetching: false }));
+        .catch((error: Error) => {
+          if (error.message.includes("volume")) {
+            this.setState({ error, force: true });
+          } else {
+            this.setState({ error });
+          }
+        })
+        .finally(() => this.setState({ isFetching: false }));
     }
   };
 }

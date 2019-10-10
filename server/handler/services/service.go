@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+	"io/ioutil"
 	"net/http"
 	"sync"
 
@@ -87,4 +89,42 @@ func deleteByID(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	return c.JSON(http.StatusOK, "ok")
+}
+
+func validateTemplate(c echo.Context) error {
+
+	template, err := ioutil.ReadAll(c.Request().Body)
+
+	daemon := types.Daemon{
+		DaemonLight: types.DaemonLight{
+			Name: "testdaemon",
+			Host: "testdaemon.renn.fr.ssg",
+		},
+		Docker: types.Docker{
+			Volume: "/data",
+		},
+	}
+
+	serv := types.Service{
+		Name: "TEST_SERVICE",
+	}
+
+	group := types.Group{
+		GroupLight: types.GroupLight{
+			Name: "TEST_PROJECT",
+		},
+	}
+
+	service := types.SubService{
+		Name:      "Test Service",
+		File:      string(template),
+		Variables: []types.ServiceVariable{},
+	}
+
+	gs, err := service.ConvertToGroupService("ServiceTest", daemon, serv, group, false)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to convert to group service: %s", err))
+	}
+
+	return c.String(http.StatusOK, string(gs.File))
 }

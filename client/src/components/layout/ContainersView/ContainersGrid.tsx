@@ -1,11 +1,11 @@
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Grid, Popup, Search, SearchProps, Segment } from 'semantic-ui-react';
+import { Button, Grid, Popup, Search, SearchProps, Segment, Message } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { fetchGroupsByDaemon } from '../../Group/actions/group';
+import { fetchGroupsByDaemon, transformServices } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
@@ -70,7 +70,7 @@ export default class ContainersGrid extends React.Component<
 
     return (
       <>
-        {containers.length > 0 && (
+        {containers && containers.length > 0 ? (
           <>
             {groups.length > 0 && (
               <>
@@ -157,16 +157,27 @@ export default class ContainersGrid extends React.Component<
                 </Grid.Column>
                 <Grid.Column width={4}>
                   {groupId && admin && (
-                    <Button
-                      color="black"
-                      circular={true}
-                      icon="terminal"
-                      labelPosition="right"
-                      content="VM Terminal"
-                      as={Link}
-                      to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
-                      floated="right"
-                    />
+                    <>
+                      <Button
+                        basic={true}
+                        circular={true}
+                        icon="recycle"
+                        onClick={this.handleTransform}
+                        floated="right"
+                        disabled={true}
+                        title="WIP"
+                      />
+                      <Button
+                        color="black"
+                        circular={true}
+                        icon="terminal"
+                        labelPosition="right"
+                        content="VM Terminal"
+                        as={Link}
+                        to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
+                        floated="right"
+                      />
+                    </>
                   )}
                 </Grid.Column>
               </Grid>
@@ -185,8 +196,11 @@ export default class ContainersGrid extends React.Component<
                     groupId={
                       groupId ||
                       (
-                        groups.find(g => c.Names[0].startsWith("/" + g.name)) ||
-                        {}
+                        groups.find(g =>
+                          (c.Names ? c.Names[0] : c.Name).startsWith(
+                            "/" + g.name
+                          )
+                        ) || {}
                       )._id
                     }
                   />
@@ -194,7 +208,12 @@ export default class ContainersGrid extends React.Component<
               ))}
             </Grid>
           </>
-        )}
+        )
+      :
+        (
+          <Message>No container found. Use the Create button in the Services tab and refresh the page.</Message>
+        )
+      }
       </>
     );
   }
@@ -228,5 +247,14 @@ export default class ContainersGrid extends React.Component<
 
   private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });
+  };
+
+  private handleTransform = () => {
+    const { groupId } = this.props;
+    // tslint:disable-next-line: no-unused-expression
+    groupId &&
+      transformServices(groupId)
+        .then(services => console.log(services))
+        .catch(error => console.log(error));
   };
 }

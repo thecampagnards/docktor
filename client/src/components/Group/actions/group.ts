@@ -68,6 +68,21 @@ export const saveContainers = (groupID: string) => {
     .then(response => response.json());
 };
 
+export const transformServices = (groupID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/docker/containers/transform`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
 export const saveGroup = (group: IGroup) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups`, {
     credentials: "same-origin",
@@ -87,16 +102,13 @@ export const deployService = (
   serviceID: string,
   serviceName: string,
   variables: any,
-  opts: Map<string, string>
+  opts: Map<string, string>,
+  force: boolean
 ) => {
   let opt = "";
-  opts.forEach(o => opts.has(o) && (opt += `${o}=${opts.get(o)}&`));
-  opt = opt.slice(0, -1);
+  opts.forEach(o => opts.has(o) && (opt += `&${o}=${opts.get(o)}`));
   return fetch(
-    `${
-      process.env.PUBLIC_URL
-    }/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}${opt &&
-      "&" + opt}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/create/${serviceID}?service-name=${serviceName}&force=${force}${opt}`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -113,11 +125,16 @@ export const deployService = (
 
 export const updateServiceStatus = (
   groupID: string,
-  serviceID: string,
-  status: string
+  serviceName: string,
+  status: string,
+  removeData?: boolean
 ) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}?status=${status}`,
+    `${
+      process.env.PUBLIC_URL
+    }/api/groups/${groupID}/compose/status/${serviceName}?status=${status}&${
+      removeData ? "remove-data=true" : "remove-data=false"
+    }`,
     {
       credentials: "same-origin",
       method: "POST",
@@ -130,9 +147,9 @@ export const updateServiceStatus = (
     .then(response => response.json());
 };
 
-export const getServiceStatus = (groupID: string, serviceID: string) => {
+export const getServiceStatus = (groupID: string, serviceName: string) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/status/${serviceName}`,
     {
       credentials: "same-origin",
       method: "GET",
@@ -145,19 +162,24 @@ export const getServiceStatus = (groupID: string, serviceID: string) => {
     .then(response => response.json());
 };
 
-export const getService = (groupID: string, serviceID: string) => {
+export const saveGroupService = (
+  groupID: string,
+  serviceName: string,
+  file: string
+) => {
   return fetch(
-    `${process.env.PUBLIC_URL}/api/groups/${groupID}/compose/file/${serviceID}`,
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}`,
     {
       credentials: "same-origin",
-      method: "GET",
+      method: "POST",
+      body: file,
       headers: new Headers({
         Authorization: `Bearer ${GetToken()}`
       })
     }
   )
     .then(checkStatus)
-    .then(response => response.text());
+    .then(response => response.json());
 };
 
 export const fetchCadvisor = (groupID: string) => {

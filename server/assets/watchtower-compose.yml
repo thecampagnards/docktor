@@ -1,8 +1,17 @@
 version: "2"
+
 services:
   watchtower:
+    network_mode: bridge
     image: v2tec/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - /root/.docker/config.json:/config.json
-    command: --interval 30 --label-enable true --schedule "0 0 4 * * *"
+      - /dicdk/users/cdksystem/.docker/config.json:/config.json:ro
+    command: --label-enable
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  default:
+    external:
+      name: none

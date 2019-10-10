@@ -1,17 +1,19 @@
 import * as React from 'react';
-import { Card, Label, Grid, Button, Icon, Dropdown, ButtonProps, Modal } from 'semantic-ui-react';
-
-import { IGroupService, IService } from '../../Services/types/service';
-import { copy } from '../../../utils/clipboard';
-import { getServiceStatus, updateServiceStatus } from '../actions/group';
-import { IContainerStatus } from '../types/group';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
+import {
+    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal
+} from 'semantic-ui-react';
+
+import { copy } from '../../../utils/clipboard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
+import { IGroupService, IService } from '../../Services/types/service';
+import { getServiceStatus, saveGroupService, updateServiceStatus } from '../actions/group';
+import { IContainerStatus } from '../types/group';
 
 interface IGroupServiceProps {
   groupID: string;
-  service: IGroupService,
-  admin: boolean
+  service: IGroupService;
+  admin: boolean;
 }
 
 interface IGroupServiceState {
@@ -22,9 +24,13 @@ interface IGroupServiceState {
   subServiceError: Error;
   isFetchingSub: boolean;
   file: string;
+  saveState: string;
 }
 
-export default class GroupService extends React.Component<IGroupServiceProps, IGroupServiceState> {
+export default class GroupService extends React.Component<
+  IGroupServiceProps,
+  IGroupServiceState
+> {
   public state = {
     status: [] as IContainerStatus[],
     modalOpen: false,
@@ -32,11 +38,14 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
     isFetching: false,
     subServiceError: Error(),
     isFetchingSub: true,
-    file: window.atob(this.props.service.file)
-  }
+    file: window.atob(this.props.service.file),
+    saveState: "saved"
+  };
 
   private serviceVersion = "Version";
   private serviceDoc = "https://docs.cdk.corp.sopra/start/";
+  private serviceIcon: string;
+  private serviceTitle = "";
 
   public componentDidMount() {
     this.refreshStatus();
@@ -47,6 +56,8 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
         const sub = s.sub_services.find(ss => ss._id === ssId);
         this.serviceVersion = sub ? sub.name : ssId;
         this.serviceDoc = s.link;
+        this.serviceIcon = s.image;
+        this.serviceTitle = s.name;
       })
       .catch(error => this.setState({ subServiceError: error }))
       .finally(() => this.setState({ isFetchingSub: false }));
@@ -54,7 +65,7 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
 
   public render() {
     const { service, admin } = this.props;
-    const { status, modalOpen, file } = this.state;
+    const { isFetching, status, modalOpen, file, saveState } = this.state;
 
     return (
       <Card fluid={true}>
@@ -62,7 +73,16 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
           <Grid>
             <Grid.Row>
               <Grid.Column width={4}>
-                <h3>{service.name}</h3>
+                {this.serviceIcon && (
+                  <Image
+                    src={this.serviceIcon}
+                    title={this.serviceTitle}
+                    avatar={true}
+                  />
+                )}
+                <span style={{ fontWeight: "bold", fontSize: 16 }}>
+                  {" " + service.name}
+                </span>
               </Grid.Column>
               <Grid.Column width={4}>
                 <Label basic={true}>{this.serviceVersion}</Label>
@@ -80,24 +100,72 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                     content="Open"
                     as="a"
                     href={service.url}
-                    disabled={status.filter(cs => cs.State.startsWith("Exited")).length !== 0}
+                    disabled={
+                      status.filter(cs => cs.State.startsWith("Exited"))
+                        .length !== 0
+                    }
                   />
-                  <Button icon="clipboard" title="Copy URL" onClick={copy.bind(this, service.url)} />
+                  <Button
+                    icon="clipboard"
+                    title="Copy URL"
+                    onClick={copy.bind(this, service.url)}
+                  />
                 </Button.Group>
                 {this.buttonStatus()}
               </Grid.Column>
               <Grid.Column width={8}>
-                {admin && 
-                    <Dropdown className="button icon float-right margin-left" basic={true} icon="ellipsis vertical" >
-                      <Dropdown.Menu>
-                        <Dropdown.Item onClick={this.handleOpen}>Edit service</Dropdown.Item>
-                        <Dropdown.Item>Delete service</Dropdown.Item>
-                      </Dropdown.Menu>
-                    </Dropdown>
-                }
-                <Button basic={true} icon="info" labelPosition="left" content="Documentation" as="a" href={this.serviceDoc} target="_blank" floated="right" />
+                {admin && (
+                  <Dropdown
+                    className="button icon float-right margin-left"
+                    basic={true}
+                    icon="ellipsis vertical"
+                  >
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={this.handleOpen}>
+                        Edit service
+                      </Dropdown.Item>
+                      <Modal
+                        trigger={<Dropdown.Item content="Remove service" />}
+                        size="mini"
+                      >
+                        <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
+                        <Modal.Actions>
+                          <Button.Group fluid={true}>
+                            <Button
+                              color="orange"
+                              icon="hdd"
+                              content="Keep data"
+                              loading={isFetching}
+                              onClick={this.remove.bind(this, false)}
+                            />
+                            <Button
+                              color="red"
+                              icon="trash"
+                              content="Remove data"
+                              loading={isFetching}
+                              onClick={this.remove.bind(this, true)}
+                            />
+                          </Button.Group>
+                        </Modal.Actions>
+                      </Modal>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                )}
+                <Button
+                  basic={true}
+                  icon="info"
+                  labelPosition="left"
+                  content="Documentation"
+                  as="a"
+                  href={this.serviceDoc}
+                  target="_blank"
+                  floated="right"
+                />
                 <Modal size="large" open={modalOpen} onClose={this.handleClose}>
-                  <Modal.Header icon="file alternate outline" content={`${service.name} compose file`} />
+                  <Modal.Header
+                    icon="file alternate outline"
+                    content={`${service.name} compose file`}
+                  />
                   <Modal.Content>
                     <CodeMirror
                       value={file}
@@ -107,71 +175,151 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
                         lineNumbers: true
                       }}
                       autoCursor={false}
+                      onChange={this.handleEdit}
                     />
                   </Modal.Content>
+                  <Modal.Actions>
+                    <Button
+                      basic={true}
+                      labelPosition="left"
+                      icon="download"
+                      content="Save"
+                      onClick={this.save}
+                      loading={saveState === "saving"}
+                      disabled={saveState === "saved"}
+                    />
+                  </Modal.Actions>
                 </Modal>
               </Grid.Column>
             </Grid.Row>
           </Grid>
         </Card.Content>
       </Card>
-    )
+    );
   }
 
   private refreshStatus = () => {
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
-    getServiceStatus(groupID, service.sub_service_id)
+    getServiceStatus(groupID, service.name)
       .then((status: IContainerStatus[]) => this.setState({ status }))
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
-  }
+  };
 
   private updateServiceStatus = (
-    event: React.MouseEvent<HTMLButtonElement, MouseEvent>, 
+    event: React.MouseEvent<HTMLButtonElement, MouseEvent>,
     { name }: ButtonProps
   ) => {
     const { groupID, service } = this.props;
     this.setState({ isFetching: true });
-    updateServiceStatus(groupID, service.sub_service_id, name)
+    updateServiceStatus(groupID, service.name, name)
       .then(() => this.refreshStatus())
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
-  }
+  };
 
   private statusIndicator = (cs: IContainerStatus) => {
     switch (true) {
       case cs.State.startsWith("Up"):
-        return <Icon key={cs.Name} className="float-right" color="green" circular={true} name="circle" title={`Container ${cs.Name} is running`} />;
+        return (
+          <Icon
+            key={cs.Name}
+            className="float-right"
+            color="green"
+            circular={true}
+            name="circle"
+            title={`Container ${cs.Name} is running`}
+          />
+        );
       case cs.State.startsWith("Exited"):
-        return <Icon key={cs.Name} className="float-right" color="red" circular={true} name="circle" title={`Container ${cs.Name} is not running`} />;
+        return (
+          <Icon
+            key={cs.Name}
+            className="float-right"
+            color="red"
+            circular={true}
+            name="circle"
+            title={`Container ${cs.Name} is not running`}
+          />
+        );
       default:
-        return <Icon key={cs.Name} className="float-right" color="grey" circular={true} name="circle" title={`Container ${cs.Name} : ${cs.State}`} />;
+        return (
+          <Icon
+            key={cs.Name}
+            className="float-right"
+            color="grey"
+            circular={true}
+            name="circle"
+            title={`Container ${cs.Name} : ${cs.State}`}
+          />
+        );
     }
-  }
+  };
 
   private buttonStatus = () => {
     const { status, isFetching } = this.state;
 
-    const buttonStart = <Button floated="right" basic={true} circular={true} color="green" icon="play" labelPosition="right" loading={isFetching} content="Start" name="start" onClick={this.updateServiceStatus} />;
-    const buttonStop = <Button floated="right" basic={true} circular={true} color="orange" icon="stop" labelPosition="right" loading={isFetching} content="Stop" name="stop" onClick={this.updateServiceStatus} />;
-    const buttonDelete = <Button floated="right" basic={true} circular={true} color="red" icon="delete" loading={isFetching} title="Remove containers" name="remove" onClick={this.updateServiceStatus} />;
+    const buttonStart = (
+      <Button
+        floated="right"
+        basic={true}
+        circular={true}
+        color="green"
+        icon="play"
+        labelPosition="right"
+        loading={isFetching}
+        content="Start"
+        name="start"
+        onClick={this.updateServiceStatus}
+      />
+    );
+    const buttonStop = (
+      <Button
+        floated="right"
+        basic={true}
+        circular={true}
+        color="orange"
+        icon="stop"
+        labelPosition="right"
+        loading={isFetching}
+        content="Stop"
+        name="stop"
+        onClick={this.updateServiceStatus}
+      />
+    );
+    const buttonDelete = (
+      <Button
+        floated="right"
+        basic={true}
+        circular={true}
+        color="red"
+        icon="delete"
+        loading={isFetching}
+        title="Remove containers"
+        name="remove"
+        onClick={this.updateServiceStatus}
+      />
+    );
 
     switch (true) {
       case status.length === 0:
-        return <Button
-          floated="right"
-          basic={true}
-          circular={true}
-          color="blue"
-          icon="sliders"
-          labelPosition="right"
-          loading={isFetching}
-          content="Create" 
-          name="start"
-          onClick={this.updateServiceStatus} 
-        />;
-      case status.length === status.filter(s => s.State.startsWith("Up")).length:
+        return (
+          <Button
+            floated="right"
+            basic={true}
+            circular={true}
+            color="blue"
+            icon="sliders"
+            labelPosition="right"
+            loading={isFetching}
+            content="Create"
+            name="start"
+            onClick={this.updateServiceStatus}
+          />
+        );
+      case status.length ===
+        status.filter(s => s.State.startsWith("Up")).length:
         return (
           <>
             {buttonDelete}
@@ -186,9 +334,36 @@ export default class GroupService extends React.Component<IGroupServiceProps, IG
           </>
         );
     }
-  }
+  };
 
   private handleOpen = () => this.setState({ modalOpen: true });
   private handleClose = () => this.setState({ modalOpen: false });
 
+  private handleEdit = (
+    editor: CodeMirror.Editor,
+    data: CodeMirror.EditorChange,
+    value: string
+  ) => {
+    this.setState({
+      file: value,
+      saveState: ""
+    });
+  };
+
+  private save = () => {
+    const { groupID, service } = this.props;
+    const { file } = this.state;
+    this.setState({ saveState: "saving" });
+    saveGroupService(groupID, service.name, file)
+      .then(() => this.setState({ saveState: "saved" }))
+      .catch(error => this.setState({ error, saveState: "" }));
+  };
+
+  private remove = (rm: boolean) => {
+    const { groupID, service } = this.props;
+    this.setState({ isFetching: true });
+    updateServiceStatus(groupID, service.name, "destroy", rm)
+      .then(() => window.location.reload())
+      .catch(error => this.setState({ error, isFetching: false }));
+  };
 }

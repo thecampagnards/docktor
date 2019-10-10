@@ -59,38 +59,51 @@ func (s *Service) GetVariablesOfSubServices() (err error) {
 // Services data
 type Services []Service
 
-// ValidateServiceName checks if another service in the group has the same name or if the associated volume already exists
-func ValidateServiceName(name string, group Group, daemon Daemon) error {
+// ValidateServiceName checks if another service in the group has the same name
+func ValidateServiceName(name string, group Group) error {
 
 	// Check special characters
-
 	r, _ := regexp.Compile(`[a-zA-Z0-9_-]+`)
 	match := r.FindStringSubmatch(name)
 
-	if len(match[0]) == 0 {
+	if len(match[0]) != len(name) {
 		return errors.New("The service name should not contain special chars")
 	}
 
 	// Check other services names
-
 	for _, s := range group.Services {
 		if s.Name == name {
 			return errors.New("This service name is already used in this group")
 		}
 	}
 
-	// Check volumes
+	return nil
+}
 
-	command := fmt.Sprintf("test -d /%s/%s/%s && echo true", daemon.Docker.Volume, group.Name, name)
+// FindSubServiceByID find subservice by id
+func (s *Service) FindSubServiceByID(id string) (*SubService, error) {
+	for _, ss := range s.SubServices {
+		if ss.ID.Hex() == id {
+			return &ss, nil
+		}
+	}
+	return nil, errors.New("No subservice found")
+}
+
+// CheckFS checks if a directory exists
+func CheckFS(name string, path string, daemon Daemon) (err error) {
+	command := fmt.Sprintf("test -d %s && echo true || echo false", path)
+
 	resp, err := daemon.ExecSSH(command)
 	if err != nil {
-		return err
+		fmt.Printf("Command : %s", command)
+		return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
 	}
-	if resp[command] == "true" {
-		return errors.New("A volume associated to this service name already exists")
+	if strings.Contains(resp[command], "true") {
+		return errors.New("A volume associated to this service name already exists. Click again on 'Install' to proceed anyway")
 	}
 
-	return nil
+	return
 }
 
 // GetRemoteFile Check if file is remote and pull it
@@ -134,7 +147,7 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 
 	// Convert it
 	tmpl, err := template.New("template").
-		Funcs(template.FuncMap{"split": split, "randString": randString}).
+		Funcs(template.FuncMap{"split": split, "randString": randString, "toLower": toLower}).
 		Parse(sub.File)
 	if err != nil {
 		return nil, err
@@ -182,17 +195,10 @@ func parseVar(variable string) ServiceVariable {
 	match := r.FindStringSubmatch(variable)
 
 	serviceVar := ServiceVariable{
-		Name:     match[3],
+		Name:     variable,
 		Value:    "",
-		Secret:   false,
-		Optional: false,
-	}
-
-	if len(match[1]) != 0 {
-		serviceVar.Optional = true
-	}
-	if len(match[2]) != 0 {
-		serviceVar.Secret = true
+		Secret:   len(match[2]) != 0,
+		Optional: len(match[1]) != 0,
 	}
 
 	return serviceVar
@@ -211,4 +217,9 @@ func randString(n int) string {
 		b[i] = letterBytes[rand.Intn(len(letterBytes))]
 	}
 	return string(b)
+}
+
+// toLower used in go template
+func toLower(s string) string {
+	return strings.ToLower(s)
 }

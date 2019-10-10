@@ -2,6 +2,7 @@ package groups
 
 import (
 	"fmt"
+	"io/ioutil"
 	"net/http"
 	"strconv"
 
@@ -19,6 +20,15 @@ func createServiceGroup(c echo.Context) error {
 	user := c.Get("user").(types.User)
 	db := c.Get("DB").(*storage.Docktor)
 
+	service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
+			"error":        err,
+		}).Error("Error when retrieving subservice")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
 	if !user.IsAdmin() {
 		config, err := db.Config().Find()
 		if err != nil {
@@ -29,16 +39,7 @@ func createServiceGroup(c echo.Context) error {
 		}
 
 		if config.MaxServices < len(group.Services)+1 {
-			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can deploy more than %v services", config.MaxServices))
-		}
-
-		service, err := db.Services().FindBySubServiceID(c.Param(types.SUBSERVICE_ID_PARAM))
-		if err != nil {
-			log.WithFields(log.Fields{
-				"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
-				"error":        err,
-			}).Error("Error when retrieving subservice")
-			return c.JSON(http.StatusBadRequest, err.Error())
+			return c.JSON(http.StatusBadRequest, fmt.Sprintf("You can't deploy more than %v services", config.MaxServices))
 		}
 
 		if service.Admin {
@@ -47,7 +48,7 @@ func createServiceGroup(c echo.Context) error {
 	}
 
 	var variables []types.ServiceVariable
-	err := c.Bind(&variables)
+	err = c.Bind(&variables)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"variables": c.Request().Body,
@@ -56,12 +57,12 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err)
 	}
 
-	subService, err := db.Services().FindSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	subService, err := service.FindSubServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subserviceID": c.Param(types.SUBSERVICE_ID_PARAM),
 			"error":        err,
-		}).Error("Error when retrieving subservice")
+		}).Error("Error when finding subservice")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 	// Assign form variables for the convert
@@ -79,13 +80,22 @@ func createServiceGroup(c echo.Context) error {
 
 	serviceName := c.QueryParam("service-name")
 	autoUpdate, _ := strconv.ParseBool(c.QueryParam("auto-update"))
+	forceCreate, _ := strconv.ParseBool(c.QueryParam("force"))
 
-	err = types.ValidateServiceName(serviceName, group, daemon)
+	err = types.ValidateServiceName(serviceName, group)
 	if err != nil {
 		return c.JSON(http.StatusConflict, err.Error())
 	}
 
-	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, group, autoUpdate)
+	if !forceCreate {
+		err = types.CheckFS(serviceName, fmt.Sprintf("%s/%s/%s", daemon.Docker.Volume, group.Name, serviceName), daemon)
+		if err != nil {
+			log.Errorln(err)
+			return c.JSON(http.StatusFound, err.Error())
+		}
+	}
+
+	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate)
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,
@@ -94,12 +104,19 @@ func createServiceGroup(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
+	// for non-sso services
+	for _, v := range variables {
+		if v.Name == "api_port" {
+			serviceGroup.URL = fmt.Sprintf("http://%s:%s/", daemon.Host, v.Value)
+		}
+	}
+
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
-			"serviceGroup": serviceGroup,
+			"serviceGroup": serviceGroup.Name,
 			"error":        err,
-		}).Error("Error when starting subservice")
+		}).Error("Error when starting service")
 		return err
 	}
 
@@ -123,13 +140,13 @@ func updateServiceGroupStatus(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 
-	serviceGroup := group.FindServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	serviceGroup := group.FindServiceByName(c.Param(types.GROUPSERVICE_NAME_PARAM))
 	if serviceGroup == nil {
 		log.WithFields(log.Fields{
-			"groupName":    group.Name,
-			"subserviceID": types.SUBSERVICE_ID_PARAM,
-		}).Error("Error when retrieving group")
-		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
+			"groupName":   group.Name,
+			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
+		}).Error("Error when retrieving group service")
+		return c.JSON(http.StatusBadRequest, "The service doesn't exist in this group")
 	}
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
@@ -153,8 +170,13 @@ func updateServiceGroupStatus(c echo.Context) error {
 		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
 	case "destroy":
 		for key, service := range group.Services {
-			if service.SubServiceID == serviceGroup.SubServiceID {
+			if service.Name == serviceGroup.Name {
 				group.Services = append(group.Services[:key], group.Services[key+1:]...)
+				if removeData, _ := strconv.ParseBool(c.QueryParam("remove-data")); removeData {
+					volume := fmt.Sprintf("/%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name)
+					command := []string{"rm", "-rf", "/data"}
+					err = daemon.CmdContainer(volume, command)
+				}
 			}
 		}
 		_, err = db.Groups().Save(group)
@@ -169,11 +191,11 @@ func updateServiceGroupStatus(c echo.Context) error {
 
 	if err != nil {
 		log.WithFields(log.Fields{
-			"contextName": contextName,
-			"daemonHost":  daemon.Host,
-			"service":     serviceGroup.Name,
-			"error":       err,
-		}).Error("Error when compose up")
+			"groupName":  group.Name,
+			"daemonHost": daemon.Host,
+			"service":    serviceGroup.File,
+			"error":      err,
+		}).Error("Error when compose info")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
@@ -186,13 +208,13 @@ func getServiceGroupStatus(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 
-	serviceGroup := group.FindServiceByID(c.Param(types.SUBSERVICE_ID_PARAM))
+	serviceGroup := group.FindServiceByName(c.Param(types.GROUPSERVICE_NAME_PARAM))
 	if serviceGroup == nil {
 		log.WithFields(log.Fields{
-			"groupName":    group.Name,
-			"subserviceID": types.SUBSERVICE_ID_PARAM,
+			"groupName":   group.Name,
+			"serviceName": c.Param(types.GROUPSERVICE_NAME_PARAM),
 		}).Error("Error when retrieving group service")
-		return c.JSON(http.StatusBadRequest, "The subservice doesn't exist in this group")
+		return c.JSON(http.StatusBadRequest, "The service doesn't exist in this group")
 	}
 
 	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
@@ -217,4 +239,29 @@ func getServiceGroupStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, info)
+}
+
+func saveGroupService(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
+
+	for key, service := range group.Services {
+		if service.Name == serviceName {
+			group.Services[key].File, _ = ioutil.ReadAll(c.Request().Body)
+			break
+		}
+	}
+
+	_, err := db.Groups().Save(group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"groupName":   group.Name,
+			"serviceName": serviceName,
+			"error":       err,
+		}).Error("Error when saving service")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	return c.JSON(http.StatusOK, "Saved successfully")
 }

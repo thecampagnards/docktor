@@ -117,7 +117,7 @@ export default class ContainerCard extends React.Component<
                   />
                 </>
               )}
-              {containerState === "exited" && (
+              {(containerState === "exited" || containerState === "created") && (
                 <Button
                   basic={true}
                   color="green"

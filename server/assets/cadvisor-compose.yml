@@ -1,12 +1,27 @@
 version: "2"
+
 services:
   cadvisor:
-    image: google/cadvisor
+    network_mode: bridge
+    image: registry.cdk.corp.sopra/cdk/cadvisor
+    environment:
+      - HTTP_USER=cadvisor
+      - HTTP_PASSWORD=ZTk0ZmZmZTNmNjUwMmQ2ZDJiYjY5MjFh
     volumes:
       - /:/rootfs:ro
-      - /var/run:/var/run:ro
-      - /sys:/sys:ro
-      - /varlibdocker/:/var/lib/docker:ro
-      - /dev/disk/:/dev/disk:ro
+      - /var/run:/var/run:rw
+      - /varlibdocker/docker/var/:/var/lib/docker
+      - /sys/fs/cgroup/cpu:/cgroup/cpu:ro
+      - /sys/fs/cgroup/cpuacct:/cgroup/cpuacct:ro
+      - /sys/fs/cgroup/cpuset:/cgroup/cpuset:ro
+      - /sys/fs/cgroup/memory:/cgroup/memory:ro
+      - /sys/fs/cgroup/blkio:/cgroup/blkio:ro
     ports:
       - 8080:8080
+    labels:
+      - "com.centurylinklabs.watchtower.enable=true"
+
+networks:
+  default:
+    external:
+      name: none

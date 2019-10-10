@@ -11,6 +11,8 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/api/types/container"
+	"github.com/docker/docker/api/types/mount"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/client"
 	"github.com/docker/go-connections/tlsconfig"
@@ -130,7 +132,6 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 	// Check if container doesn't exist if not create it
 	_, err = d.InspectContainers(container.Name)
 	if err != nil {
-
 		// Creating the networks
 		for key, net := range container.NetworkSettings.Networks {
 			ip := strings.Split(".", net.IPAddress)
@@ -164,6 +165,33 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 	}
 
 	return cli.ContainerStart(ctx, container.Name, types.ContainerStartOptions{})
+}
+
+// CmdContainer executes a command from an Alpine container with mapped volume
+func (d *Daemon) CmdContainer(sourceVolume string, cmd []string) (err error) {
+	return d.CreateContainer(types.ContainerJSON{
+		ContainerJSONBase: &types.ContainerJSONBase{
+			Name: randString(32),
+			HostConfig: &container.HostConfig{
+				AutoRemove: true,
+			},
+		},
+		Config: &container.Config{
+			Image: "alpine",
+			Cmd:   cmd,
+		},
+		Mounts: []types.MountPoint{
+			types.MountPoint{
+				Type:        mount.TypeBind,
+				Source:      sourceVolume,
+				Destination: "/data",
+				Mode:        "rw",
+			},
+		},
+		NetworkSettings: &types.NetworkSettings{
+			Networks: map[string]*network.EndpointSettings{},
+		},
+	})
 }
 
 // GetContainers
