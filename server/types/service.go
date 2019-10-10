@@ -174,7 +174,8 @@ func (ss *SubService) GetVariables() (err error) {
 	variables, err := FindTemplateVariables(ss.File, map[string]interface{}{
 		"Group":       Group{},
 		"Daemon":      Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
-		"ServiceName": "service",
+		"Service":     Service{Name: "Service"},
+		"ServiceName": "myservice",
 	})
 
 	if err != nil {
