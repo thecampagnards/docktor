@@ -18,7 +18,7 @@ require (
 	github.com/labstack/gommon v0.3.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/robfig/cron v1.2.0
-	github.com/sirupsen/logrus v1.2.0
+	github.com/sirupsen/logrus v1.4.2
 	golang.org/x/crypto v0.0.0-20190701094942-4def268fd1a4
 	golang.org/x/net v0.0.0-20190613194153-d28f0bde5980
 	gopkg.in/asn1-ber.v1 v1.0.0-20181015200546-f715ec2f112d // indirect
