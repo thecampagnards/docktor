@@ -116,9 +116,18 @@ func validateTemplate(c echo.Context) error {
 	}
 
 	service := types.SubService{
-		Name:      "Test Service",
-		File:      string(template),
-		Variables: []types.ServiceVariable{},
+		Name: "Test Service",
+		File: string(template),
+	}
+
+	err = service.GetVariables()
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to parse variables in template: %s", err))
+	}
+	for i, v := range service.Variables {
+		if v.Name == "api_port" {
+			service.Variables[i].Value = "10000"
+		}
 	}
 
 	gs, err := service.ConvertToGroupService("ServiceTest", daemon, serv, group, false)

@@ -110,7 +110,10 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {servicesFiltered.slice(0, 20).map(service => (
+            {servicesFiltered
+                .slice(0, 20)
+                .sort((a,b) => a.name.localeCompare(b.name))
+                .map(service => (
               <Table.Row key={service._id}>
                 <Table.Cell width={2}>
                   {service.image ? (
