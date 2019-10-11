@@ -174,19 +174,18 @@ func (d *Daemon) CmdContainer(sourceVolume string, cmd []string) (err error) {
 			Name: randString(32),
 			HostConfig: &container.HostConfig{
 				AutoRemove: true,
+				Mounts: []mount.Mount{
+					mount.Mount{
+						Type:   mount.TypeBind,
+						Source: sourceVolume,
+						Target: "/data",
+					},
+				},
 			},
 		},
 		Config: &container.Config{
 			Image: "alpine",
 			Cmd:   cmd,
-		},
-		Mounts: []types.MountPoint{
-			types.MountPoint{
-				Type:        mount.TypeBind,
-				Source:      sourceVolume,
-				Destination: "/data",
-				Mode:        "rw",
-			},
 		},
 		NetworkSettings: &types.NetworkSettings{
 			Networks: map[string]*network.EndpointSettings{},
