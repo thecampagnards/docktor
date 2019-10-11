@@ -105,7 +105,7 @@ func updateContainersStatus(c echo.Context) error {
 		for _, group := range groups {
 			for _, container := range group.FindContainersByNameOrID(containers) {
 				if container.ContainerJSONBase != nil {
-					err = daemon.CreateContainer(container)
+					err = daemon.CreateContainer(container, false)
 					if err != nil {
 						errs[container.Name] = err.Error()
 						log.WithFields(log.Fields{

@@ -118,8 +118,8 @@ func (d *Daemon) CreateNetwork(networkName string, subnet string) (types.Network
 	return resp, nil
 }
 
-// CreateContainer
-func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
+// CreateContainer set follow to true to follow the container
+func (d *Daemon) CreateContainer(ctn types.ContainerJSON, follow bool) (err error) {
 
 	ctx := context.Background()
 	cli, err := d.getDockerCli()
@@ -130,10 +130,10 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 	defer cli.Close()
 
 	// Check if container doesn't exist if not create it
-	_, err = d.InspectContainers(container.Name)
+	_, err = d.InspectContainers(ctn.Name)
 	if err != nil {
 		// Creating the networks
-		for key, net := range container.NetworkSettings.Networks {
+		for key, net := range ctn.NetworkSettings.Networks {
 			ip := strings.Split(".", net.IPAddress)
 			ip = ip[:len(ip)-1]
 			ip = append(ip, "0")
@@ -144,7 +144,7 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 		}
 
 		// Pulling the image
-		_, err = cli.ImagePull(ctx, container.Config.Image, types.ImagePullOptions{})
+		_, err = cli.ImagePull(ctx, ctn.Config.Image, types.ImagePullOptions{})
 		if err != nil {
 			return
 		}
@@ -152,19 +152,38 @@ func (d *Daemon) CreateContainer(container types.ContainerJSON) (err error) {
 		// Creating the container
 		_, err = cli.ContainerCreate(
 			ctx,
-			container.Config,
-			container.HostConfig,
+			ctn.Config,
+			ctn.HostConfig,
 			&network.NetworkingConfig{
-				EndpointsConfig: container.NetworkSettings.Networks,
+				EndpointsConfig: ctn.NetworkSettings.Networks,
 			},
-			container.Name,
+			ctn.Name,
 		)
 		if err != nil {
-			return
+			return err
 		}
 	}
 
-	return cli.ContainerStart(ctx, container.Name, types.ContainerStartOptions{})
+	err = cli.ContainerStart(ctx, ctn.Name, types.ContainerStartOptions{})
+	if err != nil {
+		return err
+	}
+
+	if follow {
+		statusCh, errCh := cli.ContainerWait(ctx, ctn.Name, container.WaitConditionNotRunning)
+		select {
+		case err = <-errCh:
+			if err != nil {
+				return err
+			}
+		case status := <-statusCh:
+			if status.StatusCode > 0 {
+				return fmt.Errorf("Exit status: %v", status.StatusCode)
+			}
+		}
+	}
+
+	return
 }
 
 // CmdContainer executes a command from an Alpine container with mapped volume
@@ -190,7 +209,7 @@ func (d *Daemon) CmdContainer(sourceVolume string, cmd []string) (err error) {
 		NetworkSettings: &types.NetworkSettings{
 			Networks: map[string]*network.EndpointSettings{},
 		},
-	})
+	}, true)
 }
 
 // GetContainers
