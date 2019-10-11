@@ -169,12 +169,23 @@ func updateServiceGroupStatus(c echo.Context) error {
 	case "remove":
 		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
 	case "destroy":
+		err = daemon.ComposeRemove(contextName, [][]byte{serviceGroup.File})
+		if err != nil {
+			log.WithFields(log.Fields{
+				"groupName":  group.Name,
+				"daemonHost": daemon.Host,
+				"service":    serviceGroup.File,
+				"error":      err,
+			}).Error("Error when compose remove")
+			return c.JSON(http.StatusBadRequest, err.Error())
+		}
+
 		for key, service := range group.Services {
 			if service.Name == serviceGroup.Name {
 				group.Services = append(group.Services[:key], group.Services[key+1:]...)
 				if removeData, _ := strconv.ParseBool(c.QueryParam("remove-data")); removeData {
-					volume := fmt.Sprintf("/%s/%s/%s", daemon.Docker.Volume, group.Name, service.Name)
-					command := []string{"rm", "-rf", "/data"}
+					volume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, group.Name)
+					command := []string{"rm", "-rf", fmt.Sprintf("/data/%s", service.Name)}
 					err = daemon.CmdContainer(volume, command)
 				}
 			}
@@ -195,7 +206,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 			"daemonHost": daemon.Host,
 			"service":    serviceGroup.File,
 			"error":      err,
-		}).Error("Error when compose info")
+		}).Error("Error when compose status")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
