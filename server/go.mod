@@ -14,7 +14,7 @@ require (
 	github.com/docker/libcompose v0.4.1-0.20190808084053-143e0f3f1ab9
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/google/cadvisor v0.34.0
-	github.com/labstack/echo/v4 v4.1.6
+	github.com/labstack/echo/v4 v4.1.11
 	github.com/labstack/gommon v0.3.0
 	github.com/namsral/flag v1.7.4-pre
 	github.com/robfig/cron v1.2.0
