@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"crypto/tls"
 	"errors"
-	"fmt"
 	"html/template"
 	"math/rand"
 	"net/http"
@@ -88,22 +87,6 @@ func (s *Service) FindSubServiceByID(id string) (*SubService, error) {
 		}
 	}
 	return nil, errors.New("No subservice found")
-}
-
-// CheckFS checks if a directory exists
-func CheckFS(name string, path string, daemon Daemon) (err error) {
-	command := fmt.Sprintf("test -d %s && echo true || echo false", path)
-
-	resp, err := daemon.ExecSSH(command)
-	if err != nil {
-		fmt.Printf("Command : %s", command)
-		return fmt.Errorf("Failed to run command '%s' : %s", command, err.Error())
-	}
-	if strings.Contains(resp[command], "true") {
-		return errors.New("A volume associated to this service name already exists. Click again on 'Install' to proceed anyway")
-	}
-
-	return
 }
 
 // GetRemoteFile Check if file is remote and pull it

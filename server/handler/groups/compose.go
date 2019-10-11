@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"net/http"
 	"strconv"
+	"strings"
 
 	"docktor/server/storage"
 	"docktor/server/types"
@@ -88,10 +89,20 @@ func createServiceGroup(c echo.Context) error {
 	}
 
 	if !forceCreate {
-		err = types.CheckFS(serviceName, fmt.Sprintf("%s/%s/%s", daemon.Docker.Volume, group.Name, serviceName), daemon)
+		volume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, group.Name)
+		command := []string{"sh", "-c", fmt.Sprintf("test -d /data/%s && exit 1 || exit", serviceName)}
+		err = daemon.CmdContainer(volume, command)
 		if err != nil {
-			log.Errorln(err)
-			return c.JSON(http.StatusFound, err.Error())
+			if strings.Contains(err.Error(), "Exit status") {
+				return c.JSON(http.StatusBadRequest, "A volume associated to this service name already exists. Click again on 'Install' to proceed anyway")
+			} else {
+				log.WithFields(log.Fields{
+					"groupName":  group.Name,
+					"daemonHost": daemon.Host,
+					"error":      err,
+				}).Error("Error when checking service")
+				return c.JSON(http.StatusBadRequest, err.Error())
+			}
 		}
 	}
 
@@ -187,6 +198,15 @@ func updateServiceGroupStatus(c echo.Context) error {
 					volume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, group.Name)
 					command := []string{"rm", "-rf", fmt.Sprintf("/data/%s", service.Name)}
 					err = daemon.CmdContainer(volume, command)
+					if err != nil {
+						log.WithFields(log.Fields{
+							"groupName":  group.Name,
+							"daemonHost": daemon.Host,
+							"service":    serviceGroup.File,
+							"error":      err,
+						}).Error("Error when remove data")
+						return c.JSON(http.StatusBadRequest, err.Error())
+					}
 				}
 			}
 		}
