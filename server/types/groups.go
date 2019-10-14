@@ -2,6 +2,7 @@ package types
 
 import (
 	"fmt"
+	"reflect"
 	"strings"
 
 	"github.com/docker/docker/api/types"
@@ -190,13 +191,11 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 		return groupService, fmt.Errorf("Error when unmarshal service: %s", err)
 	}
 
-	addLabel(&config, fmt.Sprintf(SERVICE_NAME_LABEL, serviceName))
+	addLabel(&config, SERVICE_NAME_LABEL, serviceName)
 
-	if autoUpdate {
-		// Use https://github.com/v2tec/watchtower
-		addLabel(&config, WATCHTOWER_LABEL)
-		groupService.AutoUpdate = autoUpdate
-	}
+	// Use https://github.com/v2tec/watchtower
+	addLabel(&config, WATCHTOWER_LABEL, fmt.Sprintf("%v", autoUpdate))
+	groupService.AutoUpdate = autoUpdate
 
 	groupService.File, err = yaml.Marshal(config)
 	if err != nil {
@@ -206,13 +205,17 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 	return groupService, nil
 }
 
-func addLabel(config *config.Config, label string) {
+func addLabel(config *config.Config, label string, value string) {
 	for key := range config.Services {
-		if labels, ok := (config.Services[key]["labels"]).([]string); ok {
-			config.Services[key]["labels"] = append(labels, label)
-		} else {
-			config.Services[key]["labels"] = []string{label}
+
+		labels := reflect.ValueOf(config.Services[key]["labels"])
+
+		if !labels.IsValid() {
+			labels = reflect.MakeMap(reflect.MapOf(reflect.TypeOf(label), reflect.TypeOf(value)))
 		}
+
+		labels.SetMapIndex(reflect.ValueOf(label), reflect.ValueOf(value))
+		config.Services[key]["labels"] = labels.Interface()
 	}
 }
 
