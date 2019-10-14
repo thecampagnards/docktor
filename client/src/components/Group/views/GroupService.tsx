@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal
+    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal, Popup, List
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
@@ -115,7 +115,7 @@ export default class GroupService extends React.Component<
                 {this.buttonStatus()}
               </Grid.Column>
               <Grid.Column width={8}>
-                {admin && (
+                {admin ? (
                   <Dropdown
                     className="button icon float-right margin-left"
                     basic={true}
@@ -151,6 +151,32 @@ export default class GroupService extends React.Component<
                       </Modal>
                     </Dropdown.Menu>
                   </Dropdown>
+                )
+                :
+                (
+                  service.variables && (
+                    <Popup
+                      trigger={
+                        <Button
+                          basic={true}
+                          circular={true}
+                          icon="cog"
+                          title="Display service config"
+                          floated="right"
+                          disabled={service.variables.length === 0}
+                        />
+                      }
+                      on="click"
+                      position="bottom right"
+                      content={
+                        <List>
+                          {service.variables.map(v => (
+                            <List.Item key={v.name}>{v.name.replace(/_/g, " ").toUpperCase()}: {v.value}</List.Item>
+                          ))}
+                        </List>
+                      }
+                    />
+                  )
                 )}
                 <Button
                   basic={true}

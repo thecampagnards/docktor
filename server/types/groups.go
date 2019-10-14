@@ -41,7 +41,7 @@ type GroupService struct {
 	SubServiceID bson.ObjectId     `json:"sub_service_id,omitempty" bson:"sub_service_id,omitempty"`
 	Name         string            `json:"name" bson:"name" validate:"required"`
 	File         []byte            `json:"file,omitempty"  bson:"file" validate:"required"`
-	Variables    []ServiceVariable `json:"variables" bson:"-"`
+	Variables    []ServiceVariable `json:"variables" bson:"variables"`
 	URL          string            `json:"url" bson:"url" validate:"required"`
 	AutoUpdate   bool              `json:"auto_update" bson:"auto_update"`
 	Ports        []uint16          `json:"ports" bson:"ports"`

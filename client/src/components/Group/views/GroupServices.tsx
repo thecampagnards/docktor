@@ -71,10 +71,12 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
           </Grid>
         ) : (
           <>
-            <Message
-              content="No service in this group. Contact your group administrator to request one."
-              compact={true}
-            />
+            {group.services.length === 0 && (
+              <Message
+                content="No service in this group. Contact your group administrator to request one."
+                compact={true}
+              />
+            )}
             <br />
             <br />
           </>
