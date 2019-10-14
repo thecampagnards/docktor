@@ -140,7 +140,7 @@ class Services extends React.Component<{}, IServicesStates> {
                       />
                       <Modal
                         trigger={
-                          <Button color="red" icon="trash" content="Remove" />
+                          <Button color="red" icon="trash" title="Remove" />
                         }
                         size="mini"
                       >
