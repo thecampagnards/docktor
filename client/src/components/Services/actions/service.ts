@@ -26,6 +26,18 @@ export const fetchService = (serviceID: string) => {
     .then((response: Response) => response.json());
 };
 
+export const deleteService = (serviceID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/services/${serviceID}`, {
+    credentials: "same-origin",
+    method: "DELETE",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
 export const fetchServiceBySubService = (ssID: string) => {
   return fetch(`${process.env.PUBLIC_URL}/api/services/subservice/${ssID}`, {
     credentials: "same-origin",
@@ -44,8 +56,7 @@ export const fetchComposeFileContent = (url: string) => {
   })
     .then(checkStatus)
     .then((response: Response) => response.text());
-
-}
+};
 
 export const saveService = (service: IService) => {
   return fetch(`${process.env.PUBLIC_URL}/api/services`, {

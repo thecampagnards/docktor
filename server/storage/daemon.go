@@ -109,7 +109,7 @@ func (r *DefaultDaemonsRepo) Save(t types.Daemon) (types.Daemon, error) {
 
 // Delete remove a daemon by id
 func (r *DefaultDaemonsRepo) Delete(id string) error {
-	return r.coll.RemoveId(bson.ObjectId(id))
+	return r.coll.RemoveId(bson.ObjectIdHex(id))
 }
 
 // Drop drops the content of the collection
