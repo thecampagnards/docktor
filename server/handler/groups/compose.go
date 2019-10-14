@@ -90,7 +90,7 @@ func createServiceGroup(c echo.Context) error {
 
 	if !forceCreate {
 		volume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, group.Name)
-		command := []string{"sh", "-c", fmt.Sprintf("test -d /data/%s && exit 1 || exit", serviceName)}
+		command := []string{"sh", "-c", fmt.Sprintf("test -d /data/%s && exit 1 || exit 0", serviceName)}
 		err = daemon.CmdContainer(volume, command)
 		if err != nil {
 			if strings.Contains(err.Error(), "Exit status") {
