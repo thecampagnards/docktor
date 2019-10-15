@@ -53,11 +53,15 @@ func getByDaemon(c echo.Context) error {
 // getByID find one by id
 func getByID(c echo.Context) error {
 	group := c.Get("group").(types.Group)
+	user := c.Get("user").(types.User)
 
-	for i, s := range group.Services {
-		for j, v := range s.Variables {
-			if v.Secret {
-				group.Services[i].Variables[j].Value = types.SECRET_VARIABLE
+	if !user.IsAdmin() {
+		for i, s := range group.Services {
+			group.Services[i].File = []byte{}
+			for j, v := range s.Variables {
+				if v.Secret {
+					group.Services[i].Variables[j].Value = types.SECRET_VARIABLE
+				}
 			}
 		}
 	}
