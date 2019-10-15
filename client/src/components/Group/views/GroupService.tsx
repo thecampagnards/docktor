@@ -168,10 +168,16 @@ export default class GroupService extends React.Component<
                       }
                       on="click"
                       position="bottom right"
+                      wide="very"
                       content={
-                        <List>
+                        <List divided={true} >
                           {service.variables.map(v => (
-                            <List.Item key={v.name}>{v.name.replace(/_/g, " ").toUpperCase()}: {v.value}</List.Item>
+                            <List.Item key={v.name}>
+                              <List.Header>
+                                {v.name.replace(/secret_|optional_/g, "").replace(/_/g, " ").toUpperCase()}
+                              </List.Header>
+                              {v.value.length === 0 ? "<no value>" : v.value}
+                            </List.Item>
                           ))}
                         </List>
                       }
