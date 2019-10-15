@@ -130,7 +130,7 @@ func (r *DefaultGroupsRepo) Save(t types.Group) (types.Group, error) {
 
 // Delete remove a group by id
 func (r *DefaultGroupsRepo) Delete(id string) error {
-	return r.coll.RemoveId(bson.ObjectId(id))
+	return r.coll.RemoveId(bson.ObjectIdHex(id))
 }
 
 // Drop drops the content of the collection

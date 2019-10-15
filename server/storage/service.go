@@ -113,7 +113,7 @@ func (r *DefaultServicesRepo) Save(t types.Service) (types.Service, error) {
 
 // Delete remove a service by id
 func (r *DefaultServicesRepo) Delete(id string) error {
-	return r.coll.RemoveId(bson.ObjectId(id))
+	return r.coll.RemoveId(bson.ObjectIdHex(id))
 }
 
 // Drop drops the content of the collection
