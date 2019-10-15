@@ -52,7 +52,17 @@ func getByDaemon(c echo.Context) error {
 
 // getByID find one by id
 func getByID(c echo.Context) error {
-	return c.JSON(http.StatusOK, c.Get("group"))
+	group := c.Get("group").(types.Group)
+
+	for i, s := range group.Services {
+		for j, v := range s.Variables {
+			if v.Secret {
+				group.Services[i].Variables[j].Value = types.SECRET_VARIABLE
+			}
+		}
+	}
+
+	return c.JSON(http.StatusOK, group)
 }
 
 // save a Group server

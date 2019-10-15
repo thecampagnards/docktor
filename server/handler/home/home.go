@@ -28,11 +28,11 @@ func getHomePage(c echo.Context) error {
 	for _, group := range g {
 
 		wg.Add(1)
-		go func(group types.Group) {
+		go func(group types.GroupLight) {
 			defer wg.Done()
 
 			env := types.Environment{
-				Group: group.GroupLight,
+				Group: group,
 			}
 
 			d, err := db.Daemons().FindByID(group.Daemon.Hex())

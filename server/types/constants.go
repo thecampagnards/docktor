@@ -48,7 +48,8 @@ const (
 	COMMAND_ID_PARAM = "commandID"
 
 	// Other
-	MIME_YAML = "application/x-yaml"
+	MIME_YAML       = "application/x-yaml"
+	SECRET_VARIABLE = "*************"
 )
 
 var (
