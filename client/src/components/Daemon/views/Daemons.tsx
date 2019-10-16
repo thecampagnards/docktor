@@ -3,12 +3,13 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
     Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Search, SearchProps,
-    SemanticShorthandItem, Table
+    SemanticShorthandItem, Table, Popup
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { fetchDaemons } from '../actions/daemon';
 import { dockerStatus, IDaemon } from '../types/daemon';
+import { copy } from '../../../utils/clipboard';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
@@ -108,8 +109,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const labelText =
       resultsTotal === 0
         ? "No result"
-        : `Results ${resultsDisplayTop +
-            1} to ${resultsDisplayBot} of ${resultsTotal}`;
+        : `Results ${resultsDisplayTop + 1} to ${resultsDisplayBot} of ${resultsTotal}`;
     daemonsFiltered = daemonsFiltered.slice(
       resultsDisplayTop,
       resultsDisplayBot
@@ -177,6 +177,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                   key={tag}
                   basic={true}
                   compact={true}
+                  circular={true}
                   toggle={true}
                   active={filter.tags.indexOf(tag) > -1}
                   onClick={this.filterAddTags}
@@ -194,56 +195,58 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               <Table.HeaderCell>Name</Table.HeaderCell>
               <Table.HeaderCell>Status</Table.HeaderCell>
               <Table.HeaderCell>Host</Table.HeaderCell>
-              <Table.HeaderCell>Tools</Table.HeaderCell>
+              <Table.HeaderCell>Shortcuts</Table.HeaderCell>
+              <Table.HeaderCell>Options</Table.HeaderCell>
             </Table.Row>
           </Table.Header>
           <Table.Body>
             {daemonsFiltered.map(daemon => (
               <Table.Row key={daemon._id}>
-                <Table.Cell>{daemon.name}</Table.Cell>
+                <Table.Cell>
+                  <Icon name="docker" color="blue" />
+                  <a href={path.daemonsSummary.replace(":daemonID", daemon._id)}>{daemon.name}</a>
+                </Table.Cell>
                 <Table.Cell>
                   {this.getDockerStatus(daemon.docker.status)}
                 </Table.Cell>
-                <Table.Cell>{daemon.host}</Table.Cell>
                 <Table.Cell>
-                  <Button.Group fluid={true}>
-                    <Button
-                      icon="chart area"
-                      content="CAdvisor"
-                      disabled={!daemon.cadvisor}
-                      as={Link}
-                      to={path.daemonsCAdvisor.replace(":daemonID", daemon._id)}
-                    />
-                    <Button
-                      icon="docker"
-                      content="Containers"
-                      disabled={!daemon.docker}
-                      as={Link}
-                      to={path.daemonsContainers.replace(
-                        ":daemonID",
-                        daemon._id
-                      )}
-                    />
-                    <Button
-                      icon="terminal"
-                      content="SSH"
-                      disabled={!daemon.ssh}
-                      as={Link}
-                      to={path.daemonsSSH.replace(":daemonID", daemon._id)}
-                    />
-                    <Button
-                      icon="edit"
-                      content="Edit"
-                      as={Link}
-                      to={path.daemonsEdit.replace(":daemonID", daemon._id)}
-                    />
-                    <Button
-                      icon="cog"
-                      content="More"
-                      as={Link}
-                      to={path.daemonsMore.replace(":daemonID", daemon._id)}
-                    />
-                  </Button.Group>
+                  <Popup
+                    trigger={<Icon name="clipboard" onClick={copy.bind(this, daemon.host)} />}
+                    on="click"
+                    content="Copied to clipboard !"
+                  />
+                  {daemon.host}
+                </Table.Cell>
+                <Table.Cell>
+                  <Button 
+                    compact={true} basic={true}
+                    labelPosition="left" icon="block layout"
+                    content="Containers"
+                    as={Link} to={path.daemonsContainers.replace(":daemonID",daemon._id)}
+                  />
+                  <Button 
+                    compact={true} basic={true}
+                    labelPosition="left" icon="server"
+                    content="CAdvisor"
+                    as={Link} to={path.daemonsCAdvisor.replace(":daemonID",daemon._id)}
+                  />
+                  <Button 
+                    compact={true} basic={true}
+                    labelPosition="left" icon="terminal"
+                    content="SSH Terminal"
+                    as={Link} to={path.daemonsSSH.replace(":daemonID",daemon._id)}
+                  />
+                </Table.Cell>
+                <Table.Cell>
+                <Button 
+                    compact={true} basic={true}
+                    icon="edit" title="Edit daemon"
+                    as={Link} to={path.daemonsEdit.replace(":daemonID",daemon._id)}
+                  />
+                  <Button
+                    compact={true} basic={true} color="red"
+                    icon="trash" title="Delete daemon"
+                  />
                 </Table.Cell>
               </Table.Row>
             ))}

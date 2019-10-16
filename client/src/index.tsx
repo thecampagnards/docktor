@@ -93,7 +93,7 @@ ReactDOM.render(
           />
           <Route
             exact={true}
-            path={path.daemonsMore + "/*"}
+            path={path.daemon + "/*"}
             component={UserIsAdmin(DaemonIndex)}
           />
 

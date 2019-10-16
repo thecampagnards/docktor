@@ -17,11 +17,12 @@ export const path = {
 
   daemons: "/daemons",
   daemonsNew: "/daemons/new",
+  daemon: "/daemons/:daemonID",
+  daemonsSummary: "/daemons/:daemonID/summary",
   daemonsEdit: "/daemons/:daemonID/edit",
   daemonsContainers: "/daemons/:daemonID/containers",
   daemonsCAdvisor: "/daemons/:daemonID/cadvisor",
   daemonsSSH: "/daemons/:daemonID/ssh",
-  daemonsMore: "/daemons/:daemonID",
 
   services: "/services",
   servicesNew: "/services/new",

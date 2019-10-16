@@ -5,7 +5,7 @@ import { Button, Grid, Popup, Search, SearchProps, Segment, Message } from 'sema
 import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import { fetchGroupsByDaemon, transformServices } from '../../Group/actions/group';
+import { transformServices } from '../../Group/actions/group';
 import { IGroup } from '../../Group/types/group';
 import { fetchImages } from '../../Images/actions/image';
 import { IImage } from '../../Images/types/image';
@@ -17,6 +17,7 @@ interface IContainersGridProps {
   containers: IContainer[];
   refresh: () => void;
   groupId?: string;
+  groups?: IGroup[];
 }
 
 interface IContainersGridState {
@@ -34,7 +35,6 @@ export default class ContainersGrid extends React.Component<
 > {
   public state = {
     images: [] as IImage[],
-    groups: [] as IGroup[],
 
     searchFilter: "",
     isFetching: "",
@@ -42,17 +42,12 @@ export default class ContainersGrid extends React.Component<
   };
 
   public componentDidMount() {
-    const { daemon, groupId } = this.props;
-
     fetchImages().then(images => this.setState({ images }));
-    if (!groupId) {
-      fetchGroupsByDaemon(daemon._id).then(groups => this.setState({ groups }));
-    }
   }
 
   public render() {
-    const { daemon, containers, admin, refresh, groupId } = this.props;
-    const { isFetching, error, images, searchFilter, groups } = this.state;
+    const { daemon, containers, admin, refresh, groupId, groups } = this.props;
+    const { isFetching, error, images, searchFilter } = this.state;
 
     // filter containers
     const containersFiltered =
@@ -72,22 +67,6 @@ export default class ContainersGrid extends React.Component<
       <>
         {containers && containers.length > 0 ? (
           <>
-            {groups.length > 0 && (
-              <>
-                GROUPS :{" "}
-                {groups.map(g => (
-                  <Button
-                    size="mini"
-                    primary={true}
-                    key={g._id}
-                    as={Link}
-                    to={path.groupsContainers.replace(":groupID", g._id)}
-                  >
-                    {g.name}
-                  </Button>
-                ))}
-              </>
-            )}
             <Segment>
               <Grid>
                 <Grid.Column width={6}>
@@ -196,11 +175,14 @@ export default class ContainersGrid extends React.Component<
                     groupId={
                       groupId ||
                       (
-                        groups.find(g =>
-                          (c.Names ? c.Names[0] : c.Name).startsWith(
-                            "/" + g.name
-                          )
-                        ) || {}
+                        groups ? 
+                          groups.find(g =>
+                            (c.Names ? c.Names[0] : c.Name).startsWith(
+                              "/" + g.name
+                            )
+                          ) || {}
+                          :
+                          {}
                       )._id
                     }
                   />
