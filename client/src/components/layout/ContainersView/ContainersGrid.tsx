@@ -1,6 +1,7 @@
+import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
-import { Button, Grid, Popup, Search, SearchProps, Segment, Message } from 'semantic-ui-react';
+import { Button, Grid, Popup, Search, SearchProps, Segment, Message, List } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
 import { changeContainersStatus } from '../../Daemon/actions/daemon';
@@ -22,7 +23,7 @@ interface IContainersGridProps {
 
 interface IContainersGridState {
   images: IImage[];
-  groups?: IGroup[];
+  networks: string[];
 
   searchFilter: string;
   isFetching: string;
@@ -35,6 +36,7 @@ export default class ContainersGrid extends React.Component<
 > {
   public state = {
     images: [] as IImage[],
+    networks: [] as string[],
 
     searchFilter: "",
     isFetching: "",
@@ -43,11 +45,14 @@ export default class ContainersGrid extends React.Component<
 
   public componentDidMount() {
     fetchImages().then(images => this.setState({ images }));
+
+    const networks = _.uniq(this.props.containers.map(c => c.HostConfig.NetworkMode)).sort((a,b) => a.length - b.length);
+    this.setState({ networks });
   }
 
   public render() {
     const { daemon, containers, admin, refresh, groupId, groups } = this.props;
-    const { isFetching, error, images, searchFilter } = this.state;
+    const { isFetching, error, images, networks, searchFilter } = this.state;
 
     // filter containers
     const containersFiltered =
@@ -144,7 +149,6 @@ export default class ContainersGrid extends React.Component<
                         onClick={this.handleTransform}
                         floated="right"
                         disabled={true}
-                        title="WIP"
                       />
                       <Button
                         color="black"
@@ -158,6 +162,19 @@ export default class ContainersGrid extends React.Component<
                       />
                     </>
                   )}
+                  <Popup
+                    trigger={<Button basic={true} content="Networks" floated="right" />}
+                    on="click"
+                    position="bottom right"
+                    wide={true}
+                    content={
+                      <List>
+                        {networks.map(net => (
+                          <List.Item key={net}>{net}</List.Item>
+                        ))}
+                      </List>
+                    }
+                  />
                 </Grid.Column>
               </Grid>
             </Segment>

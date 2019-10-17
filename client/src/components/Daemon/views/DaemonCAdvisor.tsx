@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Button, Divider, Loader, Message, Progress, Segment, Search, SearchProps, ButtonProps } from 'semantic-ui-react';
+import { Button, Divider, Loader, Message, Progress, Segment, Search, SearchProps, ButtonProps, Grid } from 'semantic-ui-react';
 
 import { IResources, IFileSystem } from '../../Home/types/home';
 import { fetchCadvisor } from '../actions/daemon';
@@ -39,7 +39,7 @@ class DaemonCAdvisor extends React.Component<
     const fetch = () => {
       fetchCadvisor(daemon._id)
         .then((resources: IResources) => {
-          const groups = this.findProjectFilesystems(resources.fs);
+          const groups = this.findProjectFilesystems(resources.fs).sort((a,b) => a.localeCompare(b));
           this.setState({ resources, error: Error(), groups })
         })
         .catch((error: Error) => {
@@ -51,7 +51,7 @@ class DaemonCAdvisor extends React.Component<
     };
 
     fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 30);
   }
 
   public componentWillUnmount() {
@@ -63,11 +63,9 @@ class DaemonCAdvisor extends React.Component<
 
     const { daemon } = this.props;
 
-    const buttons = (
-      <DaemonServiceButtons daemon={daemon} services={["cadvisor"]} />
-    );
-
-    const fsFiltered = resources.fs ? resources.fs.filter(fs => fs.device.includes(this.searchFilter)) : [];
+    const fsFiltered = resources.fs ? 
+      resources.fs.filter(fs => fs.device.toLowerCase().includes(this.searchFilter.toLowerCase())) :
+      [];
 
     if (error.message) {
       return (
@@ -78,7 +76,6 @@ class DaemonCAdvisor extends React.Component<
             </Message.Header>
             <p>{error.message}</p>
           </Message>
-          {buttons}
         </>
       );
     }
@@ -90,35 +87,64 @@ class DaemonCAdvisor extends React.Component<
     return (
       <>
         <Segment>
-          <Search
-            size="tiny"
-            placeholder="Search filesystems..."
-            showNoResults={false}
-            name="searchFilter"
-            onSearchChange={this.filterBySearch}
-            disabled={isFetching}
-          />
-          {groups.map(g => (
-            <Button
-              key={g}
-              basic={true}
-              active={g ===filterSource}
-              content={g}
-              name={g}
-              onClick={this.filterByButton}
-            />
-          ))}
-          <Button
-            floated="right"
-            basic={true}
-            icon="external alternate"
-            labelPosition="right"
-            content="Open cAdvisor webpage"
-            as="a"
-            title={daemon.cadvisor}
-            href={daemon.cadvisor}
-            target="_blank"
-          />
+          <Grid>
+            <Grid.Column width={2}>
+              <Search
+                size="tiny"
+                placeholder="Search filesystems..."
+                showNoResults={false}
+                name="searchFilter"
+                value={this.searchFilter}
+                onSearchChange={this.filterBySearch}
+                disabled={isFetching}
+                floated="left"
+              />
+            </Grid.Column>
+            <Grid.Column width={1}>
+              <Button
+                basic={true}
+                circular={true}
+                floated="right"
+                icon="cancel"
+                title="Clear search filter"
+                name=""
+                onClick={this.filterByButton}
+              />
+            </Grid.Column>
+            <Grid.Column width={10}>
+              <Button.Group basic={true}>
+                <Button
+                  active={filterSource === "varlibdocker"}
+                  content="Varlibdocker"
+                  name="varlibdocker"
+                  onClick={this.filterByButton}
+                />
+              {groups.map(g => (
+                <Button
+                  key={g}
+                  active={g === filterSource}
+                  content={g}
+                  name={g}
+                  onClick={this.filterByButton}
+                />
+              ))}
+              </Button.Group>
+            </Grid.Column>
+            <Grid.Column width={3}>
+              <Button
+                basic={true}
+                color="blue"
+                icon="external alternate"
+                labelPosition="right"
+                content="Open cAdvisor webpage"
+                as="a"
+                title={daemon.cadvisor}
+                href={daemon.cadvisor}
+                target="_blank"
+                floated="right"
+              />
+            </Grid.Column>
+          </Grid>
         </Segment>
         <h4>Resources</h4>
         <Segment raised={true}>
@@ -179,9 +205,7 @@ class DaemonCAdvisor extends React.Component<
     { value }: SearchProps
   ) => {
     this.setState({ filterSource: "search" });
-    if (value) {
-      this.filter(value);
-    }
+    this.filter(value || "");
   };
 
   private filter = (text: string) => {

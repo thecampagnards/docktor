@@ -1,6 +1,5 @@
-import * as _ from 'lodash';
 import * as React from 'react';
-import { Grid, Label, Loader, Message } from 'semantic-ui-react';
+import { Loader, Message } from 'semantic-ui-react';
 
 import { IContainer } from '../../Daemon/types/daemon';
 import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
@@ -69,25 +68,13 @@ class DaemonContainers extends React.Component<
     }
 
     return (
-      <Grid>
-        <Grid.Row>
-          NETWORKS :{" "}
-          {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
-            <Label key={n}>{n}</Label>
-          ))}
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column>
-            <ContainersGrid
-              daemon={daemon}
-              containers={containers}
-              admin={true}
-              refresh={this.fetch}
-              groups={groups}
-            />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
+      <ContainersGrid
+        daemon={daemon}
+        containers={containers}
+        admin={true}
+        refresh={this.fetch}
+        groups={groups}
+      />
     );
   }
 

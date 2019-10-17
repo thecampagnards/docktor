@@ -1,13 +1,14 @@
 import * as _ from 'lodash';
 import * as React from 'react';
-import { Grid, Label, Loader, Message, Card, Button } from 'semantic-ui-react';
+import { Grid, Loader, Message, Card, Button, Segment, Menu, Icon } from 'semantic-ui-react';
 
 import { defaultDaemonServices } from '../../../constants/constants';
-import { IContainer } from '../../Daemon/types/daemon';
+import { IContainer, dockerStatus } from '../../Daemon/types/daemon';
 import { fetchComposeServices } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
-import DaemonServiceButtons from './DaemonServiceButtons';
 import { IGroup } from '../../Group/types/group';
+import { Link } from 'react-router-dom';
+import { path } from '../../../constants/path';
 
 interface IDaemonSummaryProps {
   daemon: IDaemon;
@@ -56,18 +57,31 @@ class DaemonSummary extends React.Component<
     }
 
     return (
-      <Grid columns="3">
-        {services.map(ds => (
-          <Grid.Column key={ds}>
-            <Card fluid={true}>
-              <Card.Header>{ds.toUpperCase()}</Card.Header>
-              <Card.Content>
-                <Button color="green" content="Start" />
-              </Card.Content>
-            </Card>
-          </Grid.Column>
-        ))}
-      </Grid>
+      <>
+        {this.statusMsg}
+        <Menu compact={true}>
+          <Menu.Item header={true}>GROUPS</Menu.Item>
+          {groups && groups.map(g => (
+            <Menu.Item key={g._id} name={g.name} as={Link} to={path.groupsServices.replace(":groupID", g._id)} />
+          ))}
+        </Menu>
+        <Segment>
+          <Grid columns="3">
+            {services.map(ds => (
+              <Grid.Column key={ds}>
+                <Card fluid={true}>
+                  <Card.Content>
+                    <Card.Header>{ds.toUpperCase()}</Card.Header>
+                  </Card.Content>
+                  <Card.Content>
+                    <Button color="green" content="Start" />
+                  </Card.Content>
+                </Card>
+              </Grid.Column>
+            ))}
+          </Grid>
+        </Segment>
+      </>
     );
   }
 
@@ -80,6 +94,48 @@ class DaemonSummary extends React.Component<
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
+
+  private getDockerStatus = () => {
+    const status = this.props.daemon.docker.status;
+    switch (status) {
+      case "OK":
+        return (
+          <Message icon={true} positive={true}>
+            <Icon color="green" name="check circle" />
+            <Message.Content>Docker daemon is up and running</Message.Content>
+          </Message>
+        );
+      case "CERT":
+        return (
+          <Message icon={true} warning={true}>
+            <Icon color="yellow" name="check circle outline" />
+            <Message.Content>Daemon certs are or will be outdated soon</Message.Content>
+          </Message>
+        );
+      case "OLD":
+        return (
+          <Message icon={true} color="orange">
+            <Icon color="orange" name="warning sign" />
+            <Message.Content>Daemon's Docker version is incompatible with Docktor</Message.Content>
+          </Message>
+        );
+      case "":
+        return (
+          <Message icon={true}>
+            <Icon color="black" name="question circle" />
+            <Message.Content>No status info</Message.Content>
+          </Message>
+        );
+      default:
+        return (
+          <Message icon={true} negative={true}>
+            <Icon color="red" name="close" />
+            <Message.Content>Daemon is down/unreachable</Message.Content>
+          </Message>
+        );
+    }
+  };
+  private statusMsg = this.getDockerStatus();
 }
 
 export default DaemonSummary;

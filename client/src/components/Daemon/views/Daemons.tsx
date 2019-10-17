@@ -202,9 +202,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Table.Body>
             {daemonsFiltered.map(daemon => (
               <Table.Row key={daemon._id}>
-                <Table.Cell>
-                  <Icon name="docker" color="blue" />
-                  <a href={path.daemonsSummary.replace(":daemonID", daemon._id)}>{daemon.name}</a>
+                <Table.Cell as={Link} to={path.daemonsSummary.replace(":daemonID", daemon._id)}>
+                  <Icon name="docker" color="blue" /> {daemon.name}
                 </Table.Cell>
                 <Table.Cell>
                   {this.getDockerStatus(daemon.docker.status)}
@@ -302,7 +301,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           <Icon
             color="orange"
             name="warning sign"
-            title="Daemon's Docker version < 18"
+            title="Daemon's Docker version is incompatible with Docktor"
           />
         );
       case "":
