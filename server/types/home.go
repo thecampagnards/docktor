@@ -13,7 +13,7 @@ type HomePage struct {
 // Environment contains useful data for a group preview
 type Environment struct {
 	Group      GroupLight        `json:"group"`
-	Daemon     DaemonLight       `json:"daemon"`
+	Daemon     Daemon            `json:"daemon"`
 	Resources  *MachineUsage     `json:"resources"`
 	Containers []types.Container `json:"containers"`
 }

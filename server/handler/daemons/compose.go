@@ -60,9 +60,8 @@ func getComposeServices(c echo.Context) error {
 	return c.JSON(http.StatusOK, files)
 }
 
-// updateDaemonComposeStatus this function run/stop/delete a daemon service (cadvisor, watchtower) via compose
-// this service is in asset folder
-func updateDaemonComposeStatus(c echo.Context) error {
+func getDaemonComposeStatus(c echo.Context) error {
+
 	db := c.Get("DB").(*storage.Docktor)
 	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
 	if err != nil {
@@ -73,22 +72,49 @@ func updateDaemonComposeStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	dir, err := os.Getwd()
+	services, err := readServices(c.QueryParam("services"))
 	if err != nil {
 		log.WithFields(log.Fields{
 			"daemon": daemon.Name,
 			"error":  err,
-		}).Error("Error when getting project directory")
+		}).Error("Error when getting daemon services")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	splitFn := func(c rune) bool {
-		return c == ','
+	info, err := daemon.ComposeStatus(types.PROJECT_NAME, services)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonHost": daemon.Host,
+			"services":   c.QueryParam("services"),
+			"error":      err,
+		}).Error("Error when compose info")
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	services := strings.FieldsFunc(c.QueryParam("services"), splitFn)
-	for i := 0; i < len(services); i++ {
-		services[i] = fmt.Sprintf("%s/assets/%s-compose.yml", dir, services[i])
+	return c.JSON(http.StatusOK, info)
+}
+
+// updateDaemonComposeStatus this function run/stop/delete a daemon service (cadvisor, watchtower) via compose
+// this service is in asset folder
+func updateDaemonComposeStatus(c echo.Context) error {
+
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	services, err := readServices(c.QueryParam("services"))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemon": daemon.Name,
+			"error":  err,
+		}).Error("Error when getting daemon services")
+		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
 	err = updateComposeStatus(types.PROJECT_NAME, daemon, c.QueryParam("status"), services...)
@@ -117,4 +143,22 @@ func updateComposeStatus(project string, daemon types.Daemon, status string, ser
 		err = errors.New("Wrong status")
 	}
 	return
+}
+
+func readServices(input string) ([]string, error) {
+	dir, err := os.Getwd()
+	if err != nil {
+		return nil, err
+	}
+
+	splitFn := func(c rune) bool {
+		return c == ','
+	}
+
+	services := strings.FieldsFunc(input, splitFn)
+	for i := 0; i < len(services); i++ {
+		services[i] = fmt.Sprintf("%s/assets/%s-compose.yml", dir, services[i])
+	}
+
+	return services, nil
 }

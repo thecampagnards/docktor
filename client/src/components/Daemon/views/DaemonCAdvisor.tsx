@@ -4,7 +4,6 @@ import { Button, Divider, Loader, Message, Progress, Segment, Search, SearchProp
 import { IResources, IFileSystem } from '../../Home/types/home';
 import { fetchCadvisor } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
-import DaemonServiceButtons from './DaemonServiceButtons';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;

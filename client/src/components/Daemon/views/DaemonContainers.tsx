@@ -41,7 +41,7 @@ class DaemonContainers extends React.Component<
       })
       .catch(error => this.setState({ error }));
 
-    this.refreshIntervalId = setInterval(this.fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(this.fetch, 1000 * 10);
   }
 
   public componentWillUnmount() {

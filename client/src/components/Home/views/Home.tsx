@@ -10,6 +10,7 @@ import {
 import { path } from '../../../constants/path';
 import { fetchHome } from '../actions/home';
 import { IEnvironment, IHomeData } from '../types/home';
+import { dockerStatus } from '../../Daemon/types/daemon';
 
 interface IHomeState {
   environments: IEnvironment[];
@@ -167,20 +168,23 @@ class Home extends React.Component<{}, IHomeState> {
                   </Card.Description>
                 </Card.Content>
                 <Card.Content>
+                  {env.daemon.docker.status && this.daemonStatus(env.daemon.docker.status)}
+                </Card.Content>
+                <Card.Content>
                   {env.containers === null ? (
                     <Card.Description>
-                      <Icon name="warning circle" color="red" />
+                      <Icon name="fire" color="red" />
                       Error when getting containers. Click the link above to see the detail.
                     </Card.Description>
                   ) : env.containers.filter(c => c.State === "exited")
                       .length === 0 ? (
                     <Card.Description>
-                      <Icon name="check" color="green" />
-                      All containers are up and running.
+                      <Icon name="check circle" color="green" />
+                      All containers are running.
                     </Card.Description>
                   ) : (
                     <Card.Description>
-                      <Icon name="warning" color="orange" />
+                      <Icon name="warning sign" color="orange" />
                       There are exited containers that may cause unavailable services. Click the link above to restart them if needed.
                     </Card.Description>
                   )}
@@ -208,6 +212,41 @@ class Home extends React.Component<{}, IHomeState> {
     localStorage.setItem("home", JSON.stringify(hidden));
 
     this.setState({ envSelected });
+  };
+
+  private daemonStatus = (status: dockerStatus) => {
+    switch (status) {
+      case "OK":
+        return (
+          <Card.Description>
+            <Icon color="green" name="check circle" /> Docker daemon is up
+          </Card.Description>
+        );
+      case "CERT":
+        return (
+          <Card.Description>
+            <Icon color="yellow" name="check circle outline" /> Daemon certs are or will be outdated soon
+          </Card.Description>
+        );
+      case "OLD":
+        return (
+          <Card.Description>
+            <Icon color="orange" name="warning sign" /> Daemon's Docker version is incompatible with Docktor
+          </Card.Description>
+        );
+      case "":
+        return (
+          <Card.Description>
+            <Icon color="black" name="question circle" /> No status info
+          </Card.Description>
+        );
+      default:
+        return (
+          <Card.Description>
+            <Icon color="red" name="fire" /> Daemon is down/unreachable
+          </Card.Description>
+        );
+    }
   };
 }
 
