@@ -4,7 +4,7 @@
 .reverse.ui.progress[data-percent^="2"] .bar,
 .reverse.ui.progress[data-percent^="3"] .bar,
 .reverse.ui.progress[data-percent^="4"] .bar {
-  background-color: green;
+  background-color: limegreen;
 }progress[data-percent^="5"] .bar,
 .reverse.ui.progress[data-percent^="6"] .bar {
   background-color: gold;
@@ -26,7 +26,7 @@
 .reverse.ui.progress[data-percent="7"] .bar,
 .reverse.ui.progress[data-percent="8"] .bar,
 .reverse.ui.progress[data-percent="9"] .bar {
-  background-color: green;
+  background-color: limegreen;
 }
 
 /* Icon color */
@@ -34,7 +34,7 @@
 .reverse.icon[data-percent^="2"],
 .reverse.icon[data-percent^="3"],
 .reverse.icon[data-percent^="4"] {
-  color: green;
+  color: limegreen;
 }
 .reverse.icon[data-percent^="5"],
 .reverse.icon[data-percent^="6"] {
@@ -57,7 +57,7 @@
 .reverse.icon[data-percent="7"],
 .reverse.icon[data-percent="8"],
 .reverse.icon[data-percent="9"] {
-  color: green;
+  color: limegreen;
 }
 .reverse.icon[data-percent="0"] {
   color: #B5B5B5;

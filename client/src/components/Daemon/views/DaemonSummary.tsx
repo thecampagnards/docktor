@@ -1,10 +1,10 @@
 import * as React from 'react';
+import { Link } from 'react-router-dom';
 import { Grid, Loader, Message, Card, Button, Segment, Menu, Icon, ButtonProps } from 'semantic-ui-react';
 
 import { fetchComposeServices, getComposeStatus, changeComposeStatus } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
 import { IGroup, IContainerStatus } from '../../Group/types/group';
-import { Link } from 'react-router-dom';
 import { path } from '../../../constants/path';
 
 interface IDaemonSummaryProps {
@@ -46,7 +46,7 @@ class DaemonSummary extends React.Component<
   }
 
   public render() {
-    const { services, status, error, isFetching, isFetchingStatus } = this.state;
+    const { services, status, error, isFetching } = this.state;
     const { groups } = this.props;
 
     if (error.message) {
