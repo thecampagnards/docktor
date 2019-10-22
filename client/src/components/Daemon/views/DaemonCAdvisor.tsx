@@ -1,10 +1,9 @@
 import * as React from 'react';
-import { Button, Divider, Grid, Icon, Loader, Message, Progress, Segment } from 'semantic-ui-react';
+import { Button, Divider, Loader, Message, Progress, Segment, Search, SearchProps, ButtonProps, Grid } from 'semantic-ui-react';
 
-import { IResources } from '../../Home/types/home';
+import { IResources, IFileSystem } from '../../Home/types/home';
 import { fetchCadvisor } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
-import DaemonServiceButtons from './DaemonServiceButtons';
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
@@ -14,6 +13,8 @@ interface IDaemonCAdvisorStates {
   resources: IResources;
   isFetching: boolean;
   error: Error;
+  groups: string[];
+  filterSource: string;
 }
 
 class DaemonCAdvisor extends React.Component<
@@ -21,22 +22,25 @@ class DaemonCAdvisor extends React.Component<
   IDaemonCAdvisorStates
 > {
   public state = {
-    daemon: {} as IDaemon,
     resources: {} as IResources,
     isFetching: true,
-    error: Error()
+    error: Error(),
+    groups: [],
+    filterSource: ""
   };
 
   private refreshIntervalId: NodeJS.Timeout;
+  private searchFilter = "";
 
   public componentDidMount() {
     const { daemon } = this.props;
 
     const fetch = () => {
       fetchCadvisor(daemon._id)
-        .then((resources: IResources) =>
-          this.setState({ resources, error: Error() })
-        )
+        .then((resources: IResources) => {
+          const groups = this.findProjectFilesystems(resources.fs).sort((a,b) => a.localeCompare(b));
+          this.setState({ resources, error: Error(), groups })
+        })
         .catch((error: Error) => {
           this.setState({ error });
         })
@@ -46,7 +50,7 @@ class DaemonCAdvisor extends React.Component<
     };
 
     fetch();
-    this.refreshIntervalId = setInterval(fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(fetch, 1000 * 30);
   }
 
   public componentWillUnmount() {
@@ -54,13 +58,13 @@ class DaemonCAdvisor extends React.Component<
   }
 
   public render() {
-    const { resources, error, isFetching } = this.state;
+    const { resources, error, isFetching, groups, filterSource } = this.state;
 
     const { daemon } = this.props;
 
-    const buttons = (
-      <DaemonServiceButtons daemon={daemon} services={["cadvisor"]} />
-    );
+    const fsFiltered = resources.fs ? 
+      resources.fs.filter(fs => fs.device.toLowerCase().includes(this.searchFilter.toLowerCase())) :
+      [];
 
     if (error.message) {
       return (
@@ -71,7 +75,6 @@ class DaemonCAdvisor extends React.Component<
             </Message.Header>
             <p>{error.message}</p>
           </Message>
-          {buttons}
         </>
       );
     }
@@ -82,22 +85,66 @@ class DaemonCAdvisor extends React.Component<
 
     return (
       <>
-        <Grid>
-          <Grid.Column width={10}>
-            <Button
-              icon={true}
-              labelPosition="right"
-              as="a"
-              title={daemon.cadvisor}
-              href={daemon.cadvisor}
-              target="_blank"
-            >
-              <Icon name="external alternate" /> Open cAdvisor webpage
-            </Button>
-          </Grid.Column>
-          <Grid.Column width={6}>{buttons}</Grid.Column>
-        </Grid>
-        <Divider />
+        <Segment>
+          <Grid>
+            <Grid.Column width={2}>
+              <Search
+                size="tiny"
+                placeholder="Search filesystems..."
+                showNoResults={false}
+                name="searchFilter"
+                value={this.searchFilter}
+                onSearchChange={this.filterBySearch}
+                disabled={isFetching}
+                floated="left"
+              />
+            </Grid.Column>
+            <Grid.Column width={1}>
+              <Button
+                basic={true}
+                circular={true}
+                floated="right"
+                icon="cancel"
+                title="Clear search filter"
+                name=""
+                onClick={this.filterByButton}
+              />
+            </Grid.Column>
+            <Grid.Column width={10}>
+              <Button.Group basic={true}>
+                <Button
+                  active={filterSource === "varlibdocker"}
+                  content="Varlibdocker"
+                  name="varlibdocker"
+                  onClick={this.filterByButton}
+                />
+              {groups.map(g => (
+                <Button
+                  key={g}
+                  active={g === filterSource}
+                  content={g}
+                  name={g}
+                  onClick={this.filterByButton}
+                />
+              ))}
+              </Button.Group>
+            </Grid.Column>
+            <Grid.Column width={3}>
+              <Button
+                basic={true}
+                color="blue"
+                icon="external alternate"
+                labelPosition="right"
+                content="Open cAdvisor webpage"
+                as="a"
+                title={daemon.cadvisor}
+                href={daemon.cadvisor}
+                target="_blank"
+                floated="right"
+              />
+            </Grid.Column>
+          </Grid>
+        </Segment>
         <h4>Resources</h4>
         <Segment raised={true}>
           <Progress
@@ -121,7 +168,7 @@ class DaemonCAdvisor extends React.Component<
             <h4>Filesystems</h4>
           </>
         )}
-        {resources.fs
+        {fsFiltered
           .sort((a, b) => a.device.localeCompare(b.device))
           .map(s => {
             const capGo = Math.round(s.capacity / 1000000) / 1000;
@@ -142,6 +189,40 @@ class DaemonCAdvisor extends React.Component<
           })}
       </>
     );
+  }
+
+  private filterByButton = (
+    event: React.SyntheticEvent,
+    { name }: ButtonProps
+  ) => {
+    this.setState({ filterSource: name });
+    this.filter(name);
+  }
+
+  private filterBySearch = (
+    event: React.SyntheticEvent,
+    { value }: SearchProps
+  ) => {
+    this.setState({ filterSource: "search" });
+    this.filter(value || "");
+  };
+
+  private filter = (text: string) => {
+    this.searchFilter = text;
+  }
+
+  private findProjectFilesystems = (filesystems: IFileSystem[]) => {
+    const prjRegex = /^\/dev\/mapper\/vstorage-(cdk)?(data)?[_-]*([A-Z0-9_-]+)$/;
+    const projects: string[] = [];
+    filesystems.forEach(fs => {
+      if ( prjRegex.test(fs.device)) {
+        const match = prjRegex.exec(fs.device);
+        if (match != null) {
+          projects.push(match[3]);
+        }
+      }
+    })
+    return projects;
   }
 }
 

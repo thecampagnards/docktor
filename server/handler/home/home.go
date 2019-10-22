@@ -41,7 +41,12 @@ func getHomePage(c echo.Context) error {
 				return
 			}
 
-			env.Daemon = d.DaemonLight
+			env.Daemon = types.Daemon{
+				DaemonLight: d.DaemonLight,
+				Docker: types.Docker{
+					Status: d.Docker.Status,
+				},
+			}
 
 			var wggroup sync.WaitGroup
 

@@ -10,6 +10,9 @@ import DaemonCAdvisor from './DaemonCAdvisor';
 import DaemonContainers from './DaemonContainers';
 import DaemonForm from './DaemonForm';
 import DaemonSSH from './DaemonSSH';
+import { IGroup } from '../../Group/types/group';
+import { fetchGroupsByDaemon } from '../../Group/actions/group';
+import DaemonSummary from './DaemonSummary';
 
 interface IRouterProps {
   daemonID: string;
@@ -20,6 +23,7 @@ interface IDaemonIndexStates {
   isFetching: boolean;
   error: Error;
   activeTab: number;
+  groups: IGroup[];
 }
 
 class DaemonIndex extends React.Component<
@@ -30,7 +34,8 @@ class DaemonIndex extends React.Component<
     activeTab: 0,
     isFetching: true,
     daemon: {} as IDaemon,
-    error: Error()
+    error: Error(),
+    groups: [] as IGroup[]
   };
 
   public componentDidMount() {
@@ -38,22 +43,28 @@ class DaemonIndex extends React.Component<
     const path = window.location.pathname;
 
     fetchDaemon(daemonID)
-      .then((daemon: IDaemon) => this.setState({ daemon, isFetching: false }))
+      .then((daemon: IDaemon) => {
+        this.setState({ daemon, isFetching: false });
+        fetchGroupsByDaemon(daemon._id).then(groups => this.setState({ groups }));
+      })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
     let activeTab: number;
     switch (true) {
-      case path === constPath.daemonsContainers.replace(":daemonID", daemonID):
+      case path === constPath.daemonsSummary.replace(":daemonID", daemonID):
         activeTab = 0;
         break;
-      case path === constPath.daemonsCAdvisor.replace(":daemonID", daemonID):
+      case path === constPath.daemonsContainers.replace(":daemonID", daemonID):
         activeTab = 1;
         break;
-      case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
+      case path === constPath.daemonsCAdvisor.replace(":daemonID", daemonID):
         activeTab = 2;
         break;
-      case path === constPath.daemonsSSH.replace(":daemonID", daemonID):
+      case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
         activeTab = 3;
+        break;
+      case path === constPath.daemonsSSH.replace(":daemonID", daemonID):
+        activeTab = 4;
         break;
       default:
         activeTab = 0;
@@ -63,7 +74,7 @@ class DaemonIndex extends React.Component<
   }
 
   public render() {
-    const { error, daemon, activeTab, isFetching } = this.state;
+    const { error, daemon, activeTab, isFetching, groups } = this.state;
 
     if (error.message) {
       return (
@@ -80,6 +91,15 @@ class DaemonIndex extends React.Component<
 
     const panes = [
       {
+        menuItem: "Summary",
+        pane: (
+          <Tab.Pane
+            loading={isFetching} key={0}>
+            <DaemonSummary daemon={daemon} groups={groups} />
+          </Tab.Pane>
+        )
+      },
+      {
         menuItem: "Containers",
         pane: (
           <Tab.Pane
@@ -87,7 +107,7 @@ class DaemonIndex extends React.Component<
             key={1}
             disabled={!daemon.docker || !daemon.docker.port}
           >
-            <DaemonContainers daemon={daemon} />
+            <DaemonContainers daemon={daemon} groups={groups} />
           </Tab.Pane>
         )
       },
@@ -143,20 +163,25 @@ class DaemonIndex extends React.Component<
     switch (data.activeIndex) {
       case 0:
         this.props.history.push(
-          constPath.daemonsContainers.replace(":daemonID", daemonID)
+          constPath.daemonsSummary.replace(":daemonID", daemonID)
         );
         break;
       case 1:
         this.props.history.push(
-          constPath.daemonsCAdvisor.replace(":daemonID", daemonID)
+          constPath.daemonsContainers.replace(":daemonID", daemonID)
         );
         break;
       case 2:
         this.props.history.push(
-          constPath.daemonsEdit.replace(":daemonID", daemonID)
+          constPath.daemonsCAdvisor.replace(":daemonID", daemonID)
         );
         break;
       case 3:
+        this.props.history.push(
+          constPath.daemonsEdit.replace(":daemonID", daemonID)
+        );
+        break;
+      case 4:
         this.props.history.push(
           constPath.daemonsSSH.replace(":daemonID", daemonID)
         );

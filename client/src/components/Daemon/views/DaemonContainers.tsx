@@ -1,34 +1,31 @@
-import * as _ from 'lodash';
 import * as React from 'react';
-import { Grid, Label, Loader, Message } from 'semantic-ui-react';
+import { Loader, Message } from 'semantic-ui-react';
 
-import { defaultDaemonServices } from '../../../constants/constants';
 import { IContainer } from '../../Daemon/types/daemon';
 import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
-import { fetchComposeServices, fetchContainers, fetchSavedContainers } from '../actions/daemon';
+import { fetchContainers, fetchSavedContainers } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
-import DaemonServiceButtons from './DaemonServiceButtons';
+import { IGroup } from '../../Group/types/group';
 
 interface IDaemonContainersProps {
   daemon: IDaemon;
+  groups: IGroup[];
 }
 
 interface IDaemonContainersStates {
   containers: IContainer[];
   isFetching: boolean;
   error: Error;
-  services: string[];
 }
 
-class Daemon extends React.Component<
+class DaemonContainers extends React.Component<
   IDaemonContainersProps,
   IDaemonContainersStates
 > {
   public state = {
     containers: [] as IContainer[],
     isFetching: true,
-    error: Error(),
-    services: defaultDaemonServices
+    error: Error()
   };
 
   private refreshIntervalId: NodeJS.Timeout;
@@ -37,10 +34,6 @@ class Daemon extends React.Component<
   public componentDidMount() {
     const { daemon } = this.props;
 
-    fetchComposeServices(daemon._id).then(services =>
-      this.setState({ services })
-    );
-
     fetchSavedContainers(daemon._id)
       .then(savedContainers => {
         this.savedContainers = savedContainers;
@@ -48,7 +41,7 @@ class Daemon extends React.Component<
       })
       .catch(error => this.setState({ error }));
 
-    this.refreshIntervalId = setInterval(this.fetch, 1000 * 5);
+    this.refreshIntervalId = setInterval(this.fetch, 1000 * 10);
   }
 
   public componentWillUnmount() {
@@ -56,8 +49,8 @@ class Daemon extends React.Component<
   }
 
   public render() {
-    const { services, containers, error, isFetching } = this.state;
-    const { daemon } = this.props;
+    const { containers, error, isFetching } = this.state;
+    const { daemon, groups } = this.props;
 
     if (error.message) {
       return (
@@ -75,30 +68,13 @@ class Daemon extends React.Component<
     }
 
     return (
-      <Grid>
-        <Grid.Row>
-          <Grid.Column width={13}>
-            NETWORKS :{" "}
-            {_.uniq(containers.map(c => c.HostConfig.NetworkMode)).map(n => (
-              <Label key={n}>{n}</Label>
-            ))}
-          </Grid.Column>
-          <Grid.Column width={3}>
-            <Label pointing="right" content={services.join(",")} />
-            <DaemonServiceButtons daemon={daemon} services={services} />
-          </Grid.Column>
-        </Grid.Row>
-        <Grid.Row>
-          <Grid.Column>
-            <ContainersGrid
-              daemon={daemon}
-              containers={containers}
-              admin={true}
-              refresh={this.fetch}
-            />
-          </Grid.Column>
-        </Grid.Row>
-      </Grid>
+      <ContainersGrid
+        daemon={daemon}
+        containers={containers}
+        admin={true}
+        refresh={this.fetch}
+        groups={groups}
+      />
     );
   }
 
@@ -123,4 +99,4 @@ class Daemon extends React.Component<
   };
 }
 
-export default Daemon;
+export default DaemonContainers;

@@ -95,6 +95,26 @@ export const fetchComposeServices = (daemonID: string) => {
     .then((response: Response) => response.json());
 };
 
+export const getComposeStatus = (
+  daemonID: string,
+  services: string[]
+) => {
+  return fetch(
+    `${
+      process.env.PUBLIC_URL
+    }/api/daemons/${daemonID}/compose/status?services=${services.join(",")}`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
+
 export const changeComposeStatus = (
   daemonID: string,
   status: string,
@@ -103,9 +123,7 @@ export const changeComposeStatus = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/daemons/${daemonID}/compose/status?status=${status}&services=${services.join(
-      ","
-    )}`,
+    }/api/daemons/${daemonID}/compose/status?status=${status}&services=${services.join(",")}`,
     {
       credentials: "same-origin",
       method: "POST",
