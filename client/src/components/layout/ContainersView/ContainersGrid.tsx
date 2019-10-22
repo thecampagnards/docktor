@@ -244,7 +244,7 @@ export default class ContainersGrid extends React.Component<
     }
   };
 
-  private filterSearch = (_: React.SyntheticEvent, { value }: SearchProps) => {
+  private filterSearch = (event: React.SyntheticEvent, { value }: SearchProps) => {
     this.setState({ searchFilter: value as string });
   };
 

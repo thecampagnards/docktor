@@ -212,13 +212,13 @@ class DaemonCAdvisor extends React.Component<
   }
 
   private findProjectFilesystems = (filesystems: IFileSystem[]) => {
-    const prjRegex = /^\/dev\/mapper\/vstorage-(cdk)?data[_-]*([a-zA-Z0-9_-]+)$/;
+    const prjRegex = /^\/dev\/mapper\/vstorage-(cdk)?(data)?[_-]*([A-Z0-9_-]+)$/;
     const projects: string[] = [];
     filesystems.forEach(fs => {
       if ( prjRegex.test(fs.device)) {
         const match = prjRegex.exec(fs.device);
         if (match != null) {
-          projects.push(match[2]);
+          projects.push(match[3]);
         }
       }
     })
