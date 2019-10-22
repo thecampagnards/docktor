@@ -6,6 +6,7 @@ import { fetchComposeServices, getComposeStatus, changeComposeStatus } from '../
 import { IDaemon } from '../types/daemon';
 import { IGroup, IContainerStatus } from '../../Group/types/group';
 import { path } from '../../../constants/path';
+import ServiceStatusIndicator from '../../layout/ServiceStatusIndicator';
 
 interface IDaemonSummaryProps {
   daemon: IDaemon;
@@ -81,7 +82,7 @@ class DaemonSummary extends React.Component<
                 <Grid.Column key={s}>
                   <Card fluid={true}>
                     <Card.Content>
-                      {state.map(cs => this.statusIndicator(cs))}
+                      {state.map(cs => <ServiceStatusIndicator key={cs.Name} cs={cs} />)}
                       <Card.Header>{s.toUpperCase()}</Card.Header>
                     </Card.Content>
                     <Card.Content>
@@ -96,44 +97,6 @@ class DaemonSummary extends React.Component<
       </>
     );
   }
-
-  private statusIndicator = (cs: IContainerStatus) => {
-    switch (true) {
-      case cs.State.startsWith("Up"):
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="green"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} is running`}
-          />
-        );
-      case cs.State.startsWith("Exited"):
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="red"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} is not running`}
-          />
-        );
-      default:
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="grey"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} : ${cs.State}`}
-          />
-        );
-    }
-  };
 
   private buttonStatus = (service: string, status: IContainerStatus[]) => {
     const { isFetchingStatus } = this.state;

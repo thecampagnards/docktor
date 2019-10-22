@@ -9,6 +9,7 @@ import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IGroupService, IService } from '../../Services/types/service';
 import { getServiceStatus, saveGroupService, updateServiceStatus } from '../actions/group';
 import { IContainerStatus } from '../types/group';
+import ServiceStatusIndicator from '../../layout/ServiceStatusIndicator';
 
 interface IGroupServiceProps {
   groupID: string;
@@ -88,7 +89,7 @@ export default class GroupService extends React.Component<
                 <Label basic={true}>{this.serviceVersion}</Label>
               </Grid.Column>
               <Grid.Column width={8}>
-                {status.map(cs => this.statusIndicator(cs))}
+                {status.map(cs => <ServiceStatusIndicator key={cs.Name} cs={cs} />)}
               </Grid.Column>
             </Grid.Row>
             <Grid.Row>
@@ -250,44 +251,6 @@ export default class GroupService extends React.Component<
       .then(() => this.refreshStatus())
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
-  };
-
-  private statusIndicator = (cs: IContainerStatus) => {
-    switch (true) {
-      case cs.State.startsWith("Up"):
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="green"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} is running`}
-          />
-        );
-      case cs.State.startsWith("Exited"):
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="red"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} is not running`}
-          />
-        );
-      default:
-        return (
-          <Icon
-            key={cs.Name}
-            className="float-right"
-            color="grey"
-            circular={true}
-            name="circle"
-            title={`Container ${cs.Name} : ${cs.State}`}
-          />
-        );
-    }
   };
 
   private buttonStatus = () => {
