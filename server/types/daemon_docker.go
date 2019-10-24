@@ -194,7 +194,7 @@ func (d *Daemon) CmdContainer(sourceVolume string, cmd []string) (err error) {
 			HostConfig: &container.HostConfig{
 				AutoRemove: true,
 				Mounts: []mount.Mount{
-					mount.Mount{
+					{
 						Type:   mount.TypeBind,
 						Source: sourceVolume,
 						Target: "/data",

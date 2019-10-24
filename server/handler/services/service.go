@@ -94,6 +94,9 @@ func deleteByID(c echo.Context) error {
 func validateTemplate(c echo.Context) error {
 
 	template, err := ioutil.ReadAll(c.Request().Body)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to retrieve template: %s", err))
+	}
 
 	daemon := types.Daemon{
 		DaemonLight: types.DaemonLight{

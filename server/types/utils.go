@@ -8,7 +8,7 @@ import (
 	"regexp"
 )
 
-// WriteStringToFile
+// WriteStringToFile write in tmp file return the file name
 func WriteStringToFile(content string) (string, error) {
 
 	// Check if tempDir exist if not create it
