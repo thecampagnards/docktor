@@ -31,8 +31,8 @@ type User struct {
 
 // Profile data
 type Profile struct {
-	UserLight   `bson:",inline"`
-	GroupsLight GroupsLight `json:"groups"`
+	UserLight `bson:",inline"`
+	Groups    Groups `json:"groups"`
 }
 
 // Users data

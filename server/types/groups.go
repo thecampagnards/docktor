@@ -205,6 +205,18 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 	return groupService, nil
 }
 
+// Obfuscate hides compose file and secret variables
+func (g *Group) Obfuscate() {
+	for i, s := range g.Services {
+		g.Services[i].File = []byte{}
+		for j, v := range s.Variables {
+			if v.Secret {
+				g.Services[i].Variables[j].Value = SECRET_VARIABLE
+			}
+		}
+	}
+}
+
 func addLabel(config *config.Config, label string, value string) {
 	for key := range config.Services {
 

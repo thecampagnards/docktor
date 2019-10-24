@@ -39,7 +39,7 @@ func getByUsername(c echo.Context) error {
 	if err != nil {
 		log.WithError(err).WithField("username", user.Username).Error("When retrieve groups for profile")
 	}
-	return c.JSON(http.StatusOK, types.Profile{UserLight: user.UserLight, GroupsLight: groups})
+	return c.JSON(http.StatusOK, types.Profile{UserLight: user.UserLight, Groups: groups})
 }
 
 // save a User server

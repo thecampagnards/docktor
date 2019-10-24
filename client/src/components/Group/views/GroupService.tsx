@@ -39,7 +39,7 @@ export default class GroupService extends React.Component<
     isFetching: false,
     subServiceError: Error(),
     isFetchingSub: true,
-    file: window.atob(this.props.service.file),
+    file: window.atob(this.props.service.file || ""),
     saveState: "saved"
   };
 
