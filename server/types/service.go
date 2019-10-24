@@ -146,15 +146,15 @@ func (sub *SubService) ConvertSubService(variables interface{}) ([]byte, error) 
 }
 
 // GetVariables retrieve the variables of a template
-func (ss *SubService) GetVariables() (err error) {
+func (sub *SubService) GetVariables() (err error) {
 
 	// Get remote file if needed
-	err = ss.GetRemoteFile()
+	err = sub.GetRemoteFile()
 	if err != nil {
 		return
 	}
 
-	variables, err := FindTemplateVariables(ss.File, map[string]interface{}{
+	variables, err := FindTemplateVariables(sub.File, map[string]interface{}{
 		"Group":       Group{},
 		"Daemon":      Daemon{DaemonLight: DaemonLight{Host: "vm.loc.cn.ssg"}},
 		"Service":     Service{Name: "Service"},
@@ -165,9 +165,9 @@ func (ss *SubService) GetVariables() (err error) {
 		return
 	}
 
-	ss.Variables = make([]ServiceVariable, len(variables))
+	sub.Variables = make([]ServiceVariable, len(variables))
 	for i := 0; i < len(variables); i++ {
-		ss.Variables[i] = parseVar(variables[i])
+		sub.Variables[i] = parseVar(variables[i])
 	}
 
 	return

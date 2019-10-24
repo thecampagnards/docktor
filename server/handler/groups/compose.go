@@ -95,14 +95,13 @@ func createServiceGroup(c echo.Context) error {
 		if err != nil {
 			if strings.Contains(err.Error(), "Exit status") {
 				return c.JSON(http.StatusBadRequest, "A volume associated to this service name already exists. Click again on 'Install' to proceed anyway")
-			} else {
-				log.WithFields(log.Fields{
-					"groupName":  group.Name,
-					"daemonHost": daemon.Host,
-					"error":      err,
-				}).Error("Error when checking service")
-				return c.JSON(http.StatusBadRequest, err.Error())
 			}
+			log.WithFields(log.Fields{
+				"groupName":  group.Name,
+				"daemonHost": daemon.Host,
+				"error":      err,
+			}).Error("Error when checking service")
+			return c.JSON(http.StatusBadRequest, err.Error())
 		}
 	}
 
