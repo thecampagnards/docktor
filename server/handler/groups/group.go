@@ -16,6 +16,7 @@ import (
 func getAllWithDaemons(c echo.Context) error {
 	user := c.Get("user").(types.User)
 	db := c.Get("DB").(*storage.Docktor)
+
 	if all, _ := strconv.ParseBool(c.QueryParam("all")); all {
 		groups, err := db.Groups().FindAllLight()
 		if err != nil {
@@ -26,6 +27,7 @@ func getAllWithDaemons(c echo.Context) error {
 		}
 		return c.JSON(http.StatusOK, groups)
 	}
+
 	groups, err := db.Groups().FindByUser(user)
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -33,6 +35,13 @@ func getAllWithDaemons(c echo.Context) error {
 		}).Error("Error when retrieving groups")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	if !user.IsAdmin() {
+		for i := range groups {
+			groups[i].Obfuscate()
+		}
+	}
+
 	return c.JSON(http.StatusOK, groups)
 }
 
@@ -56,14 +65,7 @@ func getByID(c echo.Context) error {
 	user := c.Get("user").(types.User)
 
 	if !user.IsAdmin() {
-		for i, s := range group.Services {
-			group.Services[i].File = []byte{}
-			for j, v := range s.Variables {
-				if v.Secret {
-					group.Services[i].Variables[j].Value = types.SECRET_VARIABLE
-				}
-			}
-		}
+		group.Obfuscate()
 	}
 
 	return c.JSON(http.StatusOK, group)

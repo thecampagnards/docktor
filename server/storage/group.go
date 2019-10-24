@@ -27,7 +27,7 @@ type GroupsRepo interface {
 	// FindContainersByDaemonID get containers groups by daemon id
 	FindContainersByDaemonID(id string) (c []dockerTypes.ContainerJSON, err error)
 	// FindByUser get all groups of a user
-	FindByUser(u types.User) (types.GroupsLight, error)
+	FindByUser(u types.User) (types.Groups, error)
 	// FindAll get all groups
 	FindAll() (types.Groups, error)
 	// FindAllLight get all groups without sensitive information
@@ -75,7 +75,7 @@ func (r *DefaultGroupsRepo) FindAllLight() (t types.GroupsLight, err error) {
 }
 
 // FindByUser get all groups of a user
-func (r *DefaultGroupsRepo) FindByUser(u types.User) (t types.GroupsLight, err error) {
+func (r *DefaultGroupsRepo) FindByUser(u types.User) (t types.Groups, err error) {
 	err = r.coll.Find(bson.M{"$or": []bson.M{{"admins": u.Username}, {"users": u.Username}}}).All(&t)
 	return t, err
 }
