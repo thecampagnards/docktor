@@ -73,6 +73,27 @@ func TransformSonarqube(config types.ContainerJSON, database types.ContainerJSON
 	return toSubService(serviceName, version, config, sonarqube)
 }
 
+// TransformIntools3 converts a Docktor V1 Intools 3 into Docktor V2 service
+func TransformIntools3(config types.ContainerJSON, mongo types.ContainerJSON, redis types.ContainerJSON, intools Service) (string, SubService) {
+	serviceName := FindServiceName("intools", config)
+	version := findVersion(config.Config.Image)
+	return toSubService(serviceName, version, config, intools)
+}
+
+// TransformIntools2 converts a Docktor V1 Intools 2 into Docktor V2 service
+func TransformIntools2(config types.ContainerJSON, mongo types.ContainerJSON, redis types.ContainerJSON, intools Service) (string, SubService) {
+	serviceName := FindServiceName("intools2", config)
+	version := findVersion(config.Config.Image)
+	return toSubService(serviceName, version, config, intools)
+}
+
+// TransformIntools1 converts a Docktor V1 Intools 1 into Docktor V2 service
+func TransformIntools1(config types.ContainerJSON, intools Service) (string, SubService) {
+	serviceName := FindServiceName("intools1", config)
+	version := findVersion(config.Config.Image)
+	return toSubService(serviceName, version, config, intools)
+}
+
 func toSubService(serviceName string, version string, config types.ContainerJSON, service Service) (string, SubService) {
 	for _, sub := range service.SubServices {
 		if strings.Contains(sub.File, version) {

@@ -159,7 +159,7 @@ func transformServices(c echo.Context) error {
 				return err
 			}
 			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
+			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
 			break
 		case strings.Contains(conf.Config.Image, "nexus"):
 			service := findService(services, "Nexus")
@@ -170,6 +170,56 @@ func transformServices(c echo.Context) error {
 			}
 			gs = append(gs, groupService)
 			types.MoveVolumes(serviceName, []string{serviceName}, []string{"nexus"}, group.Name, daemon)
+			break
+		case strings.Contains(conf.Config.Image, "cdkintools2"):
+			mongo, err := types.FindDependency(conf, "MONGO_URL", `mongodb://([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
+			if err != nil {
+				log.Error(err.Error())
+				break
+			}
+			redis, err := types.FindDependency(conf, "REDIS_URL", `([^:]+):([0-9]+)`, 1, 2, "6379", group.Containers)
+			if err != nil {
+				log.Error(err.Error())
+				break
+			}
+			service := findService(services, "Intools")
+			serviceName, sub := types.TransformIntools2(conf, *mongo, *redis, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			break
+		case strings.Contains(conf.Config.Image, "cdkintools"):
+			service := findService(services, "Intools")
+			serviceName, sub := types.TransformIntools1(conf, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			types.MoveVolumes(serviceName, []string{serviceName}, []string{"intools"}, group.Name, daemon)
+			break
+		case strings.Contains(conf.Config.Image, "intools"):
+			mongo, err := types.FindDependency(conf, "MONGO_SERVER", `([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
+			if err != nil {
+				log.Error(err.Error())
+				break
+			}
+			redis, err := types.FindDependency(conf, "REDIS_HOST", `([^:]+):([0-9]+)`, 1, 2, "6379", group.Containers)
+			if err != nil {
+				log.Error(err.Error())
+				break
+			}
+			service := findService(services, "Intools")
+			serviceName, sub := types.TransformIntools3(conf, *mongo, *redis, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
 			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
