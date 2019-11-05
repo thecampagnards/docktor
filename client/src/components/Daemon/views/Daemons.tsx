@@ -3,11 +3,11 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
     Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Search, SearchProps,
-    SemanticShorthandItem, Table, Popup
+    SemanticShorthandItem, Table, Popup, Modal
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { fetchDaemons } from '../actions/daemon';
+import { fetchDaemons, deleteDaemon } from '../actions/daemon';
 import { dockerStatus, IDaemon } from '../types/daemon';
 import { copy } from '../../../utils/clipboard';
 
@@ -43,13 +43,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     if (localFilters) {
       this.setState({ filter: JSON.parse(localFilters) });
     }
-
-    fetchDaemons()
-      .then(daemons => {
-        this.setState({ daemons });
-      })
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
+    this.getDaemons()
   }
 
   public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates) {
@@ -223,19 +217,19 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                   {daemon.host}
                 </Table.Cell>
                 <Table.Cell>
-                  <Button 
+                  <Button
                     compact={true} basic={true}
                     labelPosition="left" icon="block layout"
                     content="Containers"
                     as={Link} to={path.daemonsContainers.replace(":daemonID",daemon._id)}
                   />
-                  <Button 
+                  <Button
                     compact={true} basic={true}
                     labelPosition="left" icon="server"
                     content="CAdvisor"
                     as={Link} to={path.daemonsCAdvisor.replace(":daemonID",daemon._id)}
                   />
-                  <Button 
+                  <Button
                     compact={true} basic={true}
                     labelPosition="left" icon="terminal"
                     content="SSH Terminal"
@@ -243,15 +237,30 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                   />
                 </Table.Cell>
                 <Table.Cell>
-                <Button 
+                <Button
                     compact={true} basic={true}
                     icon="edit" title="Edit daemon"
                     as={Link} to={path.daemonsEdit.replace(":daemonID",daemon._id)}
                   />
-                  <Button
-                    compact={true} basic={true} color="red"
-                    icon="trash" title="Delete daemon"
-                  />
+                  <Modal
+                        trigger={
+                          <Button color="red" icon="trash" title="Remove" />
+                        }
+                        size="mini"
+                      >
+                        <Modal.Header>{`Delete service ${daemon.name} ?`}</Modal.Header>
+                        <Modal.Actions>
+                          <Button.Group fluid={true}>
+                            <Button
+                              color="red"
+                              icon="trash"
+                              content="Delete"
+                              loading={isFetching}
+                              onClick={this.delete.bind(this, daemon._id)}
+                            />
+                          </Button.Group>
+                        </Modal.Actions>
+                      </Modal>
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -321,6 +330,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
   };
 
+  private getDaemons = () => {
+    fetchDaemons()
+    .then(daemons => {
+      this.setState({ daemons });
+    })
+  };
+
   private filterAddSearchField = (
     event: React.SyntheticEvent,
     { value }: SearchProps
@@ -360,6 +376,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     let { index } = this.state;
     index++;
     this.setState({ index });
+  };
+
+  private delete = (daemonID: string) => {
+    this.setState({ isFetching: true });
+    deleteDaemon(daemonID)
+      .then(() => this.getDaemons())
+      .catch(error => this.setState({ error, isFetching: false }));
   };
 }
 
