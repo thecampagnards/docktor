@@ -148,7 +148,7 @@ export default class ContainersGrid extends React.Component<
                         icon="recycle"
                         onClick={this.handleTransform}
                         floated="right"
-                        disabled={true}
+                        disabled={false}
                       />
                       <Button
                         color="black"

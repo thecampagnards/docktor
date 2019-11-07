@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Icon, Image, Label, Modal, Popup, List
+    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';

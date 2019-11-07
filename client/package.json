@@ -2,7 +2,7 @@
   "name": "docktor",
   "version": "0.9.0",
   "private": true,
-  "proxy": "http://localhost:8080/",
+  "proxy": "http://docktor:8080/",
   "dependencies": {
     "chalk": "^2.4.2",
     "codemirror": "^5.49.2",
