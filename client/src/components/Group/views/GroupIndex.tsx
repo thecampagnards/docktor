@@ -1,7 +1,7 @@
 import * as React from 'react';
 import ReactMarkdown from 'react-markdown';
 import { connect } from 'react-redux';
-import { RouteComponentProps } from 'react-router';
+import { RouteComponentProps } from 'react-router-dom';
 import { Message, Tab, TabProps } from 'semantic-ui-react';
 
 import { path as constPath } from '../../../constants/path';
@@ -127,6 +127,7 @@ class GroupIndex extends React.Component<
           <Tab.Pane loading={isFetching} key={3}>
             {group._id && (
               <GroupMembers
+                history={this.props.history}
                 group={group}
                 admin={groupAdmin || isAdmin}
                 username={username}

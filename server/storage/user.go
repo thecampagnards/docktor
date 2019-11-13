@@ -104,6 +104,20 @@ func (r *DefaultUsersRepo) Save(t types.User) (types.User, error) {
 
 // Delete remove a user by username
 func (r *DefaultUsersRepo) Delete(username string) error {
+	_, err := r.coll.UpdateAll(
+		bson.M{"admins": username},
+		bson.M{"$pull": bson.M{"admins": username}},
+	)
+	if err != nil {
+		return err
+	}
+	_, err = r.coll.UpdateAll(
+		bson.M{"users": username},
+		bson.M{"$pull": bson.M{"users": username}},
+	)
+	if err != nil {
+		return err
+	}
 	return r.coll.Remove(bson.M{"username": username})
 }
 

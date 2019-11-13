@@ -2,14 +2,14 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Search, SearchProps,
-    SemanticShorthandItem, Table, Popup
+    Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Modal, Popup, Search,
+    SearchProps, SemanticShorthandItem, Table
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { fetchDaemons } from '../actions/daemon';
-import { dockerStatus, IDaemon } from '../types/daemon';
 import { copy } from '../../../utils/clipboard';
+import { deleteDaemon, fetchDaemons } from '../actions/daemon';
+import { dockerStatus, IDaemon } from '../types/daemon';
 
 interface IDaemonsStates {
   daemons: IDaemon[];
@@ -43,13 +43,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     if (localFilters) {
       this.setState({ filter: JSON.parse(localFilters) });
     }
-
-    fetchDaemons()
-      .then(daemons => {
-        this.setState({ daemons });
-      })
-      .catch(error => this.setState({ error }))
-      .finally(() => this.setState({ isFetching: false }));
+    this.getDaemons();
   }
 
   public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates) {
@@ -109,7 +103,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const labelText =
       resultsTotal === 0
         ? "No result"
-        : `Results ${resultsDisplayTop + 1} to ${resultsDisplayBot} of ${resultsTotal}`;
+        : `Results ${resultsDisplayTop +
+            1} to ${resultsDisplayBot} of ${resultsTotal}`;
     daemonsFiltered = daemonsFiltered.slice(
       resultsDisplayTop,
       resultsDisplayBot
@@ -204,9 +199,13 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               <Table.Row key={daemon._id}>
                 <Table.Cell>
                   <Button
-                    basic={true} compact={true} fluid={true}
-                    labelPosition="left" icon={true}
-                    as={Link} to={path.daemonsSummary.replace(":daemonID", daemon._id)}
+                    basic={true}
+                    compact={true}
+                    fluid={true}
+                    labelPosition="left"
+                    icon={true}
+                    as={Link}
+                    to={path.daemonsSummary.replace(":daemonID", daemon._id)}
                   >
                     <Icon name="docker" color="blue" /> {daemon.name}
                   </Button>
@@ -216,42 +215,72 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                 </Table.Cell>
                 <Table.Cell>
                   <Popup
-                    trigger={<Icon name="clipboard" onClick={copy.bind(this, daemon.host)} />}
+                    trigger={
+                      <Icon
+                        name="clipboard"
+                        onClick={copy.bind(this, daemon.host)}
+                      />
+                    }
                     on="click"
                     content="Copied to clipboard !"
                   />
                   {daemon.host}
                 </Table.Cell>
                 <Table.Cell>
-                  <Button 
-                    compact={true} basic={true}
-                    labelPosition="left" icon="block layout"
+                  <Button
+                    compact={true}
+                    basic={true}
+                    labelPosition="left"
+                    icon="block layout"
                     content="Containers"
-                    as={Link} to={path.daemonsContainers.replace(":daemonID",daemon._id)}
+                    as={Link}
+                    to={path.daemonsContainers.replace(":daemonID", daemon._id)}
                   />
-                  <Button 
-                    compact={true} basic={true}
-                    labelPosition="left" icon="server"
+                  <Button
+                    compact={true}
+                    basic={true}
+                    labelPosition="left"
+                    icon="server"
                     content="CAdvisor"
-                    as={Link} to={path.daemonsCAdvisor.replace(":daemonID",daemon._id)}
+                    as={Link}
+                    to={path.daemonsCAdvisor.replace(":daemonID", daemon._id)}
                   />
-                  <Button 
-                    compact={true} basic={true}
-                    labelPosition="left" icon="terminal"
+                  <Button
+                    compact={true}
+                    basic={true}
+                    labelPosition="left"
+                    icon="terminal"
                     content="SSH Terminal"
-                    as={Link} to={path.daemonsSSH.replace(":daemonID",daemon._id)}
+                    as={Link}
+                    to={path.daemonsSSH.replace(":daemonID", daemon._id)}
                   />
                 </Table.Cell>
                 <Table.Cell>
-                <Button 
-                    compact={true} basic={true}
-                    icon="edit" title="Edit daemon"
-                    as={Link} to={path.daemonsEdit.replace(":daemonID",daemon._id)}
-                  />
                   <Button
-                    compact={true} basic={true} color="red"
-                    icon="trash" title="Delete daemon"
+                    compact={true}
+                    basic={true}
+                    icon="edit"
+                    title="Edit daemon"
+                    as={Link}
+                    to={path.daemonsEdit.replace(":daemonID", daemon._id)}
                   />
+                  <Modal
+                    trigger={<Button color="red" icon="trash" title="Remove" />}
+                    size="mini"
+                  >
+                    <Modal.Header>{`Delete daemon ${daemon.name} ?`}</Modal.Header>
+                    <Modal.Actions>
+                      <Button.Group fluid={true}>
+                        <Button
+                          color="red"
+                          icon="trash"
+                          content="Delete"
+                          loading={isFetching}
+                          onClick={this.delete.bind(this, daemon._id)}
+                        />
+                      </Button.Group>
+                    </Modal.Actions>
+                  </Modal>
                 </Table.Cell>
               </Table.Row>
             ))}
@@ -321,6 +350,12 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
   };
 
+  private getDaemons = () => {
+    fetchDaemons().then(daemons => {
+      this.setState({ daemons });
+    });
+  };
+
   private filterAddSearchField = (
     event: React.SyntheticEvent,
     { value }: SearchProps
@@ -360,6 +395,14 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     let { index } = this.state;
     index++;
     this.setState({ index });
+  };
+
+  private delete = (daemonID: string) => {
+    this.setState({ isFetching: true });
+    deleteDaemon(daemonID)
+      .then(() => this.getDaemons())
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   };
 }
 

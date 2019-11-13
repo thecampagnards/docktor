@@ -3,6 +3,7 @@ import 'xterm/css/xterm.css';
 import chalk from 'chalk';
 import * as React from 'react';
 import { Terminal } from 'xterm';
+import { FitAddon } from 'xterm-addon-fit';
 
 import { GetToken } from '../User/actions/user';
 
@@ -14,6 +15,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
   private container: HTMLElement;
   private term: Terminal;
   private ws: WebSocket;
+  private fitAddon: FitAddon;
 
   public componentDidMount() {
     const { wsPath } = this.props;
@@ -34,10 +36,13 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         cursorBlink: true
       });
 
+      this.fitAddon = new FitAddon();
+      this.term.loadAddon(this.fitAddon);
+
       this.term.open(this.container);
       this.term.focus();
 
-      const forcedChalk = new chalk.constructor({ enabled: true, level: 2 });
+      const forcedChalk = new chalk.Instance({ level: 2 });
 
       this.term.writeln(
         forcedChalk.blue("ctrl+ins to copy and shift+ins to paste.")
@@ -54,11 +59,17 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
       this.ws.onmessage = e => {
         this.term.write(e.data);
+        try {
+          this.fitAddon.fit();
+        } catch (e) {
+          console.warn(`Unable to fit the term: ${e}`);
+        }
       };
 
       this.ws.onclose = e => {
         this.term.write(forcedChalk.green("Session terminated"));
         this.term.dispose();
+        this.fitAddon.dispose();
 
         if (!e.wasClean) {
           this.term.write(
@@ -80,11 +91,15 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
     if (this.term) {
       this.term.dispose();
     }
+    if (this.fitAddon) {
+      this.fitAddon.dispose();
+    }
   }
 
   public render() {
     return React.createElement("div", {
-      ref: ref => (this.container = ref as HTMLElement)
+      ref: ref => (this.container = ref as HTMLElement),
+      style: { height: "100%", width: "100%" }
     });
   }
 }

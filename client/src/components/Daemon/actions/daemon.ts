@@ -217,3 +217,15 @@ export const execDockerCommand = (
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
+
+export const deleteDaemon = (daemonID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}`, {
+    credentials: "same-origin",
+    method: "DELETE",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then((response: Response) => response.json());
+};
