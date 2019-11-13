@@ -83,12 +83,12 @@ func save(c echo.Context) error {
 
 // deleteByUsername delete one by username
 func deleteByUsername(c echo.Context) error {
-	// TODO also delete user in all groups
+	username := c.Param(types.USERNAME_PARAM)
 	db := c.Get("DB").(*storage.Docktor)
-	err := db.Users().Delete(c.Param(types.USERNAME_PARAM))
+	err := db.Users().Delete(username)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"username": c.Param(types.USERNAME_PARAM),
+			"username": username,
 			"error":    err,
 		}).Error("Error when deleting user")
 		return c.JSON(http.StatusBadRequest, err.Error())
