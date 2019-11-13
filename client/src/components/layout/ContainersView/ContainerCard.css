@@ -1,3 +1,16 @@
 .modal-shell .close {
   color: #e0e1e2 !important;
 }
+
+.modal-shell.ui.fullscreen.modal {
+  width: 100% !important;
+  height: 80%;
+}
+
+.modal-shell .content {
+  height: 100%;
+}
+
+.modal-shell .terminal.xterm {
+  height: 100%;
+}

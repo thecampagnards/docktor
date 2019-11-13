@@ -98,7 +98,8 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
   public render() {
     return React.createElement("div", {
-      ref: ref => (this.container = ref as HTMLElement)
+      ref: ref => (this.container = ref as HTMLElement),
+      style: { height: "100%", width: "100%" }
     });
   }
 }
