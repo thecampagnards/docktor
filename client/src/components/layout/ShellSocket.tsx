@@ -42,7 +42,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       this.term.open(this.container);
       this.term.focus();
 
-      const forcedChalk = new chalk.constructor({ enabled: true, level: 2 });
+      const forcedChalk = new chalk.Instance({ level: 2 });
 
       this.term.writeln(
         forcedChalk.blue("ctrl+ins to copy and shift+ins to paste.")
