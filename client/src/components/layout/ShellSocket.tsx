@@ -24,7 +24,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
     if (loc.protocol === "https:") {
       uri = "wss:";
     }
-    uri += `//${loc.hostname}:`;
+    uri += `//docktor:`;
     uri += process.env.NODE_ENV === "development" ? "8080" : loc.port;
 
     this.ws = new WebSocket(`${uri}${wsPath}?jwt_token=${GetToken()}`);
@@ -43,7 +43,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         forcedChalk.blue("ctrl+ins to copy and shift+ins to paste.")
       );
       this.term.writeln(
-        forcedChalk.red("We are not responsible for your mistakes.")
+        forcedChalk.red("You are fully responsible for your actions!")
       );
 
       this.term.setOption("screenKeys", true);
