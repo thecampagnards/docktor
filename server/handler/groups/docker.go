@@ -1,6 +1,7 @@
 package groups
 
 import (
+	"fmt"
 	"net/http"
 	"strings"
 
@@ -129,7 +130,6 @@ func transformServices(c echo.Context) error {
 		return types.Service{}
 	}
 
-	gs := []types.GroupService{}
 	for _, conf := range group.Containers {
 		switch true {
 		case strings.Contains(conf.Config.Image, "jenkins"):
@@ -139,18 +139,42 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, []string{"jenkins"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"jenkins"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "cdksonarqube"):
-			service := findService(services, "Sonarqube")
+			service := findService(services, "SonarQube")
 			serviceName, sub := types.TransformSonarLegacy(conf, service)
 			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, []string{"sonarqube"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"sonarqube"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "sonarqube"):
 			c, err := types.FindDependency(conf, "SONARQUBE_JDBC_URL", `jdbc:postgresql://([^:]+):([0-9]+)/[a-zA-Z]+`, 1, 2, "5432", group.Containers)
@@ -158,14 +182,26 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Sonarqube")
+			service := findService(services, "SonarQube")
 			serviceName, sub := types.TransformSonarqube(conf, *c, service)
 			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, true)
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(c.Name, conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "nexus"):
 			service := findService(services, "Nexus")
@@ -174,8 +210,20 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, []string{"nexus"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"nexus"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "cdkintools2"):
 			mongo, err := types.FindDependency(conf, "MONGO_URL", `mongodb://([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
@@ -194,8 +242,20 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(mongo.Name, redis.Name, conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "cdkintools"):
 			service := findService(services, "Intools")
@@ -204,8 +264,20 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, []string{"intools"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"intools"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "intools"):
 			mongo, err := types.FindDependency(conf, "MONGO_SERVER", `([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
@@ -224,8 +296,20 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(mongo.Name, redis.Name, conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
 		case strings.Contains(conf.Config.Image, "phabricator"):
 			service := findService(services, "Phabricator")
@@ -234,13 +318,26 @@ func transformServices(c echo.Context) error {
 			if err != nil {
 				return err
 			}
-			gs = append(gs, groupService)
-			types.MoveVolumes(serviceName, []string{serviceName}, []string{"phabricator"}, group.Name, daemon)
+			group.Services = append(group.Services, groupService)
+			group, err = db.Groups().Save(group)
+			if err != nil {
+				log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
+				log.Errorln(groupService)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"phabricator"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
 			break
+		// TODO : case Rundeck, RM2, CTM, Playlogs, Shinken, Zap, SSO
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
 		}
 	}
 
-	return c.JSON(http.StatusOK, gs)
+	return c.JSON(http.StatusOK, group)
 }

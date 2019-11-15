@@ -12,12 +12,22 @@ import (
 
 func importVariables(sub *SubService, env []string) {
 	for i := 0; i < len(sub.Variables); i++ {
+		match := false
 		for _, v := range env {
-			if strings.Contains(strings.ToLower(v), sub.Variables[i].Name) {
-				value := strings.Split(v, "=")[1]
-				log.Infof("Variable %s = %s", sub.Variables[i].Name, value)
-				sub.Variables[i].Value = value
+			entry := strings.SplitN(v, "=", 2)
+			if len(entry) != 2 {
+				log.Errorf("Invalid entry : %+v", entry)
+				continue
 			}
+			if strings.Contains(sub.Variables[i].Name, strings.ToLower(entry[0])) {
+				log.Infof("Variable %s = %s", sub.Variables[i].Name, entry[1])
+				sub.Variables[i].Value = entry[1]
+				match = true
+				break
+			}
+		}
+		if !match {
+			log.Warningf("Didn't find env variable for %s in source container configuration", sub.Variables[i].Name)
 		}
 	}
 }
@@ -110,13 +120,23 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 // MoveVolumes changes the path of a container's mapped volume
 func MoveVolumes(serviceName string, sources []string, targets []string, groupName string, daemon Daemon) (err error) {
 	sourceVolume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, groupName)
+	tmpServiceDir := fmt.Sprintf("%s-v2", serviceName)
+
+	// Initialize commands
+	cdCmd := "cd /data"
+	mkdirCmd := fmt.Sprintf("mkdir %s", tmpServiceDir)
+	moveCmd := ""
 	for k, source := range sources {
-		cmd := []string{fmt.Sprintf("mv /data/%s /data/%s/%s", source, serviceName, targets[k])}
-		err = daemon.CmdContainer(sourceVolume, cmd)
-		if err != nil {
-			return
-		}
+		moveCmd += fmt.Sprintf("mv %s %s/%s ", source, tmpServiceDir, targets[k])
 	}
+	renameCmd := fmt.Sprintf("mv %s %s", tmpServiceDir, serviceName)
+
+	fullCmd := cdCmd + " && " + mkdirCmd + " && " + moveCmd + " && " + renameCmd
+	log.Infof("Full command to move volumes : %s", fullCmd)
+
+	cmd := []string{"sh", "-c", fullCmd}
+	err = daemon.CmdContainer(sourceVolume, cmd)
+
 	return
 }
 
