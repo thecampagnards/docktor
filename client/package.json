@@ -9,7 +9,7 @@
     "http-status-codes": "^1.4.0",
     "jwt-decode": "^2.2.0",
     "lodash": "^4.17.15",
-    "react": "^16.11.0",
+    "react": "^16.12.0",
     "react-codemirror2": "^6.0.0",
     "react-dom": "^16.12.0",
     "react-konami-code": "^1.4.0",
