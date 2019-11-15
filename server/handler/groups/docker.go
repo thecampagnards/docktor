@@ -99,6 +99,12 @@ func transformServices(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 
+	containerNames := ""
+	for _, c := range group.Containers {
+		containerNames += c.Name + " "
+	}
+	log.Infof("Containers to transform : %s", containerNames)
+
 	services, err := db.Services().FindAll()
 	if err != nil {
 		return err
@@ -220,6 +226,16 @@ func transformServices(c echo.Context) error {
 			}
 			gs = append(gs, groupService)
 			types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongodb"}, group.Name, daemon)
+			break
+		case strings.Contains(conf.Config.Image, "phabricator"):
+			service := findService(services, "Phabricator")
+			serviceName, sub := types.TransformPhabricator(conf, service)
+			groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
+			if err != nil {
+				return err
+			}
+			gs = append(gs, groupService)
+			types.MoveVolumes(serviceName, []string{serviceName}, []string{"phabricator"}, group.Name, daemon)
 			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)

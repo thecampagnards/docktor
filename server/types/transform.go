@@ -98,13 +98,12 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 	for _, sub := range service.SubServices {
 		if strings.Contains(sub.File, version) {
 			log.Infof("Transforming %s service %s version %s ...", service.Name, config.Name, version)
-			// Get template
 			sub.GetVariables()
-			// Set variable values
 			importVariables(&sub, config.Config.Env)
 			return serviceName, sub
 		}
 	}
+	log.Warningf("Version %s not found for service %s", version, service.Name)
 	return serviceName, SubService{}
 }
 
