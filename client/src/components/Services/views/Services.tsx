@@ -117,15 +117,11 @@ class Services extends React.Component<{}, IServicesStates> {
                   <Table.Cell width={2}>{service.name}</Table.Cell>
                   <Table.Cell width={10}>
                     {service.sub_services &&
-                      service.sub_services.map((version: ISubService, key) => {
-                        return (
-                          version.active && (
-                            <Label key={`${service._id}-${key}`}>
-                              {version.name}
-                            </Label>
-                          )
-                        );
-                      })}
+                      service.sub_services.map((version: ISubService, key) => (
+                        <Label key={`${service._id}-${key}`} color={version.active ? "green" : "grey"}>
+                          {version.name}
+                        </Label>
+                      ))}
                   </Table.Cell>
                   <Table.Cell width={2}>
                     <Button
