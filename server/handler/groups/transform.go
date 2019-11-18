@@ -64,7 +64,7 @@ func transformServices(c echo.Context) error {
 			if len(errs) > 0 {
 				return fmt.Errorf("%+v", errs)
 			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"jenkins"}, group.Name, daemon)
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -80,7 +80,7 @@ func transformServices(c echo.Context) error {
 			if len(errs) > 0 {
 				return fmt.Errorf("%+v", errs)
 			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"sonarqube"}, group.Name, daemon)
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -117,7 +117,7 @@ func transformServices(c echo.Context) error {
 			if len(errs) > 0 {
 				return fmt.Errorf("%+v", errs)
 			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"nexus"}, group.Name, daemon)
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -159,7 +159,7 @@ func transformServices(c echo.Context) error {
 			if len(errs) > 0 {
 				return fmt.Errorf("%+v", errs)
 			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"intools"}, group.Name, daemon)
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -201,7 +201,7 @@ func transformServices(c echo.Context) error {
 			if len(errs) > 0 {
 				return fmt.Errorf("%+v", errs)
 			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{"phabricator"}, group.Name, daemon)
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
 			if err != nil {
 				log.Error(err.Error())
 			}
@@ -326,7 +326,39 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 			}
 			break
-		// TODO : case Shinken, Zap, SSO
+		case strings.Contains(conf.Config.Image, "cdk/zap"):
+			service := findService(services, "ZAP")
+			serviceName, sub := types.TransformService(conf, service, "ZAP")
+			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to create group service for %s", conf.Name)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
+			break
+		case strings.Contains(conf.Config.Image, "cdk/sso"):
+			service := findService(services, "SSO")
+			serviceName, sub := types.TransformService(conf, service, "SSO")
+			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to create group service for %s", conf.Name)
+			}
+			errs := daemon.RemoveContainers(conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
+			break
+		// TODO : case Shinken
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
 		}
