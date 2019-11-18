@@ -335,10 +335,6 @@ func transformServices(c echo.Context) error {
 	return c.JSON(http.StatusOK, group)
 }
 
-func handleJenkinsTransform() {
-
-}
-
 func createGroupService(service types.Service, sub types.SubService, serviceName string, group types.Group, daemon types.Daemon, db *storage.Docktor) (types.Group, error) {
 	groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
 	if err != nil {

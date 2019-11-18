@@ -28,7 +28,7 @@ func FindDependencyEnv(conf types.ContainerJSON, refEnv string, refExpr string, 
 			return FindDependency(strings.SplitN(env, "=", 2)[1], refExpr, nameMatchIndex, portMatchIndex, defaultPortValue, containers)
 		}
 	}
-	return nil, fmt.Errorf("Couldn't find dependency variable in %s", conf.Name)
+	return nil, fmt.Errorf("Couldn't find dependency variable in %s envs", conf.Name)
 }
 
 // FindDependency finds the container in a set which is the wanted dependency based on env variables
@@ -41,7 +41,7 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 	depPort = match[portMatchIndex]
 
 	if depPort == "" || depName == "" {
-		return nil, fmt.Errorf("Couldn't find dependency location in %s variable", expr)
+		return nil, fmt.Errorf("Couldn't find dependency location in variable %q", expr)
 	} else if depPort == defaultPortValue {
 		for _, c := range containers {
 			if strings.TrimPrefix(c.Name, "/") == depName {

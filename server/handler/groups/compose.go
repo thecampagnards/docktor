@@ -116,7 +116,7 @@ func createServiceGroup(c echo.Context) error {
 
 	// for non-sso services
 	for _, v := range variables {
-		if v.Name == "api_port" {
+		if v.Name == "zap_port" {
 			serviceGroup.URL = fmt.Sprintf("http://%s:%s/", daemon.Host, v.Value)
 		}
 	}
