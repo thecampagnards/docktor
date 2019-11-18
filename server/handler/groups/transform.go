@@ -8,6 +8,7 @@ import (
 	"docktor/server/storage"
 	"docktor/server/types"
 	
+	docker "github.com/docker/docker/api/types"
 	"github.com/labstack/echo/v4"
 	log "github.com/sirupsen/logrus"
 )
@@ -358,7 +359,33 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 			}
 			break
-		// TODO : case Shinken
+		case strings.Contains(conf.Config.Image, "shinken"):
+			var grafana *docker.ContainerJSON
+			for _, c := range group.Containers {
+				if strings.Contains(c.Config.Image, "grafana") {
+					grafana = &c
+				}
+			}
+			database, err := types.FindDependencyEnv(conf, "INFLUXDB_HOST", `([^:]+):([0-9]+)`, 1, 2, "8086", group.Containers)
+			if err != nil {
+				log.Error(err.Error())
+				break
+			}
+			service := findService(services, "Shinken")
+			serviceName, sub := types.TransformService(conf, service, "SHINKEN")
+			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to create group service for %s", conf.Name)
+			}
+			errs := daemon.RemoveContainers(grafana.Name, database.Name, conf.Name)
+			if len(errs) > 0 {
+				return fmt.Errorf("%+v", errs)
+			}
+			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Grafana", *grafana), types.FindServiceName("influxdb", *database)}, []string{"shinken", "grafana", "influxdb"}, group.Name, daemon)
+			if err != nil {
+				log.Error(err.Error())
+			}
+			break
 		default:
 			log.Warningf("No match found for image : %s", conf.Config.Image)
 		}
