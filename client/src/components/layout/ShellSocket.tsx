@@ -24,7 +24,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
     if (loc.protocol === "https:") {
       uri = "wss:";
     }
-    uri += `//docktor:`;
+    uri += `//${loc.hostname}:`;
     uri += process.env.NODE_ENV === "development" ? "8080" : loc.port;
 
     this.ws = new WebSocket(`${uri}${wsPath}?jwt_token=${GetToken()}`);
