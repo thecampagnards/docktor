@@ -3,7 +3,7 @@ import { RouteComponentProps } from 'react-router-dom';
 import { Button, Grid, Icon, Loader, Message } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
-import { deleteUser, fetchUser, setGlobalRole } from '../actions/users';
+import { deleteUser, fetchUser, saveUser } from '../actions/users';
 import { IProfile } from '../types/user';
 import ProfileCard from './ProfileCard';
 
@@ -83,9 +83,9 @@ class User extends React.Component<
                 labelPosition="left"
                 fluid={true}
                 onClick={this.setGlobalPermissions}
-                disabled={user.role === "admin"}
               >
-                <Icon name="user plus" /> Set admin
+                <Icon name="user plus" /> Set{" "}
+                {user.role === "admin" ? "user" : "admin"}
               </Button>
             </Grid.Row>
           </Grid.Column>
@@ -116,9 +116,13 @@ class User extends React.Component<
   };
 
   private setGlobalPermissions = () => {
-    setGlobalRole(this.userID, "admin")
+    const { user } = this.state;
+    user.role = user.role === "admin" ? "user" : "admin";
+    this.setState({ isFetching: true });
+    saveUser(user)
       .then(user => this.setState({ user }))
-      .catch(error => this.setState({ error }));
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   };
 }
 

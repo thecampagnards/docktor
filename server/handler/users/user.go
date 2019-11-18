@@ -44,7 +44,6 @@ func getByUsername(c echo.Context) error {
 
 // save a User server
 func save(c echo.Context) error {
-	// TODO update only yours
 	var u types.User
 	err := c.Bind(&u)
 	if err != nil {
@@ -54,6 +53,17 @@ func save(c echo.Context) error {
 		}).Error("Error when parsing user")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
+
+	user := c.Get("user").(types.User)
+	if !user.IsAdmin() {
+		if user.Username != u.Username {
+			return c.JSON(http.StatusBadRequest, "You don't have permission to edit this user")
+		}
+		if u.IsAdmin() {
+			return c.JSON(http.StatusBadRequest, "You can't change permission of this user")
+		}
+	}
+
 	db := c.Get("DB").(*storage.Docktor)
 	u, err = db.Users().Save(u)
 	if err != nil {
@@ -63,17 +73,22 @@ func save(c echo.Context) error {
 		}).Error("Error when saving/creating user")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	return c.JSON(http.StatusOK, u)
+
+	groups, err := db.Groups().FindByUser(u)
+	if err != nil {
+		log.WithError(err).WithField("username", u.Username).Error("When retrieve groups for profile")
+	}
+	return c.JSON(http.StatusOK, types.Profile{UserLight: u.UserLight, Groups: groups})
 }
 
 // deleteByUsername delete one by username
 func deleteByUsername(c echo.Context) error {
-	// TODO also delete user in all groups
+	username := c.Param(types.USERNAME_PARAM)
 	db := c.Get("DB").(*storage.Docktor)
-	err := db.Users().Delete(c.Param(types.USERNAME_PARAM))
+	err := db.Users().Delete(username)
 	if err != nil {
 		log.WithFields(log.Fields{
-			"username": c.Param(types.USERNAME_PARAM),
+			"username": username,
 			"error":    err,
 		}).Error("Error when deleting user")
 		return c.JSON(http.StatusBadRequest, err.Error())

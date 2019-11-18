@@ -3,7 +3,9 @@ import {
     Button, ButtonProps, Checkbox, CheckboxProps, Grid, Icon, Label, Message, Search, SearchProps,
     Table
 } from 'semantic-ui-react';
+import { History } from 'history';
 
+import { path } from '../../../constants/path';
 import { copy } from '../../../utils/clipboard';
 import { updateUser } from '../../Group/actions/group';
 import { fetchUser, fetchUsers } from '../../User/actions/users';
@@ -15,6 +17,7 @@ interface IGroupProps {
   username: string;
   admin: boolean;
   refresh: () => void;
+  history: History<any>;
 }
 
 interface IGroupStates {
@@ -153,7 +156,11 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
                     <Button
                       icon="user delete"
                       labelPosition="right"
-                      content={user.username === username ? "Leave group" : "Delete user"}
+                      content={
+                        user.username === username
+                          ? "Leave group"
+                          : "Delete user"
+                      }
                       color="red"
                       name={user.username}
                       onClick={this.deleteFromGroup}
@@ -238,6 +245,9 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
     const username = name as string;
     updateUser(groupID, username, "delete")
       .then(() => {
+        if (username === this.props.username) {
+          this.props.history.push(path.groups);
+        }
         const members = this.state.members.filter(u => u.username !== username);
         this.setState({ members });
       })
