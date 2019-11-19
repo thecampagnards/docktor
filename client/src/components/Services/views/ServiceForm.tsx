@@ -148,13 +148,13 @@ class ServiceForm extends React.Component<
               <>
               <Accordion key={key} styled={true} fluid={true}>
                 <Accordion.Title
-                  active={openVersions.includes(ss.name)}
-                  onClick={this.handleToggleVersion.bind(this, ss.name)}
+                  active={openVersions.includes(ss._id)}
+                  onClick={this.handleToggleVersion.bind(this, ss._id)}
                 >
                   <Icon name="dropdown" />
                   {`${service.name} ${ss.name}`}
                 </Accordion.Title>
-                <Accordion.Content active={openVersions.includes(ss.name)}>
+                <Accordion.Content active={openVersions.includes(ss._id)}>
                   <Grid>
                     <Grid.Row>
                       <Grid.Column width={10}>
@@ -252,12 +252,12 @@ class ServiceForm extends React.Component<
     );
   }
 
-  private handleToggleVersion = (version: string) => {
+  private handleToggleVersion = (versionID: string) => {
     let toggles = this.state.openVersions;
-    if (toggles.includes(version)) {
-      toggles = toggles.filter(v => v !== version)
+    if (toggles.includes(versionID)) {
+      toggles = toggles.filter(v => v !== versionID)
     } else {
-      toggles.push(version)
+      toggles.push(versionID)
     }
     this.setState({ openVersions: toggles });
   };
