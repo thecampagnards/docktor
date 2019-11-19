@@ -111,20 +111,20 @@ func toSubService(serviceName string, version string, config types.ContainerJSON
 }
 
 // MoveVolumes changes the path of a container's mapped volume
-func MoveVolumes(serviceName string, sources []string, targets []string, groupName string, daemon Daemon) (err error) {
+func MoveVolumes(serviceName string, volumes map[string]string, groupName string, daemon Daemon) (err error) {
 	sourceVolume := fmt.Sprintf("%s/%s", daemon.Docker.Volume, groupName)
 	tmpServiceDir := fmt.Sprintf("%s-%s", serviceName, randString(8))
 
 	// Initialize commands
-	cdCmd := "cd /data"
-	mkdirCmd := fmt.Sprintf("mkdir %s", tmpServiceDir)
+	cdCmd := "cd /data && "
+	mkdirCmd := fmt.Sprintf("mkdir %s && ", tmpServiceDir)
 	moveCmd := ""
-	for k, source := range sources {
-		moveCmd += fmt.Sprintf("mv %s %s/%s ", source, tmpServiceDir, targets[k])
+	for key, value := range volumes {
+		moveCmd += fmt.Sprintf("mv %s %s/%s && ", key, tmpServiceDir, value)
 	}
 	renameCmd := fmt.Sprintf("mv %s %s", tmpServiceDir, serviceName)
 
-	fullCmd := cdCmd + " && " + mkdirCmd + " && " + moveCmd + " && " + renameCmd
+	fullCmd := cdCmd + mkdirCmd + moveCmd + renameCmd
 	log.Infof("Full command to move volumes : %s", fullCmd)
 
 	cmd := []string{"sh", "-c", fullCmd}

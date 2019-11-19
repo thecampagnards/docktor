@@ -42,88 +42,63 @@ func transformServices(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	findService := func(services []types.Service, name string) types.Service {
-		for _, s := range services {
-			if s.Name == name {
-				return s
-			}
-		}
-		log.Errorf("Service %s not found", name)
-		return types.Service{}
-	}
+	noDependency := map[string]*docker.ContainerJSON{}
 
 	for _, conf := range group.Containers {
 		switch true {
-		case strings.Contains(conf.Config.Image, "jenkins"):
-			service := findService(services, "Jenkins")
-			serviceName, sub := types.TransformService(conf, service, "jenkins")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "jenkins"): // --- Jenkins ---
+			service, err := services.FindByName("jenkins")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "jenkins", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdksonarqube"):
-			service := findService(services, "SonarQube")
-			serviceName, sub := types.TransformService(conf, service, "sonarqube")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "cdksonarqube"): // --- Sonarqube 6- ---
+			service, err := services.FindByName("sonarqube")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "sonarqube", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "sonarqube"):
+		case strings.Contains(conf.Config.Image, "sonarqube"): // --- Sonarqube 7+ ---
 			c, err := types.FindDependencyEnv(conf, "SONARQUBE_JDBC_URL", `jdbc:postgresql://([^:]+):([0-9]+)/[a-zA-Z]+`, 1, 2, "5432", group.Containers)
 			if err != nil {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "SonarQube")
-			serviceName, sub := types.TransformService(conf, service, "sonarqube")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"Postgres": c,
 			}
-			errs := daemon.RemoveContainers(c.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Postgres", *c)}, []string{"sonarqube", "postgres"}, group.Name, daemon)
+			service, err := services.FindByName("sonarqube")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "sonarqube", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "nexus"):
-			service := findService(services, "Nexus")
-			serviceName, sub := types.TransformService(conf, service, "nexus")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "nexus"): // --- Nexus ---
+			service, err := services.FindByName("nexus")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "nexus", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdkintools2"):
+		case strings.Contains(conf.Config.Image, "cdkintools2"): // --- Intools 2 ---
 			mongo, err := types.FindDependencyEnv(conf, "MONGO_URL", `mongodb://([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
 			if err != nil {
 				log.Error(err.Error())
@@ -134,38 +109,32 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Intools")
-			serviceName, sub := types.TransformService(conf, service, "Intools2")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"MongoDB": mongo,
+				"REDIS": redis,
 			}
-			errs := daemon.RemoveContainers(mongo.Name, redis.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongo"}, group.Name, daemon)
+			service, err := services.FindByName("intools")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "Intools2", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdkintools"):
-			service := findService(services, "Intools")
-			serviceName, sub := types.TransformService(conf, service, "intools")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "cdkintools"): // --- Intools 1 ---
+			service, err := services.FindByName("intools")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			handleServiceTransform(conf, noDependency, service, "intools", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "intools"):
+		case strings.Contains(conf.Config.Image, "intools"): // --- Intools 3 ---
 			mongo, err := types.FindDependencyEnv(conf, "MONGO_SERVER", `([^:]+):([0-9]+)`, 1, 2, "27017", group.Containers)
 			if err != nil {
 				log.Error(err.Error())
@@ -176,38 +145,32 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Intools")
-			serviceName, sub := types.TransformService(conf, service, "intools")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"MongoDB": mongo,
+				"REDIS": redis,
 			}
-			errs := daemon.RemoveContainers(mongo.Name, redis.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("MongoDB", *mongo)}, []string{"intools", "mongo"}, group.Name, daemon)
+			service, err := services.FindByName("intools")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "intools", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "phabricator"):
-			service := findService(services, "Phabricator")
-			serviceName, sub := types.TransformService(conf, service, "phabricator")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "phabricator"): // --- Phabricator ---
+			service, err := services.FindByName("phabricator")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "phabricator", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "rundeck"):
+		case strings.Contains(conf.Config.Image, "rundeck"): // --- Rundeck ---
 			databaseEnv := "RUNDECK_DATABASE_URL"
 			if strings.Contains(conf.Config.Image, "cdkrundeck") {
 				databaseEnv = "DATABASE_URL"
@@ -217,22 +180,20 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Rundeck")
-			serviceName, sub := types.TransformService(conf, service, "rundeck")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"Postgres": c,
 			}
-			errs := daemon.RemoveContainers(c.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Postgres", *c)}, []string{"rundeck", "postgres"}, group.Name, daemon)
+			service, err := services.FindByName("rundeck")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "rundeck", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "ctm"):
+		case strings.Contains(conf.Config.Image, "ctm"): // --- CTM ---
 			esURL := ":"
 			for _, env := range conf.Config.Env {
 				if strings.Contains(env, "ES_HOST") {
@@ -247,22 +208,20 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "CTM")
-			serviceName, sub := types.TransformService(conf, service, "ctm")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"elasticsearch": es,
 			}
-			errs := daemon.RemoveContainers(es.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("elasticsearch", *es)}, []string{"ctm", "elasticsearch"}, group.Name, daemon)
+			service, err := services.FindByName("ctm")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "ctm", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "release-monitoring-2"):
+		case strings.Contains(conf.Config.Image, "release-monitoring-2"): // --- RM2 ---
 			esURL := ":"
 			for _, env := range conf.Config.Env {
 				if strings.Contains(env, "ES_HOST") {
@@ -277,22 +236,20 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "ReleaseMonitoring2")
-			serviceName, sub := types.TransformService(conf, service, "release-monitoring")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"elasticsearch": es,
 			}
-			errs := daemon.RemoveContainers(es.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("elasticsearch", *es)}, []string{"release-monitoring", "elasticsearch"}, group.Name, daemon)
+			service, err := services.FindByName("releasemonitoring2")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "ReleaseMonitoring2", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdkplaylogs"):
+		case strings.Contains(conf.Config.Image, "cdkplaylogs"): // --- Playlogs ---
 			esURL := ":"
 			for _, env := range conf.Config.Env {
 				if strings.Contains(env, "ELASTICSEARCH_URL") {
@@ -312,54 +269,43 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Playlogs")
-			serviceName, sub := types.TransformService(conf, service, "playlogs")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"elasticsearch": es,
+				"MongoDB": mongo,
 			}
-			errs := daemon.RemoveContainers(es.Name, mongo.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("elasticsearch", *es), types.FindServiceName("MongoDB", *mongo)}, []string{"playlogs", "elasticsearch", "mongo"}, group.Name, daemon)
+			service, err := services.FindByName("playlogs")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "playlogs", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdk/zap"):
-			service := findService(services, "ZAP")
-			serviceName, sub := types.TransformService(conf, service, "ZAP")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "cdk/zap"): // --- ZAP ---
+			service, err := services.FindByName("zap")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "ZAP", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "cdk/sso"):
-			service := findService(services, "SSO")
-			serviceName, sub := types.TransformService(conf, service, "SSO")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
+		case strings.Contains(conf.Config.Image, "cdk/sso"): // --- SSO ---
+			service, err := services.FindByName("sso")
 			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+				log.WithField("services", services).Errorln(err)
+				break
 			}
-			errs := daemon.RemoveContainers(conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName}, []string{""}, group.Name, daemon)
+			err = handleServiceTransform(conf, noDependency, service, "SSO", group, daemon, db)
 			if err != nil {
-				log.Error(err.Error())
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
-		case strings.Contains(conf.Config.Image, "shinken"):
+		case strings.Contains(conf.Config.Image, "shinken"): // --- Shinken/Grafana ---
 			var grafana *docker.ContainerJSON
 			for _, c := range group.Containers {
 				if strings.Contains(c.Config.Image, "grafana") {
@@ -371,19 +317,18 @@ func transformServices(c echo.Context) error {
 				log.Error(err.Error())
 				break
 			}
-			service := findService(services, "Shinken")
-			serviceName, sub := types.TransformService(conf, service, "SHINKEN")
-			group, err = createGroupService(service, sub, serviceName, group, daemon, db)
-			if err != nil {
-				log.Errorf("Failed to create group service for %s", conf.Name)
+			dependencies := map[string]*docker.ContainerJSON{
+				"Grafana": grafana,
+				"influxdb": database,
 			}
-			errs := daemon.RemoveContainers(grafana.Name, database.Name, conf.Name)
-			if len(errs) > 0 {
-				return fmt.Errorf("%+v", errs)
-			}
-			err = types.MoveVolumes(serviceName, []string{serviceName, types.FindServiceName("Grafana", *grafana), types.FindServiceName("influxdb", *database)}, []string{"shinken", "grafana", "influxdb"}, group.Name, daemon)
+			service, err := services.FindByName("shinken")
 			if err != nil {
-				log.Error(err.Error())
+				log.WithField("services", services).Errorln(err)
+				break
+			}
+			err = handleServiceTransform(conf, dependencies, service, "SHINKEN", group, daemon, db)
+			if err != nil {
+				log.Errorf("Failed to transform %s - %s", conf.Name, err.Error())
 			}
 			break
 		default:
@@ -394,16 +339,41 @@ func transformServices(c echo.Context) error {
 	return c.JSON(http.StatusOK, group)
 }
 
-func createGroupService(service types.Service, sub types.SubService, serviceName string, group types.Group, daemon types.Daemon, db *storage.Docktor) (types.Group, error) {
+func handleServiceTransform(conf docker.ContainerJSON, dependencies map[string]*docker.ContainerJSON, service types.Service, defaultName string, group types.Group, daemon types.Daemon, db *storage.Docktor) (error) {
+	// Convert V1 to V2 service
+	serviceName, sub := types.TransformService(conf, service, defaultName)
 	groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, group, false)
 	if err != nil {
-		return types.Group{}, err
+		log.Errorf("Failed to create group service for %s", conf.Name)
+		return err
 	}
+	// Update group in the database
 	group.Services = append(group.Services, groupService)
 	group, err = db.Groups().Save(group)
 	if err != nil {
 		log.Errorln("Error when saving group. Copy the JSON manually into the DB :")
 		log.Errorln(groupService)
+		return err
 	}
-	return group, nil
+	// Remove containers on the machine
+	errs := daemon.RemoveContainers(conf.Name)
+	if len(errs) > 0 {
+		return fmt.Errorf("%+v", errs)
+	}
+	// Move volumes of all containers of the services in the same service directory
+	var volumes map[string]string
+	if len(dependencies) == 0 {
+		volumes[serviceName] = ""
+	} else {
+		volumes[serviceName] = strings.ToLower(defaultName)
+		for name, c := range dependencies {
+			source := types.FindServiceName(name, *c)
+			volumes[source] = strings.ToLower(name)
+		}
+	}
+	err = types.MoveVolumes(serviceName, volumes, group.Name, daemon)
+	if err != nil {
+		return err
+	}
+	return nil
 }
