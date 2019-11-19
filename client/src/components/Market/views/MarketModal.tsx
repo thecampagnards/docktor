@@ -87,7 +87,7 @@ class MarketModal extends React.Component<
           color="green"
           labelPosition="left"
           icon="dolly"
-          content={`Install ${service.name}`}
+          content={service.name}
           title="Deploy the service in a group"
           floated="left"
           onClick={this.open}
@@ -157,6 +157,7 @@ class MarketModal extends React.Component<
             {service.link && (
               <Grid.Column width={2}>
                 <Button
+                  basic={true}
                   icon={true}
                   floated="right"
                   as="a"
@@ -202,7 +203,7 @@ class MarketModal extends React.Component<
                 onClick={this.continueFormStage2}
                 disabled={!admin && max_services < group.services.length + 1}
               >
-                Proceed <Icon name="chevron right" />
+                Deploy <Icon name="chevron right" />
               </Button>
             </>
           ) : (
@@ -242,7 +243,7 @@ class MarketModal extends React.Component<
                 value={serviceName}
               />
             </Form.Field>
-            {ss.variables && (
+            {ss.variables && ss.variables.length > 0 && (
               <>
                 <h3>Variables</h3>
                 {ss.variables.map((variable: IServiceVariable) => (

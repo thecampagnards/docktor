@@ -128,7 +128,7 @@ func validateTemplate(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to parse variables in template: %s", err))
 	}
 	for i, v := range service.Variables {
-		if v.Name == "api_port" {
+		if v.Name == "zap_port" {
 			service.Variables[i].Value = "10000"
 		}
 	}

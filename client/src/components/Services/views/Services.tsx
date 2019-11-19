@@ -115,49 +115,44 @@ class Services extends React.Component<{}, IServicesStates> {
                     )}
                   </Table.Cell>
                   <Table.Cell width={2}>{service.name}</Table.Cell>
-                  <Table.Cell width={9}>
+                  <Table.Cell width={10}>
                     {service.sub_services &&
-                      service.sub_services.map((version: ISubService, key) => {
-                        return (
-                          version.active && (
-                            <Label key={`${service._id}-${key}`}>
-                              {version.name}
-                            </Label>
-                          )
-                        );
-                      })}
+                      service.sub_services.map((version: ISubService, key) => (
+                        <Label key={`${service._id}-${key}`} color={version.active ? "green" : "grey"}>
+                          {version.name}
+                        </Label>
+                      ))}
                   </Table.Cell>
-                  <Table.Cell width={3}>
-                    <Button.Group fluid={true}>
-                      <Button
-                        icon="edit"
-                        content="Configure"
-                        as={Link}
-                        to={path.servicesEdit.replace(
-                          ":serviceID",
-                          service._id
-                        )}
-                      />
-                      <Modal
-                        trigger={
-                          <Button color="red" icon="trash" title="Remove" />
-                        }
-                        size="mini"
-                      >
-                        <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
-                        <Modal.Actions>
-                          <Button.Group fluid={true}>
-                            <Button
-                              color="red"
-                              icon="trash"
-                              content="Delete"
-                              loading={isFetching}
-                              onClick={this.delete.bind(this, service._id)}
-                            />
-                          </Button.Group>
-                        </Modal.Actions>
-                      </Modal>
-                    </Button.Group>
+                  <Table.Cell width={2}>
+                    <Button
+                      basic={true}
+                      labelPosition="left"
+                      icon="edit"
+                      content="Configure"
+                      as={Link}
+                      to={path.servicesEdit.replace(
+                        ":serviceID",
+                        service._id
+                      )}
+                    />
+                    <Modal
+                      trigger={
+                        <Button color="red" icon="trash" title="Remove" />
+                      }
+                      size="mini"
+                    >
+                      <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
+                      <Modal.Actions>
+                        <Button
+                          fluid={true}
+                          color="red"
+                          icon="trash"
+                          content="Delete"
+                          loading={isFetching}
+                          onClick={this.delete.bind(this, service._id)}
+                        />
+                      </Modal.Actions>
+                    </Modal>
                   </Table.Cell>
                 </Table.Row>
               ))}

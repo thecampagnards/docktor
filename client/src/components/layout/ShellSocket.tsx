@@ -48,7 +48,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         forcedChalk.blue("ctrl+ins to copy and shift+ins to paste.")
       );
       this.term.writeln(
-        forcedChalk.red("We are not responsible for your mistakes.")
+        forcedChalk.red("You are fully responsible for your actions!")
       );
 
       this.term.setOption("screenKeys", true);

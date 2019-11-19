@@ -2,6 +2,7 @@ package types
 
 import (
 	"bytes"
+	"fmt"
 	"crypto/tls"
 	"errors"
 	"html/template"
@@ -57,6 +58,16 @@ func (s *Service) GetVariablesOfSubServices() (err error) {
 
 // Services data
 type Services []Service
+
+// FindByName gets a service in a slice
+func (services Services) FindByName(name string) (Service, error) {
+	for _, s := range services {
+		if strings.ToLower(s.Name) == strings.ToLower(name) {
+			return s, nil
+		}
+	}
+	return Service{}, fmt.Errorf("Service with name %q not found", name)
+}
 
 // ValidateServiceName checks if another service in the group has the same name
 func ValidateServiceName(name string, group Group) error {

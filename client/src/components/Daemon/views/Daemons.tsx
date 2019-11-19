@@ -265,7 +265,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     to={path.daemonsEdit.replace(":daemonID", daemon._id)}
                   />
                   <Modal
-                    trigger={<Button color="red" icon="trash" title="Remove" />}
+                    trigger={<Button compact={true} basic={true} color="red" icon="trash" title="Delete daemon" />}
                     size="mini"
                   >
                     <Modal.Header>{`Delete daemon ${daemon.name} ?`}</Modal.Header>
@@ -274,7 +274,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                         <Button
                           color="red"
                           icon="trash"
-                          content="Delete"
+                          content="Delete permanently"
                           loading={isFetching}
                           onClick={this.delete.bind(this, daemon._id)}
                         />
