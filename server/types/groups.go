@@ -162,7 +162,7 @@ func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 }
 
 // ConvertToGroupService this function convert a sub service to a service group
-func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, service Service, group Group, autoUpdate bool, extraHosts map[string]string) (groupService GroupService, err error) {
+func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, service Service, group Group, autoUpdate bool, extraHosts []string) (groupService GroupService, err error) {
 
 	groupService.Name = serviceName
 	groupService.Variables = ss.Variables
@@ -200,9 +200,7 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 		// Find main service in the compose file (the one that has container_name in the template)
 		containerName := reflect.ValueOf(config.Services[service]["container_name"])
 		if containerName.IsValid() {
-			for hostName, hostIP := range extraHosts {
-				addExtraHost(&config, service, hostName, hostIP)
-			}
+			addExtraHosts(&config, service, extraHosts)
 		}
 	}
 
@@ -240,14 +238,21 @@ func addLabel(config *config.Config, label string, value string) {
 	}
 }
 
-func addExtraHost(config *config.Config, service string, hostName string, hostIP string) {
+func addExtraHosts(config *config.Config, service string, hosts []string) {
+	if len(hosts) == 0 {
+		return
+	}
+
 	extraHosts := reflect.ValueOf(config.Services[service]["extra_hosts"])
 
 	if !extraHosts.IsValid() {
-		extraHosts = reflect.MakeMap(reflect.MapOf(reflect.TypeOf(hostName), reflect.TypeOf(hostIP)))
+		extraHosts = reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(hosts[0])), len(hosts), len(hosts))
 	}
 
-	extraHosts.SetMapIndex(reflect.ValueOf(hostName), reflect.ValueOf(hostIP))
+	for i, host := range hosts {
+		extraHosts.Index(i).SetString(host)
+	}
+
 	config.Services[service]["extra_hosts"] = extraHosts.Interface()
 }
 

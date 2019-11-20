@@ -358,8 +358,7 @@ func transformServices(c echo.Context) error {
 func handleServiceTransform(conf docker.ContainerJSON, dependencies map[string]*docker.ContainerJSON, service types.Service, defaultName string, group *types.Group, daemon types.Daemon, db *storage.Docktor) error {
 	// Convert V1 to V2 service
 	serviceName, sub := types.TransformService(conf, service, defaultName)
-	extraHosts := types.ExtraHostsMap(conf.HostConfig.ExtraHosts)
-	groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, *group, false, extraHosts)
+	groupService, err := sub.ConvertToGroupService(serviceName, daemon, service, *group, false, conf.HostConfig.ExtraHosts)
 	if err != nil {
 		log.Errorf("Failed to create group service for %s", conf.Name)
 		return err

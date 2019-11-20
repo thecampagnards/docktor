@@ -133,7 +133,7 @@ func validateTemplate(c echo.Context) error {
 		}
 	}
 
-	gs, err := service.ConvertToGroupService("ServiceTest", daemon, serv, group, false)
+	gs, err := service.ConvertToGroupService("ServiceTest", daemon, serv, group, false, []string{})
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Failed to convert to group service: %s", err))
 	}

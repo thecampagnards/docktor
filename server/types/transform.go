@@ -70,18 +70,6 @@ func findVersion(image string) string {
 	return r.FindStringSubmatch(image)[1]
 }
 
-// ExtraHostsMap creates a map of host:ip from a config slice
-func ExtraHostsMap(extraHosts []string) map[string]string {
-	extraHostsMap := make(map[string]string, len(extraHosts))
-	for _, entry := range extraHosts {
-		host := strings.Split(entry, ":")
-		if len(host) == 2 {
-			extraHostsMap[host[0]] = host[1]
-		}
-	}
-	return extraHostsMap
-}
-
 // TransformService converts a Docktor V1 into Docktor V2 service
 func TransformService(config types.ContainerJSON, service Service, defaultName string) (string, SubService) {
 	serviceName := FindServiceName(defaultName, config)
