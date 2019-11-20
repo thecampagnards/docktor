@@ -167,6 +167,7 @@ class Images extends React.Component<{}, IImagesStates> {
                               <Grid.Row>
                                 <Grid.Column width={16}>
                                   <CodeMirror
+                                    className="code-small"
                                     value={command.command}
                                     options={{
                                       mode: "shell",
