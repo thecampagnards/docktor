@@ -334,7 +334,7 @@ func transformServices(c echo.Context) error {
 				break
 			}
 			dependencies := map[string]*docker.ContainerJSON{
-				"Grafana":  grafana,
+				"Grafana": grafana,
 				"influxdb": database,
 			}
 			service, err := services.FindByName("shinken")
