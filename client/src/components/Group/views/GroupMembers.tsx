@@ -131,44 +131,46 @@ class GroupMembers extends React.Component<IGroupProps, IGroupStates> {
               </Table.Row>
             </Table.Header>
             <Table.Body>
-              {members.map(user => (
-                <Table.Row key={user.username}>
-                  <Table.Cell
-                    width={8}
-                  >{`${user.firstname} ${user.lastname}  (${user.username})`}</Table.Cell>
-                  <Table.Cell width={3}>
-                    {this.computeGroupRole(user.username, admin)}
-                  </Table.Cell>
-                  <Table.Cell width={5}>
-                    <Button
-                      icon="mail"
-                      labelPosition="left"
-                      content="Send Email"
-                      as="a"
-                      href={`mailto:${user.email}`}
-                    />
-                    <Button
-                      icon="copy"
-                      labelPosition="left"
-                      content="Copy Email"
-                      onClick={copy.bind(this, user.email)}
-                    />
-                    <Button
-                      icon="user delete"
-                      labelPosition="right"
-                      content={
-                        user.username === username
-                          ? "Leave group"
-                          : "Delete user"
-                      }
-                      color="red"
-                      name={user.username}
-                      onClick={this.deleteFromGroup}
-                      disabled={!(admin || user.username === username)}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
+              {members.map(user => {
+                const isMyself = user.username === username;
+                return (
+                  <Table.Row key={user.username}>
+                    <Table.Cell
+                      width={8}
+                    >{`${user.firstname} ${user.lastname}  (${user.username})`}</Table.Cell>
+                    <Table.Cell width={3}>
+                      {this.computeGroupRole(user.username, admin)}
+                    </Table.Cell>
+                    <Table.Cell width={5}>
+                      <Button
+                        basic={true}
+                        icon="mail"
+                        labelPosition="left"
+                        content="Send Email"
+                        as="a"
+                        href={`mailto:${user.email}`}
+                      />
+                      <Button
+                        basic={true}
+                        icon="copy"
+                        labelPosition="left"
+                        content="Copy Email"
+                        onClick={copy.bind(this, user.email)}
+                      />
+                      <Button
+                        basic={true}
+                        icon="user delete"
+                        labelPosition="right"
+                        content={isMyself ? "Leave group" : "Delete user"}
+                        color={isMyself ? "orange" :"red"}
+                        name={user.username}
+                        onClick={this.deleteFromGroup}
+                        disabled={!(admin || isMyself)}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                );
+              })}
             </Table.Body>
           </Table>
         )}

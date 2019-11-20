@@ -20,6 +20,10 @@
   height: 60vh;
 }
 
+.code-small .CodeMirror {
+  height: 20vh
+}
+
 .float-right {
   float: right;
 }

@@ -59,7 +59,7 @@ export default class TextSocket extends React.Component<
       this.setState({ error: new Error("WebTextSocket error") });
     };
     this.ws.onclose = e => {
-      this.fitAddon.dispose();
+      this.fitAddon && this.fitAddon.dispose();
       if (!e.wasClean && e.code !== 1000) {
         this.setState({
           error: new Error(`WebTextSocket error: ${e.code} ${e.reason}`)

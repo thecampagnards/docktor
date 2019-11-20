@@ -65,6 +65,7 @@ export default class ProfileCard extends React.Component<
                     </Table.Cell>
                     <Table.Cell width={4}>
                       <Button
+                        basic={true}
                         icon="box"
                         as={Link}
                         to={path.groupsServices.replace(":groupID", group._id)}
