@@ -45,6 +45,7 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 	} else if depPort == defaultPortValue {
 		for _, c := range containers {
 			if strings.TrimPrefix(c.Name, "/") == depName {
+				log.Infof("Found dependency %s", c.Name)
 				return &c, nil
 			}
 		}
@@ -55,6 +56,7 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 			if len(c.HostConfig.PortBindings[port]) != 0 {
 				externalPort := c.HostConfig.PortBindings[port][0].HostPort
 				if externalPort == depPort {
+					log.Infof("Found dependency %s", c.Name)
 					return &c, nil
 				}
 			}
@@ -66,6 +68,18 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 func findVersion(image string) string {
 	r, _ := regexp.Compile(`[^:]+:([^-]+)(-[.*]+)?`)
 	return r.FindStringSubmatch(image)[1]
+}
+
+// ExtraHostsMap creates a map of host:ip from a config slice
+func ExtraHostsMap(extraHosts []string) map[string]string {
+	extraHostsMap := make(map[string]string, len(extraHosts))
+	for _, entry := range extraHosts {
+		host := strings.Split(entry, ":")
+		if len(host) == 2 {
+			extraHostsMap[host[0]] = host[1]
+		}
+	}
+	return extraHostsMap
 }
 
 // TransformService converts a Docktor V1 into Docktor V2 service

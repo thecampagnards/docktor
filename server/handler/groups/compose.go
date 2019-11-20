@@ -105,7 +105,8 @@ func createServiceGroup(c echo.Context) error {
 		}
 	}
 
-	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate)
+	// We could handle extra hosts in the service deployment form instead of putting an empty map
+	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate, map[string]string{})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,

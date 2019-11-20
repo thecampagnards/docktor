@@ -148,7 +148,7 @@ export default class ContainersGrid extends React.Component<
                         icon="recycle"
                         onClick={this.handleTransform}
                         floated="right"
-                        disabled={false}
+                        loading={isFetching === "transform"}
                       />
                       <Button
                         color="black"
@@ -249,11 +249,13 @@ export default class ContainersGrid extends React.Component<
   };
 
   private handleTransform = () => {
-    const { groupId } = this.props;
+    const { groupId, refresh } = this.props;
+    this.setState({ isFetching: "transform" });
     // tslint:disable-next-line: no-unused-expression
     groupId &&
       transformServices(groupId)
-        .then(services => console.log(services))
-        .catch(error => console.log(error));
+        .then(() => refresh())
+        .catch(error => console.log(error))
+        .finally(() => this.setState({ isFetching: "" }));
   };
 }
