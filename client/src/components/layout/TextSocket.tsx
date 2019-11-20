@@ -1,5 +1,6 @@
 import * as React from 'react';
 import { Button, Message } from 'semantic-ui-react';
+import { FitAddon } from 'xterm-addon-fit';
 
 import { GetToken } from '../User/actions/user';
 
@@ -25,6 +26,7 @@ export default class TextSocket extends React.Component<
 
   private ws: WebSocket;
   private textLog: HTMLSpanElement | null;
+  private fitAddon: FitAddon;
 
   public componentDidMount() {
     const { wsPath } = this.props;
@@ -40,14 +42,24 @@ export default class TextSocket extends React.Component<
 
     this.ws = new WebSocket(`${uri}${wsPath}?jwt_token=${GetToken()}`);
 
+    this.ws.onopen = () => {
+      this.fitAddon = new FitAddon();
+    }
+
     this.ws.onmessage = e => {
       const logs = this.state.logs.concat(e.data);
+      try {
+        this.fitAddon.fit();
+      } catch (e) {
+        console.warn(`Unable to fit the logs: ${e}`);
+      }
       this.setState({ logs });
     };
     this.ws.onerror = _ => {
       this.setState({ error: new Error("WebTextSocket error") });
     };
     this.ws.onclose = e => {
+      this.fitAddon && this.fitAddon.dispose();
       if (!e.wasClean && e.code !== 1000) {
         this.setState({
           error: new Error(`WebTextSocket error: ${e.code} ${e.reason}`)
@@ -65,6 +77,9 @@ export default class TextSocket extends React.Component<
   public componentWillUnmount() {
     if (this.ws) {
       this.ws.close();
+    }
+    if (this.fitAddon) {
+      this.fitAddon.dispose();
     }
   }
 

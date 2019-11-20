@@ -45,6 +45,7 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 	} else if depPort == defaultPortValue {
 		for _, c := range containers {
 			if strings.TrimPrefix(c.Name, "/") == depName {
+				log.Infof("Found dependency %s", c.Name)
 				return &c, nil
 			}
 		}
@@ -55,6 +56,7 @@ func FindDependency(expr string, refExpr string, nameMatchIndex int, portMatchIn
 			if len(c.HostConfig.PortBindings[port]) != 0 {
 				externalPort := c.HostConfig.PortBindings[port][0].HostPort
 				if externalPort == depPort {
+					log.Infof("Found dependency %s", c.Name)
 					return &c, nil
 				}
 			}

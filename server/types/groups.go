@@ -162,7 +162,7 @@ func (g *Group) FindSubServiceByID(subServiceID string) *GroupService {
 }
 
 // ConvertToGroupService this function convert a sub service to a service group
-func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, service Service, group Group, autoUpdate bool) (groupService GroupService, err error) {
+func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, service Service, group Group, autoUpdate bool, extraHosts []string) (groupService GroupService, err error) {
 
 	groupService.Name = serviceName
 	groupService.Variables = ss.Variables
@@ -192,10 +192,17 @@ func (ss *SubService) ConvertToGroupService(serviceName string, daemon Daemon, s
 	}
 
 	addLabel(&config, SERVICE_NAME_LABEL, serviceName)
-
 	// Use https://github.com/v2tec/watchtower
 	addLabel(&config, WATCHTOWER_LABEL, fmt.Sprintf("%v", autoUpdate))
 	groupService.AutoUpdate = autoUpdate
+
+	for service := range config.Services {
+		// Find main service in the compose file (the one that has container_name in the template)
+		containerName := reflect.ValueOf(config.Services[service]["container_name"])
+		if containerName.IsValid() {
+			addExtraHosts(&config, service, extraHosts)
+		}
+	}
 
 	groupService.File, err = yaml.Marshal(config)
 	if err != nil {
@@ -229,6 +236,24 @@ func addLabel(config *config.Config, label string, value string) {
 		labels.SetMapIndex(reflect.ValueOf(label), reflect.ValueOf(value))
 		config.Services[key]["labels"] = labels.Interface()
 	}
+}
+
+func addExtraHosts(config *config.Config, service string, hosts []string) {
+	if len(hosts) == 0 {
+		return
+	}
+
+	extraHosts := reflect.ValueOf(config.Services[service]["extra_hosts"])
+
+	if !extraHosts.IsValid() {
+		extraHosts = reflect.MakeSlice(reflect.SliceOf(reflect.TypeOf(hosts[0])), len(hosts), len(hosts))
+	}
+
+	for i, host := range hosts {
+		extraHosts.Index(i).SetString(host)
+	}
+
+	config.Services[service]["extra_hosts"] = extraHosts.Interface()
 }
 
 func computeServiceURL(serviceName, groupName, host string) string {

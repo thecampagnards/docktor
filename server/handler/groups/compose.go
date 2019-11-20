@@ -105,7 +105,7 @@ func createServiceGroup(c echo.Context) error {
 		}
 	}
 
-	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate)
+	serviceGroup, err := subService.ConvertToGroupService(serviceName, daemon, service, group, autoUpdate, []string{})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"serviceGroup": serviceGroup,

@@ -63,6 +63,9 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   private fetch = () => {
     fetchContainers(this.props.group._id)
       .then((containers: IContainer[]) => {
+        if (!containers) {
+          containers = [] as IContainer[];
+        }
         for (const container of this.props.group.containers) {
           if (
             !containers.find(
