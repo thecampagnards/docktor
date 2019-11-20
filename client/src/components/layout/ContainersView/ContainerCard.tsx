@@ -235,6 +235,8 @@ export default class ContainerCard extends React.Component<
                   <Button basic={true} icon="align left" title="Show logs" />
                 }
                 size="fullscreen"
+                closeIcon={true}
+                className="modal-shell"
               >
                 <Modal.Content style={{ background: "black", color: "white" }}>
                   <pre style={{ whiteSpace: "pre-line" }}>
