@@ -45,11 +45,23 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
 
     return (
       <>
+        <Message floating={true} icon={true} >
+          <Icon name="warning" />
+          <Message.Content>
+            <Message.Header>Import your services</Message.Header>
+            You have containers that were deployed by a legacy mode, thus you cannot maintain them as services.
+            To transform those containers into services, please create a support IT request.<br/>
+            During the process, the services will be migrated on our secured solution (SSO) and this will have few impacts (URL changes).
+            Check the CDK documentation for more details about SSO.
+          </Message.Content>
+        </Message>
+
         {groupAdmin ? (
           <Grid>
             <Grid.Column width={12}>
               {group.services.length === 0 && (
                 <Message
+                  negative={true}
                   content="No service in this group. Use the button on the right to deploy one."
                   compact={true}
                 />

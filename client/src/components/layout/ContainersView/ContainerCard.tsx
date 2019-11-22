@@ -315,12 +315,14 @@ export default class ContainerCard extends React.Component<
                 <Dropdown.Item onClick={copy.bind(this, containerImage)}>
                   Container image
                 </Dropdown.Item>
-                <Dropdown.Item
-                  onClick={copy.bind(this, `docker pull ${containerImage}`)}
-                >
+                <Dropdown.Item onClick={copy.bind(this, `docker pull ${containerImage}`)}>
                   Pull command
                 </Dropdown.Item>
-                <Dropdown.Item>Create command</Dropdown.Item>
+                {admin && (
+                  <Dropdown.Item onClick={copy.bind(this, this.computeCreateCommand())}>
+                    Create command
+                  </Dropdown.Item>
+                )}
               </Dropdown.Menu>
             </Dropdown>
           </Segment>
@@ -404,4 +406,20 @@ export default class ContainerCard extends React.Component<
     return false;
   };
   private allowShell = this.computeAllowShell();
+
+  private computeCreateCommand = () => {
+    const { container } = this.props;
+
+    const name = container.Names[0] || container.Name;
+    const network = container.HostConfig.NetworkMode;
+    const image = container.Image || container.Config.Image;
+    const ports = container.Ports.map(p => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`).join(" ");
+    const volumes = container.Mounts.map(v => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`).join("");
+    const variables = ""
+    const labels = ""
+
+    const command = `docker create --name ${name} --network ${network} ${ports} ${volumes} ${variables} ${labels} ${image}`;
+
+    return command;
+  }
 }

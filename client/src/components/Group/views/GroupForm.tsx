@@ -55,6 +55,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             disabled={!isAdmin}
           />
           <CodeMirror
+            className="code-small"
             value={group.description}
             options={{
               mode: "markdown",
@@ -84,7 +85,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               label="Docker MinPort"
               name="min_port"
               type="number"
-              value={group.min_port}
+              value={group.min_port || "0"}
               onChange={this.handleChange}
               required={true}
               disabled={!isAdmin}
@@ -93,7 +94,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               label="Docker MaxPort"
               name="max_port"
               type="number"
-              value={group.max_port}
+              value={group.max_port || "0"}
               onChange={this.handleChange}
               required={true}
               disabled={!isAdmin}
@@ -104,7 +105,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             name="subnet"
             type="string"
             pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
-            value={group.subnet}
+            value={group.subnet || "1.12.10.1"}
             onChange={this.handleChange}
             required={true}
             disabled={!isAdmin}

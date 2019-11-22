@@ -115,7 +115,7 @@ class Services extends React.Component<{}, IServicesStates> {
                     )}
                   </Table.Cell>
                   <Table.Cell width={2}>{service.name}</Table.Cell>
-                  <Table.Cell width={10}>
+                  <Table.Cell width={9}>
                     {service.sub_services &&
                       service.sub_services.map((version: ISubService, key) => (
                         <Label key={`${service._id}-${key}`} color={version.active ? "green" : "grey"}>
@@ -123,8 +123,9 @@ class Services extends React.Component<{}, IServicesStates> {
                         </Label>
                       ))}
                   </Table.Cell>
-                  <Table.Cell width={2}>
+                  <Table.Cell width={3}>
                     <Button
+                      floated="right"
                       basic={true}
                       labelPosition="left"
                       icon="edit"
@@ -137,7 +138,7 @@ class Services extends React.Component<{}, IServicesStates> {
                     />
                     <Modal
                       trigger={
-                        <Button color="red" icon="trash" title="Remove" />
+                        <Button color="red" icon="trash" title="Remove" floated="right" />
                       }
                       size="mini"
                     >

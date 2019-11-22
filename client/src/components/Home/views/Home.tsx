@@ -4,7 +4,8 @@ import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
     Card, Divider, Dropdown, DropdownProps, Grid, Icon, Loader, Message,
-    Segment
+    Segment,
+    Button
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -71,7 +72,23 @@ class Home extends React.Component<{}, IHomeState> {
     if (environments.length === 0) {
       return (
         <>
-          <h2>Home</h2>
+          <Grid>
+            <Grid.Column width={2}>
+              <h2>Home</h2>
+            </Grid.Column>
+            <Grid.Column width={14}>
+              <Button
+                basic={true}
+                labelPosition="left"
+                icon="book"
+                content="Docktor user manual"
+                floated="right"
+                as="a"
+                href="https://docs-qualif.cdk.corp.sopra/start/docktor/"
+                target="_blank"
+              />
+            </Grid.Column>
+          </Grid>
           <Divider />
           <Message info={true}>
             <Message.Header>No group available</Message.Header>
@@ -91,7 +108,7 @@ class Home extends React.Component<{}, IHomeState> {
             <Grid.Column width={2}>
               <h2>Home</h2>
             </Grid.Column>
-            <Grid.Column width={14}>
+            <Grid.Column width={10}>
               <Dropdown
                 selection={true}
                 multiple={true}
@@ -102,6 +119,18 @@ class Home extends React.Component<{}, IHomeState> {
                 })}
                 value={envSelected.map(e => e.group.name)}
                 onChange={this.handleSelect}
+              />
+            </Grid.Column>
+            <Grid.Column width={4}>
+              <Button
+                basic={true}
+                labelPosition="left"
+                icon="book"
+                content="Docktor user manual"
+                floated="right"
+                as="a"
+                href="https://docs-qualif.cdk.corp.sopra/start/docktor/"
+                target="_blank"
               />
             </Grid.Column>
           </Grid.Row>
