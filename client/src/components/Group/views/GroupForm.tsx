@@ -2,7 +2,9 @@ import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import { Button, Form, Message } from 'semantic-ui-react';
+import { History } from 'history';
 
+import { path } from '../../../constants/path';
 import { fetchDaemons } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
 import { saveGroup } from '../actions/group';
@@ -11,6 +13,7 @@ import { IGroup } from '../types/group';
 interface IGroupProps {
   group: IGroup;
   isAdmin: boolean;
+  history: History<any>;
 }
 interface IGroupStates {
   group: IGroup;
@@ -146,11 +149,16 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
   };
 
   private submit = () => {
+    const isNew = !this.state.group._id;
     this.setState({ isFetching: true });
     saveGroup(this.state.group)
-      .then((group: IGroup) =>
-        this.setState({ group, isSuccess: true, isFetching: false })
-      )
+      .then((group: IGroup) => {
+        if (isNew) {
+          this.props.history.push(path.groupsEdit.replace(":groupID", group._id));
+        } else {
+          this.setState({ group, isSuccess: true, isFetching: false });
+        }
+      })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   };
 }
