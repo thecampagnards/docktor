@@ -124,18 +124,6 @@ class Services extends React.Component<{}, IServicesStates> {
                       ))}
                   </Table.Cell>
                   <Table.Cell width={3}>
-                    <Button
-                      floated="right"
-                      basic={true}
-                      labelPosition="left"
-                      icon="edit"
-                      content="Configure"
-                      as={Link}
-                      to={path.servicesEdit.replace(
-                        ":serviceID",
-                        service._id
-                      )}
-                    />
                     <Modal
                       trigger={
                         <Button color="red" icon="trash" title="Remove" floated="right" />
@@ -154,6 +142,18 @@ class Services extends React.Component<{}, IServicesStates> {
                         />
                       </Modal.Actions>
                     </Modal>
+                    <Button
+                      floated="right"
+                      basic={true}
+                      labelPosition="left"
+                      icon="edit"
+                      content="Configure"
+                      as={Link}
+                      to={path.servicesEdit.replace(
+                        ":serviceID",
+                        service._id
+                      )}
+                    />
                   </Table.Cell>
                 </Table.Row>
               ))}

@@ -69,38 +69,6 @@ class Home extends React.Component<{}, IHomeState> {
       );
     }
 
-    if (environments.length === 0) {
-      return (
-        <>
-          <Grid>
-            <Grid.Column width={2}>
-              <h2>Home</h2>
-            </Grid.Column>
-            <Grid.Column width={14}>
-              <Button
-                basic={true}
-                labelPosition="left"
-                icon="book"
-                content="Docktor user manual"
-                floated="right"
-                as="a"
-                href="https://docs-qualif.cdk.corp.sopra/start/docktor/"
-                target="_blank"
-              />
-            </Grid.Column>
-          </Grid>
-          <Divider />
-          <Message info={true}>
-            <Message.Header>No group available</Message.Header>
-            <Message.Content>
-              You are not assigned to any CDK environment. Follow the user
-              manual to get started.
-            </Message.Content>
-          </Message>
-        </>
-      );
-    }
-
     return (
       <>
         <Grid>
@@ -129,7 +97,7 @@ class Home extends React.Component<{}, IHomeState> {
                 content="Docktor user manual"
                 floated="right"
                 as="a"
-                href="https://docs-qualif.cdk.corp.sopra/start/docktor/"
+                href="https://docs-qualif.cdk.corp.sopra/start/docktor/" // TODO get url from config
                 target="_blank"
               />
             </Grid.Column>
@@ -222,6 +190,16 @@ class Home extends React.Component<{}, IHomeState> {
             </Grid.Column>
           ))}
         </Grid>
+        <Divider />
+        {environments.length === 0 && (
+          <Message info={true}>
+            <Message.Header>No group available</Message.Header>
+            <Message.Content>
+              You are not assigned to any CDK environment. Follow the user
+              manual to get started.
+            </Message.Content>
+          </Message>
+        )}
       </>
     );
   }

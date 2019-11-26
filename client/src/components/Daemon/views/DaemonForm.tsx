@@ -135,6 +135,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(0) !== -1}>
               <CodeMirror
+                className="code-small"
                 value={daemon.description}
                 options={{
                   mode: "markdown",
@@ -231,7 +232,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           <Message
             success={true}
             header="Saved"
-            content="Your daemon has been saved"
+            content="Daemon saved"
           />
           <Message error={true} header="Error" content={error.message} />
           <Button type="submit" loading={isFetching}>

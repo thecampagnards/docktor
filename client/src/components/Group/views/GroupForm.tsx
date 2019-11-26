@@ -105,7 +105,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             name="subnet"
             type="string"
             pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
-            value={group.subnet || "1.12.10.1"}
+            value={group.subnet || "1.12.10.1"} // TODO get value from config
             onChange={this.handleChange}
             required={true}
             disabled={!isAdmin}
@@ -113,7 +113,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           <Message
             success={true}
             header="Saved"
-            content="Your group has been saved"
+            content="Groud saved"
           />
           <Message error={true} header="Error" content={error.message} />
           <Button type="Save" loading={isFetching}>
