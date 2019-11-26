@@ -410,13 +410,13 @@ export default class ContainerCard extends React.Component<
   private computeCreateCommand = () => {
     const { container } = this.props;
 
-    const name = container.Names[0] || container.Name;
-    const network = container.HostConfig.NetworkMode;
+    const name = container.Names ? container.Names[0] : container.Name;
+    const network = container.HostConfig.NetworkMode || "";
     const image = container.Image || container.Config.Image;
-    const ports = container.Ports.map(p => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`).join(" ");
-    const volumes = container.Mounts.map(v => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`).join("");
+    const ports = container.Ports ? container.Ports.map(p => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`).join(" ") : "";
+    const volumes = container.Mounts ? container.Mounts.map(v => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`).join("") : "";
     const variables = "" // not returned by API
-    const labels = (container.Labels as string[]).map(l => `-l ${l}`).join("");
+    const labels = container.Labels ? Object.entries(container.Labels).map(l => `-l ${l[0]}="${l[1]}"`).join(" ") : "";
 
     const command = `docker create --name ${name} --network ${network} ${ports} ${volumes} ${variables} ${labels} ${image}`;
 
