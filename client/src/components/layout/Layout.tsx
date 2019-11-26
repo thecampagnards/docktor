@@ -16,6 +16,7 @@ import KonamiCode from './KonamiCode';
 
 interface ILayoutProps {
   message: IMessage;
+  docURL: string;
   isAdmin: boolean;
   isAuthenticated: boolean;
   username: string;
@@ -32,7 +33,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
   };
 
   public render() {
-    const { message, username, isAuthenticated, isAdmin } = this.props;
+    const { message, docURL, username, isAuthenticated, isAdmin } = this.props;
     const { showBanner } = this.state;
 
     return (
@@ -91,26 +92,36 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
               )}
             </>
           )}
+
           <Menu.Menu position="right">
-            {isAuthenticated && <Menu.Item>{username}</Menu.Item>}
+            {docURL &&
+              <Menu.Item>
+                <Button
+                  basic={true}
+                  labelPosition="left"
+                  icon="book"
+                  content="Docktor user manual"
+                  as="a"
+                  href={docURL}
+                  target="_blank"
+                />
+              </Menu.Item>
+            }
+
             <Menu.Item>
               <Button
-                animated="vertical"
+                labelPosition="right"
+                icon="user"
+                content={isAuthenticated ? username.toUpperCase() : "Login"}
                 primary={true}
                 as={Link}
                 to={isAuthenticated ? path.profile : path.login}
-              >
-                <Button.Content hidden={true}>
-                  {isAuthenticated ? "Profile" : "Login"}
-                </Button.Content>
-                <Button.Content visible={true}>
-                  <Icon name="user" />
-                </Button.Content>
-              </Button>
+              />
               {isAuthenticated && (
                 <Button
                   color="red"
                   icon="sign-out"
+                  title="Log out"
                   as={Link}
                   to={path.login}
                   onClick={this.props.logoutRequest}
@@ -135,6 +146,7 @@ const mapStateToProps = (state: IStoreState) => {
   const { login, config } = state;
   return {
     message: config.config.message || {},
+    docURL: config.config.doc_url,
     username: login.username || "",
     isAdmin: login.isAdmin,
     isAuthenticated: login.username !== ""
