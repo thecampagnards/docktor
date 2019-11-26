@@ -1,13 +1,13 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Button, Form, Message } from 'semantic-ui-react';
+import { Button, Form, Message, Modal } from 'semantic-ui-react';
 import { History } from 'history';
 
 import { path } from '../../../constants/path';
 import { fetchDaemons } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
-import { saveGroup } from '../actions/group';
+import { saveGroup, deleteGroup } from '../actions/group';
 import { IGroup } from '../types/group';
 
 interface IGroupProps {
@@ -42,7 +42,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
     isAdmin = typeof isAdmin === "undefined" ? true : isAdmin;
     return (
       <>
-        {!group._id && <h1>Create new group</h1>}
+        {!group._id && <h2>Create new group</h2>}
         <Form
           success={isSuccess}
           error={!!error.message}
@@ -85,6 +85,16 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           />
           <Form.Group widths="equal">
             <Form.Input
+              label="Docker Subnet"
+              name="subnet"
+              type="string"
+              pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
+              value={group.subnet || "1.12.10.0/24"} // TODO get value from config
+              onChange={this.handleChange}
+              required={true}
+              disabled={!isAdmin}
+            />
+            <Form.Input
               label="Docker MinPort"
               name="min_port"
               type="number"
@@ -103,25 +113,35 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
               disabled={!isAdmin}
             />
           </Form.Group>
-          <Form.Input
-            label="Docker Subnet"
-            name="subnet"
-            type="string"
-            pattern="^(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.(25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\/\d+$"
-            value={group.subnet || "1.12.10.1"} // TODO get value from config
-            onChange={this.handleChange}
-            required={true}
-            disabled={!isAdmin}
-          />
+
+          <br />
+          
           <Message
             success={true}
-            header="Saved"
+            header="OK"
             content="Groud saved"
           />
           <Message error={true} header="Error" content={error.message} />
-          <Button type="Save" loading={isFetching}>
-            Save
-          </Button>
+
+          <Button type="Save" color="teal" labelPosition="left" icon="save" content="SAVE" loading={isFetching} />
+          <Modal
+            trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete group" />}
+            size="mini"
+          >
+            <Modal.Header>{`Delete group ${group.name} ?`}</Modal.Header>
+            <Modal.Actions>
+              <Button.Group fluid={true}>
+                <Button
+                  color="red"
+                  icon="trash"
+                  content="Delete permanently"
+                  loading={isFetching}
+                  onClick={this.delete.bind(this, group._id)}
+                />
+              </Button.Group>
+            </Modal.Actions>
+          </Modal>
+          
         </Form>
       </>
     );
@@ -161,6 +181,14 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
       })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   };
+
+  private delete = (groupID: string) => {
+    this.setState({ isFetching: true });
+    deleteGroup(groupID)
+      .then(() => this.props.history.push(path.groups))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
+  }
 }
 
 export default Group;
