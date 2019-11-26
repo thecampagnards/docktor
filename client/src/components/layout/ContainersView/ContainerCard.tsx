@@ -416,7 +416,7 @@ export default class ContainerCard extends React.Component<
     const ports = container.Ports.map(p => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`).join(" ");
     const volumes = container.Mounts.map(v => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`).join("");
     const variables = "" // not returned by API
-    const labels = "" // don't know how to handle it
+    const labels = (container.Labels as string[]).map(l => `-l ${l}`).join("");
 
     const command = `docker create --name ${name} --network ${network} ${ports} ${volumes} ${variables} ${labels} ${image}`;
 
