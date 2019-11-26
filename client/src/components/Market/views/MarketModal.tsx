@@ -83,10 +83,9 @@ class MarketModal extends React.Component<
           floated="left"
         />
         <Button
-          style={{ width: "70%" }}
+          style={{ margin: "0 auto" }}
+          basic={true}
           color="green"
-          labelPosition="left"
-          icon="dolly"
           content={service.name}
           title="Deploy the service in a group"
           floated="left"

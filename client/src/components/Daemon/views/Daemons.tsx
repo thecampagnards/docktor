@@ -77,9 +77,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
 
     // Filter by search text
-    let daemonsFiltered = daemons.filter(daemon =>
-      daemon.name.toLowerCase().includes(filter.search.toLowerCase())
-    );
+    let daemonsFiltered = daemons
+      .sort((a,b) => a.name.localeCompare(b.name))
+      .filter(daemon => daemon.name.toLowerCase().includes(filter.search.toLowerCase()));
 
     // filter by tags
     if (filter.tags.length > 0) {
