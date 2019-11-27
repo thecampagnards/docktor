@@ -49,6 +49,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           onSubmit={this.submit}
         >
           <Form.Input
+            width={4}
             label="Name"
             name="name"
             type="text"
@@ -57,6 +58,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             required={true}
             disabled={!isAdmin}
           />
+          <strong>Description</strong>
           <CodeMirror
             className="code-small"
             value={group.description}
@@ -69,6 +71,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
             autoCursor={false}
             onChange={this.handleChangeCodeEditor}
           />
+          <br />
           <Form.Dropdown
             search={true}
             selection={true}
@@ -124,23 +127,26 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           <Message error={true} header="Error" content={error.message} />
 
           <Button type="Save" color="teal" labelPosition="left" icon="save" content="SAVE" loading={isFetching} />
-          <Modal
-            trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete group" />}
-            size="mini"
-          >
-            <Modal.Header>{`Delete group ${group.name} ?`}</Modal.Header>
-            <Modal.Actions>
-              <Button.Group fluid={true}>
-                <Button
-                  color="red"
-                  icon="trash"
-                  content="Delete permanently"
-                  loading={isFetching}
-                  onClick={this.delete.bind(this, group._id)}
-                />
-              </Button.Group>
-            </Modal.Actions>
-          </Modal>
+          
+          {group._id &&
+            <Modal
+              trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete group" />}
+              size="mini"
+            >
+              <Modal.Header>{`Delete group ${group.name} ?`}</Modal.Header>
+              <Modal.Actions>
+                <Button.Group fluid={true}>
+                  <Button
+                    color="red"
+                    icon="trash"
+                    content="Delete permanently"
+                    loading={isFetching}
+                    onClick={this.delete.bind(this, group._id)}
+                  />
+                </Button.Group>
+              </Modal.Actions>
+            </Modal>
+          }
           
         </Form>
       </>

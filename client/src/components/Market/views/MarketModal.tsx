@@ -72,35 +72,44 @@ class MarketModal extends React.Component<
 
     return (
       <>
-        <Button
-          disabled={!service.link}
-          basic={true}
-          icon="info circle"
-          title="Open documentation"
-          as="a"
-          href={service.link}
-          target="_blank"
-          floated="left"
-        />
-        <Button
-          style={{ margin: "0 auto" }}
-          basic={true}
-          color="green"
-          content={service.name}
-          title="Deploy the service in a group"
-          floated="left"
-          onClick={this.open}
-        />
-        {admin && (
-          <Button
-            basic={true}
-            circular={true}
-            floated="right"
-            icon="edit"
-            as={Link}
-            to={path.servicesEdit.replace(":serviceID", service._id)}
-          />
-        )}
+        <Grid>
+          <Grid.Column width={4}>
+            <Button
+              disabled={!service.link}
+              basic={true}
+              icon="info circle"
+              title="Open documentation"
+              as="a"
+              href={service.link}
+              target="_blank"
+              floated="left"
+            />
+          </Grid.Column>
+          <Grid.Column width={8}>
+            <Button
+              fluid={true}
+              basic={true}
+              circular={true}
+              color="black"
+              content={service.name}
+              title="Deploy the service in a group"
+              floated="left"
+              onClick={this.open}
+            />
+          </Grid.Column>
+          <Grid.Column width={4}>
+            {admin && (
+              <Button
+                basic={true}
+                circular={true}
+                floated="right"
+                icon="edit"
+                as={Link}
+                to={path.servicesEdit.replace(":serviceID", service._id)}
+              />
+            )}
+          </Grid.Column>
+        </Grid>
         <Modal
           closeIcon={true}
           open={open}

@@ -58,7 +58,7 @@ class Images extends React.Component<{}, IImagesStates> {
 
     return (
       <>
-        <h1>Images</h1>
+        <h2>Images</h2>
 
         <Form
           success={isSuccess}
