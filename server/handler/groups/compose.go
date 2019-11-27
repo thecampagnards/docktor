@@ -2,7 +2,6 @@ package groups
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -269,29 +268,4 @@ func getServiceGroupStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, info)
-}
-
-func saveGroupService(c echo.Context) error {
-	group := c.Get("group").(types.Group)
-	db := c.Get("DB").(*storage.Docktor)
-	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
-
-	for key, service := range group.Services {
-		if service.Name == serviceName {
-			group.Services[key].File, _ = ioutil.ReadAll(c.Request().Body)
-			break
-		}
-	}
-
-	_, err := db.Groups().Save(group)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupName":   group.Name,
-			"serviceName": serviceName,
-			"error":       err,
-		}).Error("Error when saving service")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, "Saved successfully")
 }
