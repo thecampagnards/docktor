@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 
-	ldap "gopkg.in/ldap.v3"
+	ldap "github.com/go-ldap/ldap/v3"
 )
 
 // AuthConfig defines the configuration for an LDAP authentication

@@ -22,6 +22,7 @@ require (
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-kit/kit v0.9.0 // indirect
+	github.com/go-ldap/ldap/v3 v3.1.3
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/google/cadvisor v0.34.0
 	github.com/google/go-cmp v0.3.1 // indirect
@@ -52,7 +53,6 @@ require (
 	golang.org/x/time v0.0.0-20190308202827-9d24e82272b4 // indirect
 	golang.org/x/tools v0.0.0-20190903025054-afe7f8212f0d // indirect
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
-	gopkg.in/ldap.v3 v3.1.0
 	gopkg.in/yaml.v2 v2.2.7
 	gopkg.in/yaml.v3 v3.0.0-20191010095647-fc94e3f71652
 	gotest.tools v2.2.0+incompatible // indirect
