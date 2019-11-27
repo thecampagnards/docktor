@@ -11,6 +11,7 @@ type Message struct {
 // Config data
 type Config struct {
 	Message     Message `json:"message" bson:"message"`
+	DocURL      string  `json:"doc_url" bson:"doc_url"`
 	Sources     string  `json:"sources" bson:"sources"`
 	MaxServices int     `json:"max_services" bson:"max_services"`
 }

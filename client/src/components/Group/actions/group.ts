@@ -97,6 +97,18 @@ export const saveGroup = (group: IGroup) => {
     .then(response => response.json());
 };
 
+export const deleteGroup = (groupID: string) => {
+  return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}`, {
+    credentials: "same-origin",
+    method: "DELETE",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`
+    })
+  })
+    .then(checkStatus)
+    .then(response => response.json());
+}
+
 export const deployService = (
   groupID: string,
   serviceID: string,

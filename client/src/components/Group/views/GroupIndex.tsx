@@ -85,7 +85,7 @@ class GroupIndex extends React.Component<
     if (error.message) {
       return (
         <>
-          <h1>Group</h1>
+          <h2>Group</h2>
           <Message negative={true}>
             <Message.Header>Failed to load data with error :</Message.Header>
             <p>{error.message}</p>
@@ -152,7 +152,7 @@ class GroupIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={5}>
-            {group._id && <GroupForm group={group} isAdmin={isAdmin} />}
+            {group._id && <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} />}
           </Tab.Pane>
         )
       });
@@ -160,7 +160,7 @@ class GroupIndex extends React.Component<
 
     return (
       <>
-        <h1>{group.name || "Group"}</h1>
+        <h2>{group.name || "Group"}</h2>
         <ReactMarkdown source={group.description} escapeHtml={false} />
         <Tab
           panes={panes}

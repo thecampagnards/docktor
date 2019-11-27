@@ -123,7 +123,7 @@ class DaemonIndex extends React.Component<
         menuItem: "Edit",
         pane: (
           <Tab.Pane loading={isFetching} key={3}>
-            <DaemonForm daemon={daemon} />
+            <DaemonForm daemon={daemon} history={this.props.history} />
           </Tab.Pane>
         )
       },
@@ -143,7 +143,7 @@ class DaemonIndex extends React.Component<
 
     return (
       <>
-        <h1>{daemon ? "Daemon : " + daemon.name : "Unknown daemon"}</h1>
+        <h2>{daemon ? "Daemon : " + daemon.name : "Unknown daemon"}</h2>
         <ReactMarkdown source={daemon.description} escapeHtml={false} />
         <Tab
           panes={panes}

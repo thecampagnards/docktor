@@ -1,13 +1,16 @@
 import * as _ from 'lodash';
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Accordion, AccordionTitleProps, Button, Form, Icon, Message } from 'semantic-ui-react';
+import { Accordion, AccordionTitleProps, Button, Form, Icon, Message, Modal } from 'semantic-ui-react';
+import { History } from 'history';
 
-import { saveDaemon } from '../actions/daemon';
+import { saveDaemon, deleteDaemon } from '../actions/daemon';
 import { IDaemon } from '../types/daemon';
+import { path } from '../../../constants/path';
 
 interface IDaemonFormProps {
   daemon: IDaemon;
+  history: History<any>;
 }
 
 interface IDaemonFormStates {
@@ -42,21 +45,22 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
     return (
       <>
-        {!daemon._id && <h1>Create new daemon</h1>}
+        {!daemon._id && <h2>Create new daemon</h2>}
         <Form
           success={isSuccess}
           error={!!error.message}
           onSubmit={this.submit}
         >
-          <Form.Input
-            label="Name"
-            name="name"
-            type="text"
-            value={daemon.name}
-            onChange={this.handleChange}
-            required={true}
-          />
-          <Form.Group inline={true}>
+          <Form.Group>
+            <Form.Input
+              width={5}
+              label="Name"
+              name="name"
+              type="text"
+              value={daemon.name}
+              onChange={this.handleChange}
+              required={true}
+            />
             <Form.Input
               label="Host"
               name="host"
@@ -66,27 +70,25 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               width={8}
               required={true}
             />
-
             <Form.Input
               label="Docker Port"
               name="docker.port"
               type="number"
-              value={daemon.docker.port}
+              value={daemon.docker.port || "2376"}
               onChange={this.handleChange}
-              width={4}
+              width={3}
             />
-
+          </Form.Group>
+          
+          <Form.Group>
             <Form.Input
               label="SSH Port"
               name="ssh.port"
               type="number"
-              value={daemon.ssh.port}
+              value={daemon.ssh.port || "22"}
               onChange={this.handleChange}
               width={4}
             />
-          </Form.Group>
-
-          <Form.Group inline={true}>
             <Form.Input
               label="SSH User"
               name="ssh.user"
@@ -95,7 +97,6 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               onChange={this.handleChange}
               width={6}
             />
-
             <Form.Input
               label="SSH Password"
               name="ssh.password"
@@ -107,7 +108,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
           </Form.Group>
 
           <Form.Input
-            label="CAdvisor"
+            label="CAdvisor URL"
             name="cadvisor"
             type="url"
             value={daemon.cadvisor}
@@ -135,6 +136,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             </Accordion.Title>
             <Accordion.Content active={activeAccordions.indexOf(0) !== -1}>
               <CodeMirror
+                className="code-small"
                 value={daemon.description}
                 options={{
                   mode: "markdown",
@@ -224,19 +226,39 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             label="Docker Volume"
             name="docker.volume"
             type="text"
-            value={daemon.docker.volume}
+            value={daemon.docker.volume || "/data/"}
             onChange={this.handleChange}
           />
           <br />
           <Message
             success={true}
             header="Saved"
-            content="Your daemon has been saved"
+            content="Daemon saved"
           />
           <Message error={true} header="Error" content={error.message} />
-          <Button type="submit" loading={isFetching}>
-            Save
-          </Button>
+
+          <Button type="submit" labelPosition="left" icon="save" color="teal" content="SAVE" loading={isFetching} />
+
+          {daemon._id &&
+            <Modal
+              trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete daemon" />}
+              size="mini"
+            >
+              <Modal.Header>{`Delete daemon ${daemon.name} ?`}</Modal.Header>
+              <Modal.Actions>
+                <Button.Group fluid={true}>
+                  <Button
+                    color="red"
+                    icon="trash"
+                    content="Delete permanently"
+                    loading={isFetching}
+                    onClick={this.delete.bind(this, daemon._id)}
+                  />
+                </Button.Group>
+              </Modal.Actions>
+            </Modal>
+          }
+
         </Form>
       </>
     );
@@ -278,18 +300,30 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
 
   private submit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-
+    const isNew = !this.state.daemon._id;
     this.setState({ isFetching: true });
     saveDaemon(this.state.daemon)
-      .then((daemon: IDaemon) =>
-        this.setState({
-          daemon,
-          isSuccess: true,
-          isFetching: false,
-          error: Error()
-        })
-      )
+      .then((daemon: IDaemon) => {
+        if (isNew) {
+          this.props.history.push(path.daemonsEdit.replace(":daemonID", daemon._id));
+        } else {
+          this.setState({
+            daemon,
+            isSuccess: true,
+            isFetching: false,
+            error: Error()
+          })
+        }
+      })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
+  };
+
+  private delete = (daemonID: string) => {
+    this.setState({ isFetching: true });
+    deleteDaemon(daemonID)
+      .then(() => this.props.history.push(path.daemons))
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   };
 }
 

@@ -8,6 +8,7 @@ export interface IConfigState {
 
 export interface IConfig {
   message: IMessage;
+  doc_url: string;
   source: string;
   max_services: number;
 }

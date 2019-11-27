@@ -144,7 +144,9 @@ class Market extends React.Component<
           </Grid.Column>
         </Grid>
         <Grid verticalAlign="middle">
-          {servicesFiltered.map((service: IService) => 
+          {servicesFiltered
+            .sort((a,b) => a.name.localeCompare(b.name))
+            .map((service: IService) => 
             (isAdmin || !service.admin) && 
               (
                 <Grid.Column key={service._id} width={4}>

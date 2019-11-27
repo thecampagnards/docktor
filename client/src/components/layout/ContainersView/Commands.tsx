@@ -77,6 +77,7 @@ export default class Commands extends React.Component<
           </Modal.Content>
           <Modal.Content>
             <CodeMirror
+              className="code-small"
               options={{
                 mode: "shell",
                 lint: true,

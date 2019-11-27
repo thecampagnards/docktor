@@ -115,7 +115,7 @@ class Services extends React.Component<{}, IServicesStates> {
                     )}
                   </Table.Cell>
                   <Table.Cell width={2}>{service.name}</Table.Cell>
-                  <Table.Cell width={10}>
+                  <Table.Cell width={9}>
                     {service.sub_services &&
                       service.sub_services.map((version: ISubService, key) => (
                         <Label key={`${service._id}-${key}`} color={version.active ? "green" : "grey"}>
@@ -123,21 +123,10 @@ class Services extends React.Component<{}, IServicesStates> {
                         </Label>
                       ))}
                   </Table.Cell>
-                  <Table.Cell width={2}>
-                    <Button
-                      basic={true}
-                      labelPosition="left"
-                      icon="edit"
-                      content="Configure"
-                      as={Link}
-                      to={path.servicesEdit.replace(
-                        ":serviceID",
-                        service._id
-                      )}
-                    />
+                  <Table.Cell width={3}>
                     <Modal
                       trigger={
-                        <Button color="red" icon="trash" title="Remove" />
+                        <Button color="red" icon="trash" title="Remove" floated="right" />
                       }
                       size="mini"
                     >
@@ -153,6 +142,18 @@ class Services extends React.Component<{}, IServicesStates> {
                         />
                       </Modal.Actions>
                     </Modal>
+                    <Button
+                      floated="right"
+                      basic={true}
+                      labelPosition="left"
+                      icon="edit"
+                      content="Configure"
+                      as={Link}
+                      to={path.servicesEdit.replace(
+                        ":serviceID",
+                        service._id
+                      )}
+                    />
                   </Table.Cell>
                 </Table.Row>
               ))}

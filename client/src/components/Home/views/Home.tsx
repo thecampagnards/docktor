@@ -3,8 +3,7 @@ import './Home.css';
 import * as React from 'react';
 import { Link } from 'react-router-dom';
 import {
-    Card, Divider, Dropdown, DropdownProps, Grid, Icon, Loader, Message,
-    Segment
+    Card, Divider, Dropdown, DropdownProps, Grid, Icon, Loader, Message, Segment
 } from 'semantic-ui-react';
 
 import { path } from '../../../constants/path';
@@ -64,22 +63,6 @@ class Home extends React.Component<{}, IHomeState> {
         <>
           <h2>Groups</h2>
           <Loader active={true} />
-        </>
-      );
-    }
-
-    if (environments.length === 0) {
-      return (
-        <>
-          <h2>Home</h2>
-          <Divider />
-          <Message info={true}>
-            <Message.Header>No group available</Message.Header>
-            <Message.Content>
-              You are not assigned to any CDK environment. Follow the user
-              manual to get started.
-            </Message.Content>
-          </Message>
         </>
       );
     }
@@ -193,6 +176,16 @@ class Home extends React.Component<{}, IHomeState> {
             </Grid.Column>
           ))}
         </Grid>
+        <Divider />
+        {environments.length === 0 && (
+          <Message info={true}>
+            <Message.Header>No group available</Message.Header>
+            <Message.Content>
+              You are not assigned to any CDK environment. Follow the user
+              manual to get started.
+            </Message.Content>
+          </Message>
+        )}
       </>
     );
   }
