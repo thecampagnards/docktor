@@ -52,6 +52,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   public render() {
     const { daemons, error, isFetching, index, filter } = this.state;
+    let daemonsFiltered = daemons;
 
     if (error.message) {
       return (
@@ -77,9 +78,10 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     }
 
     // Filter by search text
-    let daemonsFiltered = daemons
-      .sort((a,b) => a.name.localeCompare(b.name))
-      .filter(daemon => daemon.name.toLowerCase().includes(filter.search.toLowerCase()));
+    if (filter.search.length > 0) {
+      daemonsFiltered = daemonsFiltered
+        .filter(daemon => daemon.name.toLowerCase().includes(filter.search.toLowerCase()));
+    }
 
     // filter by tags
     if (filter.tags.length > 0) {
@@ -351,7 +353,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
   };
 
   private getDaemons = () => {
-    fetchDaemons().then(daemons => {
+    fetchDaemons().then((daemons: IDaemon[]) => {
+      daemons.sort((a,b) => a.name.localeCompare(b.name));
       this.setState({ daemons });
     });
   };
