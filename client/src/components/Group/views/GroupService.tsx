@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List, Form, Input, InputOnChangeData, Message
+    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List, Form, Input, InputOnChangeData, Message, Header, Icon
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
@@ -214,7 +214,7 @@ export default class GroupService extends React.Component<
                   floated="right"
                 />
                 <Modal size="large" open={modalOpen} onClose={this.handleClose}>
-                  <Modal.Header
+                  <Header
                     icon="file alternate outline"
                     content={`${service.name} compose file`}
                   />
@@ -242,14 +242,14 @@ export default class GroupService extends React.Component<
                     />
                   </Modal.Actions>
                 </Modal>
-                <Modal size="large" open={updating} onClose={this.closeUpdate}>
-                  <Modal.Header
-                    icon="level up"
+                <Modal size="small" open={updating} onClose={this.closeUpdate}>
+                  <Header
+                    icon="arrow circle up"
                     content={`Update service ${this.serviceTitle}`}
                   />
                   <Modal.Content>
                     <Form id="update-form" loading={!update._id} onSubmit={this.migrate}>
-                      <h3>Service name : {service.name}</h3>
+                      <h4>Service name : {service.name}</h4>
                       {(update.variables && update.variables.length > 0) ?
                         <>
                           <h5>Variables</h5>
@@ -273,7 +273,9 @@ export default class GroupService extends React.Component<
                           ))}
                         </>
                         :
-                        <Message compact={true} content="No additional configuration required" />
+                        <Message compact={true}>
+                          <Icon name="check" color="green" /> No additional configuration required
+                        </Message>
                       }
                     </Form>
                   </Modal.Content>
@@ -281,8 +283,8 @@ export default class GroupService extends React.Component<
                     <Button
                       basic={true}
                       color="green"
-                      labelPosition="left"
-                      icon="hand point up"
+                      labelPosition="right"
+                      icon="level up"
                       content="Update"
                       form="update-form"
                       type="submit"
