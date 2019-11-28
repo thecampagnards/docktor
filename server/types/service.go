@@ -35,8 +35,8 @@ type SubService struct {
 	Active    bool              `json:"active" bson:"active"`
 	File      string            `json:"file,omitempty"  bson:"file" validate:"required"`
 	Variables []ServiceVariable `json:"variables" bson:"-"`
-	VersionIndex int `json:"version_index" bson:"version_index"`
-	UpdateIndex int `json:"update_index" bson:"update_index"`
+	VersionIndex int 			`json:"version_index" bson:"version_index"`
+	UpdateIndex int 			`json:"update_index" bson:"update_index"`
 }
 
 // ServiceVariable data

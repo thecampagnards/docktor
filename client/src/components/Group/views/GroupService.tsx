@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List, Form, Input, InputOnChangeData
+    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List, Form, Input, InputOnChangeData, Message
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
@@ -98,6 +98,7 @@ export default class GroupService extends React.Component<
                 {this.updateIndex !== 0 &&
                   <Button
                     basic={true}
+                    compact={true}
                     icon="level up"
                     title="Update available"
                     onClick={this.openUpdate}
@@ -248,8 +249,8 @@ export default class GroupService extends React.Component<
                   />
                   <Modal.Content>
                     <Form id="update-form" loading={!update._id} onSubmit={this.migrate}>
-                      <h3>{service.name}</h3>
-                      {update.variables && update.variables.length > 0 && (
+                      <h3>Service name : {service.name}</h3>
+                      {(update.variables && update.variables.length > 0) ?
                         <>
                           <h5>Variables</h5>
                           {update.variables.map((variable: IServiceVariable) => (
@@ -271,14 +272,17 @@ export default class GroupService extends React.Component<
                             </Form.Field>
                           ))}
                         </>
-                      )}
+                        :
+                        <Message compact={true} content="No additional configuration required" />
+                      }
                     </Form>
                   </Modal.Content>
                   <Modal.Actions>
                     <Button
                       basic={true}
+                      color="green"
                       labelPosition="left"
-                      icon="cog"
+                      icon="hand point up"
                       content="Update"
                       form="update-form"
                       type="submit"
