@@ -61,7 +61,7 @@ class ServiceForm extends React.Component<
 
   public render() {
     const { service, error, isSuccess, isFetching, openVersions } = this.state;
-
+    
     if (isFetching) {
       return (
         <>
@@ -349,6 +349,13 @@ class ServiceForm extends React.Component<
       this.setState({ service: _.set(service, name, value || checked) });
     }
   };
+
+  private handleChangeIndex = (
+    e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
+    { name, value }: any
+  ) => {
+    this.setState({ service: _.update(this.state.service, name, function() {return Number(value)}) })
+  }
 
   private handleChangeCodeEditor = (
     editor: CodeMirror.Editor,

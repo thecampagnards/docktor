@@ -1,6 +1,7 @@
 import { checkStatus } from '../../../utils/promises';
 import { GetToken } from '../../User/actions/user';
 import { IGroup } from '../types/group';
+import { ISubService } from '../../Services/types/service';
 
 export const fetchGroups = (all: boolean) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups?all=${all}`, {
@@ -194,12 +195,28 @@ export const saveGroupService = (
     .then(response => response.json());
 };
 
-export const updateService = (groupID: string, serviceName: string) => {
+export const getServiceUpdate = (groupID: string, serviceName: string) => {
   return fetch(
     `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}/update`,
     {
       credentials: "same-origin",
       method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
+export const updateService = (groupID: string, serviceName: string, subService: ISubService) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}/update`,
+    {
+      credentials: "same-origin",
+      method: "POST",
+      body: JSON.stringify(subService),
       headers: new Headers({
         Authorization: `Bearer ${GetToken()}`
       })

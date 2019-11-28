@@ -7,7 +7,7 @@ import {
 import { copy } from '../../../utils/clipboard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
 import { IGroupService, IService, ISubService, IServiceVariable } from '../../Services/types/service';
-import { getServiceStatus, saveGroupService, updateServiceStatus, updateService } from '../actions/group';
+import { getServiceStatus, saveGroupService, updateServiceStatus, updateService, getServiceUpdate } from '../actions/group';
 import { IContainerStatus } from '../types/group';
 import ServiceStatusIndicator from '../../layout/ServiceStatusIndicator';
 
@@ -248,7 +248,7 @@ export default class GroupService extends React.Component<
                     content={`Update service ${this.serviceTitle}`}
                   />
                   <Modal.Content>
-                    <Form id="update-form" loading={!update._id} onSubmit={this.migrate}>
+                    <Form id="update-form" loading={!update._id} onSubmit={this.update}>
                       <h4>Service name : {service.name}</h4>
                       {(update.variables && update.variables.length > 0) ?
                         <>
@@ -446,14 +446,19 @@ export default class GroupService extends React.Component<
 
   private getUpdate = () => {
     const { groupID, service } = this.props;
-    updateService(groupID, service.name)
+    getServiceUpdate(groupID, service.name)
       .then((sub: ISubService) => this.setState({ update: sub }))
       .catch(error => this.setState({ error }));
   }
 
-  private migrate = () => {
+  private update = () => {
+    const { groupID, service } = this.props;
     const { update } = this.state;
-    console.log(update);
+    this.setState({ saveState: "updating" });
+    updateService(groupID, service.name, update)
+      .then((gs: IGroupService) => this.refreshStatus())
+      .catch(error => this.setState({ error }))
+      .finally(() => this.setState({ saveState: "saved" }))
   }
 
   private handleChangeVariable = (

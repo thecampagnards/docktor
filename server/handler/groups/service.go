@@ -38,7 +38,7 @@ func saveGroupService(c echo.Context) error {
 	return c.JSON(http.StatusOK, "Saved successfully")
 }
 
-func updateGroupService(c echo.Context) error {
+func getGroupServiceUpdate(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
@@ -102,7 +102,7 @@ func updateGroupService(c echo.Context) error {
 	return c.JSON(http.StatusOK, targetSubService)
 }
 
-func migrateGroupService(c echo.Context) error {
+func updateGroupService(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
 	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
@@ -159,6 +159,8 @@ func migrateGroupService(c echo.Context) error {
 	}
 	newService.URL = groupService.URL
 
+	// TODO: handle extra hosts ?
+
 	group.Services[groupServiceIndex] = newService
 	group, err = db.Groups().Save(group)
 	if err != nil {
@@ -178,6 +180,9 @@ func migrateGroupService(c echo.Context) error {
 		}).Error("Error when removing service")
 		return err
 	}
+
+	// TODO: check if a script needs to be run
+
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{newService.File})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -186,8 +191,6 @@ func migrateGroupService(c echo.Context) error {
 		}).Error("Error when starting service")
 		return err
 	}
-
-	// TODO: handle extra hosts ?
 
 	return c.JSON(http.StatusOK, newService)
 }
