@@ -218,6 +218,7 @@ export const updateService = (groupID: string, serviceName: string, subService: 
       method: "POST",
       body: JSON.stringify(subService),
       headers: new Headers({
+        "Content-Type": "application/json",
         Authorization: `Bearer ${GetToken()}`
       })
     }

@@ -15,6 +15,7 @@ interface IGroupServiceProps {
   groupID: string;
   service: IGroupService;
   admin: boolean;
+  groupAdmin: boolean;
 }
 
 interface IGroupServiceState {
@@ -73,7 +74,7 @@ export default class GroupService extends React.Component<
   }
 
   public render() {
-    const { service, admin } = this.props;
+    const { service, admin, groupAdmin } = this.props;
     const { isFetching, status, modalOpen, updating, update, file, saveState } = this.state;
 
     return (
@@ -102,6 +103,7 @@ export default class GroupService extends React.Component<
                     icon="level up"
                     title="Update available"
                     onClick={this.openUpdate}
+                    disabled={!(groupAdmin || admin)}
                   />
                 }
               </Grid.Column>
@@ -250,6 +252,7 @@ export default class GroupService extends React.Component<
                   <Modal.Content>
                     <Form id="update-form" loading={!update._id} onSubmit={this.update}>
                       <h4>Service name : {service.name}</h4>
+                      <h5>Target version : {update.name}</h5>
                       {(update.variables && update.variables.length > 0) ?
                         <>
                           <h5>Variables</h5>
@@ -456,7 +459,7 @@ export default class GroupService extends React.Component<
     const { update } = this.state;
     this.setState({ saveState: "updating" });
     updateService(groupID, service.name, update)
-      .then((gs: IGroupService) => this.refreshStatus())
+      .then(() => window.location.reload())
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ saveState: "saved" }))
   }

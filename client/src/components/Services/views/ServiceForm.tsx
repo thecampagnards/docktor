@@ -152,7 +152,7 @@ class ServiceForm extends React.Component<
                   onClick={this.handleToggleVersion.bind(this, ss._id)}
                 >
                   <Icon name="dropdown" />
-                  {`${service.name} ${ss.name}`}
+                  {`${service.name} ${ss.name} (v${ss.version_index})`}
                 </Accordion.Title>
                 <Accordion.Content active={openVersions.includes(ss._id)}>
                   <Grid>
@@ -183,7 +183,7 @@ class ServiceForm extends React.Component<
                           type="number"
                           name={`sub_services.${key}.version_index`}
                           value={ss.version_index}
-                          onChange={this.handleChange}
+                          onChange={this.handleChangeIndex}
                           required={true}
                         />
                       </Grid.Column>
@@ -194,7 +194,7 @@ class ServiceForm extends React.Component<
                           type="number"
                           name={`sub_services.${key}.update_index`}
                           value={ss.update_index}
-                          onChange={this.handleChange}
+                          onChange={this.handleChangeIndex}
                           required={true}
                         />
                       </Grid.Column>
