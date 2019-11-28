@@ -1,13 +1,13 @@
 import * as React from 'react';
 import { UnControlled as CodeMirror } from 'react-codemirror2';
 import {
-    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List
+    Button, ButtonProps, Card, Dropdown, Grid, Image, Label, Modal, Popup, List, Form, Input, InputOnChangeData
 } from 'semantic-ui-react';
 
 import { copy } from '../../../utils/clipboard';
 import { fetchServiceBySubService } from '../../Services/actions/service';
-import { IGroupService, IService } from '../../Services/types/service';
-import { getServiceStatus, saveGroupService, updateServiceStatus } from '../actions/group';
+import { IGroupService, IService, ISubService, IServiceVariable } from '../../Services/types/service';
+import { getServiceStatus, saveGroupService, updateServiceStatus, updateService } from '../actions/group';
 import { IContainerStatus } from '../types/group';
 import ServiceStatusIndicator from '../../layout/ServiceStatusIndicator';
 
@@ -20,6 +20,8 @@ interface IGroupServiceProps {
 interface IGroupServiceState {
   status: IContainerStatus[];
   modalOpen: boolean;
+  updating: boolean;
+  update: ISubService;
   error: Error;
   isFetching: boolean;
   subServiceError: Error;
@@ -35,6 +37,8 @@ export default class GroupService extends React.Component<
   public state = {
     status: [] as IContainerStatus[],
     modalOpen: false,
+    updating: false,
+    update: {} as ISubService,
     error: Error(),
     isFetching: false,
     subServiceError: Error(),
@@ -47,6 +51,7 @@ export default class GroupService extends React.Component<
   private serviceDoc = "https://docs.cdk.corp.sopra/start/";
   private serviceIcon: string;
   private serviceTitle = "";
+  private updateIndex = 0;
 
   public componentDidMount() {
     this.refreshStatus();
@@ -59,6 +64,9 @@ export default class GroupService extends React.Component<
         this.serviceDoc = s.link;
         this.serviceIcon = s.image;
         this.serviceTitle = s.name;
+        if (sub && sub.update_index !== sub.version_index) {
+          this.updateIndex = sub.update_index >= 0 ? sub.update_index : this.computeLatest(s, sub.version_index);
+        }
       })
       .catch(error => this.setState({ subServiceError: error }))
       .finally(() => this.setState({ isFetchingSub: false }));
@@ -66,7 +74,7 @@ export default class GroupService extends React.Component<
 
   public render() {
     const { service, admin } = this.props;
-    const { isFetching, status, modalOpen, file, saveState } = this.state;
+    const { isFetching, status, modalOpen, updating, update, file, saveState } = this.state;
 
     return (
       <Card fluid={true}>
@@ -87,6 +95,14 @@ export default class GroupService extends React.Component<
               </Grid.Column>
               <Grid.Column width={4}>
                 <Label basic={true}>{this.serviceVersion}</Label>
+                {this.updateIndex !== 0 &&
+                  <Button
+                    basic={true}
+                    icon="level up"
+                    title="Update available"
+                    onClick={this.openUpdate}
+                  />
+                }
               </Grid.Column>
               <Grid.Column width={8}>
                 {status.map(cs => <ServiceStatusIndicator key={cs.Name} cs={cs} />)}
@@ -222,6 +238,52 @@ export default class GroupService extends React.Component<
                       onClick={this.save}
                       loading={saveState === "saving"}
                       disabled={saveState === "saved"}
+                    />
+                  </Modal.Actions>
+                </Modal>
+                <Modal size="large" open={updating} onClose={this.closeUpdate}>
+                  <Modal.Header
+                    icon="level up"
+                    content={`Update service ${this.serviceTitle}`}
+                  />
+                  <Modal.Content>
+                    <Form id="update-form" loading={!update._id} onSubmit={this.migrate}>
+                      <h3>{service.name}</h3>
+                      {update.variables && update.variables.length > 0 && (
+                        <>
+                          <h5>Variables</h5>
+                          {update.variables.map((variable: IServiceVariable) => (
+                            <Form.Field
+                              inline={true}
+                              key={variable.name}
+                              required={!variable.optional}
+                            >
+                              <label>
+                                {variable.name.replace(/optional_|secret_/g, "").replace(/_/g, " ").toUpperCase()}
+                              </label>
+                              <Input
+                                name={variable.name}
+                                required={!variable.optional}
+                                onChange={this.handleChangeVariable}
+                                value={variable.value}
+                                type={variable.secret ? "password" : "text"}
+                              />
+                            </Form.Field>
+                          ))}
+                        </>
+                      )}
+                    </Form>
+                  </Modal.Content>
+                  <Modal.Actions>
+                    <Button
+                      basic={true}
+                      labelPosition="left"
+                      icon="cog"
+                      content="Update"
+                      form="update-form"
+                      type="submit"
+                      loading={saveState === "updating"}
+                      disabled={!update._id}
                     />
                   </Modal.Actions>
                 </Modal>
@@ -363,4 +425,49 @@ export default class GroupService extends React.Component<
       .then(() => window.location.reload())
       .catch(error => this.setState({ error, isFetching: false }));
   };
+
+  private openUpdate = () => {
+    const { update } = this.state;
+    if (!update._id) {
+      this.getUpdate();
+    }
+    this.setState({ updating: true });
+  }
+
+  private closeUpdate = () => {
+    this.setState({ updating: false });
+  }
+
+  private getUpdate = () => {
+    const { groupID, service } = this.props;
+    updateService(groupID, service.name)
+      .then((sub: ISubService) => this.setState({ update: sub }))
+      .catch(error => this.setState({ error }));
+  }
+
+  private migrate = () => {
+    const { update } = this.state;
+    console.log(update);
+  }
+
+  private handleChangeVariable = (
+    event: any,
+    { name, value }: InputOnChangeData
+  ) => {
+    const { update } = this.state;
+    for (const i in update.variables) {
+      if (update.variables[i].name === name) {
+        update.variables[i].value = value;
+      }
+    }
+    this.setState({ update });
+  };
+
+  private computeLatest = (s: IService, current: number) => {
+    if (s.sub_services.length < 2) {
+      return 0;
+    }
+    const highest = s.sub_services.sort((a,b) => b.version_index - a.version_index)[0].version_index;
+    return highest === current ? 0 : -1;
+  }
 }

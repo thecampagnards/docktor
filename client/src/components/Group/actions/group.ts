@@ -194,6 +194,21 @@ export const saveGroupService = (
     .then(response => response.json());
 };
 
+export const updateService = (groupID: string, serviceName: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/groups/${groupID}/services/${serviceName}/update`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`
+      })
+    }
+  )
+    .then(checkStatus)
+    .then(response => response.json());
+};
+
 export const fetchCadvisor = (groupID: string) => {
   return fetch(`${process.env.PUBLIC_URL}/api/groups/${groupID}/cadvisor`, {
     credentials: "same-origin",

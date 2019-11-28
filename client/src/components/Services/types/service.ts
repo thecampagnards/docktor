@@ -16,6 +16,8 @@ export interface ISubService {
   compose?: string;
   variables: IServiceVariable[];
   active: boolean;
+  version_index: number;
+  update_index: number;
 }
 
 export interface IGroupService {
