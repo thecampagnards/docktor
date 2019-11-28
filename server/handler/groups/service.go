@@ -101,3 +101,93 @@ func updateGroupService(c echo.Context) error {
 
 	return c.JSON(http.StatusOK, targetSubService)
 }
+
+func migrateGroupService(c echo.Context) error {
+	group := c.Get("group").(types.Group)
+	db := c.Get("DB").(*storage.Docktor)
+	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
+
+	var groupServiceIndex int
+	var groupService types.GroupService
+	for i, service := range group.Services {
+		if service.Name == serviceName {
+			groupService = service
+			groupServiceIndex = i
+			break
+		}
+	}
+	if groupService.Name == "" {
+		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Service with name %s does not exist in group %s", serviceName, group.Name))
+	}
+
+	var subService types.SubService
+	err := c.Bind(&subService)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"subService": c.Request().Body,
+			"error":     err,
+		}).Error("Error when parsing sub-service")
+		return c.JSON(http.StatusBadRequest, err)
+	}
+
+	service, err := db.Services().FindBySubServiceID(groupService.SubServiceID.Hex())
+	if err != nil {
+		log.WithFields(log.Fields{
+			"subserviceID": groupService.SubServiceID.Hex(),
+			"error":        err,
+		}).Error("Error when retrieving subservice")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	daemon, err := db.Daemons().FindByIDBson(group.Daemon)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID":  group.Daemon,
+			"groupName": group.Name,
+			"error":     err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	newService, err := subService.ConvertToGroupService(serviceName, daemon, service, group, groupService.AutoUpdate, []string{})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"serviceGroup": newService,
+			"error":        err,
+		}).Error("Error when getting compose file of subservice")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+	newService.URL = groupService.URL
+
+	group.Services[groupServiceIndex] = newService
+	group, err = db.Groups().Save(group)
+	if err != nil {
+		log.WithFields(log.Fields{
+			"groupName": group.Name,
+			"error":     err,
+		}).Error("Error when updating group")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	contextName := fmt.Sprintf("%s_%s", group.Name, serviceName)
+	err = daemon.ComposeRemove(contextName, [][]byte{groupService.File})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": serviceName,
+			"error":        err,
+		}).Error("Error when removing service")
+		return err
+	}
+	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{newService.File})
+	if err != nil {
+		log.WithFields(log.Fields{
+			"service": serviceName,
+			"error":        err,
+		}).Error("Error when starting service")
+		return err
+	}
+
+	// TODO: handle extra hosts ?
+
+	return c.JSON(http.StatusOK, newService)
+}
