@@ -35,8 +35,10 @@ func AddRoute(e *echo.Group) {
 		}
 
 		{
-			services := group.Group("/services", middleware.WithAdmin)
-			services.POST(fmt.Sprintf("/:%s", types.GROUPSERVICE_NAME_PARAM), saveGroupService)
+			services := group.Group("/services")
+			services.POST(fmt.Sprintf("/:%s", types.GROUPSERVICE_NAME_PARAM), saveGroupService, middleware.WithAdmin)
+			services.GET(fmt.Sprintf("/:%s/update", types.GROUPSERVICE_NAME_PARAM), getGroupServiceUpdate, middleware.WithGroupAdmin)
+			services.POST(fmt.Sprintf("/:%s/update", types.GROUPSERVICE_NAME_PARAM), updateGroupService, middleware.WithGroupAdmin)
 		}
 
 		{

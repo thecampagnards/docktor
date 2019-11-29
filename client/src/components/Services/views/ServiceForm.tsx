@@ -61,7 +61,7 @@ class ServiceForm extends React.Component<
 
   public render() {
     const { service, error, isSuccess, isFetching, openVersions } = this.state;
-
+    
     if (isFetching) {
       return (
         <>
@@ -152,13 +152,14 @@ class ServiceForm extends React.Component<
                   onClick={this.handleToggleVersion.bind(this, ss._id)}
                 >
                   <Icon name="dropdown" />
-                  {`${service.name} ${ss.name}`}
+                  {`${service.name} ${ss.name} (v${ss.version_index})`}
                 </Accordion.Title>
                 <Accordion.Content active={openVersions.includes(ss._id)}>
                   <Grid>
                     <Grid.Row>
-                      <Grid.Column width={10}>
+                      <Grid.Column width={4}>
                         <Form.Input
+                          label="Version name"
                           fluid={true}
                           value={ss.name}
                           onChange={this.handleChange}
@@ -173,6 +174,28 @@ class ServiceForm extends React.Component<
                           name={`sub_services.${key}.active`}
                           defaultChecked={ss.active}
                           onChange={this.handleChange}
+                        />
+                      </Grid.Column>
+                      <Grid.Column width={3}>
+                        <Form.Input
+                          label="Version index"
+                          fluid={true}
+                          type="number"
+                          name={`sub_services.${key}.version_index`}
+                          value={ss.version_index}
+                          onChange={this.handleChangeIndex}
+                          required={true}
+                        />
+                      </Grid.Column>
+                      <Grid.Column width={3}>
+                        <Form.Input
+                          label="Update index"
+                          fluid={true}
+                          type="number"
+                          name={`sub_services.${key}.update_index`}
+                          value={ss.update_index}
+                          onChange={this.handleChangeIndex}
+                          required={true}
                         />
                       </Grid.Column>
                       <Grid.Column width={4}>
@@ -276,10 +299,13 @@ class ServiceForm extends React.Component<
     event.preventDefault();
 
     const service = this.state.service;
+    const nextIndex = service.sub_services.length > 0 ? [...service.sub_services].sort((a,b) => b.version_index - a.version_index)[0].version_index + 1 : 1;
     const sub = {
       name: "",
       file: "",
-      active: true
+      active: true,
+      version_index: nextIndex,
+      update_index: -1
     } as ISubService;
     service.sub_services
       ? service.sub_services.unshift(sub)
@@ -323,6 +349,13 @@ class ServiceForm extends React.Component<
       this.setState({ service: _.set(service, name, value || checked) });
     }
   };
+
+  private handleChangeIndex = (
+    e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
+    { name, value }: any
+  ) => {
+    this.setState({ service: _.update(this.state.service, name, function() {return Number(value)}) })
+  }
 
   private handleChangeCodeEditor = (
     editor: CodeMirror.Editor,

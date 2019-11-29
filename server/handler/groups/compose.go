@@ -2,7 +2,6 @@ package groups
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net/http"
 	"strconv"
 	"strings"
@@ -169,7 +168,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	contextName := fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name)
+	contextName := fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name)
 
 	switch c.QueryParam("status") {
 	case "start":
@@ -257,7 +256,7 @@ func getServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	info, err := daemon.ComposeStatus(fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name), [][]byte{serviceGroup.File})
+	info, err := daemon.ComposeStatus(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,
@@ -269,29 +268,4 @@ func getServiceGroupStatus(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, info)
-}
-
-func saveGroupService(c echo.Context) error {
-	group := c.Get("group").(types.Group)
-	db := c.Get("DB").(*storage.Docktor)
-	serviceName := c.Param(types.GROUPSERVICE_NAME_PARAM)
-
-	for key, service := range group.Services {
-		if service.Name == serviceName {
-			group.Services[key].File, _ = ioutil.ReadAll(c.Request().Body)
-			break
-		}
-	}
-
-	_, err := db.Groups().Save(group)
-	if err != nil {
-		log.WithFields(log.Fields{
-			"groupName":   group.Name,
-			"serviceName": serviceName,
-			"error":       err,
-		}).Error("Error when saving service")
-		return c.JSON(http.StatusBadRequest, err.Error())
-	}
-
-	return c.JSON(http.StatusOK, "Saved successfully")
 }

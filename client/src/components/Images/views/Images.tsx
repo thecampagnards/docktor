@@ -70,7 +70,7 @@ class Images extends React.Component<{}, IImagesStates> {
               <Grid.Column width={3}>
                 <List selection={true}>
                   {images &&
-                    images.map((img, key) => (
+                    images.sort((a,b) => a.title.localeCompare(b.title)).map((img, key) => (
                       <List.Item
                         key={key}
                         as={Button}
@@ -307,7 +307,9 @@ class Images extends React.Component<{}, IImagesStates> {
     event.preventDefault();
 
     const { images, imageKey } = this.state;
-    images[imageKey].commands = images[imageKey].commands.splice(commandKey, 1);
+    const commands = images[imageKey].commands;
+    commands.splice(commandKey, 1);
+    images[imageKey].commands = commands;
     this.setState({ images });
   };
 

@@ -115,6 +115,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
                 groupID={group._id}
                 service={service}
                 admin={admin}
+                groupAdmin={groupAdmin}
               />
             </Grid.Column>
           ))}
