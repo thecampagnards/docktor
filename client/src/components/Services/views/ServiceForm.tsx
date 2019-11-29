@@ -299,7 +299,7 @@ class ServiceForm extends React.Component<
     event.preventDefault();
 
     const service = this.state.service;
-    const nextIndex = service.sub_services.length > 0 ? service.sub_services.sort((a,b) => b.version_index - a.version_index)[0].version_index + 1 : 1;
+    const nextIndex = service.sub_services.length > 0 ? [...service.sub_services].sort((a,b) => b.version_index - a.version_index)[0].version_index + 1 : 1;
     const sub = {
       name: "",
       file: "",

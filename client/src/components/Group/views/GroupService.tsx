@@ -481,7 +481,7 @@ export default class GroupService extends React.Component<
     if (s.sub_services.length < 2) {
       return 0;
     }
-    const highest = s.sub_services.sort((a,b) => b.version_index - a.version_index)[0].version_index;
+    const highest = [...s.sub_services].sort((a,b) => b.version_index - a.version_index)[0].version_index;
     return highest === current ? 0 : -1;
   }
 }
