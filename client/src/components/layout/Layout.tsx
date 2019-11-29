@@ -112,6 +112,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
               <Button
                 labelPosition="right"
                 icon="user"
+                title="Profile"
                 content={isAuthenticated ? username.toUpperCase() : "Login"}
                 primary={true}
                 as={Link}
@@ -121,7 +122,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
                 <Button
                   color="red"
                   icon="sign-out"
-                  title="Log out"
+                  title="Sign out"
                   as={Link}
                   to={path.login}
                   onClick={this.props.logoutRequest}

@@ -92,6 +92,7 @@ export default class ContainersGrid extends React.Component<
                     trigger={
                       <Button
                         color="blue"
+                        basic={true}
                         circular={true}
                         labelPosition="left"
                         icon="double angle right"
@@ -110,6 +111,7 @@ export default class ContainersGrid extends React.Component<
                     trigger={
                       <Button
                         color="green"
+                        basic={true}
                         circular={true}
                         labelPosition="left"
                         icon="play"
@@ -128,6 +130,7 @@ export default class ContainersGrid extends React.Component<
                     trigger={
                       <Button
                         color="orange"
+                        basic={true}
                         circular={true}
                         labelPosition="left"
                         icon="stop"
@@ -143,14 +146,6 @@ export default class ContainersGrid extends React.Component<
                   {groupId && admin && (
                     <>
                       <Button
-                        basic={true}
-                        circular={true}
-                        icon="recycle"
-                        onClick={this.handleTransform}
-                        floated="right"
-                        loading={isFetching === "transform"}
-                      />
-                      <Button
                         color="black"
                         circular={true}
                         icon="terminal"
@@ -159,6 +154,16 @@ export default class ContainersGrid extends React.Component<
                         as={Link}
                         to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
                         floated="right"
+                      />
+                      <Button
+                        basic={true}
+                        color="teal"
+                        circular={true}
+                        icon="recycle"
+                        title="Transform services (experimental)"
+                        onClick={this.handleTransform}
+                        floated="right"
+                        loading={isFetching === "transform"}
                       />
                     </>
                   )}
