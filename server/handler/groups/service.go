@@ -58,17 +58,15 @@ func getGroupServiceUpdate(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-
-	var targetIndex int
+	
 	var targetSubService types.SubService
-	for _, sub := range service.SubServices {
-		if sub.ID == groupService.SubServiceID {
-			targetIndex = sub.UpdateIndex
-		}
-	}
-	if targetIndex == 0 {
+	currentSubService, err := service.FindSubServiceByID(groupService.SubServiceID.Hex())
+	if err != nil {
+		log.Errorln(err)
 		return c.JSON(http.StatusBadRequest, fmt.Sprintf("Couldn't find sub-service with ID %s in %s", groupService.SubServiceID.Hex(), service.Name))
-	} else if targetIndex < 0 {
+	}
+	targetIndex := currentSubService.UpdateIndex
+	if targetIndex < 0 {
 		targetSubService.VersionIndex = 1
 		for _, sub := range service.SubServices {
 			if sub.VersionIndex > targetSubService.VersionIndex {
@@ -171,7 +169,7 @@ func updateGroupService(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	contextName := fmt.Sprintf("%s_%s", group.Name, serviceName)
+	contextName := fmt.Sprintf("%s-%s", group.Name, serviceName)
 	err = daemon.ComposeRemove(contextName, [][]byte{groupService.File})
 	if err != nil {
 		log.WithFields(log.Fields{
@@ -181,7 +179,7 @@ func updateGroupService(c echo.Context) error {
 		return err
 	}
 
-	// TODO: check if a script needs to be run
+	// TODO: check if a script needs to be run (create specific collection in the db)
 
 	err = daemon.ComposeUp(group.Name, serviceName, group.Subnet, [][]byte{newService.File})
 	if err != nil {

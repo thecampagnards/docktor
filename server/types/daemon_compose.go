@@ -96,7 +96,7 @@ func (d *Daemon) ComposeUp(projectName string, serviceName string, subnet string
 		}
 	}
 
-	contextName := fmt.Sprintf("%s_%s", projectName, serviceName)
+	contextName := fmt.Sprintf("%s-%s", projectName, serviceName)
 
 	con, err := getComposeProjectContext(contextName, files)
 	if err != nil {

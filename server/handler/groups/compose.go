@@ -168,7 +168,7 @@ func updateServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	contextName := fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name)
+	contextName := fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name)
 
 	switch c.QueryParam("status") {
 	case "start":
@@ -256,7 +256,7 @@ func getServiceGroupStatus(c echo.Context) error {
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
 
-	info, err := daemon.ComposeStatus(fmt.Sprintf("%s_%s", group.Name, serviceGroup.Name), [][]byte{serviceGroup.File})
+	info, err := daemon.ComposeStatus(fmt.Sprintf("%s-%s", group.Name, serviceGroup.Name), [][]byte{serviceGroup.File})
 	if err != nil {
 		log.WithFields(log.Fields{
 			"groupName":  group.Name,
