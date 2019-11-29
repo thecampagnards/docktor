@@ -155,13 +155,16 @@ export default class GroupService extends React.Component<
                           <Button.Group fluid={true}>
                             <Button
                               color="orange"
+                              labelPosition="left"
                               icon="hdd"
                               content="Keep data"
                               loading={isFetching}
                               onClick={this.remove.bind(this, false)}
                             />
+                            <Button.Or />
                             <Button
                               color="red"
+                              labelPosition="right"
                               icon="trash"
                               content="Remove data"
                               loading={isFetching}

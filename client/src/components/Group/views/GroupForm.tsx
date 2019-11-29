@@ -142,6 +142,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
                     content="Delete permanently"
                     loading={isFetching}
                     onClick={this.delete.bind(this, group._id)}
+                    disabled={!isAdmin}
                   />
                 </Button.Group>
               </Modal.Actions>

@@ -159,7 +159,7 @@ class ServiceForm extends React.Component<
                     <Grid.Row>
                       <Grid.Column width={4}>
                         <Form.Input
-                          label="Version name"
+                          placeholder="Version name"
                           fluid={true}
                           value={ss.name}
                           onChange={this.handleChange}
@@ -178,7 +178,7 @@ class ServiceForm extends React.Component<
                       </Grid.Column>
                       <Grid.Column width={3}>
                         <Form.Input
-                          label="Version index"
+                          placeholder="Version index"
                           fluid={true}
                           type="number"
                           name={`sub_services.${key}.version_index`}
@@ -189,7 +189,7 @@ class ServiceForm extends React.Component<
                       </Grid.Column>
                       <Grid.Column width={3}>
                         <Form.Input
-                          label="Update index"
+                          placeholder="Update index"
                           fluid={true}
                           type="number"
                           name={`sub_services.${key}.update_index`}
