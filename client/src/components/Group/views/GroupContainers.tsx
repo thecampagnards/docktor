@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { Message } from 'semantic-ui-react';
+import { Message, Loader } from 'semantic-ui-react';
 
 import { IContainer, IDaemon } from '../../Daemon/types/daemon';
 import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
@@ -14,12 +14,14 @@ interface IGroupProps {
 
 interface IGroupStates {
   containers: IContainer[];
+  isFetching: boolean;
   error: Error;
 }
 
 class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     containers: [],
+    isFetching: true,
     error: Error()
   };
 
@@ -36,7 +38,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
 
   public render() {
     const { group, daemon, admin } = this.props;
-    const { containers, error } = this.state;
+    const { containers, isFetching, error } = this.state;
 
     if (error.message) {
       return (
@@ -46,6 +48,12 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
           </Message.Header>
           <p>{error.message}</p>
         </Message>
+      );
+    }
+
+    if (isFetching) {
+      return (
+        <Loader content="Loading containers" />
       );
     }
 
@@ -69,7 +77,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
         for (const container of this.props.group.containers) {
           if (
             !containers.find(
-              c => c.Names && c.Names.indexOf(container.Name) !== -1
+              c => c.Names && c.Names.includes(container.Name)
             )
           ) {
             containers.push(container);
@@ -77,7 +85,8 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
         }
         this.setState({ containers, error: Error() });
       })
-      .catch((error: Error) => this.setState({ error }));
+      .catch((error: Error) => this.setState({ error }))
+      .finally(() => this.setState({ isFetching: false }));
   };
 }
 

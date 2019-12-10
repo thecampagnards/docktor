@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { connect } from 'react-redux';
-import { RouteComponentProps, Link } from 'react-router-dom';
-import { Message, Menu, Container } from 'semantic-ui-react';
+import { RouteComponentProps } from 'react-router-dom';
+import { Message, Menu, Container, Divider } from 'semantic-ui-react';
 
 import { path as constPath, path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
@@ -31,6 +31,7 @@ interface IGroupIndexStates {
   isFetching: boolean;
   error: Error;
   view: JSX.Element;
+  activeItem: string;
   groupAdmin: boolean;
 }
 
@@ -44,6 +45,7 @@ class GroupIndex extends React.Component<
     daemon: {} as IDaemon,
     error: Error(),
     view: <Container />,
+    activeItem: "",
     groupAdmin: false
   };
 
@@ -56,7 +58,8 @@ class GroupIndex extends React.Component<
   }
 
   public render() {
-    const { group, groupAdmin, view, error } = this.state;
+    const { group, view, activeItem, error } = this.state;
+    const admin = this.props.isAdmin || this.state.groupAdmin;
 
     if (error.message) {
       return (
@@ -72,14 +75,47 @@ class GroupIndex extends React.Component<
 
     return (
       <>
-        <Menu fluid={true} pointing={true} widths={6}>
-          <Menu.Item color="blue" header={true} name={group.name} onClick={this.handleTabSwitch.bind(this, path.groupsSummary.replace(":groupID", group._id))} />
-          <Menu.Item icon="cubes" name="SERVICES" onClick={this.handleTabSwitch.bind(this, path.groupsServices.replace(":groupID", group._id))} />
-          <Menu.Item icon="docker" name="CONTAINERS" onClick={this.handleTabSwitch.bind(this, path.groupsContainers.replace(":groupID", group._id))} />
-          <Menu.Item icon="users" name="MEMBERS" onClick={this.handleTabSwitch.bind(this, path.groupsMembers.replace(":groupID", group._id))} />
-          <Menu.Item icon="server" name="CADVISOR" onClick={this.handleTabSwitch.bind(this, path.groupsCAdvisor.replace(":groupID", group._id))} />
-          <Menu.Item icon="cog" name="SETTINGS" onClick={this.handleTabSwitch.bind(this, path.groupsEdit.replace(":groupID", group._id))} disabled={!groupAdmin} />
+        <Menu borderless={true} fluid={true} widths={6} pointing={true}>
+          <Menu.Item
+            header={true}
+            name={group.name}
+            onClick={this.handleTabSwitch.bind(this, path.groupsSummary.replace(":groupID", group._id))}
+            active={activeItem === "summary"}
+          />
+          <Menu.Item
+            icon="cubes"
+            name="SERVICES"
+            onClick={this.handleTabSwitch.bind(this, path.groupsServices.replace(":groupID", group._id))}
+            active={activeItem === "services"}
+          />
+          <Menu.Item
+            icon="block layout"
+            name="CONTAINERS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsContainers.replace(":groupID", group._id))}
+            active={activeItem === "containers"}
+          />
+          <Menu.Item
+            icon="users"
+            name="MEMBERS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsMembers.replace(":groupID", group._id))}
+            active={activeItem === "members"}
+          />
+          <Menu.Item
+            icon="server"
+            name="CADVISOR"
+            onClick={this.handleTabSwitch.bind(this, path.groupsCAdvisor.replace(":groupID", group._id))}
+            active={activeItem === "cadvisor"}
+          />
+          <Menu.Item
+            icon="cog"
+            name="SETTINGS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsEdit.replace(":groupID", group._id))}
+            active={activeItem === "edit"}
+            disabled={!admin}
+          />
         </Menu>
+
+        <Divider />
 
         {view}
       </>
@@ -93,11 +129,12 @@ class GroupIndex extends React.Component<
 
   private refreshGroup = () => {
     const { groupID } = this.props.match.params;
+    const { username } = this.props;
 
     groupID &&
     fetchGroup(groupID)
       .then((group: IGroup) => {
-        this.setState({ group });
+        this.setState({ group, groupAdmin: (group.admins && group.admins.includes(username)) });
         group.daemon_id &&
           fetchDaemon(group.daemon_id).then((daemon: IDaemon) => {
             this.setState({ daemon });
@@ -114,22 +151,40 @@ class GroupIndex extends React.Component<
 
     switch (true) {
       case path === constPath.groupsServices.replace(":groupID", group._id):
-        this.setState({ view: <GroupServices group={group} admin={isAdmin} groupAdmin={isAdmin || groupAdmin} /> });
+        this.setState({ 
+          view: <GroupServices group={group} admin={isAdmin} groupAdmin={isAdmin || groupAdmin} />,
+          activeItem: "services"
+        });
         break;
       case path === constPath.groupsContainers.replace(":groupID", group._id):
-        this.setState({ view: <GroupContainers group={group} admin={isAdmin} daemon={daemon} /> });
+        this.setState({
+          view: <GroupContainers group={group} admin={isAdmin} daemon={daemon} />,
+          activeItem: "containers"
+        });
         break;
       case path === constPath.groupsMembers.replace(":groupID", group._id):
-        this.setState({ view: <GroupMembers history={this.props.history} group={group} admin={groupAdmin || isAdmin} username={username} refresh={this.refreshGroup} /> });
+        this.setState({
+          view: <GroupMembers history={this.props.history} group={group} admin={groupAdmin || isAdmin} username={username} refresh={this.refreshGroup} />,
+          activeItem: "members"
+        });
         break;
       case path === constPath.groupsCAdvisor.replace(":groupID", group._id):
-        this.setState({ view: <GroupCAdvisor group={group} /> });
+        this.setState({
+          view: <GroupCAdvisor group={group} />,
+          activeItem: "cadvisor"
+        });
         break;
       case path === constPath.groupsEdit.replace(":groupID", group._id):
-        this.setState({ view: <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} /> });
+        this.setState({
+          view: <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} />,
+          activeItem: "edit"
+        });
         break;
       default:
-        this.setState({ view: <GroupSummary group={group} daemon={daemon} /> });
+        this.setState({
+          view: <GroupSummary group={group} daemon={daemon} admin={isAdmin} />,
+          activeItem: "summary"
+        });
     };
   }
 }

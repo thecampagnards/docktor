@@ -215,7 +215,7 @@ export default class ContainersGrid extends React.Component<
         )
       :
         (
-          <Message>No container found. Use the Create button in the Services tab and refresh the page.</Message>
+          <Message>No container found. Use the Create button in the Services tab to run the containers.</Message>
         )
       }
       </>
