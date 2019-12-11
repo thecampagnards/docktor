@@ -19,9 +19,15 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
     return (
       <Card fluid={true}>
         <Card.Content>
-          <Card.Header as={Link} to={path.groupsSummary.replace(":groupID", group._id)}>
-            {group.name.toUpperCase()}
-          </Card.Header>
+          {(displayButtons || admin) ?
+            <Card.Header as={Link} to={path.groupsSummary.replace(":groupID", group._id)}>
+              {group.name.toUpperCase()}
+            </Card.Header>
+            :
+            <Card.Header>
+              {group.name.toUpperCase()}
+            </Card.Header>
+          }
           <Card.Description>
             {(group.admins && group.admins.length > 0) ?
               `Admins : ${group.admins.join(", ")}`

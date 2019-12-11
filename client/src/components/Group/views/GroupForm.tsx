@@ -130,7 +130,7 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
           
           {group._id &&
             <Modal
-              trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete group" />}
+              trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete group" disabled={!isAdmin} />}
               size="mini"
             >
               <Modal.Header>{`Delete group ${group.name} ?`}</Modal.Header>
@@ -142,7 +142,6 @@ class Group extends React.Component<IGroupProps, IGroupStates> {
                     content="Delete permanently"
                     loading={isFetching}
                     onClick={this.delete.bind(this, group._id)}
-                    disabled={!isAdmin}
                   />
                 </Button.Group>
               </Modal.Actions>
