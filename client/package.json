@@ -1,6 +1,6 @@
 {
   "name": "docktor",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "private": true,
   "proxy": "http://localhost:8080/",
   "dependencies": {

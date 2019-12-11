@@ -42,17 +42,15 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
     const { group, admin, groupAdmin } = this.props;
     const { isLegacy, error } = this.state;
 
-    if (error.message) {
-      return (
-        <Message negative={true}>
-          <Message.Header>Error while checking containers</Message.Header>
-          <p>{error.message}</p>
-        </Message>
-      );
-    }
-
     return (
       <>
+        {error.message &&
+          <Message negative={true}>
+            <Message.Header>Error while checking containers</Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        }
+
         {isLegacy &&
           <Message floating={true} icon={true} >
             <Icon name="warning" />

@@ -40,17 +40,6 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     const { group, daemon, admin } = this.props;
     const { containers, isFetching, error } = this.state;
 
-    if (error.message) {
-      return (
-        <Message negative={true}>
-          <Message.Header>
-            There was an issue to connect to the Docker daemon
-          </Message.Header>
-          <p>{error.message}</p>
-        </Message>
-      );
-    }
-
     if (isFetching) {
       return (
         <Loader content="Loading containers" />
@@ -58,6 +47,15 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     }
 
     return (
+      <>
+      {error.message &&
+        <Message negative={true}>
+          <Message.Header>
+            There was an issue to connect to the Docker daemon
+          </Message.Header>
+          <p>{error.message}</p>
+        </Message>
+      }
       <ContainersGrid
         containers={containers}
         admin={admin}
@@ -65,6 +63,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
         groupId={group._id}
         refresh={this.fetch}
       />
+      </>
     );
   }
 

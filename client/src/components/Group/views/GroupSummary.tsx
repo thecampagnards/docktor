@@ -50,7 +50,7 @@ class GroupSummary extends React.Component<IGroupSummaryProps,IGroupSummaryState
                   content="The icon indicates the current status of the VM's Docker daemon."
                 />
               </Menu.Item>
-              <Menu.Item>{daemon.tags.map(t => <Label key={t} color="blue">{t}</Label>)}</Menu.Item>
+              <Menu.Item>{daemon.tags.map(t => <Label key={t} color="blue">{t.toUpperCase()}</Label>)}</Menu.Item>
               {admin &&
                 <Menu.Menu position="right">
                   <Menu.Item>
