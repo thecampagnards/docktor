@@ -78,6 +78,7 @@ class GroupIndex extends React.Component<
         <Menu borderless={true} fluid={true} widths={6} pointing={true}>
           <Menu.Item
             header={true}
+            color="blue"
             name={group.name}
             onClick={this.handleTabSwitch.bind(this, path.groupsSummary.replace(":groupID", group._id))}
             active={activeItem === "summary"}
@@ -182,7 +183,7 @@ class GroupIndex extends React.Component<
         break;
       default:
         this.setState({
-          view: <GroupSummary group={group} daemon={daemon} admin={isAdmin} />,
+          view: <GroupSummary group={group} daemon={daemon} admin={isAdmin} indexRefresh={this.handleTabSwitch} />,
           activeItem: "summary"
         });
     };

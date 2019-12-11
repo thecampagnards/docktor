@@ -99,7 +99,7 @@ class Users extends React.Component<{}, IUsersStates> {
                         compact={true}
                         content={group.name}
                         as={Link}
-                        to={path.groupsServices.replace(":groupID", group._id)}
+                        to={path.groupsSummary.replace(":groupID", group._id)}
                       />
                     ))}
                 </Table.Cell>

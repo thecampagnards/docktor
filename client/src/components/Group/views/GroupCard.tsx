@@ -1,5 +1,4 @@
 import * as React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { Link } from 'react-router-dom';
 import { Button, Card, Icon } from 'semantic-ui-react';
 
@@ -24,13 +23,13 @@ export default class GroupCard extends React.Component<IGroupCardProps> {
             {group.name.toUpperCase()}
           </Card.Header>
           <Card.Description>
-            {"Admins : "}
-              {group.admins && (group.admins.length > 0 ? group.admins.join(", ") : "None")}
+            {(group.admins && group.admins.length > 0) ?
+              `Admins : ${group.admins.join(", ")}`
+              :
+              "This group has no admin."
+            }
           </Card.Description>
         </Card.Content>
-        {group.description && <Card.Content>
-          <ReactMarkdown source={group.description} escapeHtml={false} className="markdown" />
-        </Card.Content>}
         {(displayButtons || admin) &&
         <Card.Content>
           <Button basic={true} color="blue" icon={true} labelPosition="left" title="Open group services" as={Link} to={path.groupsServices.replace(":groupID", group._id)}>
