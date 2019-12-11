@@ -15,7 +15,6 @@ import DaemonForm from './components/Daemon/views/DaemonForm';
 import DaemonIndex from './components/Daemon/views/DaemonIndex';
 import Daemons from './components/Daemon/views/Daemons';
 import GroupForm from './components/Group/views/GroupForm';
-import GroupIndex from './components/Group/views/GroupIndex';
 import Groups from './components/Group/views/Groups';
 import Home from './components/Home/views/Home';
 import Images from './components/Images/views/Images';
@@ -35,6 +34,7 @@ import Users from './components/User/views/Users';
 import { path } from './constants/path';
 import registerServiceWorker from './registerServiceWorker';
 import store from './store';
+import GroupIndex from './components/Group/views/GroupIndex';
 
 store.dispatch(validateThunk());
 store.dispatch(fetchConfig());

@@ -127,7 +127,7 @@ class GroupServices extends React.Component<IGroupProps, IGroupStates> {
   private checkLegacy = () => {
     fetchContainers(this.props.group._id)
       .then((containers: IContainer[]) => {
-        containers.forEach(c => {
+        containers && containers.forEach(c => {
           if (Object.entries(c.Labels).filter(l => l[0] === "SERVICE_NAME").length === 0) {
             this.setState({ isLegacy: true });
           }

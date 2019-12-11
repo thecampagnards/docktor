@@ -1,10 +1,9 @@
 import * as React from 'react';
-import ReactMarkdown from 'react-markdown';
 import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
-import { Message, Tab, TabProps } from 'semantic-ui-react';
+import { Message, Menu, Container, Divider } from 'semantic-ui-react';
 
-import { path as constPath } from '../../../constants/path';
+import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
@@ -15,6 +14,7 @@ import GroupContainers from './GroupContainers';
 import GroupForm from './GroupForm';
 import GroupMembers from './GroupMembers';
 import GroupServices from './GroupServices';
+import GroupSummary from './GroupSummary';
 
 interface IRouterProps {
   groupID: string;
@@ -27,10 +27,12 @@ interface IGroupIndexProps {
 
 interface IGroupIndexStates {
   group: IGroup;
-  daemons: IDaemon[];
   daemon: IDaemon;
   isFetching: boolean;
   error: Error;
+  view: JSX.Element;
+  activeItem: string;
+  groupAdmin: boolean;
 }
 
 class GroupIndex extends React.Component<
@@ -40,47 +42,24 @@ class GroupIndex extends React.Component<
   public state = {
     isFetching: true,
     group: {} as IGroup,
-    daemons: [],
     daemon: {} as IDaemon,
-    error: Error()
+    error: Error(),
+    view: <Container />,
+    activeItem: "",
+    groupAdmin: false
   };
-
-  private activeTab: number = 0;
 
   public constructor(
     props: RouteComponentProps<IRouterProps> & IGroupIndexProps
   ) {
     super(props);
 
-    const { groupID } = this.props.match.params;
-    const path = window.location.pathname;
-
     this.refreshGroup();
-
-    switch (true) {
-      case path === constPath.groupsServices.replace(":groupID", groupID):
-        this.activeTab = 0;
-        break;
-      case path === constPath.groupsContainers.replace(":groupID", groupID):
-        this.activeTab = 1;
-        break;
-      case path === constPath.groupsMembers.replace(":groupID", groupID):
-        this.activeTab = 2;
-        break;
-      case path === constPath.groupsCAdvisor.replace(":groupID", groupID):
-        this.activeTab = 3;
-        break;
-      case path === constPath.groupsEdit.replace(":groupID", groupID):
-        this.activeTab = 4;
-        break;
-      default:
-        this.activeTab = 0;
-    }
   }
 
   public render() {
-    const { daemon, group, isFetching, error } = this.state;
-    const { username, isAdmin } = this.props;
+    const { group, view, activeItem, error } = this.state;
+    const admin = this.props.isAdmin || this.state.groupAdmin;
 
     if (error.message) {
       return (
@@ -94,131 +73,121 @@ class GroupIndex extends React.Component<
       );
     }
 
-    const groupAdmin = group.admins && group.admins.includes(username);
-
-    const panes = [
-      {
-        menuItem: "Services",
-        pane: (
-          <Tab.Pane loading={isFetching} key={1}>
-            {group._id && (
-              <GroupServices
-                group={group}
-                admin={isAdmin}
-                groupAdmin={isAdmin || groupAdmin}
-              />
-            )}
-          </Tab.Pane>
-        )
-      },
-      {
-        menuItem: "Containers",
-        pane: (
-          <Tab.Pane loading={isFetching} key={2}>
-            {group._id && (
-              <GroupContainers group={group} admin={isAdmin} daemon={daemon} />
-            )}
-          </Tab.Pane>
-        )
-      },
-      {
-        menuItem: "Members",
-        pane: (
-          <Tab.Pane loading={isFetching} key={3}>
-            {group._id && (
-              <GroupMembers
-                history={this.props.history}
-                group={group}
-                admin={groupAdmin || isAdmin}
-                username={username}
-                refresh={this.refreshGroup}
-              />
-            )}
-          </Tab.Pane>
-        )
-      },
-      {
-        menuItem: "CAdvisor",
-        pane: (
-          <Tab.Pane loading={isFetching} key={4}>
-            {group._id && <GroupCAdvisor group={group} />}
-          </Tab.Pane>
-        )
-      }
-    ];
-
-    if (isAdmin) {
-      panes.push({
-        menuItem: "Edit",
-        pane: (
-          <Tab.Pane loading={isFetching} key={5}>
-            {group._id && <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} />}
-          </Tab.Pane>
-        )
-      });
-    }
-
     return (
       <>
-        <h2>{group.name || "Group"}</h2>
-        <ReactMarkdown source={group.description} escapeHtml={false} />
-        <Tab
-          panes={panes}
-          renderActiveOnly={false}
-          defaultActiveIndex={this.activeTab}
-          onTabChange={this.changeTab}
-        />
+        <Menu borderless={true} fluid={true} widths={6} pointing={true}>
+          <Menu.Item
+            header={true}
+            color="blue"
+            name={group.name}
+            onClick={this.handleTabSwitch.bind(this, path.groupsSummary.replace(":groupID", group._id))}
+            active={activeItem === "summary"}
+          />
+          <Menu.Item
+            icon="cubes"
+            name="SERVICES"
+            onClick={this.handleTabSwitch.bind(this, path.groupsServices.replace(":groupID", group._id))}
+            active={activeItem === "services"}
+          />
+          <Menu.Item
+            icon="block layout"
+            name="CONTAINERS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsContainers.replace(":groupID", group._id))}
+            active={activeItem === "containers"}
+          />
+          <Menu.Item
+            icon="users"
+            name="MEMBERS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsMembers.replace(":groupID", group._id))}
+            active={activeItem === "members"}
+          />
+          <Menu.Item
+            icon="server"
+            name="CADVISOR"
+            onClick={this.handleTabSwitch.bind(this, path.groupsCAdvisor.replace(":groupID", group._id))}
+            active={activeItem === "cadvisor"}
+          />
+          <Menu.Item
+            icon="cog"
+            name="SETTINGS"
+            onClick={this.handleTabSwitch.bind(this, path.groupsEdit.replace(":groupID", group._id))}
+            active={activeItem === "edit"}
+            disabled={!admin}
+          />
+        </Menu>
+
+        <Divider />
+
+        {view}
       </>
     );
   }
 
-  private changeTab = (
-    event: React.MouseEvent<HTMLDivElement>,
-    data: TabProps
-  ) => {
-    const { groupID } = this.props.match.params;
-    switch (data.activeIndex) {
-      case 0:
-        this.props.history.push(
-          constPath.groupsServices.replace(":groupID", groupID)
-        );
-        break;
-      case 1:
-        this.props.history.push(
-          constPath.groupsContainers.replace(":groupID", groupID)
-        );
-        break;
-      case 2:
-        this.props.history.push(
-          constPath.groupsMembers.replace(":groupID", groupID)
-        );
-        break;
-      case 3:
-        this.props.history.push(
-          constPath.groupsCAdvisor.replace(":groupID", groupID)
-        );
-        break;
-      case 4:
-        this.props.history.push(
-          constPath.groupsEdit.replace(":groupID", groupID)
-        );
-        break;
-    }
+  private handleTabSwitch = (path: string) => {
+    this.props.history.push(path);
+    this.refreshJSX(path);
   };
 
   private refreshGroup = () => {
     const { groupID } = this.props.match.params;
+    const { username } = this.props;
+
+    groupID &&
     fetchGroup(groupID)
       .then((group: IGroup) => {
-        this.setState({ group });
+        this.setState({ group, groupAdmin: (group.admins && group.admins.includes(username)) });
         group.daemon_id &&
-          fetchDaemon(group.daemon_id).then((daemon: IDaemon) =>
-            this.setState({ daemon })
-          );
+          fetchDaemon(group.daemon_id).then((daemon: IDaemon) => {
+            this.setState({ daemon });
+            this.refreshJSX(window.location.pathname);
+          });
       })
       .catch((error: Error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
+
+  private refreshJSX = (target: string) => {
+    const { daemon, group, groupAdmin} = this.state;
+    const { username, isAdmin } = this.props;
+
+    switch (true) {
+      case target === path.groupsServices.replace(":groupID", group._id):
+        this.setState({ 
+          view: <GroupServices group={group} admin={isAdmin} groupAdmin={isAdmin || groupAdmin} />,
+          activeItem: "services"
+        });
+        break;
+      case target === path.groupsContainers.replace(":groupID", group._id):
+        this.setState({
+          view: <GroupContainers group={group} admin={isAdmin} daemon={daemon} />,
+          activeItem: "containers"
+        });
+        break;
+      case target === path.groupsMembers.replace(":groupID", group._id):
+        this.setState({
+          view: <GroupMembers history={this.props.history} group={group} admin={groupAdmin || isAdmin} username={username} refresh={this.refreshGroup} />,
+          activeItem: "members"
+        });
+        break;
+      case target === path.groupsCAdvisor.replace(":groupID", group._id):
+        this.setState({
+          view: <GroupCAdvisor group={group} />,
+          activeItem: "cadvisor"
+        });
+        break;
+      case target === path.groupsEdit.replace(":groupID", group._id):
+        this.setState({
+          view: <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} />,
+          activeItem: "edit"
+        });
+        break;
+      default:
+        this.setState({
+          view: <GroupSummary group={group} daemon={daemon} admin={isAdmin} indexRefresh={this.handleTabSwitch} />,
+          activeItem: "summary"
+        });
+    };
+  }
 }
 
 const mapStateToProps = (state: IStoreState) => {

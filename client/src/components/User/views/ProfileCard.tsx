@@ -68,7 +68,7 @@ export default class ProfileCard extends React.Component<
                         basic={true}
                         icon="box"
                         as={Link}
-                        to={path.groupsServices.replace(":groupID", group._id)}
+                        to={path.groupsSummary.replace(":groupID", group._id)}
                         title="Access to this group"
                       />
                       <Button

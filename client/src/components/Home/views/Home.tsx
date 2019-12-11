@@ -137,7 +137,7 @@ class Home extends React.Component<{}, IHomeState> {
                       </>
                     )}
                   </Segment>
-                  <Card.Header as={Link} to={path.groupsServices.replace(":groupID", env.group._id)}>{env.group.name}</Card.Header>
+                  <Card.Header as={Link} to={path.groupsSummary.replace(":groupID", env.group._id)}>{env.group.name}</Card.Header>
                   <Card.Meta>{env.daemon.host}</Card.Meta>
                   <Card.Description>
                     <Link

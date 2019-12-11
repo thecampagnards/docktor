@@ -149,7 +149,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                         : undefined
                     }
                   >
-                    {this.getDockerStatus(status as dockerStatus)}
+                    {getDockerStatus(status as dockerStatus)}
                   </Button>
                 );
               })}
@@ -213,7 +213,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                   </Button>
                 </Table.Cell>
                 <Table.Cell>
-                  {this.getDockerStatus(daemon.docker.status)}
+                  {getDockerStatus(daemon.docker.status)}
                 </Table.Cell>
                 <Table.Cell>
                   <Popup
@@ -313,45 +313,6 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     );
   }
 
-  private getDockerStatus = (
-    status: dockerStatus
-  ): SemanticShorthandItem<IconProps> => {
-    switch (status) {
-      case "OK":
-        return (
-          <Icon
-            color="green"
-            name="check circle"
-            title="Daemon is up and running"
-          />
-        );
-      case "CERT":
-        return (
-          <Icon
-            color="yellow"
-            name="check circle outline"
-            title="Daemon certs are or will be outdated soon"
-          />
-        );
-      case "OLD":
-        return (
-          <Icon
-            color="orange"
-            name="warning sign"
-            title="Daemon's Docker version is incompatible with Docktor"
-          />
-        );
-      case "":
-        return (
-          <Icon color="black" name="question circle" title="No status info" />
-        );
-      default:
-        return (
-          <Icon color="red" name="close" title="Daemon is down/unreachable" />
-        );
-    }
-  };
-
   private getDaemons = () => {
     fetchDaemons().then((daemons: IDaemon[]) => {
       daemons.sort((a,b) => a.name.localeCompare(b.name));
@@ -408,5 +369,44 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
       .finally(() => this.setState({ isFetching: false }));
   };
 }
+
+export const getDockerStatus = (
+  status: dockerStatus
+): SemanticShorthandItem<IconProps> => {
+  switch (status) {
+    case "OK":
+      return (
+        <Icon
+          color="green"
+          name="check circle"
+          title="Daemon is up and running"
+        />
+      );
+    case "CERT":
+      return (
+        <Icon
+          color="yellow"
+          name="check circle outline"
+          title="Daemon certs are or will be outdated soon"
+        />
+      );
+    case "OLD":
+      return (
+        <Icon
+          color="orange"
+          name="warning sign"
+          title="Daemon's Docker version is incompatible with Docktor"
+        />
+      );
+    case "":
+      return (
+        <Icon color="black" name="question circle" title="No status info" />
+      );
+    default:
+      return (
+        <Icon color="red" name="close" title="Daemon is down/unreachable" />
+      );
+  }
+};
 
 export default Daemons;

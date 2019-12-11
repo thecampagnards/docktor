@@ -71,7 +71,7 @@ class DaemonSummary extends React.Component<
         <Menu compact={true}>
           <Menu.Item header={true}>GROUPS</Menu.Item>
           {groups && groups.map(g => (
-            <Menu.Item key={g._id} name={g.name} as={Link} to={path.groupsServices.replace(":groupID", g._id)} />
+            <Menu.Item key={g._id} name={g.name} as={Link} to={path.groupsSummary.replace(":groupID", g._id)} />
           ))}
         </Menu>
         <Segment>
