@@ -3,7 +3,7 @@ import { connect } from 'react-redux';
 import { RouteComponentProps } from 'react-router-dom';
 import { Message, Menu, Container, Divider } from 'semantic-ui-react';
 
-import { path as constPath, path } from '../../../constants/path';
+import { path } from '../../../constants/path';
 import { IStoreState } from '../../../types/store';
 import { fetchDaemon } from '../../Daemon/actions/daemon';
 import { IDaemon } from '../../Daemon/types/daemon';
@@ -146,36 +146,36 @@ class GroupIndex extends React.Component<
       .finally(() => this.setState({ isFetching: false }));
   };
 
-  private refreshJSX = (path: string) => {
+  private refreshJSX = (target: string) => {
     const { daemon, group, groupAdmin} = this.state;
     const { username, isAdmin } = this.props;
 
     switch (true) {
-      case path === constPath.groupsServices.replace(":groupID", group._id):
+      case target === path.groupsServices.replace(":groupID", group._id):
         this.setState({ 
           view: <GroupServices group={group} admin={isAdmin} groupAdmin={isAdmin || groupAdmin} />,
           activeItem: "services"
         });
         break;
-      case path === constPath.groupsContainers.replace(":groupID", group._id):
+      case target === path.groupsContainers.replace(":groupID", group._id):
         this.setState({
           view: <GroupContainers group={group} admin={isAdmin} daemon={daemon} />,
           activeItem: "containers"
         });
         break;
-      case path === constPath.groupsMembers.replace(":groupID", group._id):
+      case target === path.groupsMembers.replace(":groupID", group._id):
         this.setState({
           view: <GroupMembers history={this.props.history} group={group} admin={groupAdmin || isAdmin} username={username} refresh={this.refreshGroup} />,
           activeItem: "members"
         });
         break;
-      case path === constPath.groupsCAdvisor.replace(":groupID", group._id):
+      case target === path.groupsCAdvisor.replace(":groupID", group._id):
         this.setState({
           view: <GroupCAdvisor group={group} />,
           activeItem: "cadvisor"
         });
         break;
-      case path === constPath.groupsEdit.replace(":groupID", group._id):
+      case target === path.groupsEdit.replace(":groupID", group._id):
         this.setState({
           view: <GroupForm group={group} isAdmin={isAdmin} history={this.props.history} />,
           activeItem: "edit"

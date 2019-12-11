@@ -25,9 +25,6 @@ interface IDaemonsStates {
 }
 
 class Daemons extends React.Component<{}, IDaemonsStates> {
-  static getDockerStatus(status: string): React.ReactNode {
-    throw new Error("Method not implemented.");
-  }
   public state = {
     daemons: [] as IDaemon[],
     isFetching: false,
