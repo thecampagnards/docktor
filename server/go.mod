@@ -22,7 +22,7 @@ require (
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-kit/kit v0.9.0 // indirect
-	github.com/go-ldap/ldap/v3 v3.1.3
+	github.com/go-ldap/ldap/v3 v3.1.4
 	github.com/gogo/protobuf v1.3.0 // indirect
 	github.com/google/cadvisor v0.34.0
 	github.com/google/go-cmp v0.3.1 // indirect
