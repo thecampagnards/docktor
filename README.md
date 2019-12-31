@@ -8,7 +8,7 @@
 
 Docktor is a platform for administrating and deploying SaaS services based on Docker.
 
-## Installation
+## Run
 
 ### Docker compose
 
@@ -106,7 +106,7 @@ go run .
 or
 
 ```bash
-docker run -v $(pwd)/server:/server --net host --rm -ti golang:1.13 sh -c 'cd /server && go run .'
+docker run -v $(pwd)/server:/server -w /server --net host --rm -ti golang:1.13 go run .
 ```
 
 #### Front
@@ -122,5 +122,5 @@ npm start
 or
 
 ```bash
-docker run -v $(pwd)/client:/client --net host --rm -ti node:12 sh -c 'cd /client && npm install && npm start'
+docker run -v $(pwd)/client:/client -w /client --net host --rm -ti node:12 sh -c 'npm install && npm start'
 ```
