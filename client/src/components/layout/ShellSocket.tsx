@@ -61,7 +61,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         this.term.write(e.data);
         try {
           this.fitAddon.fit();
-        } catch (e) {
+        } catch {
           console.warn(`Unable to fit the term: ${e}`);
         }
       };

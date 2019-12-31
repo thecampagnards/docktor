@@ -68,8 +68,12 @@ func getByID(c echo.Context) error {
 		}).Error("Error when retrieving daemon")
 		return c.JSON(http.StatusBadRequest, err.Error())
 	}
-	// TODO clean data when not admin
-	return c.JSON(http.StatusOK, daemon)
+
+	user := c.Get("user").(types.User)
+	if user.IsAdmin() {
+		return c.JSON(http.StatusOK, daemon)
+	}
+	return c.JSON(http.StatusOK, daemon.DaemonLight)
 }
 
 // save create/update a daemon

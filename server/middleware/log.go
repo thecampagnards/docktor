@@ -33,10 +33,14 @@ func (l Logger) Level() log.Lvl {
 }
 
 // SetHeader is a stub to satisfy interface
-// It's controlled by logrus
-func (l Logger) SetHeader(_ string) {}
+func (l Logger) SetHeader(_ string) {
+	// It's controlled by logrus
+}
 
-func (l Logger) SetPrefix(s string) {}
+// SetPrefix is a stub to satisfy interface
+func (l Logger) SetPrefix(s string) {
+	// It's controlled by logrus
+}
 
 func (l Logger) Prefix() string {
 	return ""

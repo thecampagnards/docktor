@@ -44,13 +44,13 @@ export default class TextSocket extends React.Component<
 
     this.ws.onopen = () => {
       this.fitAddon = new FitAddon();
-    }
+    };
 
     this.ws.onmessage = e => {
       const logs = this.state.logs.concat(e.data);
       try {
         this.fitAddon.fit();
-      } catch (e) {
+      } catch {
         console.warn(`Unable to fit the logs: ${e}`);
       }
       this.setState({ logs });

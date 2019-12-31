@@ -62,7 +62,7 @@ class DaemonCAdvisor extends React.Component<
 
     const { daemon } = this.props;
 
-    const fsFiltered = resources.fs ? 
+    const fsFiltered = resources.fs ?
       resources.fs.filter(fs => fs.device.toLowerCase().includes(this.searchFilter.toLowerCase())) :
       [];
 
@@ -215,7 +215,7 @@ class DaemonCAdvisor extends React.Component<
     const prjRegex = /^\/dev\/mapper\/vstorage-(cdk)?(data)?[_-]*([A-Z0-9_-]+)$/;
     const projects: string[] = [];
     filesystems.forEach(fs => {
-      if ( prjRegex.test(fs.device)) {
+      if (prjRegex.test(fs.device)) {
         const match = prjRegex.exec(fs.device);
         if (match != null) {
           projects.push(match[3]);

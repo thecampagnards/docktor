@@ -120,7 +120,7 @@ class User extends React.Component<
     user.role = user.role === "admin" ? "user" : "admin";
     this.setState({ isFetching: true });
     saveUser(user)
-      .then(user => this.setState({ user }))
+      .then(u => this.setState({ user: u }))
       .catch(error => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };

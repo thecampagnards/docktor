@@ -152,7 +152,7 @@ export default class ContainersGrid extends React.Component<
                         labelPosition="right"
                         content="VM Terminal"
                         as={Link}
-                        to={path.daemonsSSH.replace(":daemonID", daemon._id!)}
+                        to={path.daemonsSSH.replace(":daemonID", daemon._id)}
                         floated="right"
                       />
                       <Button
@@ -197,7 +197,7 @@ export default class ContainersGrid extends React.Component<
                     groupId={
                       groupId ||
                       (
-                        groups ? 
+                        groups ?
                           groups.find(g =>
                             (c.Names ? c.Names[0] : c.Name).startsWith(
                               "/" + g.name
