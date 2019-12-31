@@ -300,7 +300,7 @@ func getContainerLog(c echo.Context) error {
 		// https://stackoverflow.com/questions/46428721/how-to-stream-docker-container-logs-via-the-go-sdk
 		for {
 			_, err := reader.Read(hdr)
-			if err != nil && err != io.EOF {
+			if err != io.EOF {
 				log.WithFields(log.Fields{
 					"daemon": daemon.Name,
 					"error":  err,

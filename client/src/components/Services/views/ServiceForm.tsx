@@ -61,7 +61,7 @@ class ServiceForm extends React.Component<
 
   public render() {
     const { service, error, isSuccess, isFetching, openVersions } = this.state;
-    
+
     if (isFetching) {
       return (
         <>
@@ -317,7 +317,7 @@ class ServiceForm extends React.Component<
     try {
       const u = new URL(str!);
       return !!u.host;
-    } catch (_) {
+    } catch {
       return false;
     }
   }
