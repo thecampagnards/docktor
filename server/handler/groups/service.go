@@ -12,7 +12,6 @@ import (
 	log "github.com/sirupsen/logrus"
 )
 
-
 func saveGroupService(c echo.Context) error {
 	group := c.Get("group").(types.Group)
 	db := c.Get("DB").(*storage.Docktor)
@@ -58,7 +57,7 @@ func getGroupServiceUpdate(c echo.Context) error {
 	if err != nil {
 		return err
 	}
-	
+
 	var targetSubService types.SubService
 	currentSubService, err := service.FindSubServiceByID(groupService.SubServiceID.Hex())
 	if err != nil {
@@ -123,7 +122,7 @@ func updateGroupService(c echo.Context) error {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"subService": c.Request().Body,
-			"error":     err,
+			"error":      err,
 		}).Error("Error when parsing sub-service")
 		return c.JSON(http.StatusBadRequest, err)
 	}
@@ -174,7 +173,7 @@ func updateGroupService(c echo.Context) error {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
-			"error":        err,
+			"error":   err,
 		}).Error("Error when removing service")
 		return err
 	}
@@ -185,7 +184,7 @@ func updateGroupService(c echo.Context) error {
 	if err != nil {
 		log.WithFields(log.Fields{
 			"service": serviceName,
-			"error":        err,
+			"error":   err,
 		}).Error("Error when starting service")
 		return err
 	}
