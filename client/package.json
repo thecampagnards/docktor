@@ -50,7 +50,7 @@
     "@types/react-redux": "^7.1.6",
     "@types/jwt-decode": "^2.2.1",
     "@types/redux-auth-wrapper": "^2.0.9",
-    "lint-staged": "^9.5.0",
+    "lint-staged": "^10.0.0",
     "prettier": "^1.19.1",
     "typescript": "^3.7.5",
     "react-scripts": "^3.3.0"
