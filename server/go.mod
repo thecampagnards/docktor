@@ -19,7 +19,7 @@ require (
 	github.com/docker/libtrust v0.0.0-20160708172513-aabc10ec26b7 // indirect
 	github.com/flynn/go-shlex v0.0.0-20150515145356-3f9db97f8568 // indirect
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
-	github.com/go-ldap/ldap/v3 v3.1.5
+	github.com/go-ldap/ldap/v3 v3.1.6
 	github.com/gogo/protobuf v1.3.1 // indirect
 	github.com/google/cadvisor v0.35.0
 	github.com/gorilla/mux v1.7.3 // indirect
