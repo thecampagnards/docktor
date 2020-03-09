@@ -21,7 +21,7 @@ require (
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-ldap/ldap/v3 v3.1.7
 	github.com/gogo/protobuf v1.3.1 // indirect
-	github.com/google/cadvisor v0.35.0
+	github.com/google/cadvisor v0.36.0
 	github.com/gorilla/mux v1.7.3 // indirect
 	github.com/gotestyourself/gotestyourself v2.2.0+incompatible // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
