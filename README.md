@@ -111,7 +111,7 @@ docker run -v $(pwd)/server:/server -w /server --net host --rm -ti golang:1.14 g
 
 #### Front
 
-Node version used 12.
+Node version used 13.
 
 ```bash
 cd client
@@ -122,5 +122,5 @@ npm start
 or
 
 ```bash
-docker run -v $(pwd)/client:/client -w /client --net host --rm -ti node:12 sh -c 'npm install && npm start'
+docker run -v $(pwd)/client:/client -w /client --net host --rm -ti node:13 sh -c 'npm install && npm start'
 ```
