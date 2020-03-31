@@ -6,8 +6,8 @@ import (
 	"strings"
 
 	"github.com/docker/docker/api/types"
-	"github.com/docker/libcompose/config"
 	"github.com/globalsign/mgo/bson"
+	"github.com/portainer/libcompose/config"
 	yaml "gopkg.in/yaml.v3"
 )
 

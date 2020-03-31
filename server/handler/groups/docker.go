@@ -6,8 +6,8 @@ import (
 	"docktor/server/storage"
 	"docktor/server/types"
 
-	"github.com/docker/libcompose/labels"
 	"github.com/labstack/echo/v4"
+	"github.com/portainer/libcompose/labels"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -38,7 +38,7 @@ You can define some env vars, check [back section](#back):
 
 ## Developpement
 
-Docktor is a Go/React(TS) app and use [libcompose](https://github.com/docker/libcompose) and [docker-api](https://github.com/moby/moby). This project use [dependabot](https://dependabot.com/) to keep dependencies up-to-date.
+Docktor is a Go/React(TS) app and use [libcompose](https://github.com/portainer/libcompose) and [docker-api](https://github.com/moby/moby). This project use [dependabot](https://dependabot.com/) to keep dependencies up-to-date.
 
 ### Installation
 
@@ -52,7 +52,7 @@ docker run -v /data:/data/db --net host --rm mongo
 
 #### Back
 
-Go version used 1.13.
+Go version used 1.14.
 
 Create file `conf`, adds the flag and its value separates from a space to change its default value.
 
@@ -106,7 +106,7 @@ go run .
 or
 
 ```bash
-docker run -v $(pwd)/server:/server -w /server --net host --rm -ti golang:1.13 go run .
+docker run -v $(pwd)/server:/server -w /server --net host --rm -ti golang:1.14 go run .
 ```
 
 #### Front

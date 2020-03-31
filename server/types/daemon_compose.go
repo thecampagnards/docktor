@@ -6,12 +6,11 @@ import (
 	"os"
 	"strings"
 
-	"github.com/docker/go-connections/tlsconfig"
-	"github.com/docker/libcompose/docker"
-	"github.com/docker/libcompose/docker/client"
-	"github.com/docker/libcompose/docker/ctx"
-	"github.com/docker/libcompose/project"
-	"github.com/docker/libcompose/project/options"
+	"github.com/portainer/libcompose/docker"
+	"github.com/portainer/libcompose/docker/client"
+	"github.com/portainer/libcompose/docker/ctx"
+	"github.com/portainer/libcompose/project"
+	"github.com/portainer/libcompose/project/options"
 	"golang.org/x/net/context"
 )
 
@@ -54,14 +53,12 @@ func (d *Daemon) getComposeCli() (cli ComposeCli, err error) {
 		}
 
 		c = client.Options{
-			TLS:  true,
-			Host: d.GetCompleteHost(),
-			TLSOptions: tlsconfig.Options{
-				CAFile:             cli.ca,
-				CertFile:           cli.cert,
-				KeyFile:            cli.key,
-				InsecureSkipVerify: true,
-			},
+			TLS:         true,
+			Host:        d.GetCompleteHost(),
+			TLSCAFile:   cli.ca,
+			TLSCertFile: cli.cert,
+			TLSKeyFile:  cli.key,
+			TLSVerify:   false,
 		}
 
 	}
