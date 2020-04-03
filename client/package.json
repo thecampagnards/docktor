@@ -4,7 +4,7 @@
   "private": true,
   "proxy": "http://localhost:8080/",
   "dependencies": {
-    "chalk": "^3.0.0",
+    "chalk": "^4.0.0",
     "codemirror": "^5.52.2",
     "http-status-codes": "^1.4.0",
     "jwt-decode": "^2.2.0",
