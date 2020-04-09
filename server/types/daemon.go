@@ -12,9 +12,12 @@ import (
 
 // DaemonLight data
 type DaemonLight struct {
-	ID   bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
-	Name string        `json:"name" bson:"name"`
-	Host string        `json:"host" bson:"host" validate:"required"`
+	ID     bson.ObjectId `json:"_id,omitempty" bson:"_id,omitempty"`
+	Name   string        `json:"name" bson:"name"`
+	Host   string        `json:"host" bson:"host" validate:"required"`
+	Docker struct {
+		Status string `json:"status" bson:"status"`
+	} `json:"docker" bson:"docker"`
 }
 
 // Daemon data
