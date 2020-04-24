@@ -1,14 +1,23 @@
-import './Services.css';
+import "./Services.css";
 
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import * as React from "react";
+import { Link } from "react-router-dom";
 import {
-    Button, Grid, Image, Label, Loader, Message, Modal, Search, SearchProps, Table
-} from 'semantic-ui-react';
+  Button,
+  Grid,
+  Image,
+  Label,
+  Loader,
+  Message,
+  Modal,
+  Search,
+  SearchProps,
+  Table,
+} from "semantic-ui-react";
 
-import { path } from '../../../constants/path';
-import { deleteService, fetchServices } from '../actions/service';
-import { IService, ISubService } from '../types/service';
+import { path } from "../../../constants/path";
+import { deleteService, fetchServices } from "../actions/service";
+import { IService, ISubService } from "../types/service";
 
 interface IServicesStates {
   services: IService[];
@@ -22,7 +31,7 @@ class Services extends React.Component<{}, IServicesStates> {
     services: [] as IService[],
     servicesFiltered: [] as IService[],
     isFetching: true,
-    error: Error()
+    error: Error(),
   };
 
   public componentDidMount() {
@@ -102,61 +111,72 @@ class Services extends React.Component<{}, IServicesStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {servicesFiltered
-              .slice(0, 20)
-              .sort((a, b) => a.name.localeCompare(b.name))
-              .map(service => (
-                <Table.Row key={service._id}>
-                  <Table.Cell width={2}>
-                    {service.image ? (
-                      <Image className="service-icon" src={service.image} />
-                    ) : (
-                      "No image"
-                    )}
-                  </Table.Cell>
-                  <Table.Cell width={2}>{service.name}</Table.Cell>
-                  <Table.Cell width={9}>
-                    {service.sub_services &&
-                      service.sub_services.map((version: ISubService, key) => (
-                        <Label key={`${service._id}-${key}`} color={version.active ? "green" : "grey"}>
-                          {version.name}
-                        </Label>
-                      ))}
-                  </Table.Cell>
-                  <Table.Cell width={3}>
-                    <Modal
-                      trigger={
-                        <Button color="red" icon="trash" title="Remove" floated="right" />
-                      }
-                      size="mini"
-                    >
-                      <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
-                      <Modal.Actions>
-                        <Button
-                          fluid={true}
-                          color="red"
-                          icon="trash"
-                          content="Delete"
-                          loading={isFetching}
-                          onClick={this.delete.bind(this, service._id)}
-                        />
-                      </Modal.Actions>
-                    </Modal>
-                    <Button
-                      floated="right"
-                      basic={true}
-                      labelPosition="left"
-                      icon="edit"
-                      content="Configure"
-                      as={Link}
-                      to={path.servicesEdit.replace(
-                        ":serviceID",
-                        service._id
+            {servicesFiltered &&
+              servicesFiltered
+                .slice(0, 20)
+                .sort((a, b) => a.name.localeCompare(b.name))
+                .map((service) => (
+                  <Table.Row key={service._id}>
+                    <Table.Cell width={2}>
+                      {service.image ? (
+                        <Image className="service-icon" src={service.image} />
+                      ) : (
+                        "No image"
                       )}
-                    />
-                  </Table.Cell>
-                </Table.Row>
-              ))}
+                    </Table.Cell>
+                    <Table.Cell width={2}>{service.name}</Table.Cell>
+                    <Table.Cell width={9}>
+                      {service.sub_services &&
+                        service.sub_services.map(
+                          (version: ISubService, key) => (
+                            <Label
+                              key={`${service._id}-${key}`}
+                              color={version.active ? "green" : "grey"}
+                            >
+                              {version.name}
+                            </Label>
+                          )
+                        )}
+                    </Table.Cell>
+                    <Table.Cell width={3}>
+                      <Modal
+                        trigger={
+                          <Button
+                            color="red"
+                            icon="trash"
+                            title="Remove"
+                            floated="right"
+                          />
+                        }
+                        size="mini"
+                      >
+                        <Modal.Header>{`Delete service ${service.name} ?`}</Modal.Header>
+                        <Modal.Actions>
+                          <Button
+                            fluid={true}
+                            color="red"
+                            icon="trash"
+                            content="Delete"
+                            loading={isFetching}
+                            onClick={this.delete.bind(this, service._id)}
+                          />
+                        </Modal.Actions>
+                      </Modal>
+                      <Button
+                        floated="right"
+                        basic={true}
+                        labelPosition="left"
+                        icon="edit"
+                        content="Configure"
+                        as={Link}
+                        to={path.servicesEdit.replace(
+                          ":serviceID",
+                          service._id
+                        )}
+                      />
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
           </Table.Body>
         </Table>
       </>
@@ -168,9 +188,9 @@ class Services extends React.Component<{}, IServicesStates> {
     { value }: SearchProps
   ) => {
     this.setState({
-      servicesFiltered: this.state.services.filter(service =>
+      servicesFiltered: this.state.services.filter((service) =>
         service.name.toLowerCase().includes((value as string).toLowerCase())
-      )
+      ),
     });
   };
 
@@ -178,18 +198,18 @@ class Services extends React.Component<{}, IServicesStates> {
     this.setState({ isFetching: true });
     deleteService(serviceID)
       .then(() => this.getServices())
-      .catch(error => this.setState({ error, isFetching: false }));
+      .catch((error) => this.setState({ error, isFetching: false }));
   };
 
   private getServices = () => {
     fetchServices()
-      .then(services =>
+      .then((services) =>
         this.setState({
           services,
-          servicesFiltered: services
+          servicesFiltered: services,
         })
       )
-      .catch(error => this.setState({ error }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 }

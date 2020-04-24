@@ -1,15 +1,23 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { RouteComponentProps, withRouter } from 'react-router-dom';
-import { Button, ButtonProps, Grid, Loader, Message, Search, SearchProps } from 'semantic-ui-react';
+import * as _ from "lodash";
+import * as React from "react";
+import { connect } from "react-redux";
+import { RouteComponentProps, withRouter } from "react-router-dom";
+import {
+  Button,
+  ButtonProps,
+  Grid,
+  Loader,
+  Message,
+  Search,
+  SearchProps,
+} from "semantic-ui-react";
 
-import { IStoreState } from '../../../types/store';
-import { fetchGroup, fetchGroups } from '../../Group/actions/group';
-import { IGroup } from '../../Group/types/group';
-import { fetchServices } from '../../Services/actions/service';
-import { IService } from '../../Services/types/service';
-import MarketCard from './MarketCard';
+import { IStoreState } from "../../../types/store";
+import { fetchGroup, fetchGroups } from "../../Group/actions/group";
+import { IGroup } from "../../Group/types/group";
+import { fetchServices } from "../../Services/actions/service";
+import { IService } from "../../Services/types/service";
+import MarketCard from "./MarketCard";
 
 interface IMarketProps {
   isAdmin: boolean;
@@ -35,7 +43,7 @@ class Market extends React.Component<
     tagsFilter: [] as string[],
     groups: [] as IGroup[],
     isFetching: true,
-    error: Error()
+    error: Error(),
   };
 
   private searchField = "";
@@ -46,7 +54,7 @@ class Market extends React.Component<
         this.setState({
           services,
           servicesFiltered: services,
-          isFetching: false
+          isFetching: false,
         })
       )
       .catch((error: Error) => this.setState({ error, isFetching: false }));
@@ -70,7 +78,7 @@ class Market extends React.Component<
               groups: groups.filter(
                 (g: IGroup) =>
                   this.props.isAdmin || g.admins.includes(this.props.username)
-              )
+              ),
             })
         )
         .catch((error: Error) => this.setState({ error }));
@@ -85,7 +93,7 @@ class Market extends React.Component<
       tagsFilter,
       groups,
       error,
-      isFetching
+      isFetching,
     } = this.state;
 
     if (error.message) {
@@ -110,8 +118,10 @@ class Market extends React.Component<
     }
 
     let tags: string[] = [];
-    for (const s of services) {
-      tags = _.union(tags, s.tags);
+    if (services) {
+      for (const s of services) {
+        tags = _.union(tags, s.tags);
+      }
     }
 
     return (
@@ -129,7 +139,7 @@ class Market extends React.Component<
             />
           </Grid.Column>
           <Grid.Column width={10}>
-            {tags.map(tag => (
+            {tags.map((tag) => (
               <Button
                 key={tag}
                 basic={true}
@@ -144,20 +154,21 @@ class Market extends React.Component<
           </Grid.Column>
         </Grid>
         <Grid verticalAlign="middle">
-          {servicesFiltered
-            .sort((a,b) => a.name.localeCompare(b.name))
-            .map((service: IService) => 
-            (isAdmin || !service.admin) && 
-              (
-                <Grid.Column key={service._id} width={4}>
-                  <MarketCard
-                    groups={groups}
-                    service={service}
-                    admin={isAdmin}
-                  />
-                </Grid.Column>
-              )
-          )}
+          {servicesFiltered &&
+            servicesFiltered
+              .sort((a, b) => a.name.localeCompare(b.name))
+              .map(
+                (service: IService) =>
+                  (isAdmin || !service.admin) && (
+                    <Grid.Column key={service._id} width={4}>
+                      <MarketCard
+                        groups={groups}
+                        service={service}
+                        admin={isAdmin}
+                      />
+                    </Grid.Column>
+                  )
+              )}
         </Grid>
       </>
     );
@@ -166,12 +177,12 @@ class Market extends React.Component<
   private filter = () => {
     const { tagsFilter } = this.state;
 
-    let servicesFiltered = this.state.services.filter(service =>
+    let servicesFiltered = this.state.services.filter((service) =>
       service.name.toLowerCase().includes(this.searchField.toLowerCase())
     );
     if (tagsFilter.length > 0) {
       servicesFiltered = servicesFiltered.filter(
-        s => _.intersectionWith(s.tags, tagsFilter, _.isEqual).length !== 0
+        (s) => _.intersectionWith(s.tags, tagsFilter, _.isEqual).length !== 0
       );
     }
     this.setState({ servicesFiltered });
@@ -201,7 +212,7 @@ const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
     isAdmin: login.isAdmin,
-    username: login.username || ""
+    username: login.username || "",
   };
 };
 

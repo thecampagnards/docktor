@@ -1,15 +1,27 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { Link } from 'react-router-dom';
+import * as _ from "lodash";
+import * as React from "react";
+import { Link } from "react-router-dom";
 import {
-    Button, ButtonProps, Grid, Icon, IconProps, Label, Loader, Message, Modal, Popup, Search,
-    SearchProps, SemanticShorthandItem, Table
-} from 'semantic-ui-react';
+  Button,
+  ButtonProps,
+  Grid,
+  Icon,
+  IconProps,
+  Label,
+  Loader,
+  Message,
+  Modal,
+  Popup,
+  Search,
+  SearchProps,
+  SemanticShorthandItem,
+  Table,
+} from "semantic-ui-react";
 
-import { path } from '../../../constants/path';
-import { copy } from '../../../utils/clipboard';
-import { deleteDaemon, fetchDaemons } from '../actions/daemon';
-import { dockerStatus, IDaemon } from '../types/daemon';
+import { path } from "../../../constants/path";
+import { copy } from "../../../utils/clipboard";
+import { deleteDaemon, fetchDaemons } from "../actions/daemon";
+import { dockerStatus, IDaemon } from "../types/daemon";
 
 interface IDaemonsStates {
   daemons: IDaemon[];
@@ -34,8 +46,8 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     filter: {
       tags: [] as string[],
       status: [] as dockerStatus[],
-      search: ""
-    }
+      search: "",
+    },
   };
 
   public componentDidMount() {
@@ -46,7 +58,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     this.getDaemons();
   }
 
-  public componentWillUpdate(nextProps: {}, nextState: IDaemonsStates) {
+  public componentDidUpdate(nextProps: {}, nextState: IDaemonsStates) {
     localStorage.setItem("daemonFilters", JSON.stringify(nextState.filter));
   }
 
@@ -79,20 +91,21 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
     // Filter by search text
     if (filter.search.length > 0) {
-      daemonsFiltered = daemonsFiltered
-        .filter(daemon => daemon.name.toLowerCase().includes(filter.search.toLowerCase()));
+      daemonsFiltered = daemonsFiltered.filter((daemon) =>
+        daemon.name.toLowerCase().includes(filter.search.toLowerCase())
+      );
     }
 
     // filter by tags
     if (filter.tags.length > 0) {
       daemonsFiltered = daemonsFiltered.filter(
-        d => _.intersectionWith(d.tags, filter.tags, _.isEqual).length !== 0
+        (d) => _.intersectionWith(d.tags, filter.tags, _.isEqual).length !== 0
       );
     }
 
     // filter by status
     if (filter.status.length > 0) {
-      daemonsFiltered = daemonsFiltered.filter(d =>
+      daemonsFiltered = daemonsFiltered.filter((d) =>
         filter.status.includes(d.docker.status)
       );
     }
@@ -105,8 +118,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     const labelText =
       resultsTotal === 0
         ? "No result"
-        : `Results ${resultsDisplayTop +
-            1} to ${resultsDisplayBot} of ${resultsTotal}`;
+        : `Results ${
+            resultsDisplayTop + 1
+          } to ${resultsDisplayBot} of ${resultsTotal}`;
     daemonsFiltered = daemonsFiltered.slice(
       resultsDisplayTop,
       resultsDisplayBot
@@ -134,7 +148,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
               />
             </Grid.Column>
             <Grid.Column width={3}>
-              {["OK", "CERT", "DOWN", "OLD", ""].map(status => {
+              {["OK", "CERT", "DOWN", "OLD", ""].map((status) => {
                 return (
                   <Button
                     compact={true}
@@ -169,7 +183,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
           </Grid.Row>
           <Grid.Row>
             <Grid.Column>
-              {tags.map(tag => (
+              {tags.map((tag) => (
                 <Button
                   key={tag}
                   basic={true}
@@ -197,7 +211,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
             </Table.Row>
           </Table.Header>
           <Table.Body>
-            {daemonsFiltered.map(daemon => (
+            {daemonsFiltered.map((daemon) => (
               <Table.Row key={daemon._id}>
                 <Table.Cell>
                   <Button
@@ -212,9 +226,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     <Icon name="docker" color="blue" /> {daemon.name}
                   </Button>
                 </Table.Cell>
-                <Table.Cell>
-                  {getDockerStatus(daemon.docker.status)}
-                </Table.Cell>
+                <Table.Cell>{getDockerStatus(daemon.docker.status)}</Table.Cell>
                 <Table.Cell>
                   <Popup
                     trigger={
@@ -267,7 +279,15 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
                     to={path.daemonsEdit.replace(":daemonID", daemon._id)}
                   />
                   <Modal
-                    trigger={<Button compact={true} basic={true} color="red" icon="trash" title="Delete daemon" />}
+                    trigger={
+                      <Button
+                        compact={true}
+                        basic={true}
+                        color="red"
+                        icon="trash"
+                        title="Delete daemon"
+                      />
+                    }
                     size="mini"
                   >
                     <Modal.Header>{`Delete daemon ${daemon.name} ?`}</Modal.Header>
@@ -315,7 +335,9 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   private getDaemons = () => {
     fetchDaemons().then((daemons: IDaemon[]) => {
-      daemons = daemons ? daemons.sort((a,b) => a.name.localeCompare(b.name)) : []
+      daemons = daemons
+        ? daemons.sort((a, b) => a.name.localeCompare(b.name))
+        : [];
       this.setState({ daemons });
     });
   };
@@ -365,7 +387,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
     this.setState({ isFetching: true });
     deleteDaemon(daemonID)
       .then(() => this.getDaemons())
-      .catch(error => this.setState({ error }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 }
