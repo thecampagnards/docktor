@@ -61,16 +61,28 @@ class DaemonImages extends React.Component<
         <Table.Header>
           <Table.Row>
             <Table.HeaderCell>Name</Table.HeaderCell>
+            <Table.HeaderCell>Created</Table.HeaderCell>
+            <Table.HeaderCell>Size</Table.HeaderCell>
             <Table.HeaderCell>Options</Table.HeaderCell>
           </Table.Row>
         </Table.Header>
         <Table.Body>
-          {images.map((image, key) => (
+          {images.map((image) => (
             <Table.Row key={image.Id}>
-              <Table.Cell width={8}>
-                {image.RepoTags ? image.RepoTags.toString() : image.Id}
+              <Table.Cell>
+                {image.RepoTags
+                  ? image.RepoTags.map((RepoTag) => (
+                      <>
+                        {RepoTag.split(":")[0]}:<b>{RepoTag.split(":")[1]}</b>
+                      </>
+                    ))
+                  : image.Id}
               </Table.Cell>
-              <Table.Cell width={4}>
+              <Table.Cell>
+                {new Date(image.Created * 1000).toString()}
+              </Table.Cell>
+              <Table.Cell>{image.Size / 1000000}MB</Table.Cell>
+              <Table.Cell width={2}>
                 <Popup
                   content={errors[image.Id] && errors[image.Id].message}
                   on="click"
