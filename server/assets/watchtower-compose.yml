@@ -3,7 +3,7 @@ version: "2"
 services:
   watchtower:
     network_mode: bridge
-    image: v2tec/watchtower
+    image: containrrr/watchtower
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - /dicdk/users/cdksystem/.docker/config.json:/config.json:ro
