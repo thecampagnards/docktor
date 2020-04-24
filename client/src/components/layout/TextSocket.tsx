@@ -1,8 +1,8 @@
-import * as React from 'react';
-import { Button, Message } from 'semantic-ui-react';
-import { FitAddon } from 'xterm-addon-fit';
+import * as React from "react";
+import { Button, Message } from "semantic-ui-react";
+import { FitAddon } from "xterm-addon-fit";
 
-import { GetToken } from '../User/actions/user';
+import { GetToken } from "../User/actions/user";
 
 interface ITextSocketProps {
   wsPath: string;
@@ -21,7 +21,7 @@ export default class TextSocket extends React.Component<
   public state = {
     logs: "",
     error: Error(),
-    follow: true
+    follow: true,
   };
 
   private ws: WebSocket;
@@ -46,7 +46,7 @@ export default class TextSocket extends React.Component<
       this.fitAddon = new FitAddon();
     };
 
-    this.ws.onmessage = e => {
+    this.ws.onmessage = (e) => {
       const logs = this.state.logs.concat(e.data);
       try {
         this.fitAddon.fit();
@@ -55,14 +55,16 @@ export default class TextSocket extends React.Component<
       }
       this.setState({ logs });
     };
-    this.ws.onerror = _ => {
+    this.ws.onerror = (_) => {
       this.setState({ error: new Error("WebTextSocket error") });
     };
-    this.ws.onclose = e => {
-      this.fitAddon && this.fitAddon.dispose();
+    this.ws.onclose = (e) => {
+      if (this.fitAddon) {
+        this.fitAddon.dispose();
+      }
       if (!e.wasClean && e.code !== 1000) {
         this.setState({
-          error: new Error(`WebTextSocket error: ${e.code} ${e.reason}`)
+          error: new Error(`WebTextSocket error: ${e.code} ${e.reason}`),
         });
       }
     };
@@ -97,7 +99,12 @@ export default class TextSocket extends React.Component<
 
     return (
       <>
-        <span ref={textLog => (this.textLog = textLog)}>{logs}</span>
+        <p
+          ref={(textLog) => (this.textLog = textLog)}
+          style={{ height: "100%", overflowX: "scroll" }}
+        >
+          {logs}
+        </p>
         <Button
           basic={true}
           onClick={this.handleToggle}

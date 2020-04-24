@@ -58,7 +58,7 @@ export interface IContainer {
   Status: string;
   Config: {
     Image: string;
-  }
+  };
 }
 
 export interface IPort {
@@ -68,3 +68,15 @@ export interface IPort {
   Type: string;
 }
 
+export interface IImage {
+  Containers: number;
+  Created: number;
+  Id: string;
+  ParentID: string;
+  RepoDigests: string[];
+  RepoTags: string[];
+  SharedSize: number;
+  Size: number;
+  VirtualSize: number;
+  Labels: { [key: string]: string };
+}

@@ -188,7 +188,7 @@ export default class ContainersGrid extends React.Component<
                 <Grid.Column key={c.Id}>
                   <ContainerCard
                     container={c}
-                    images={images.filter(i =>
+                    images={images && images.filter(i =>
                       RegExp(i.image.Pattern).test(c.Image)
                     )}
                     admin={admin}

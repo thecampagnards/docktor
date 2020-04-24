@@ -1,12 +1,20 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { Accordion, AccordionTitleProps, Button, Form, Icon, Message, Modal } from 'semantic-ui-react';
-import { History } from 'history';
+import * as _ from "lodash";
+import * as React from "react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+import {
+  Accordion,
+  AccordionTitleProps,
+  Button,
+  Form,
+  Icon,
+  Message,
+  Modal,
+} from "semantic-ui-react";
+import { History } from "history";
 
-import { saveDaemon, deleteDaemon } from '../actions/daemon';
-import { IDaemon } from '../types/daemon';
-import { path } from '../../../constants/path';
+import { saveDaemon, deleteDaemon } from "../actions/daemon";
+import { IDaemon } from "../types/daemon";
+import { path } from "../../../constants/path";
 
 interface IDaemonFormProps {
   daemon: IDaemon;
@@ -26,12 +34,15 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
   public state = {
     daemon: this.props.daemon
       ? this.props.daemon
-      : ({ docker: { certs: {} }, ssh: {} } as IDaemon),
+      : ({
+          docker: { certs: {}, port: 2376, volume: "/data/" },
+          ssh: { port: 22 },
+        } as IDaemon),
     isFetching: false,
     isSuccess: false,
     error: Error(),
 
-    activeAccordions: [] as number[]
+    activeAccordions: [] as number[],
   };
 
   public render() {
@@ -40,7 +51,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
       error,
       isFetching,
       isSuccess,
-      activeAccordions
+      activeAccordions,
     } = this.state;
 
     return (
@@ -74,18 +85,18 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
               label="Docker Port"
               name="docker.port"
               type="number"
-              value={daemon.docker.port || "2376"}
+              value={daemon.docker.port}
               onChange={this.handleChange}
               width={3}
             />
           </Form.Group>
-          
+
           <Form.Group>
             <Form.Input
               label="SSH Port"
               name="ssh.port"
               type="number"
-              value={daemon.ssh.port || "22"}
+              value={daemon.ssh.port}
               onChange={this.handleChange}
               width={4}
             />
@@ -142,7 +153,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
                   mode: "markdown",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["description"]
+                  gutters: ["description"],
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -166,7 +177,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.certs.ca"]
+                  gutters: ["docker.certs.ca"],
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -190,7 +201,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.certs.cert"]
+                  gutters: ["docker.certs.cert"],
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -214,7 +225,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
                   mode: "plain",
                   theme: "material",
                   lineNumbers: true,
-                  gutters: ["docker.certs.key"]
+                  gutters: ["docker.certs.key"],
                 }}
                 autoCursor={false}
                 onChange={this.handleChangeCodeEditor}
@@ -226,22 +237,33 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
             label="Docker Volume"
             name="docker.volume"
             type="text"
-            value={daemon.docker.volume || "/data/"}
+            value={daemon.docker.volume}
             onChange={this.handleChange}
           />
           <br />
-          <Message
-            success={true}
-            header="Saved"
-            content="Daemon saved"
-          />
+          <Message success={true} header="Saved" content="Daemon saved" />
           <Message error={true} header="Error" content={error.message} />
 
-          <Button type="submit" labelPosition="left" icon="save" color="teal" content="SAVE" loading={isFetching} />
+          <Button
+            type="submit"
+            labelPosition="left"
+            icon="save"
+            color="teal"
+            content="SAVE"
+            loading={isFetching}
+          />
 
-          {daemon._id &&
+          {daemon._id && (
             <Modal
-              trigger={<Button floated="right" color="red" labelPosition="right" icon="trash" content="Delete daemon" />}
+              trigger={
+                <Button
+                  floated="right"
+                  color="red"
+                  labelPosition="right"
+                  icon="trash"
+                  content="Delete daemon"
+                />
+              }
               size="mini"
             >
               <Modal.Header>{`Delete daemon ${daemon.name} ?`}</Modal.Header>
@@ -257,8 +279,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
                 </Button.Group>
               </Modal.Actions>
             </Modal>
-          }
-
+          )}
         </Form>
       </>
     );
@@ -294,7 +315,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     value: string
   ) => {
     this.setState({
-      daemon: _.set(this.state.daemon, editor.getOption("gutters")![0], value)
+      daemon: _.set(this.state.daemon, editor.getOption("gutters")![0], value),
     });
   };
 
@@ -305,14 +326,16 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     saveDaemon(this.state.daemon)
       .then((daemon: IDaemon) => {
         if (isNew) {
-          this.props.history.push(path.daemonsEdit.replace(":daemonID", daemon._id));
+          this.props.history.push(
+            path.daemonsEdit.replace(":daemonID", daemon._id)
+          );
         } else {
           this.setState({
             daemon,
             isSuccess: true,
             isFetching: false,
-            error: Error()
-          })
+            error: Error(),
+          });
         }
       })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
@@ -322,7 +345,7 @@ class DaemonForm extends React.Component<IDaemonFormProps, IDaemonFormStates> {
     this.setState({ isFetching: true });
     deleteDaemon(daemonID)
       .then(() => this.props.history.push(path.daemons))
-      .catch(error => this.setState({ error }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 }

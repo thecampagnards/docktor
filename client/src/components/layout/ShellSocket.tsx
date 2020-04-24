@@ -1,11 +1,11 @@
-import 'xterm/css/xterm.css';
+import "xterm/css/xterm.css";
 
-import chalk from 'chalk';
-import * as React from 'react';
-import { Terminal } from 'xterm';
-import { FitAddon } from 'xterm-addon-fit';
+import chalk from "chalk";
+import * as React from "react";
+import { Terminal } from "xterm";
+import { FitAddon } from "xterm-addon-fit";
 
-import { GetToken } from '../User/actions/user';
+import { GetToken } from "../User/actions/user";
 
 interface IShellSocketProps {
   wsPath: string;
@@ -33,7 +33,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
     this.ws.onopen = () => {
       this.term = new Terminal({
-        cursorBlink: true
+        cursorBlink: true,
       });
 
       this.fitAddon = new FitAddon();
@@ -51,13 +51,11 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         forcedChalk.red("You are fully responsible for your actions!")
       );
 
-      this.term.setOption("screenKeys", true);
-
-      this.term.onData(data => {
+      this.term.onData((data) => {
         this.ws.send(data);
       });
 
-      this.ws.onmessage = e => {
+      this.ws.onmessage = (e) => {
         this.term.write(e.data);
         try {
           this.fitAddon.fit();
@@ -66,7 +64,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
         }
       };
 
-      this.ws.onclose = e => {
+      this.ws.onclose = (e) => {
         this.term.write(forcedChalk.green("Session terminated"));
         this.term.dispose();
         this.fitAddon.dispose();
@@ -98,8 +96,8 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
 
   public render() {
     return React.createElement("div", {
-      ref: ref => (this.container = ref as HTMLElement),
-      style: { height: "100%", width: "100%" }
+      ref: (ref) => (this.container = ref as HTMLElement),
+      style: { height: "100%", width: "100%" },
     });
   }
 }

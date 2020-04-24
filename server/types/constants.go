@@ -9,6 +9,7 @@ const (
 	// Daemon
 	DAEMONS_DB_COLUMN   = "daemons"
 	DAEMON_ID_PARAM     = "daemonID"
+	DOCKER_IMAGE_PARAM  = "image"
 	CONTAINER_ID_PARAM  = "containerID"
 	PROJECT_NAME        = "Docktor"
 	DOCKER_STOP_TIMEOUT = 10 * time.Second

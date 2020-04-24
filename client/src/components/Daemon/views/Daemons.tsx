@@ -315,7 +315,7 @@ class Daemons extends React.Component<{}, IDaemonsStates> {
 
   private getDaemons = () => {
     fetchDaemons().then((daemons: IDaemon[]) => {
-      daemons.sort((a,b) => a.name.localeCompare(b.name));
+      daemons = daemons ? daemons.sort((a,b) => a.name.localeCompare(b.name)) : []
       this.setState({ daemons });
     });
   };

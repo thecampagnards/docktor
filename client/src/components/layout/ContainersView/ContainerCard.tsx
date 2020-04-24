@@ -1,16 +1,25 @@
-import './ContainerCard.css';
+import "./ContainerCard.css";
 
-import * as React from 'react';
-import { Button, Card, Dropdown, Grid, Label, Modal, Popup, Segment } from 'semantic-ui-react';
+import * as React from "react";
+import {
+  Button,
+  Card,
+  Dropdown,
+  Grid,
+  Label,
+  Modal,
+  Popup,
+  Segment,
+} from "semantic-ui-react";
 
-import { copy } from '../../../utils/clipboard';
-import { changeContainersStatus } from '../../Daemon/actions/daemon';
-import { IContainer, IDaemon, IPort } from '../../Daemon/types/daemon';
-import { saveContainers } from '../../Group/actions/group';
-import { IImage } from '../../Images/types/image';
-import ShellSocket from '../ShellSocket';
-import TextSocket from '../TextSocket';
-import Commands from './Commands';
+import { copy } from "../../../utils/clipboard";
+import { changeContainersStatus } from "../../Daemon/actions/daemon";
+import { IContainer, IDaemon, IPort } from "../../Daemon/types/daemon";
+import { saveContainers } from "../../Group/actions/group";
+import { IImage } from "../../Images/types/image";
+import ShellSocket from "../ShellSocket";
+import TextSocket from "../TextSocket";
+import Commands from "./Commands";
 
 interface IContainerCardProps {
   groupId?: string;
@@ -56,17 +65,27 @@ export default class ContainerCard extends React.Component<
       : "removed",
     isFetchingState: "",
     updateError: Error(),
-    saveError: Error()
+    saveError: Error(),
   };
 
-  private service = this.props.container.Labels && Object.keys(this.props.container.Labels).includes("SERVICE_NAME");
-  private composeServiceName = this.service && Object.keys(this.props.container.Labels).includes("com.docker.compose.service") ?
-    this.props.container.Labels["com.docker.compose.service"] : "?";
-  private containerService = this.service ?
-    `Service : ${this.props.container.Labels["SERVICE_NAME"]} - ${this.composeServiceName}` :
-    "No service associated";
-  private publicPorts = this.props.container.Ports ? this.props.container.Ports.filter(p => p.PublicPort && p.IP === "0.0.0.0") : [];
-
+  private service =
+    this.props.container.Labels &&
+    Object.keys(this.props.container.Labels).includes("SERVICE_NAME");
+  private composeServiceName =
+    this.service &&
+    Object.keys(this.props.container.Labels).includes(
+      "com.docker.compose.service"
+    )
+      ? this.props.container.Labels["com.docker.compose.service"]
+      : "?";
+  private containerService = this.service
+    ? `Service : ${this.props.container.Labels["SERVICE_NAME"]} - ${this.composeServiceName}`
+    : "No service associated";
+  private publicPorts = this.props.container.Ports
+    ? this.props.container.Ports.filter(
+        (p) => p.PublicPort && p.IP === "0.0.0.0"
+      )
+    : [];
 
   public render() {
     const { container, daemon, images, admin } = this.props;
@@ -75,7 +94,7 @@ export default class ContainerCard extends React.Component<
       containerImage,
       containerState,
       isFetchingState,
-      updateError
+      updateError,
     } = this.state;
 
     return (
@@ -85,9 +104,7 @@ export default class ContainerCard extends React.Component<
             <Grid.Column width={13}>
               <Card.Header>{containerName.toUpperCase()}</Card.Header>
               <Card.Meta>{containerImage}</Card.Meta>
-              <Card.Description>
-                {this.containerService}
-              </Card.Description>
+              <Card.Description>{this.containerService}</Card.Description>
             </Grid.Column>
             <Grid.Column width={3}>{this.containerStatus()}</Grid.Column>
           </Grid>
@@ -117,7 +134,8 @@ export default class ContainerCard extends React.Component<
                   />
                 </>
               )}
-              {(containerState === "exited" || containerState === "created") && (
+              {(containerState === "exited" ||
+                containerState === "created") && (
                 <Button
                   basic={true}
                   color="green"
@@ -239,7 +257,7 @@ export default class ContainerCard extends React.Component<
                 className="modal-shell"
               >
                 <Modal.Content style={{ background: "black", color: "white" }}>
-                  <pre style={{ whiteSpace: "pre-line" }}>
+                  <pre style={{ whiteSpace: "pre-line", height: "100%" }}>
                     <TextSocket
                       wsPath={`/api/daemons/${daemon._id}/docker/containers/${container.Id}/log`}
                     />
@@ -315,11 +333,15 @@ export default class ContainerCard extends React.Component<
                 <Dropdown.Item onClick={copy.bind(this, containerImage)}>
                   Container image
                 </Dropdown.Item>
-                <Dropdown.Item onClick={copy.bind(this, `docker pull ${containerImage}`)}>
+                <Dropdown.Item
+                  onClick={copy.bind(this, `docker pull ${containerImage}`)}
+                >
                   Pull command
                 </Dropdown.Item>
                 {admin && (
-                  <Dropdown.Item onClick={copy.bind(this, this.computeCreateCommand())}>
+                  <Dropdown.Item
+                    onClick={copy.bind(this, this.computeCreateCommand())}
+                  >
                     Create command
                   </Dropdown.Item>
                 )}
@@ -335,11 +357,13 @@ export default class ContainerCard extends React.Component<
     event: React.MouseEvent<HTMLButtonElement, MouseEvent>
   ) => {
     event.preventDefault();
-    if (this.props.groupId){
+    if (this.props.groupId) {
       this.setState({ isFetchingState: "remove" });
       saveContainers(this.props.groupId)
         .then(() => this.handleStatusButton("remove"))
-        .catch(saveError => this.setState({ saveError, isFetchingState: "" }));
+        .catch((saveError) =>
+          this.setState({ saveError, isFetchingState: "" })
+        );
     }
   };
 
@@ -350,7 +374,7 @@ export default class ContainerCard extends React.Component<
       this.setState({ isFetchingState: state });
       changeContainersStatus(daemon._id, state, [container.Id])
         .then(() => refresh())
-        .catch(error => this.setState({ updateError: error }))
+        .catch((error) => this.setState({ updateError: error }))
         .finally(() => this.setState({ isFetchingState: "" }));
     }
   };
@@ -413,13 +437,25 @@ export default class ContainerCard extends React.Component<
     const name = container.Names ? container.Names[0] : container.Name;
     const network = container.HostConfig.NetworkMode || "";
     const image = container.Image || container.Config.Image;
-    const ports = container.Ports ? container.Ports.map(p => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`).join(" ") : "";
-    const volumes = container.Mounts ? container.Mounts.map(v => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`).join("") : "";
-    const variables = "" // not returned by API
-    const labels = container.Labels ? Object.entries(container.Labels).map(l => `-l ${l[0]}="${l[1]}"`).join(" ") : "";
+    const ports = container.Ports
+      ? container.Ports.map(
+          (p) => `-p ${p.IP}:${p.PublicPort}:${p.PrivatePort}`
+        ).join(" ")
+      : "";
+    const volumes = container.Mounts
+      ? container.Mounts.map(
+          (v) => `-v ${v.Destination}:${v.Source}${v.RW ? "" : ":ro"}`
+        ).join("")
+      : "";
+    const variables = ""; // not returned by API
+    const labels = container.Labels
+      ? Object.entries(container.Labels)
+          .map((l) => `-l ${l[0]}="${l[1]}"`)
+          .join(" ")
+      : "";
 
     const command = `docker create --name ${name} --network ${network} ${ports} ${volumes} ${variables} ${labels} ${image}`;
 
     return command;
-  }
+  };
 }

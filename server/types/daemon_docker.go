@@ -460,3 +460,29 @@ func NormalizeName(name string) string {
 	r := regexp.MustCompile("[^a-z0-9]+")
 	return r.ReplaceAllString(strings.ToLower(name), "")
 }
+
+// GetDockerImages
+func (d *Daemon) GetDockerImages() ([]types.ImageSummary, error) {
+
+	cli, err := d.getDockerCli()
+	if err != nil {
+		return []types.ImageSummary{}, err
+	}
+
+	defer cli.Close()
+
+	return cli.ImageList(context.Background(), types.ImageListOptions{All: true})
+}
+
+// RemoveDockerImages
+func (d *Daemon) RemoveDockerImages(image string) ([]types.ImageDeleteResponseItem, error) {
+
+	cli, err := d.getDockerCli()
+	if err != nil {
+		return []types.ImageDeleteResponseItem{}, err
+	}
+
+	defer cli.Close()
+
+	return cli.ImageRemove(context.Background(), image, types.ImageRemoveOptions{Force: true})
+}

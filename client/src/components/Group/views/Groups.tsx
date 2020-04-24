@@ -1,18 +1,29 @@
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
 import {
-    Button, Checkbox, CheckboxProps, Divider, Dropdown, DropdownProps, Grid, Label, Loader, Message,
-    Search, SearchProps, Segment
-} from 'semantic-ui-react';
+  Button,
+  Checkbox,
+  CheckboxProps,
+  Divider,
+  Dropdown,
+  DropdownProps,
+  Grid,
+  Label,
+  Loader,
+  Message,
+  Search,
+  SearchProps,
+  Segment,
+} from "semantic-ui-react";
 
-import { path } from '../../../constants/path';
-import { IStoreState } from '../../../types/store';
-import { fetchDaemons } from '../../Daemon/actions/daemon';
-import { IDaemon } from '../../Daemon/types/daemon';
-import { fetchGroups } from '../actions/group';
-import { IGroup } from '../types/group';
-import GroupCard from './GroupCard';
+import { path } from "../../../constants/path";
+import { IStoreState } from "../../../types/store";
+import { fetchDaemons } from "../../Daemon/actions/daemon";
+import { IDaemon } from "../../Daemon/types/daemon";
+import { fetchGroups } from "../actions/group";
+import { IGroup } from "../types/group";
+import GroupCard from "./GroupCard";
 
 interface IGroupsProps {
   username: string;
@@ -36,7 +47,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     error: Error(),
     expanded: false,
     searchFilter: "",
-    searchDaemonID: ""
+    searchDaemonID: "",
   };
 
   private localDisplayAllGroups = localStorage.getItem("displayAllGroups");
@@ -46,11 +57,11 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
 
   public componentDidMount() {
     fetchGroups(this.displayAll)
-      .then(groups => this.setState({ groups }))
-      .catch(error => this.setState({ error }))
+      .then((groups) => this.setState({ groups }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
 
-    fetchDaemons().then(daemons => this.setState({ daemons }));
+    fetchDaemons().then((daemons) => this.setState({ daemons }));
   }
 
   public render() {
@@ -61,7 +72,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
       isFetching,
       expanded,
       searchDaemonID,
-      searchFilter
+      searchFilter,
     } = this.state;
     const { username, isAdmin } = this.props;
     const defaultDisplayNb = 12;
@@ -80,7 +91,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
 
     const groupsFiltered = groups
       ? groups.filter(
-          group =>
+          (group) =>
             group.name.toLowerCase().includes(searchFilter.toLowerCase()) &&
             (searchDaemonID === "" || searchDaemonID === group.daemon_id)
         )
@@ -115,9 +126,12 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
               label="Daemon"
               name="searchDaemonID"
               placeholder="Select daemon"
-              options={daemons.map(d => {
-                return { text: d.name, value: d._id };
-              })}
+              options={
+                daemons &&
+                daemons.map((d) => {
+                  return { text: d.name, value: d._id };
+                })
+              }
               onChange={this.filter}
               disabled={isFetching}
             />
@@ -201,8 +215,8 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     this.displayAll = checked as boolean;
     localStorage.setItem("displayAllGroups", this.displayAll);
     fetchGroups(this.displayAll)
-      .then(groups => this.setState({ groups }))
-      .catch(error => this.setState({ error }))
+      .then((groups) => this.setState({ groups }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 
@@ -218,7 +232,7 @@ class Groups extends React.Component<IGroupsProps, IGroupsStates> {
     Object.defineProperty(this.state, name, {
       value,
       writable: true,
-      enumerable: true
+      enumerable: true,
     });
     this.setState(this.state);
   };
@@ -228,7 +242,7 @@ const mapStateToProps = (state: IStoreState) => {
   const { login } = state;
   return {
     username: login.username || "",
-    isAdmin: login.isAdmin
+    isAdmin: login.isAdmin,
   };
 };
 

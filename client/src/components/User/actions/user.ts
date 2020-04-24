@@ -1,10 +1,8 @@
-import JWT from 'jwt-decode';
-import { Dispatch } from 'redux';
+import JWT from "jwt-decode";
+import { Dispatch } from "redux";
 
-import { checkStatus } from '../../../utils/promises';
-import { IUser, IUserToken } from '../types/user';
-import store from '../../../store';
-import { fetchConfig } from '../../../actions/config';
+import { checkStatus } from "../../../utils/promises";
+import { IUser, IUserToken } from "../types/user";
 
 type LoginRequest = "LOGIN_REQUEST";
 export const LoginRequest: LoginRequest = "LOGIN_REQUEST";
@@ -46,7 +44,8 @@ export interface IRegisterSuccess {
 }
 
 type RegisterSuccessLogin = "REGISTER_SUCCESS_LOGIN";
-export const RegisterSuccessLogin: RegisterSuccessLogin = "REGISTER_SUCCESS_LOGIN";
+export const RegisterSuccessLogin: RegisterSuccessLogin =
+  "REGISTER_SUCCESS_LOGIN";
 export interface IRegisterSuccessLogin {
   type: RegisterSuccessLogin;
   username: string;
@@ -72,15 +71,15 @@ export type AuthAction =
 export const loginRequestThunk = (u: IUser, ldap: boolean) => {
   return (dispatch: Dispatch<AuthAction>) => {
     dispatch({
-      type: LoginRequest
+      type: LoginRequest,
     });
     return fetch(`${process.env.PUBLIC_URL}/api/auth/login?ldap=${ldap}`, {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(u),
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     })
       .then(checkStatus)
       .then((response: Response) => response.json())
@@ -89,14 +88,13 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
         dispatch({
           type: LoginSuccess,
           username: JWT<IUserToken>(token).username,
-          isAdmin: JWT<IUserToken>(token).isAdmin
+          isAdmin: JWT<IUserToken>(token).isAdmin,
         });
-        store.dispatch(fetchConfig());
       })
       .catch((error: Error) => {
         dispatch({
           message: error.message,
-          type: LoginFailure
+          type: LoginFailure,
         });
       });
   };
@@ -105,13 +103,13 @@ export const loginRequestThunk = (u: IUser, ldap: boolean) => {
 export const registerRequestThunk = (u: IUser, login: boolean) => {
   return (dispatch: Dispatch<AuthAction>) => {
     dispatch({
-      type: RegisterRequest
+      type: RegisterRequest,
     });
     return fetch(`${process.env.PUBLIC_URL}/api/auth/register`, {
       credentials: "same-origin",
       method: "POST",
       body: JSON.stringify(u),
-      headers: { "Content-Type": "application/json" }
+      headers: { "Content-Type": "application/json" },
     })
       .then(checkStatus)
       .then((response: Response) => response.json())
@@ -120,18 +118,18 @@ export const registerRequestThunk = (u: IUser, login: boolean) => {
           localStorage.setItem("token", token);
           dispatch({
             type: RegisterSuccessLogin,
-            username: JWT<IUserToken>(token).username
+            username: JWT<IUserToken>(token).username,
           });
         } else {
           dispatch({
-            type: RegisterSuccess
-          })
+            type: RegisterSuccess,
+          });
         }
       })
       .catch((error: Error) => {
         dispatch({
           message: error.message,
-          type: RegisterFailure
+          type: RegisterFailure,
         });
       });
   };
@@ -144,7 +142,7 @@ export const validateThunk = () => {
       dispatch({
         type: LoginSuccess,
         username: JWT<IUserToken>(token).username,
-        isAdmin: JWT<IUserToken>(token).isAdmin
+        isAdmin: JWT<IUserToken>(token).isAdmin,
       });
     }
   };
@@ -154,7 +152,7 @@ export const logoutRequestThunk = () => {
   return (dispatch: Dispatch<AuthAction>) => {
     localStorage.removeItem("token");
     dispatch({
-      type: LogoutSuccess
+      type: LogoutSuccess,
     });
   };
 };
@@ -168,8 +166,8 @@ export const GetProfile = () => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
+      Authorization: `Bearer ${GetToken()}`,
+    }),
   })
     .then(checkStatus)
     .then((response: Response) => response.json());

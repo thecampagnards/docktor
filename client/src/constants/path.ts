@@ -22,6 +22,7 @@ export const path = {
   daemonsSummary: "/daemons/:daemonID/summary",
   daemonsEdit: "/daemons/:daemonID/edit",
   daemonsContainers: "/daemons/:daemonID/containers",
+  daemonsImages: "/daemons/:daemonID/images",
   daemonsCAdvisor: "/daemons/:daemonID/cadvisor",
   daemonsSSH: "/daemons/:daemonID/ssh",
 

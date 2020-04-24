@@ -1,18 +1,18 @@
-import { checkStatus } from '../../../utils/promises';
-import { GetToken } from '../../User/actions/user';
-import { IDaemon } from '../types/daemon';
-import { ICommandVariable } from '../../Images/types/image';
+import { checkStatus } from "../../../utils/promises";
+import { GetToken } from "../../User/actions/user";
+import { IDaemon } from "../types/daemon";
+import { ICommandVariable } from "../../Images/types/image";
 
 export const fetchDaemons = () => {
   return fetch(`${process.env.PUBLIC_URL}/api/daemons`, {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
+      Authorization: `Bearer ${GetToken()}`,
+    }),
   })
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 };
 
 export const fetchDaemon = (daemonID: string) => {
@@ -20,11 +20,11 @@ export const fetchDaemon = (daemonID: string) => {
     credentials: "same-origin",
     method: "GET",
     headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
+      Authorization: `Bearer ${GetToken()}`,
+    }),
   })
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 };
 
 export const fetchContainers = (daemonID: string) => {
@@ -34,12 +34,12 @@ export const fetchContainers = (daemonID: string) => {
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 };
 
 export const fetchSavedContainers = (daemonID: string) => {
@@ -49,12 +49,12 @@ export const fetchSavedContainers = (daemonID: string) => {
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
-    .then(response => response.json());
+    .then((response) => response.json());
 };
 
 export const changeContainersStatus = (
@@ -72,8 +72,8 @@ export const changeContainersStatus = (
       credentials: "same-origin",
       method: "POST",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
@@ -87,18 +87,15 @@ export const fetchComposeServices = (daemonID: string) => {
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
 
-export const getComposeStatus = (
-  daemonID: string,
-  services: string[]
-) => {
+export const getComposeStatus = (daemonID: string, services: string[]) => {
   return fetch(
     `${
       process.env.PUBLIC_URL
@@ -107,8 +104,8 @@ export const getComposeStatus = (
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
@@ -123,13 +120,15 @@ export const changeComposeStatus = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/daemons/${daemonID}/compose/status?status=${status}&services=${services.join(",")}`,
+    }/api/daemons/${daemonID}/compose/status?status=${status}&services=${services.join(
+      ","
+    )}`,
     {
       credentials: "same-origin",
       method: "POST",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
@@ -137,16 +136,13 @@ export const changeComposeStatus = (
 };
 
 export const fetchCadvisor = (daemonID: string) => {
-  return fetch(
-    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor`,
-    {
-      credentials: "same-origin",
-      method: "GET",
-      headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
-    }
-  )
+  return fetch(`${process.env.PUBLIC_URL}/api/daemons/${daemonID}/cadvisor`, {
+    credentials: "same-origin",
+    method: "GET",
+    headers: new Headers({
+      Authorization: `Bearer ${GetToken()}`,
+    }),
+  })
     .then(checkStatus)
     .then((response: Response) => response.json());
 };
@@ -158,8 +154,8 @@ export const saveDaemon = (daemon: IDaemon) => {
     body: JSON.stringify(daemon),
     headers: new Headers({
       "Content-Type": "application/json",
-      Authorization: `Bearer ${GetToken()}`
-    })
+      Authorization: `Bearer ${GetToken()}`,
+    }),
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -172,8 +168,8 @@ export const execCommand = (daemon: IDaemon, commands: string[]) => {
     body: JSON.stringify(commands),
     headers: new Headers({
       Authorization: `Bearer ${GetToken()}`,
-      "Content-Type": "application/json"
-    })
+      "Content-Type": "application/json",
+    }),
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
@@ -186,8 +182,8 @@ export const checkDaemonStatus = (daemonID: string) => {
       credentials: "same-origin",
       method: "GET",
       headers: new Headers({
-        Authorization: `Bearer ${GetToken()}`
-      })
+        Authorization: `Bearer ${GetToken()}`,
+      }),
     }
   )
     .then(checkStatus)
@@ -203,15 +199,17 @@ export const execDockerCommand = (
   return fetch(
     `${
       process.env.PUBLIC_URL
-    }/api/daemons/${daemonID}/docker/containers/${encodeURIComponent(container)}/exec/${commandID}`,
+    }/api/daemons/${daemonID}/docker/containers/${encodeURIComponent(
+      container
+    )}/exec/${commandID}`,
     {
       credentials: "same-origin",
       method: "POST",
       headers: new Headers({
         "Content-Type": "application/json",
-        Authorization: `Bearer ${GetToken()}`
+        Authorization: `Bearer ${GetToken()}`,
       }),
-      body: JSON.stringify(variables)
+      body: JSON.stringify(variables),
     }
   )
     .then(checkStatus)
@@ -223,9 +221,39 @@ export const deleteDaemon = (daemonID: string) => {
     credentials: "same-origin",
     method: "DELETE",
     headers: new Headers({
-      Authorization: `Bearer ${GetToken()}`
-    })
+      Authorization: `Bearer ${GetToken()}`,
+    }),
   })
     .then(checkStatus)
     .then((response: Response) => response.json());
+};
+
+export const fetchImages = (daemonID: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/images`,
+    {
+      credentials: "same-origin",
+      method: "GET",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`,
+      }),
+    }
+  )
+    .then(checkStatus)
+    .then((response) => response.json());
+};
+
+export const deleteImage = (daemonID: string, image: string) => {
+  return fetch(
+    `${process.env.PUBLIC_URL}/api/daemons/${daemonID}/docker/images/${image}`,
+    {
+      credentials: "same-origin",
+      method: "DELETE",
+      headers: new Headers({
+        Authorization: `Bearer ${GetToken()}`,
+      }),
+    }
+  )
+    .then(checkStatus)
+    .then((response) => response.json());
 };

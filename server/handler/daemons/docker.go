@@ -404,3 +404,64 @@ func getContainerTerm(c echo.Context) error {
 	}).ServeHTTP(c.Response(), c.Request())
 	return nil
 }
+
+// getImages get docker images from daemon
+func getImages(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.WithFields(log.Fields{
+		"daemon": daemon.Name,
+	}).Info("Daemon retrieved")
+
+	im, err := daemon.GetDockerImages()
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemon": daemon.Name,
+			"error":  err,
+		}).Error("Error when retrieving docker images")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.Info("Docker images retrieved")
+
+	return c.JSON(http.StatusOK, im)
+}
+
+// deleteImages delete docker images from daemon
+func deleteImages(c echo.Context) error {
+	db := c.Get("DB").(*storage.Docktor)
+	daemon, err := db.Daemons().FindByID(c.Param(types.DAEMON_ID_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"daemonID": c.Param(types.DAEMON_ID_PARAM),
+			"error":    err,
+		}).Error("Error when retrieving daemon")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.WithFields(log.Fields{
+		"daemon": daemon.Name,
+	}).Info("Daemon retrieved")
+
+	cs, err := daemon.RemoveDockerImages(c.Param(types.DOCKER_IMAGE_PARAM))
+	if err != nil {
+		log.WithFields(log.Fields{
+			"image":  c.Param(types.DOCKER_IMAGE_PARAM),
+			"daemon": daemon.Name,
+			"error":  err,
+		}).Error("Error when deleting docker image")
+		return c.JSON(http.StatusBadRequest, err.Error())
+	}
+
+	log.Info("Docker image deleted")
+
+	return c.JSON(http.StatusOK, cs)
+}

@@ -16,8 +16,8 @@ type DaemonLight struct {
 	Name   string        `json:"name" bson:"name"`
 	Host   string        `json:"host" bson:"host" validate:"required"`
 	Docker struct {
-		Status string `json:"status" bson:"status"`
-	} `json:"docker" bson:"docker"`
+		Status string `json:"status" bson:"-"`
+	} `json:"docker" bson:"-"`
 }
 
 // Daemon data

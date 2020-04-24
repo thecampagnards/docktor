@@ -1,18 +1,19 @@
-import * as React from 'react';
-import ReactMarkdown from 'react-markdown';
-import { RouteComponentProps } from 'react-router';
-import { Loader, Message, Tab, TabProps } from 'semantic-ui-react';
+import * as React from "react";
+import ReactMarkdown from "react-markdown";
+import { RouteComponentProps } from "react-router";
+import { Loader, Message, Tab, TabProps } from "semantic-ui-react";
 
-import { path as constPath } from '../../../constants/path';
-import { fetchDaemon } from '../../Daemon/actions/daemon';
-import { IDaemon } from '../../Daemon/types/daemon';
-import DaemonCAdvisor from './DaemonCAdvisor';
-import DaemonContainers from './DaemonContainers';
-import DaemonForm from './DaemonForm';
-import DaemonSSH from './DaemonSSH';
-import { IGroup } from '../../Group/types/group';
-import { fetchGroupsByDaemon } from '../../Group/actions/group';
-import DaemonSummary from './DaemonSummary';
+import { path as constPath } from "../../../constants/path";
+import { fetchDaemon } from "../../Daemon/actions/daemon";
+import { IDaemon } from "../../Daemon/types/daemon";
+import DaemonCAdvisor from "./DaemonCAdvisor";
+import DaemonContainers from "./DaemonContainers";
+import DaemonForm from "./DaemonForm";
+import DaemonSSH from "./DaemonSSH";
+import { IGroup } from "../../Group/types/group";
+import { fetchGroupsByDaemon } from "../../Group/actions/group";
+import DaemonSummary from "./DaemonSummary";
+import DaemonImages from "./DaemonImages";
 
 interface IRouterProps {
   daemonID: string;
@@ -35,7 +36,7 @@ class DaemonIndex extends React.Component<
     isFetching: true,
     daemon: {} as IDaemon,
     error: Error(),
-    groups: [] as IGroup[]
+    groups: [] as IGroup[],
   };
 
   public componentDidMount() {
@@ -45,7 +46,9 @@ class DaemonIndex extends React.Component<
     fetchDaemon(daemonID)
       .then((daemon: IDaemon) => {
         this.setState({ daemon, isFetching: false });
-        fetchGroupsByDaemon(daemon._id).then(groups => this.setState({ groups }));
+        fetchGroupsByDaemon(daemon._id).then((groups) =>
+          this.setState({ groups })
+        );
       })
       .catch((error: Error) => this.setState({ error, isFetching: false }));
 
@@ -57,15 +60,19 @@ class DaemonIndex extends React.Component<
       case path === constPath.daemonsContainers.replace(":daemonID", daemonID):
         activeTab = 1;
         break;
-      case path === constPath.daemonsCAdvisor.replace(":daemonID", daemonID):
+      case path === constPath.daemonsImages.replace(":daemonID", daemonID):
         activeTab = 2;
         break;
-      case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
+      case path === constPath.daemonsCAdvisor.replace(":daemonID", daemonID):
         activeTab = 3;
         break;
-      case path === constPath.daemonsSSH.replace(":daemonID", daemonID):
+      case path === constPath.daemonsEdit.replace(":daemonID", daemonID):
         activeTab = 4;
         break;
+      case path === constPath.daemonsSSH.replace(":daemonID", daemonID):
+        activeTab = 5;
+        break;
+
       default:
         activeTab = 0;
     }
@@ -93,11 +100,10 @@ class DaemonIndex extends React.Component<
       {
         menuItem: "Summary",
         pane: (
-          <Tab.Pane
-            loading={isFetching} key={0}>
+          <Tab.Pane loading={isFetching} key={0}>
             <DaemonSummary daemon={daemon} groups={groups} />
           </Tab.Pane>
-        )
+        ),
       },
       {
         menuItem: "Containers",
@@ -109,36 +115,48 @@ class DaemonIndex extends React.Component<
           >
             <DaemonContainers daemon={daemon} groups={groups} />
           </Tab.Pane>
-        )
+        ),
+      },
+      {
+        menuItem: "Images",
+        pane: (
+          <Tab.Pane
+            loading={isFetching}
+            key={2}
+            disabled={!daemon.docker || !daemon.docker.port}
+          >
+            <DaemonImages daemon={daemon} />
+          </Tab.Pane>
+        ),
       },
       {
         menuItem: "CAdvisor",
         pane: (
-          <Tab.Pane loading={isFetching} key={2}>
+          <Tab.Pane loading={isFetching} key={3}>
             <DaemonCAdvisor daemon={daemon} />
           </Tab.Pane>
-        )
+        ),
       },
       {
         menuItem: "Edit",
         pane: (
-          <Tab.Pane loading={isFetching} key={3}>
+          <Tab.Pane loading={isFetching} key={4}>
             <DaemonForm daemon={daemon} history={this.props.history} />
           </Tab.Pane>
-        )
+        ),
       },
       {
         menuItem: "SSH",
         pane: (
           <Tab.Pane
             loading={isFetching}
-            key={4}
+            key={5}
             disabled={!daemon.ssh || !daemon.ssh.port}
           >
             <DaemonSSH daemon={daemon} />
           </Tab.Pane>
-        )
-      }
+        ),
+      },
     ];
 
     return (
@@ -173,15 +191,20 @@ class DaemonIndex extends React.Component<
         break;
       case 2:
         this.props.history.push(
-          constPath.daemonsCAdvisor.replace(":daemonID", daemonID)
+          constPath.daemonsImages.replace(":daemonID", daemonID)
         );
         break;
       case 3:
         this.props.history.push(
-          constPath.daemonsEdit.replace(":daemonID", daemonID)
+          constPath.daemonsCAdvisor.replace(":daemonID", daemonID)
         );
         break;
       case 4:
+        this.props.history.push(
+          constPath.daemonsEdit.replace(":daemonID", daemonID)
+        );
+        break;
+      case 5:
         this.props.history.push(
           constPath.daemonsSSH.replace(":daemonID", daemonID)
         );
