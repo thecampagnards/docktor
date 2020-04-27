@@ -77,7 +77,7 @@ func (d *Daemon) getDockerCli() (cli DockerCli, err error) {
 		}
 	}
 
-	cli.Client, err = client.NewClientWithOpts(client.WithHost(d.GetCompleteHost()), client.WithHTTPClient(c))
+	cli.Client, err = client.NewClientWithOpts(client.WithHost(d.GetCompleteHost()), client.WithHTTPClient(c), client.WithAPIVersionNegotiation())
 	return
 }
 
