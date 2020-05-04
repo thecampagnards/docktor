@@ -16,7 +16,7 @@ require (
 	github.com/namsral/flag v1.7.4-pre
 	github.com/portainer/libcompose v0.5.3
 	github.com/robfig/cron v1.2.0
-	github.com/sirupsen/logrus v1.5.0
+	github.com/sirupsen/logrus v1.6.0
 	golang.org/x/crypto v0.0.0-20200323165209-0ec3e9974c59
 	golang.org/x/net v0.0.0-20200324143707-d3edc9973b7e
 	gopkg.in/yaml.v3 v3.0.0-20200313102051-9f266ea9e77c
