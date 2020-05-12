@@ -1,18 +1,25 @@
-import './Layout.css';
-import './Custo.css';
+import "./Layout.css";
+import "./Custo.css";
 
-import * as React from 'react';
-import { connect } from 'react-redux';
-import { Link } from 'react-router-dom';
-import { Action } from 'redux';
-import { ThunkDispatch } from 'redux-thunk';
-import { Button, Container, Icon, Image, Menu, Message } from 'semantic-ui-react';
+import * as React from "react";
+import { connect } from "react-redux";
+import { Link } from "react-router-dom";
+import { Action } from "redux";
+import { ThunkDispatch } from "redux-thunk";
+import {
+  Button,
+  Container,
+  Icon,
+  Image,
+  Menu,
+  Message,
+} from "semantic-ui-react";
 
-import { path } from '../../constants/path';
-import { IStoreState } from '../../types/store';
-import { IMessage } from '../../types/types';
-import { logoutRequestThunk } from '../User/actions/user';
-import KonamiCode from './KonamiCode';
+import { path } from "../../constants/path";
+import { IStoreState } from "../../types/store";
+import { IMessage } from "../../types/types";
+import { logoutRequestThunk } from "../User/actions/user";
+import KonamiCode from "./KonamiCode";
 
 interface ILayoutProps {
   message: IMessage;
@@ -21,6 +28,7 @@ interface ILayoutProps {
   isAuthenticated: boolean;
   username: string;
   logoutRequest?: () => void;
+  children: React.ReactNode;
 }
 
 interface ILayoutState {
@@ -29,7 +37,7 @@ interface ILayoutState {
 
 class Layout extends React.Component<ILayoutProps, ILayoutState> {
   public state = {
-    showBanner: true
+    showBanner: true,
   };
 
   public render() {
@@ -94,7 +102,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
           )}
 
           <Menu.Menu position="right">
-            {docURL &&
+            {docURL && (
               <Menu.Item>
                 <Button
                   basic={true}
@@ -106,7 +114,7 @@ class Layout extends React.Component<ILayoutProps, ILayoutState> {
                   target="_blank"
                 />
               </Menu.Item>
-            }
+            )}
 
             <Menu.Item>
               <Button
@@ -150,17 +158,14 @@ const mapStateToProps = (state: IStoreState) => {
     docURL: config.config.doc_url,
     username: login.username || "",
     isAdmin: login.isAdmin,
-    isAuthenticated: login.username !== ""
+    isAuthenticated: login.username !== "",
   };
 };
 
 const mapDispatchToProps = (dispatch: ThunkDispatch<any, any, Action>) => ({
   logoutRequest: () => {
     dispatch(logoutRequestThunk());
-  }
+  },
 });
 
-export default connect(
-  mapStateToProps,
-  mapDispatchToProps
-)(Layout);
+export default connect(mapStateToProps, mapDispatchToProps)(Layout);
