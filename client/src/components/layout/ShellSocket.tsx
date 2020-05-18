@@ -12,10 +12,13 @@ interface IShellSocketProps {
 }
 
 export default class ShellSocket extends React.Component<IShellSocketProps> {
-  private container: HTMLElement;
-  private term: Terminal;
-  private ws: WebSocket;
-  private fitAddon: FitAddon;
+  private term: Terminal = new Terminal({
+    cursorBlink: true,
+  });
+  private fitAddon: FitAddon = new FitAddon();
+
+  private container: HTMLElement | undefined;
+  private ws: WebSocket | undefined;
 
   public componentDidMount() {
     const { wsPath } = this.props;
@@ -32,14 +35,13 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
     this.ws = new WebSocket(`${uri}${wsPath}?jwt_token=${GetToken()}`);
 
     this.ws.onopen = () => {
-      this.term = new Terminal({
-        cursorBlink: true,
-      });
+      if (!this.ws) {
+        return;
+      }
 
-      this.fitAddon = new FitAddon();
       this.term.loadAddon(this.fitAddon);
 
-      this.term.open(this.container);
+      this.container && this.term.open(this.container);
       this.term.focus();
 
       const forcedChalk = new chalk.Instance({ level: 2 });
@@ -52,7 +54,7 @@ export default class ShellSocket extends React.Component<IShellSocketProps> {
       );
 
       this.term.onData((data) => {
-        this.ws.send(data);
+        this.ws && this.ws.send(data);
       });
 
       this.ws.onmessage = (e) => {

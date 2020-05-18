@@ -1,10 +1,10 @@
-import * as React from 'react';
-import { Message, Loader } from 'semantic-ui-react';
+import * as React from "react";
+import { Message, Loader } from "semantic-ui-react";
 
-import { IContainer, IDaemon } from '../../Daemon/types/daemon';
-import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
-import { fetchContainers } from '../actions/group';
-import { IGroup } from '../types/group';
+import { IContainer, IDaemon } from "../../Daemon/types/daemon";
+import ContainersGrid from "../../layout/ContainersView/ContainersGrid";
+import { fetchContainers } from "../actions/group";
+import { IGroup } from "../types/group";
 
 interface IGroupProps {
   group: IGroup;
@@ -22,10 +22,10 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   public state = {
     containers: [],
     isFetching: true,
-    error: Error()
+    error: Error(),
   };
 
-  private refreshIntervalId: NodeJS.Timeout;
+  private refreshIntervalId: NodeJS.Timeout | undefined;
 
   public componentDidMount() {
     this.fetch();
@@ -33,7 +33,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
   }
 
   public componentWillUnmount() {
-    clearInterval(this.refreshIntervalId);
+    this.refreshIntervalId && clearInterval(this.refreshIntervalId);
   }
 
   public render() {
@@ -41,28 +41,26 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
     const { containers, isFetching, error } = this.state;
 
     if (isFetching) {
-      return (
-        <Loader content="Loading containers" />
-      );
+      return <Loader content="Loading containers" />;
     }
 
     return (
       <>
-      {error.message &&
-        <Message negative={true}>
-          <Message.Header>
-            There was an issue to connect to the Docker daemon
-          </Message.Header>
-          <p>{error.message}</p>
-        </Message>
-      }
-      <ContainersGrid
-        containers={containers}
-        admin={admin}
-        daemon={daemon}
-        groupId={group._id}
-        refresh={this.fetch}
-      />
+        {error.message && (
+          <Message negative={true}>
+            <Message.Header>
+              There was an issue to connect to the Docker daemon
+            </Message.Header>
+            <p>{error.message}</p>
+          </Message>
+        )}
+        <ContainersGrid
+          containers={containers}
+          admin={admin}
+          daemon={daemon}
+          groupId={group._id}
+          refresh={this.fetch}
+        />
       </>
     );
   }
@@ -75,9 +73,7 @@ class GroupContainers extends React.Component<IGroupProps, IGroupStates> {
         }
         for (const container of this.props.group.containers) {
           if (
-            !containers.find(
-              c => c.Names && c.Names.includes(container.Name)
-            )
+            !containers.find((c) => c.Names && c.Names.includes(container.Name))
           ) {
             containers.push(container);
           }

@@ -1,11 +1,11 @@
-import * as React from 'react';
-import { Loader, Message } from 'semantic-ui-react';
+import * as React from "react";
+import { Loader, Message } from "semantic-ui-react";
 
-import { IContainer } from '../../Daemon/types/daemon';
-import ContainersGrid from '../../layout/ContainersView/ContainersGrid';
-import { fetchContainers, fetchSavedContainers } from '../actions/daemon';
-import { IDaemon } from '../types/daemon';
-import { IGroup } from '../../Group/types/group';
+import { IContainer } from "../../Daemon/types/daemon";
+import ContainersGrid from "../../layout/ContainersView/ContainersGrid";
+import { fetchContainers, fetchSavedContainers } from "../actions/daemon";
+import { IDaemon } from "../types/daemon";
+import { IGroup } from "../../Group/types/group";
 
 interface IDaemonContainersProps {
   daemon: IDaemon;
@@ -25,27 +25,27 @@ class DaemonContainers extends React.Component<
   public state = {
     containers: [] as IContainer[],
     isFetching: true,
-    error: Error()
+    error: Error(),
   };
 
-  private refreshIntervalId: NodeJS.Timeout;
+  private refreshIntervalId: NodeJS.Timeout | undefined;
   private savedContainers: IContainer[] = [] as IContainer[];
 
   public componentDidMount() {
     const { daemon } = this.props;
 
     fetchSavedContainers(daemon._id)
-      .then(savedContainers => {
+      .then((savedContainers) => {
         this.savedContainers = savedContainers;
-        this.fetch()
+        this.fetch();
       })
-      .catch(error => this.setState({ error }));
+      .catch((error) => this.setState({ error }));
 
     this.refreshIntervalId = setInterval(this.fetch, 1000 * 10);
   }
 
   public componentWillUnmount() {
-    clearInterval(this.refreshIntervalId);
+    this.refreshIntervalId && clearInterval(this.refreshIntervalId);
   }
 
   public render() {
@@ -85,7 +85,7 @@ class DaemonContainers extends React.Component<
           for (const container of this.savedContainers) {
             if (
               !containers.find(
-                c => c.Names && c.Names.indexOf(container.Name) !== -1
+                (c) => c.Names && c.Names.indexOf(container.Name) !== -1
               )
             ) {
               containers.push(container);
@@ -94,7 +94,7 @@ class DaemonContainers extends React.Component<
         }
         this.setState({ containers, error: Error() });
       })
-      .catch(error => this.setState({ error }))
+      .catch((error) => this.setState({ error }))
       .finally(() => this.setState({ isFetching: false }));
   };
 }

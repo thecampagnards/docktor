@@ -59,14 +59,12 @@ func (d *Daemon) getDockerCli() (cli DockerCli, err error) {
 			return
 		}
 
-		options := tlsconfig.Options{
+		tlsc, err := tlsconfig.Client(tlsconfig.Options{
 			CAFile:             cli.ca,
 			CertFile:           cli.cert,
 			KeyFile:            cli.key,
 			InsecureSkipVerify: true,
-		}
-
-		tlsc, err := tlsconfig.Client(options)
+		})
 		if err != nil {
 			return DockerCli{}, err
 		}
@@ -429,6 +427,8 @@ func (d *Daemon) GetContainerTerm(containerName string) (types.HijackedResponse,
 		return types.HijackedResponse{}, err
 	}
 
+	defer cli.Close()
+
 	exec, err := cli.ContainerExecCreate(context.Background(), containerName, types.ExecConfig{
 		AttachStdin:  true,
 		AttachStdout: true,
@@ -439,18 +439,9 @@ func (d *Daemon) GetContainerTerm(containerName string) (types.HijackedResponse,
 	if err != nil {
 		return types.HijackedResponse{}, err
 	}
-
 	if exec.ID == "" {
 		return types.HijackedResponse{}, errors.New("exec ID empty")
 	}
-
-	cli.Close()
-
-	cli, err = d.getDockerCli()
-	if err != nil {
-		return types.HijackedResponse{}, err
-	}
-	defer cli.Close()
 
 	return cli.ContainerExecAttach(context.Background(), exec.ID, types.ExecStartCheck{Detach: false, Tty: true})
 }

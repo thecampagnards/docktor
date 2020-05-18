@@ -1,40 +1,50 @@
-import 'semantic-ui-css/semantic.min.css';
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/mode/yaml/yaml';
-import 'codemirror/mode/markdown/markdown';
-import 'codemirror/mode/shell/shell';
+import "semantic-ui-css/semantic.min.css";
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/material.css";
+import "codemirror/mode/yaml/yaml";
+import "codemirror/mode/markdown/markdown";
+import "codemirror/mode/shell/shell";
 
-import * as React from 'react';
-import * as ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
-import { BrowserRouter as Router, Redirect, Route, Switch } from 'react-router-dom';
+import * as React from "react";
+import * as ReactDOM from "react-dom";
+import { Provider } from "react-redux";
+import {
+  BrowserRouter as Router,
+  Redirect,
+  Route,
+  Switch,
+} from "react-router-dom";
 
-import Admin from './components/Admin/views/Admin';
-import DaemonForm from './components/Daemon/views/DaemonForm';
-import DaemonIndex from './components/Daemon/views/DaemonIndex';
-import Daemons from './components/Daemon/views/Daemons';
-import GroupForm from './components/Group/views/GroupForm';
-import Groups from './components/Group/views/Groups';
-import Home from './components/Home/views/Home';
-import Images from './components/Images/views/Images';
-import Layout from './components/layout/Layout';
-import Market from './components/Market/views/Market';
-import Service from './components/Services/views/Service';
-import ServiceForm from './components/Services/views/ServiceForm';
-import Services from './components/Services/views/Services';
-import { fetchConfig } from './actions/config';
-import { validateThunk } from './components/User/actions/user';
-import { UserIsAdmin, UserIsAuthenticated, UserIsNotAuthenticated, UserCanCreateAccount } from './components/User/auth';
-import Login from './components/User/views/Login';
-import Profile from './components/User/views/Profile';
-import User from './components/User/views/User';
-import UserForm from './components/User/views/UserForm';
-import Users from './components/User/views/Users';
-import { path } from './constants/path';
-import registerServiceWorker from './registerServiceWorker';
-import store from './store';
-import GroupIndex from './components/Group/views/GroupIndex';
+import Admin from "./components/Admin/views/Admin";
+import DaemonForm from "./components/Daemon/views/DaemonForm";
+import DaemonIndex from "./components/Daemon/views/DaemonIndex";
+import Daemons from "./components/Daemon/views/Daemons";
+import GroupForm from "./components/Group/views/GroupForm";
+import Groups from "./components/Group/views/Groups";
+import Home from "./components/Home/views/Home";
+import Images from "./components/Images/views/Images";
+import Layout from "./components/layout/Layout";
+import Market from "./components/Market/views/Market";
+import Service from "./components/Services/views/Service";
+import ServiceForm from "./components/Services/views/ServiceForm";
+import Services from "./components/Services/views/Services";
+import { fetchConfig } from "./actions/config";
+import { validateThunk } from "./components/User/actions/user";
+import {
+  UserIsAdmin,
+  UserIsAuthenticated,
+  UserIsNotAuthenticated,
+  UserCanCreateAccount,
+} from "./components/User/auth";
+import Login from "./components/User/views/Login";
+import Profile from "./components/User/views/Profile";
+import User from "./components/User/views/User";
+import UserForm from "./components/User/views/UserForm";
+import Users from "./components/User/views/Users";
+import { path } from "./constants/path";
+import * as serviceWorker from "./serviceWorker";
+import store from "./store";
+import GroupIndex from "./components/Group/views/GroupIndex";
 
 store.dispatch(validateThunk());
 store.dispatch(fetchConfig());
@@ -150,4 +160,4 @@ ReactDOM.render(
   </Provider>,
   document.getElementById("root") as HTMLElement
 );
-registerServiceWorker();
+serviceWorker.unregister();

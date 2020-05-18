@@ -1,6 +1,5 @@
 import * as React from "react";
 import { Button, Message } from "semantic-ui-react";
-import { FitAddon } from "xterm-addon-fit";
 
 import { GetToken } from "../User/actions/user";
 
@@ -24,9 +23,8 @@ export default class TextSocket extends React.Component<
     follow: true,
   };
 
-  private ws: WebSocket;
-  private textLog: HTMLSpanElement | null;
-  private fitAddon: FitAddon;
+  private textLog: HTMLSpanElement | undefined;
+  private ws: WebSocket | undefined;
 
   public componentDidMount() {
     const { wsPath } = this.props;
@@ -42,26 +40,14 @@ export default class TextSocket extends React.Component<
 
     this.ws = new WebSocket(`${uri}${wsPath}?jwt_token=${GetToken()}`);
 
-    this.ws.onopen = () => {
-      this.fitAddon = new FitAddon();
-    };
-
     this.ws.onmessage = (e) => {
       const logs = this.state.logs.concat(e.data);
-      try {
-        this.fitAddon.fit();
-      } catch {
-        console.warn(`Unable to fit the logs: ${e}`);
-      }
       this.setState({ logs });
     };
     this.ws.onerror = (_) => {
       this.setState({ error: new Error("WebTextSocket error") });
     };
     this.ws.onclose = (e) => {
-      if (this.fitAddon) {
-        this.fitAddon.dispose();
-      }
       if (!e.wasClean && e.code !== 1000) {
         this.setState({
           error: new Error(`WebTextSocket error: ${e.code} ${e.reason}`),
@@ -80,9 +66,6 @@ export default class TextSocket extends React.Component<
     if (this.ws) {
       this.ws.close();
     }
-    if (this.fitAddon) {
-      this.fitAddon.dispose();
-    }
   }
 
   public render() {
@@ -100,7 +83,7 @@ export default class TextSocket extends React.Component<
     return (
       <>
         <p
-          ref={(textLog) => (this.textLog = textLog)}
+          ref={(textLog) => (this.textLog = textLog as HTMLElement)}
           style={{ height: "100%", overflowX: "scroll" }}
         >
           {logs}

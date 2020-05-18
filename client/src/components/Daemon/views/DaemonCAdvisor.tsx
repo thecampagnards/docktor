@@ -1,9 +1,20 @@
-import * as React from 'react';
-import { Button, Divider, Loader, Message, Progress, Segment, Search, SearchProps, ButtonProps, Grid } from 'semantic-ui-react';
+import * as React from "react";
+import {
+  Button,
+  Divider,
+  Loader,
+  Message,
+  Progress,
+  Segment,
+  Search,
+  SearchProps,
+  ButtonProps,
+  Grid,
+} from "semantic-ui-react";
 
-import { IResources, IFileSystem } from '../../Home/types/home';
-import { fetchCadvisor } from '../actions/daemon';
-import { IDaemon } from '../types/daemon';
+import { IResources, IFileSystem } from "../../Home/types/home";
+import { fetchCadvisor } from "../actions/daemon";
+import { IDaemon } from "../types/daemon";
 
 interface IDaemonCAdvisorProps {
   daemon: IDaemon;
@@ -26,10 +37,10 @@ class DaemonCAdvisor extends React.Component<
     isFetching: true,
     error: Error(),
     groups: [],
-    filterSource: ""
+    filterSource: "",
   };
 
-  private refreshIntervalId: NodeJS.Timeout;
+  private refreshIntervalId: NodeJS.Timeout | undefined;
   private searchFilter = "";
 
   public componentDidMount() {
@@ -38,8 +49,10 @@ class DaemonCAdvisor extends React.Component<
     const fetch = () => {
       fetchCadvisor(daemon._id)
         .then((resources: IResources) => {
-          const groups = this.findProjectFilesystems(resources.fs).sort((a,b) => a.localeCompare(b));
-          this.setState({ resources, error: Error(), groups })
+          const groups = this.findProjectFilesystems(
+            resources.fs
+          ).sort((a, b) => a.localeCompare(b));
+          this.setState({ resources, error: Error(), groups });
         })
         .catch((error: Error) => {
           this.setState({ error });
@@ -54,7 +67,7 @@ class DaemonCAdvisor extends React.Component<
   }
 
   public componentWillUnmount() {
-    clearInterval(this.refreshIntervalId);
+    this.refreshIntervalId && clearInterval(this.refreshIntervalId);
   }
 
   public render() {
@@ -62,9 +75,11 @@ class DaemonCAdvisor extends React.Component<
 
     const { daemon } = this.props;
 
-    const fsFiltered = resources.fs ?
-      resources.fs.filter(fs => fs.device.toLowerCase().includes(this.searchFilter.toLowerCase())) :
-      [];
+    const fsFiltered = resources.fs
+      ? resources.fs.filter((fs) =>
+          fs.device.toLowerCase().includes(this.searchFilter.toLowerCase())
+        )
+      : [];
 
     if (error.message) {
       return (
@@ -118,15 +133,15 @@ class DaemonCAdvisor extends React.Component<
                   name="varlibdocker"
                   onClick={this.filterByButton}
                 />
-              {groups.map(g => (
-                <Button
-                  key={g}
-                  active={g === filterSource}
-                  content={g}
-                  name={g}
-                  onClick={this.filterByButton}
-                />
-              ))}
+                {groups.map((g) => (
+                  <Button
+                    key={g}
+                    active={g === filterSource}
+                    content={g}
+                    name={g}
+                    onClick={this.filterByButton}
+                  />
+                ))}
               </Button.Group>
             </Grid.Column>
             <Grid.Column width={3}>
@@ -170,7 +185,7 @@ class DaemonCAdvisor extends React.Component<
         )}
         {fsFiltered
           .sort((a, b) => a.device.localeCompare(b.device))
-          .map(s => {
+          .map((s) => {
             const capGo = Math.round(s.capacity / 1000000) / 1000;
             const usageGo = Math.round(s.usage / 1000000) / 1000;
             const percent = Math.round((100 * usageGo) / capGo);
@@ -197,7 +212,7 @@ class DaemonCAdvisor extends React.Component<
   ) => {
     this.setState({ filterSource: name });
     this.filter(name);
-  }
+  };
 
   private filterBySearch = (
     event: React.SyntheticEvent,
@@ -209,21 +224,21 @@ class DaemonCAdvisor extends React.Component<
 
   private filter = (text: string) => {
     this.searchFilter = text;
-  }
+  };
 
   private findProjectFilesystems = (filesystems: IFileSystem[]) => {
     const prjRegex = /^\/dev\/mapper\/vstorage-(cdk)?(data)?[_-]*([A-Z0-9_-]+)$/;
     const projects: string[] = [];
-    filesystems.forEach(fs => {
+    filesystems.forEach((fs) => {
       if (prjRegex.test(fs.device)) {
         const match = prjRegex.exec(fs.device);
         if (match != null) {
           projects.push(match[3]);
         }
       }
-    })
+    });
     return projects;
-  }
+  };
 }
 
 export default DaemonCAdvisor;
