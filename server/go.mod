@@ -5,11 +5,12 @@ go 1.13
 replace github.com/docker/docker => github.com/moby/moby v1.4.2-0.20200309214505-aa6a9891b09c
 
 require (
+	github.com/Azure/go-ntlmssp v0.0.0-20200615164410-66371956d46c // indirect
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
 	github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
 	github.com/docker/go-connections v0.4.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
-	github.com/go-ldap/ldap/v3 v3.1.11
+	github.com/go-ldap/ldap/v3 v3.2.0
 	github.com/google/cadvisor v0.36.0
 	github.com/labstack/echo/v4 v4.1.16
 	github.com/labstack/gommon v0.3.0
