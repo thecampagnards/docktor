@@ -52,7 +52,7 @@
     "@types/redux-auth-wrapper": "^2.0.9",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
-    "typescript": "^3.9.5",
+    "typescript": "^3.9.6",
     "react-scripts": "^3.4.1"
   },
   "eslintConfig": {
