@@ -3,7 +3,6 @@ package types
 import (
 	"errors"
 	"strings"
-	"time"
 
 	client "github.com/google/cadvisor/client"
 	v2 "github.com/google/cadvisor/info/v2"
@@ -25,7 +24,7 @@ type FileSystem struct {
 
 // CAdvisorInfo gets usage of resources
 func (d *Daemon) CAdvisorInfo() (*MachineUsage, error) {
-	cli, err := client.NewClientWithTimeout(d.CAdvisor, 3*time.Second)
+	cli, err := client.NewClient(d.CAdvisor)
 	if err != nil {
 		return nil, err
 	}

@@ -5,7 +5,7 @@ matrix:
     # Sonar scan
     - language: go
       go:
-        - "1.13"
+        - "1.14"
       addons:
         sonarcloud:
           organization: "thecampagnards-github"
@@ -15,7 +15,7 @@ matrix:
           - "$GOPATH/pkg/mod"
           - "client/node_modules"
       install:
-        - nvm install 12
+        - nvm install 14
         - git fetch --unshallow --quiet
         - npm link typescript
       script:
