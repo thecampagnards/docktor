@@ -21,6 +21,7 @@ matrix:
       script:
         - cd "$TRAVIS_BUILD_DIR/client"
         - npm install
+        - npm run lint
         - CI=true npm run test
         - cd "$TRAVIS_BUILD_DIR/server"
         - go test ./... -coverprofile="coverage.out"

@@ -21,7 +21,7 @@ class Users extends React.Component<{}, IUsersStates> {
     isFetching: false,
     error: Error()
   };
-  private searchFilter: string = "";
+  private searchFilter = "";
 
   public componentDidMount() {
     fetchUsers()

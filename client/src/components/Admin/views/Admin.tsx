@@ -33,7 +33,7 @@ class Admin extends React.Component<{}, IAdminStates> {
     filename: "",
   };
 
-  public componentDidMount() {
+  public componentDidMount(): void {
     fetchAssets()
       .then((assets) => {
         assets = new Map(Object.entries(assets));
@@ -46,7 +46,7 @@ class Admin extends React.Component<{}, IAdminStates> {
       .catch((error: Error) => this.setState({ error, isFetching: false }));
   }
 
-  public render() {
+  public render(): JSX.Element {
     const { error, isSuccess, isFetching, assets, filename } = this.state;
 
     if (error.message) {

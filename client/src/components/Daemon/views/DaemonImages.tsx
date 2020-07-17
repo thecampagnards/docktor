@@ -72,9 +72,9 @@ class DaemonImages extends React.Component<
               <Table.Cell>
                 {image.RepoTags
                   ? image.RepoTags.map((RepoTag) => (
-                      <>
+                      <span key={RepoTag}>
                         {RepoTag.split(":")[0]}:<b>{RepoTag.split(":")[1]}</b>
-                      </>
+                      </span>
                     ))
                   : image.Id}
               </Table.Cell>

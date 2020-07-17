@@ -1,11 +1,23 @@
-import * as _ from 'lodash';
-import * as React from 'react';
-import { UnControlled as CodeMirror } from 'react-codemirror2';
-import { RouteComponentProps } from 'react-router';
-import { Accordion, Button, Form, Grid, Icon, Loader, Message } from 'semantic-ui-react';
+import * as _ from "lodash";
+import * as React from "react";
+import { UnControlled as CodeMirror } from "react-codemirror2";
+import { RouteComponentProps } from "react-router";
+import {
+  Accordion,
+  Button,
+  Form,
+  Grid,
+  Icon,
+  Loader,
+  Message,
+} from "semantic-ui-react";
 
-import { fetchComposeFileContent, fetchService, saveService } from '../actions/service';
-import { IService, ISubService } from '../types/service';
+import {
+  fetchComposeFileContent,
+  fetchService,
+  saveService,
+} from "../actions/service";
+import { IService, ISubService } from "../types/service";
 
 interface IRouterProps {
   serviceID: string;
@@ -28,7 +40,7 @@ class ServiceForm extends React.Component<
     isSuccess: false,
     isFetching: true,
     openVersions: [] as string[],
-    error: Error()
+    error: Error(),
   };
 
   public componentDidMount() {
@@ -42,19 +54,19 @@ class ServiceForm extends React.Component<
               const file = service.sub_services[key].file;
               if (this.isURL(file)) {
                 fetchComposeFileContent(file).then(
-                  content => (service.sub_services[key].compose = content)
+                  (content) => (service.sub_services[key].compose = content)
                 );
               }
             }
           }
           this.setState({ service });
         })
-        .catch(error => this.setState({ error }))
+        .catch((error) => this.setState({ error }))
         .finally(() => this.setState({ isFetching: false }));
     } else {
       this.setState({
         service: { sub_services: [] as ISubService[] } as IService,
-        isFetching: false
+        isFetching: false,
       });
     }
   }
@@ -125,7 +137,7 @@ class ServiceForm extends React.Component<
               mode: "markdown",
               theme: "material",
               lineNumbers: true,
-              gutters: ["description"]
+              gutters: ["description"],
             }}
             autoCursor={false}
             onChange={this.handleChangeCodeEditor}
@@ -146,102 +158,102 @@ class ServiceForm extends React.Component<
           {service.sub_services &&
             service.sub_services.map((ss, key) => (
               <>
-              <Accordion key={key} styled={true} fluid={true}>
-                <Accordion.Title
-                  active={openVersions.includes(ss._id)}
-                  onClick={this.handleToggleVersion.bind(this, ss._id)}
-                >
-                  <Icon name="dropdown" />
-                  {`${service.name} ${ss.name} (v${ss.version_index})`}
-                </Accordion.Title>
-                <Accordion.Content active={openVersions.includes(ss._id)}>
-                  <Grid>
-                    <Grid.Row>
-                      <Grid.Column width={4}>
-                        <Form.Input
-                          placeholder="Version name"
-                          fluid={true}
-                          value={ss.name}
-                          onChange={this.handleChange}
-                          name={`sub_services.${key}.name`}
-                          required={true}
-                        />
-                      </Grid.Column>
-                      <Grid.Column width={2}>
-                        <Form.Checkbox
-                          width={1}
-                          label="Active"
-                          name={`sub_services.${key}.active`}
-                          defaultChecked={ss.active}
-                          onChange={this.handleChange}
-                        />
-                      </Grid.Column>
-                      <Grid.Column width={3}>
-                        <Form.Input
-                          placeholder="Version index"
-                          fluid={true}
-                          type="number"
-                          name={`sub_services.${key}.version_index`}
-                          value={ss.version_index}
-                          onChange={this.handleChangeIndex}
-                          required={true}
-                        />
-                      </Grid.Column>
-                      <Grid.Column width={3}>
-                        <Form.Input
-                          placeholder="Update index"
-                          fluid={true}
-                          type="number"
-                          name={`sub_services.${key}.update_index`}
-                          value={ss.update_index}
-                          onChange={this.handleChangeIndex}
-                          required={true}
-                        />
-                      </Grid.Column>
-                      <Grid.Column width={4}>
-                        <Button
-                          basic={true}
-                          color="red"
-                          icon="minus"
-                          labelPosition="left"
-                          content="Delete version"
-                          fluid={true}
-                          onClick={this.removeSubService(key)}
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                    <Grid.Row>
-                      <Grid.Column width={16}>
-                        <Form.Input
-                          label="Service file URL"
-                          fluid={true}
-                          value={this.isURL(ss.file) ? ss.file : ""}
-                          onChange={this.handleChange}
-                          name={`sub_services.${key}.file`}
-                        />
-                        <CodeMirror
-                          value={this.isURL(ss.file) ? ss.compose : ss.file}
-                          options={{
-                            mode: "yaml",
-                            theme: "material",
-                            lineNumbers: true,
-                            readOnly: this.isURL(ss.file),
-                            cursorBlinkRate: this.isURL(ss.file) ? -1 : 530,
-                            gutters: [`sub_services.${key}.file`]
-                          }}
-                          autoCursor={false}
-                          onChange={
-                            this.isURL(ss.file)
-                              ? void 0
-                              : this.handleChangeCodeEditor
-                          }
-                        />
-                      </Grid.Column>
-                    </Grid.Row>
-                  </Grid>
-                </Accordion.Content>
-              </Accordion>
-              <br />
+                <Accordion key={key} styled={true} fluid={true}>
+                  <Accordion.Title
+                    active={openVersions.includes(ss._id)}
+                    onClick={this.handleToggleVersion.bind(this, ss._id)}
+                  >
+                    <Icon name="dropdown" />
+                    {`${service.name} ${ss.name} (v${ss.version_index})`}
+                  </Accordion.Title>
+                  <Accordion.Content active={openVersions.includes(ss._id)}>
+                    <Grid>
+                      <Grid.Row>
+                        <Grid.Column width={4}>
+                          <Form.Input
+                            placeholder="Version name"
+                            fluid={true}
+                            value={ss.name}
+                            onChange={this.handleChange}
+                            name={`sub_services.${key}.name`}
+                            required={true}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={2}>
+                          <Form.Checkbox
+                            width={1}
+                            label="Active"
+                            name={`sub_services.${key}.active`}
+                            defaultChecked={ss.active}
+                            onChange={this.handleChange}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                          <Form.Input
+                            placeholder="Version index"
+                            fluid={true}
+                            type="number"
+                            name={`sub_services.${key}.version_index`}
+                            value={ss.version_index}
+                            onChange={this.handleChangeIndex}
+                            required={true}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={3}>
+                          <Form.Input
+                            placeholder="Update index"
+                            fluid={true}
+                            type="number"
+                            name={`sub_services.${key}.update_index`}
+                            value={ss.update_index}
+                            onChange={this.handleChangeIndex}
+                            required={true}
+                          />
+                        </Grid.Column>
+                        <Grid.Column width={4}>
+                          <Button
+                            basic={true}
+                            color="red"
+                            icon="minus"
+                            labelPosition="left"
+                            content="Delete version"
+                            fluid={true}
+                            onClick={this.removeSubService(key)}
+                          />
+                        </Grid.Column>
+                      </Grid.Row>
+                      <Grid.Row>
+                        <Grid.Column width={16}>
+                          <Form.Input
+                            label="Service file URL"
+                            fluid={true}
+                            value={this.isURL(ss.file) ? ss.file : ""}
+                            onChange={this.handleChange}
+                            name={`sub_services.${key}.file`}
+                          />
+                          <CodeMirror
+                            value={this.isURL(ss.file) ? ss.compose : ss.file}
+                            options={{
+                              mode: "yaml",
+                              theme: "material",
+                              lineNumbers: true,
+                              readOnly: this.isURL(ss.file),
+                              cursorBlinkRate: this.isURL(ss.file) ? -1 : 530,
+                              gutters: [`sub_services.${key}.file`],
+                            }}
+                            autoCursor={false}
+                            onChange={
+                              this.isURL(ss.file)
+                                ? void 0
+                                : this.handleChangeCodeEditor
+                            }
+                          />
+                        </Grid.Column>
+                      </Grid.Row>
+                    </Grid>
+                  </Accordion.Content>
+                </Accordion>
+                <br />
               </>
             ))}
           <Button
@@ -278,9 +290,9 @@ class ServiceForm extends React.Component<
   private handleToggleVersion = (versionID: string) => {
     let toggles = this.state.openVersions;
     if (toggles.includes(versionID)) {
-      toggles = toggles.filter(v => v !== versionID)
+      toggles = toggles.filter((v) => v !== versionID);
     } else {
-      toggles.push(versionID)
+      toggles.push(versionID);
     }
     this.setState({ openVersions: toggles });
   };
@@ -299,13 +311,18 @@ class ServiceForm extends React.Component<
     event.preventDefault();
 
     const service = this.state.service;
-    const nextIndex = service.sub_services.length > 0 ? [...service.sub_services].sort((a,b) => b.version_index - a.version_index)[0].version_index + 1 : 1;
+    const nextIndex =
+      service.sub_services.length > 0
+        ? [...service.sub_services].sort(
+            (a, b) => b.version_index - a.version_index
+          )[0].version_index + 1
+        : 1;
     const sub = {
       name: "",
       file: "",
       active: true,
       version_index: nextIndex,
-      update_index: -1
+      update_index: -1,
     } as ISubService;
     service.sub_services
       ? service.sub_services.unshift(sub)
@@ -322,25 +339,20 @@ class ServiceForm extends React.Component<
     }
   }
 
-  private handleChange = (
-    e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
-    { name, value, checked }: any
-  ) => {
+  private handleChange = (e: any, { name, value, checked }: any) => {
     const { service } = this.state;
 
-    // @ts-ignore
     if (e.target.files && e.target.files !== null) {
       const reader = new FileReader();
-      // @ts-ignore
       reader.readAsDataURL(e.target.files[0]);
       reader.onload = () => {
         if (typeof reader.result === "string") {
           this.setState({
-            service: _.set(service, name, reader.result)
+            service: _.set(service, name, reader.result),
           });
         }
       };
-      reader.onerror = error =>
+      reader.onerror = (error) =>
         this.setState({ error: Error("When uploading file : " + error) });
     } else {
       if (name === "tags") {
@@ -354,8 +366,12 @@ class ServiceForm extends React.Component<
     e: React.ChangeEvent<HTMLInputElement> | React.FormEvent<HTMLInputElement>,
     { name, value }: any
   ) => {
-    this.setState({ service: _.update(this.state.service, name, function() {return Number(value)}) })
-  }
+    this.setState({
+      service: _.update(this.state.service, name, function () {
+        return Number(value);
+      }),
+    });
+  };
 
   private handleChangeCodeEditor = (
     editor: CodeMirror.Editor,
@@ -363,7 +379,11 @@ class ServiceForm extends React.Component<
     value: string
   ) => {
     this.setState({
-      service: _.set(this.state.service, editor.getOption("gutters")![0], value)
+      service: _.set(
+        this.state.service,
+        editor.getOption("gutters")![0],
+        value
+      ),
     });
   };
 
@@ -372,15 +392,15 @@ class ServiceForm extends React.Component<
 
     this.setState({ isFetching: true });
     saveService(this.state.service)
-      .then(service =>
+      .then((service) =>
         this.setState({
           service,
           isSuccess: true,
           isFetching: false,
-          error: Error()
+          error: Error(),
         })
       )
-      .catch(error => this.setState({ error, isFetching: false }));
+      .catch((error) => this.setState({ error, isFetching: false }));
   };
 }
 

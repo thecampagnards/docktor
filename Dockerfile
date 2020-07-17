@@ -4,6 +4,7 @@ WORKDIR /npm/docktor
 COPY client .
 
 RUN npm install \
+  && npm run lint \
   && CI=true npm test \
   && npm run build
 
