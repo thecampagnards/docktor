@@ -52,7 +52,7 @@
     "@types/react-router-dom": "^5.1.5",
     "@types/redux-auth-wrapper": "^2.0.9",
     "@typescript-eslint/eslint-plugin": "^3.7.1",
-    "@typescript-eslint/parser": "^3.7.0",
+    "@typescript-eslint/parser": "^3.7.1",
     "eslint-plugin-react": "^7.20.4",
     "lint-staged": "^10.2.11",
     "prettier": "^2.0.5",
