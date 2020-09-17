@@ -42,7 +42,7 @@
   },
   "devDependencies": {
     "@types/codemirror": "^0.0.98",
-    "@types/jest": "^26.0.13",
+    "@types/jest": "^26.0.14",
     "@types/jwt-decode": "^2.2.1",
     "@types/lodash": "^4.14.161",
     "@types/node": "^14.10.2",
