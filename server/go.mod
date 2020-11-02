@@ -9,7 +9,7 @@ require (
 	github.com/docker/docker v0.7.3-0.20190327010347-be7ac8be2ae0
 	github.com/docker/go-connections v0.4.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
-	github.com/go-ldap/ldap/v3 v3.2.3
+	github.com/go-ldap/ldap/v3 v3.2.4
 	github.com/google/cadvisor v0.37.0
 	github.com/labstack/echo/v4 v4.1.17
 	github.com/labstack/gommon v0.3.0
