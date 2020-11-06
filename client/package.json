@@ -7,7 +7,7 @@
     "chalk": "^4.1.0",
     "codemirror": "^5.58.2",
     "http-status-codes": "^2.1.4",
-    "jwt-decode": "^3.0.0",
+    "jwt-decode": "^3.1.1",
     "lodash": "^4.17.20",
     "react": "^16.14.0",
     "react-codemirror2": "^7.2.1",
