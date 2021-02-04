@@ -56,7 +56,7 @@
     "eslint-plugin-react": "^7.22.0",
     "lint-staged": "^10.5.3",
     "prettier": "^2.2.1",
-    "react-scripts": "^4.0.1",
+    "react-scripts": "^4.0.2",
     "typescript": "^4.1.3",
     "rekcod": "^3.0.0"
   },
