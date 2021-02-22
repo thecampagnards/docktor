@@ -5,7 +5,7 @@
   "proxy": "http://localhost:8080/",
   "dependencies": {
     "chalk": "^4.1.0",
-    "codemirror": "^5.59.2",
+    "codemirror": "^5.59.3",
     "http-status-codes": "^2.1.4",
     "jwt-decode": "^3.1.2",
     "lodash": "^4.17.20",
