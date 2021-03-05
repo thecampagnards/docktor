@@ -57,7 +57,7 @@
     "lint-staged": "^10.5.4",
     "prettier": "^2.2.1",
     "react-scripts": "^4.0.3",
-    "typescript": "^4.2.2",
+    "typescript": "^4.2.3",
     "rekcod": "^3.0.0"
   },
   "eslintConfig": {
