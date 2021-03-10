@@ -6,7 +6,7 @@ replace github.com/docker/docker => github.com/moby/moby v1.4.2-0.20200309214505
 
 require (
 	github.com/dgrijalva/jwt-go v3.2.0+incompatible
-	github.com/docker/docker v20.10.2+incompatible
+	github.com/docker/docker v20.10.5+incompatible
 	github.com/docker/go-connections v0.4.0
 	github.com/globalsign/mgo v0.0.0-20181015135952-eeefdecb41b8
 	github.com/go-ldap/ldap/v3 v3.2.4
