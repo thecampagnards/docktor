@@ -1,0 +1,34 @@
+version: 2
+registries:
+  git-gitlab-com:
+    type: git
+    url: https://gitlab.com
+    username: thecampagnards
+    password: "${{secrets.GIT_GITLAB_COM_PASSWORD}}"
+
+updates:
+- package-ecosystem: npm
+  directory: "/client"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: "@types/node"
+    versions:
+    - 15.0.0
+  registries:
+  - git-gitlab-com
+- package-ecosystem: docker
+  directory: "/"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  registries:
+  - git-gitlab-com
+- package-ecosystem: gomod
+  directory: "/server"
+  schedule:
+    interval: daily
+  open-pull-requests-limit: 10
+  registries:
+  - git-gitlab-com
